@@ -1,7 +1,7 @@
 {
- "version": "2.0.0",
- "built_at": "2026-11-10T09:12:20Z",
- "notes": "- Tự cập nhật trong app: Cài đặt → Cập nhật (tải từ GitHub, kiểm tra mã từng file, tự chờ hết video đang đăng, quay lại bản trước được).\n- Giao diện mới: sáng/tối, 7 mẫu nền, kiểu khung kính mờ/trong suốt/mặc định.\n- Tổng hợp theo ngày theo kênh và sản phẩm.\n- Ảnh bìa đúng màu cho video iPhone, ảnh bìa mặc định theo sản phẩm.",
+ "version": "2.0.1",
+ "built_at": "2026-11-10T09:24:32Z",
+ "notes": "- Hiện số phiên bản ở thanh bên dưới tên app.\n- Bản thử nút Cập nhật.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "bfccaf9845ea086a43e55c042be048abd72cd0f193ec19649ba7595ea1f3686e",
-   "size": 478
+   "sha256": "efba78ee0fdcfc8928fe7c34575d9f1c6a4fb40d01dc934146518aabd007580f",
+   "size": 581
   },
   {
    "path": "HUONG_DAN.md",
@@ -55,13 +55,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "c28fcca53637bc88e124af1725df13cb98c69dedefd62fb3cdbe1cdb6b760624",
+   "sha256": "fe840f52fb5578d3f77eb497115eb02c6036601c3a53e60df7995c7276baa77a",
    "size": 6
   },
   {
    "path": "app.py",
-   "sha256": "fd123f51a65924f41c1916c4a265fe6b1f4842fa4c652a209bf38cb8e9fae66f",
-   "size": 100329
+   "sha256": "0435440f1da0f238098b1e539aa0fbff188e11cb667cbf382eb9ea243c7f4bfb",
+   "size": 100383
   },
   {
    "path": "assets/sonix.ico",

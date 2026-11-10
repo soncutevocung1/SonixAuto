@@ -373,6 +373,7 @@ def save_ui(field, wkey):
 
 with st.sidebar:
     st.markdown(ui.brand_html(ui.avatar_uri()), unsafe_allow_html=True)
+    st.caption(f"Phiên bản {upd.local_version()}")
     _alive = runner_alive()
     st.markdown(ui.pill_html(_alive), unsafe_allow_html=True)
     if not _alive:
