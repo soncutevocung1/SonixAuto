@@ -23,7 +23,7 @@ from pathlib import Path
 
 from .config import BASE_DIR, DATA_DIR, HEARTBEAT_FILE
 
-DEFAULT_REPO = "soncutevocung1/sonixdangvideo"
+DEFAULT_REPO = "soncutevocung1/SonixDangVideo"
 CHANNELS = {"main": "Ổn định", "thu-nghiem": "Thử nghiệm"}
 VERSION_FILE = BASE_DIR / "VERSION"
 ROOT = DATA_DIR / "capnhat"
@@ -31,7 +31,7 @@ STAGE = ROOT / "tai_ve"
 BACKUP = ROOT / "sao_luu"
 CURRENT = ROOT / "manifest_dang_dung.json"
 JOURNAL = ROOT / "nhat_ky.json"
-SKIP_DIRS = {"data", ".venv", "static", "patches", "__pycache__", ".git", ".github"}
+SKIP_DIRS = {"data", ".venv", "python", "static", "patches", "__pycache__", ".git", ".github", "installer", "build", "dist"}
 SKIP_FILES = {"manifest.json"}
 
 

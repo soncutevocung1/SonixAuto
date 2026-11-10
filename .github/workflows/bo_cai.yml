@@ -1,0 +1,81 @@
+# Dựng bộ cài SonixDangVideo_Setup_x.y.z.exe trên máy Windows của GitHub.
+# Chạy khi đẩy thẻ v* (vd v2.0.3) hoặc bấm tay ở tab Actions. File .exe nằm ở mục Releases.
+name: Bo cai Windows
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Phien ban
+        shell: pwsh
+        run: |
+          $v = (Get-Content VERSION -Raw).Trim()
+          "VER=$v" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Phien ban $v"
+
+      - name: Chuan bi ma nguon
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory build\app -Force | Out-Null
+          $skip = '^(\.git|\.github|installer|build|dist|data|\.venv|static|patches)(\\|$)'
+          Get-ChildItem -Recurse -File | ForEach-Object {
+            $rel = $_.FullName.Substring((Get-Location).Path.Length + 1)
+            if ($rel -notmatch $skip -and $rel -notmatch '__pycache__' -and $_.Extension -ne '.zip') {
+              $dst = Join-Path build\app $rel
+              New-Item -ItemType Directory (Split-Path $dst) -Force | Out-Null
+              Copy-Item $_.FullName $dst
+            }
+          }
+          Get-ChildItem build\app -Name
+
+      - name: Python 3.12 kem san
+        shell: pwsh
+        run: |
+          nuget install python -Version 3.12.10 -OutputDirectory pkg -NonInteractive
+          Move-Item pkg\python.3.12.10\tools build\python
+          if (-not (Test-Path build\python\pythonw.exe)) { throw "Thieu pythonw.exe" }
+          build\python\python.exe -m ensurepip --upgrade
+          build\python\python.exe -m pip install --upgrade pip --no-warn-script-location
+          build\python\python.exe -m pip install -r requirements.txt --no-warn-script-location
+          build\python\python.exe -c "import streamlit, playwright, anthropic, faster_whisper, imageio_ffmpeg; print('thu vien OK')"
+          Get-ChildItem build\python -Recurse -Directory -Filter __pycache__ | Remove-Item -Recurse -Force
+
+      - name: Thu chay tool
+        shell: pwsh
+        run: |
+          Set-Location build\app
+          ..\python\python.exe -c "import sys; sys.path.insert(0,'.'); import core.updater, core.stats, core.ui; print('ma nguon OK', core.updater.local_version())"
+          Remove-Item -Recurse -Force data -ErrorAction SilentlyContinue
+          Get-ChildItem -Recurse -Directory -Filter __pycache__ | Remove-Item -Recurse -Force
+
+      - name: Inno Setup
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress | Out-Null }
+          & $iscc "/DMyVersion=$env:VER" installer\SonixDangVideo.iss
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup loi" }
+          Get-ChildItem dist | Format-Table Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SonixDangVideo_Setup_${{ env.VER }}
+          path: dist/*.exe
+
+      - name: Dua len Releases
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.exe
+          name: Sonix Đăng Video ${{ env.VER }}
+          body_path: GHI_CHU_PHIEN_BAN.md

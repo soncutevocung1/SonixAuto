@@ -1,5 +1,9 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.0.3
+- Có bộ cài SonixDangVideo_Setup.exe: mang sẵn Python và thư viện, cài trên máy mới chỉ cần bấm Tiếp.
+- Cài đè bản cũ không mất dữ liệu (đăng nhập kênh, hàng chờ, khoá AI).
+
 ## 2.0.2
 - Sửa lỗi: cập nhật xong tool tắt nhưng không tự bật lại.
 

@@ -6,7 +6,7 @@ from pathlib import Path
 
 base = Path(__file__).resolve().parent
 out = base.parent / f"SonixDangVideo_{datetime.now():%Y%m%d}.zip"
-SKIP_DIRS = {".venv", "data", "__pycache__", ".git", "patches", "static"}  # static: ảnh nền riêng của bác
+SKIP_DIRS = {".venv", "python", "build", "dist", "data", "__pycache__", ".git", "patches", "static"}  # static: ảnh nền riêng của bác
 with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
     for p in base.rglob("*"):
         rel = p.relative_to(base)

@@ -1,7 +1,7 @@
 {
- "version": "2.0.2",
- "built_at": "2026-11-10T09:28:48Z",
- "notes": "- Sửa lỗi: cập nhật xong tool tắt nhưng không tự bật lại.",
+ "version": "2.0.3",
+ "built_at": "2026-11-10T13:14:28Z",
+ "notes": "- Có bộ cài SonixDangVideo_Setup.exe: mang sẵn Python và thư viện, cài trên máy mới chỉ cần bấm Tiếp.\n- Cài đè bản cũ không mất dữ liệu (đăng nhập kênh, hàng chờ, khoá AI).",
  "files": [
   {
    "path": ".gitattributes",
@@ -10,8 +10,8 @@
   },
   {
    "path": ".gitignore",
-   "sha256": "22ec5c828dac2512eff0f100a4363f62b366bf1211d2edf86a8eaf958466b331",
-   "size": 61
+   "sha256": "4bb12fdd851b2cbcec343110f4b723fa031f7683accc723e7031af9a07d62a4f",
+   "size": 82
   },
   {
    "path": ".streamlit/config.toml",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "46f47e390600fd77d989a54d4ad4e9a1124cc57895e586116a451af178e0b98a",
-   "size": 667
+   "sha256": "230fc0392735ed75de6d9a887dd91c6a5fdd003d264b8846cd954b6a4f3413d0",
+   "size": 895
   },
   {
    "path": "HUONG_DAN.md",
@@ -55,7 +55,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "b4b16faea52dc04ccfe32f7b342094855923ebf599a3cac1940470a2d6d7c261",
+   "sha256": "be695fc8092ad3706d7d7d3b5104e1eaf8fe69666e5958e375c9952a06fa9514",
    "size": 6
   },
   {
@@ -150,8 +150,8 @@
   },
   {
    "path": "core/updater.py",
-   "sha256": "812ad6f3ab6bfd5bacefb181acee796177ddb18fc0e0ae873c104502f3e45a2a",
-   "size": 11713
+   "sha256": "b6423abab19e8cf0fb9678e315101e3fee63d8d08daf58a7fff30bf26b86003c",
+   "size": 11753
   },
   {
    "path": "core/video_utils.py",
@@ -165,8 +165,8 @@
   },
   {
    "path": "dong_goi.py",
-   "sha256": "22808a4820859cc8840fc5aaa1c728bd8205de0c99034298b6e5331f103b499f",
-   "size": 861
+   "sha256": "e25425b69091e751d78606e5d6a4f68f94e01c8c6521c4bd5c6f2ce1144fc999",
+   "size": 888
   },
   {
    "path": "mo_tool_mac.sh",

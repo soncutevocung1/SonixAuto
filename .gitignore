@@ -6,3 +6,6 @@ __pycache__/
 *.pyc
 *.zip
 *.moi
+build/
+dist/
+python/
