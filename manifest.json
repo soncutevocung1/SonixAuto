@@ -1,7 +1,7 @@
 {
- "version": "2.0.1",
- "built_at": "2026-11-10T09:24:32Z",
- "notes": "- Hiện số phiên bản ở thanh bên dưới tên app.\n- Bản thử nút Cập nhật.",
+ "version": "2.0.2",
+ "built_at": "2026-11-10T09:28:48Z",
+ "notes": "- Sửa lỗi: cập nhật xong tool tắt nhưng không tự bật lại.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "efba78ee0fdcfc8928fe7c34575d9f1c6a4fb40d01dc934146518aabd007580f",
-   "size": 581
+   "sha256": "46f47e390600fd77d989a54d4ad4e9a1124cc57895e586116a451af178e0b98a",
+   "size": 667
   },
   {
    "path": "HUONG_DAN.md",
@@ -55,7 +55,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "fe840f52fb5578d3f77eb497115eb02c6036601c3a53e60df7995c7276baa77a",
+   "sha256": "b4b16faea52dc04ccfe32f7b342094855923ebf599a3cac1940470a2d6d7c261",
    "size": 6
   },
   {
@@ -150,8 +150,8 @@
   },
   {
    "path": "core/updater.py",
-   "sha256": "09e0eba1ab0de5d5d7720f5b6480b2b7b0475f5853635602795d936822348344",
-   "size": 11576
+   "sha256": "812ad6f3ab6bfd5bacefb181acee796177ddb18fc0e0ae873c104502f3e45a2a",
+   "size": 11713
   },
   {
    "path": "core/video_utils.py",

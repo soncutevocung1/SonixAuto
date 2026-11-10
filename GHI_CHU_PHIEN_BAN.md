@@ -1,5 +1,8 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.0.2
+- Sửa lỗi: cập nhật xong tool tắt nhưng không tự bật lại.
+
 ## 2.0.1
 - Hiện số phiên bản ở thanh bên dưới tên app.
 - Bản thử nút Cập nhật.

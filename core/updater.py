@@ -247,12 +247,14 @@ def _helper(ui_pid: int, pip: bool):
                            capture_output=True, text=True, creationflags=0x08000000 if sys.platform == "win32" else 0)
         say(f"Cài thư viện: mã {r.returncode} {r.stderr[-300:]}")
     if sys.platform == "win32":
-        subprocess.run(["taskkill", "/PID", str(ui_pid), "/T", "/F"], capture_output=True, creationflags=0x08000000)
+        # Không dùng /T: tiến trình này là con của giao diện, /T sẽ tắt luôn chính nó.
+        subprocess.run(["taskkill", "/PID", str(ui_pid), "/F"], capture_output=True, creationflags=0x08000000)
     else:
         try:
             os.kill(ui_pid, 15)
         except Exception:
             pass
+    say("Đã tắt giao diện cũ")
     time.sleep(3)
     (DATA_DIR / "stop_runner.flag").unlink(missing_ok=True)
     pyw = BASE_DIR / "SonixDangVideo.pyw"
