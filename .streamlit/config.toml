@@ -1,0 +1,35 @@
+[server]
+headless = true
+port = 8501
+maxUploadSize = 50
+enableStaticServing = true
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
+
+[theme]
+font = "Be Vietnam Pro:https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap, sans-serif"
+headingFont = "Montserrat:https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap, sans-serif"
+headingFontWeights = [900, 800, 700, 700, 600, 600]
+baseRadius = "0.85rem"
+buttonRadius = "0.8rem"
+showWidgetBorder = true
+
+[theme.light]
+primaryColor = "#4f46e5"
+backgroundColor = "#f4f5fb"
+secondaryBackgroundColor = "#eceefa"
+textColor = "#151629"
+borderColor = "#d8dbef"
+linkColor = "#4338ca"
+
+[theme.dark]
+primaryColor = "#8b7cff"
+backgroundColor = "#0b0b14"
+secondaryBackgroundColor = "#171832"
+textColor = "#eef0ff"
+borderColor = "#2c2e52"
+linkColor = "#a5b4fc"

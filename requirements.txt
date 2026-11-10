@@ -1,0 +1,7 @@
+streamlit>=1.50
+playwright>=1.48
+anthropic>=2.6
+requests>=2.31
+imageio-ffmpeg>=0.5
+pandas>=2.0
+faster-whisper>=1.1  # nghe lời nói trong âm thanh Yêu thích để gắn sản phẩm (chạy trên máy)

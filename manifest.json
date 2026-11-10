@@ -1,0 +1,192 @@
+{
+ "version": "2.0.0",
+ "built_at": "2026-11-10T09:12:20Z",
+ "notes": "- Tự cập nhật trong app: Cài đặt → Cập nhật (tải từ GitHub, kiểm tra mã từng file, tự chờ hết video đang đăng, quay lại bản trước được).\n- Giao diện mới: sáng/tối, 7 mẫu nền, kiểu khung kính mờ/trong suốt/mặc định.\n- Tổng hợp theo ngày theo kênh và sản phẩm.\n- Ảnh bìa đúng màu cho video iPhone, ảnh bìa mặc định theo sản phẩm.",
+ "files": [
+  {
+   "path": ".gitattributes",
+   "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+   "size": 8
+  },
+  {
+   "path": ".gitignore",
+   "sha256": "22ec5c828dac2512eff0f100a4363f62b366bf1211d2edf86a8eaf958466b331",
+   "size": 61
+  },
+  {
+   "path": ".streamlit/config.toml",
+   "sha256": "fa10fcaeee29277e12fbdcae672b0976be626ec6ed3c5aa6a2d9130e459fc0b6",
+   "size": 912
+  },
+  {
+   "path": "1_CAI_DAT.bat",
+   "sha256": "6de24e243c2c5263b4b12a8b17942603689a367f61d124309d44f13e334cdf4e",
+   "size": 1471
+  },
+  {
+   "path": "2_MO_SonixDangVideo.bat",
+   "sha256": "c1a6b624aa3e119fcf7486961550019be5466c7d9dff8643010ac0fd6b996df3",
+   "size": 200
+  },
+  {
+   "path": "3_DONG_GOI_CHIA_SE.bat",
+   "sha256": "990f2cce408d7752028acfa366ab6c7fa2cd6123508f9b3ba534e3a777729eb5",
+   "size": 154
+  },
+  {
+   "path": "4_TAO_BIEU_TUONG_APP.bat",
+   "sha256": "fa550e41fa48cbfed0f663c7adce16b8e3708f1e31c554e5e8587e863599b810",
+   "size": 423
+  },
+  {
+   "path": "GHI_CHU_PHIEN_BAN.md",
+   "sha256": "bfccaf9845ea086a43e55c042be048abd72cd0f193ec19649ba7595ea1f3686e",
+   "size": 478
+  },
+  {
+   "path": "HUONG_DAN.md",
+   "sha256": "b44c1f88b28127c5feabf0661a8befb1e4206c9e0a7ced83fb103a0ba5842c1a",
+   "size": 17005
+  },
+  {
+   "path": "SonixDangVideo.pyw",
+   "sha256": "68e1e98f8ca0ff3bb4955e4770a1c2d2aa187d022294f1076a115d9de25052a9",
+   "size": 2274
+  },
+  {
+   "path": "VERSION",
+   "sha256": "c28fcca53637bc88e124af1725df13cb98c69dedefd62fb3cdbe1cdb6b760624",
+   "size": 6
+  },
+  {
+   "path": "app.py",
+   "sha256": "fd123f51a65924f41c1916c4a265fe6b1f4842fa4c652a209bf38cb8e9fae66f",
+   "size": 100329
+  },
+  {
+   "path": "assets/sonix.ico",
+   "sha256": "fc1f39e37e5be94f62f812c14f753d20f10954d09426d00d3ad59e2763b35b2c",
+   "size": 30073
+  },
+  {
+   "path": "cai_dat_mac.sh",
+   "sha256": "be809b745ceef2d611ffa45738734fcd2b02186c34c0136c261c24ed4c303049",
+   "size": 358
+  },
+  {
+   "path": "core/__init__.py",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "size": 0
+  },
+  {
+   "path": "core/analyze.py",
+   "sha256": "d04602ef5aaaead9172221ac8d3af1beebf8e77d3057faa239c830906b350043",
+   "size": 16681
+  },
+  {
+   "path": "core/caption.py",
+   "sha256": "ec5056168dcebe7629a4e578b4cd260488805762b8d3bea74dc67adec1db188f",
+   "size": 5289
+  },
+  {
+   "path": "core/channels.py",
+   "sha256": "6db1ad89b22e81dea8fb48f9bfb16ae8c5c2da43e91429b1f49f59522e02d872",
+   "size": 2255
+  },
+  {
+   "path": "core/config.py",
+   "sha256": "749de7816a5215aeeda5e0238bbfa47ffbf953a04715d60a7d6d6e83f55b268f",
+   "size": 8527
+  },
+  {
+   "path": "core/covers.py",
+   "sha256": "b382ed53c575131fbe54cc9406eaba8fb48348b552a59cd992f290f0c8fe7476",
+   "size": 6362
+  },
+  {
+   "path": "core/db.py",
+   "sha256": "aa22e77f98af25b4a3f31dd0064b20bacf86e166c8c4d3ac8145bde58ede62e5",
+   "size": 6763
+  },
+  {
+   "path": "core/desktop.py",
+   "sha256": "6ebe84198b966b41a763ccd6202d7534c6c9362eb9c54511277f730fbb5efde7",
+   "size": 8320
+  },
+  {
+   "path": "core/facebook.py",
+   "sha256": "5eec34eb6ea397e6955837c93cebe76fb8daf443ab1e0c2310e7badc6eac4f71",
+   "size": 4806
+  },
+  {
+   "path": "core/products.py",
+   "sha256": "31ce300f1ce7120e02bd47b621af60c3a39e0ba6427485ffa486118ebbc536c3",
+   "size": 3821
+  },
+  {
+   "path": "core/schedule.py",
+   "sha256": "c376aba6f1201f8e37f65101ac73bf8462b6c81b0129b47f8a5218477ae1723d",
+   "size": 2407
+  },
+  {
+   "path": "core/sounds.py",
+   "sha256": "aebfecb565c284b20acb07e65ef1a7703cd4c5e21d0d9663ef5725ca3edbb7ac",
+   "size": 10942
+  },
+  {
+   "path": "core/stats.py",
+   "sha256": "dccd3b636b4da11e1e54602f37f1d195f8eb19901d0409e22201298cba8710c0",
+   "size": 4149
+  },
+  {
+   "path": "core/tiktok.py",
+   "sha256": "bd259039e3565a26c404d02fac24caa7833495f02fd51884d8c4a9a9e418908b",
+   "size": 67526
+  },
+  {
+   "path": "core/ui.py",
+   "sha256": "b4fb0b5918624344dcebf6ebcdef07dd8d84e53a7dcc118822c47c1cd578e660",
+   "size": 13354
+  },
+  {
+   "path": "core/updater.py",
+   "sha256": "09e0eba1ab0de5d5d7720f5b6480b2b7b0475f5853635602795d936822348344",
+   "size": 11576
+  },
+  {
+   "path": "core/video_utils.py",
+   "sha256": "6a5b02da9ce6248a9d7f3c734a4b97b87b63d382d5d7a3609cd7799576bf5d44",
+   "size": 8032
+  },
+  {
+   "path": "core/worker.py",
+   "sha256": "702339c9e348443bc0c8716432ffdfbbf312f9c03358c46ac9406612ec3d8ef6",
+   "size": 5637
+  },
+  {
+   "path": "dong_goi.py",
+   "sha256": "22808a4820859cc8840fc5aaa1c728bd8205de0c99034298b6e5331f103b499f",
+   "size": 861
+  },
+  {
+   "path": "mo_tool_mac.sh",
+   "sha256": "cca941d7dc0f9085e074de3fcedfa45b19a14debc919921b1854e0643f89f93e",
+   "size": 248
+  },
+  {
+   "path": "requirements.txt",
+   "sha256": "d342e09e089f0c71b3e2fb9353b1cf7494c698c24c276c857e5d97e5fd4d3723",
+   "size": 207
+  },
+  {
+   "path": "runner.py",
+   "sha256": "1e62e8a967c8460171f39fcae79cf7b83401743f1f7a9013828e00ab9ec14da7",
+   "size": 12704
+  },
+  {
+   "path": "tao_manifest.py",
+   "sha256": "d022204bdafedf0cf957f12983c073ce295d6906f2e3bf4fcc184426b7c64d8a",
+   "size": 1211
+  }
+ ]
+}
