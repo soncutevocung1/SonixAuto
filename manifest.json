@@ -1,6 +1,6 @@
 {
- "version": "2.0.3",
- "built_at": "2026-11-10T13:14:28Z",
+ "version": "2.0.4",
+ "built_at": "2026-11-10T13:15:03Z",
  "notes": "- Có bộ cài SonixDangVideo_Setup.exe: mang sẵn Python và thư viện, cài trên máy mới chỉ cần bấm Tiếp.\n- Cài đè bản cũ không mất dữ liệu (đăng nhập kênh, hàng chờ, khoá AI).",
  "files": [
   {
@@ -40,7 +40,7 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "230fc0392735ed75de6d9a887dd91c6a5fdd003d264b8846cd954b6a4f3413d0",
+   "sha256": "7464f065efba4b4b6c23a9fe4601f8ed098c9323461ee078bca83f4f03e70536",
    "size": 895
   },
   {
@@ -55,7 +55,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "be695fc8092ad3706d7d7d3b5104e1eaf8fe69666e5958e375c9952a06fa9514",
+   "sha256": "137f467241023dadfa605db00e630b25a9394d0fc7232718812983ba24b93945",
    "size": 6
   },
   {

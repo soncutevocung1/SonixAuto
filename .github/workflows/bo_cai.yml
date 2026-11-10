@@ -1,10 +1,12 @@
 # Dựng bộ cài SonixDangVideo_Setup_x.y.z.exe trên máy Windows của GitHub.
-# Chạy khi đẩy thẻ v* (vd v2.0.3) hoặc bấm tay ở tab Actions. File .exe nằm ở mục Releases.
+# Chạy khi file VERSION trên nhánh main đổi (= có phiên bản mới) hoặc bấm tay ở tab Actions.
+# File .exe nằm ở mục Releases của kho.
 name: Bo cai Windows
 
 on:
   push:
-    tags: ["v*"]
+    branches: [main]
+    paths: [VERSION]
   workflow_dispatch:
 
 permissions:
@@ -73,9 +75,10 @@ jobs:
           path: dist/*.exe
 
       - name: Dua len Releases
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ env.VER }}
+          target_commitish: ${{ github.sha }}
           files: dist/*.exe
           name: Sonix Đăng Video ${{ env.VER }}
           body_path: GHI_CHU_PHIEN_BAN.md
