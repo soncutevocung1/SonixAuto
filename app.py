@@ -42,6 +42,9 @@ db.init_db()
 stats.init()
 worker.start()  # luồng phân tích ngầm
 S = load_settings()
+if not S.get("_mig_headless"):  # bản 2.4: đăng chạy ẩn mặc định (bật hiện trình duyệt ở tab Hàng chờ khi cần)
+    S["tt_headless"], S["_mig_headless"] = True, 1
+    save_settings(S)
 st.markdown(ui.css(S, getattr(getattr(st.context, "theme", None), "type", None)), unsafe_allow_html=True)
 FMT = db.TIME_FMT
 VIS = {"public": "Mọi người", "friends": "Bạn bè", "private": "Chỉ mình tôi (đăng thử)"}
@@ -1039,54 +1042,8 @@ with tabs[1]:
 
 # =============================== HÀNG CHỜ ===============================
 with tabs[2]:
-    f1, f2 = st.columns([4, 1])
-    show_st = f1.multiselect("Lọc trạng thái", list(db.STATUS_LABELS), format_func=db.STATUS_LABELS.get,
-                             default=["pending", "running", "scheduled", "error", "check", "paused", "scheduled_fb"])
-    if f2.button("Làm mới"):
-        st.rerun()
-    jobs_q = [j for j in db.list_jobs(show_st) if j["status"] != "draft" or "draft" in show_st]
-    if not jobs_q:
-        st.info("Không có gì trong hàng chờ.")
-    else:
-        df = pd.DataFrame([{
-            "Chọn": False, "ID": j["id"], "Trạng thái": db.STATUS_LABELS.get(j["status"], j["status"]),
-            "Nền tảng": "TikTok" if j["platform"] == "tiktok" else "Facebook", "Kênh": j["channel"],
-            "Video": Path(j["video_path"]).name, "Giờ đăng": j["scheduled_at"],
-            "Giỏ hàng": (j["cart_name"] + f" ({len(j['products'])})") if j["products"] else "—",
-            "Kết quả": j["result"]} for j in jobs_q])
-        ed = st.data_editor(df, hide_index=True, width="stretch", key="q_ed",
-                            disabled=[c for c in df.columns if c != "Chọn"])
-        sel = [int(i) for i in ed[ed["Chọn"]]["ID"].tolist()]
-        a = st.columns(5)
-        if a[0].button("Đăng ngay", disabled=not sel):
-            for i in sel:
-                db.update_job(i, status="pending", scheduled_at=datetime.now().strftime(FMT))
-            st.rerun()
-        if a[1].button("Tạm dừng", disabled=not sel):
-            for i in sel:
-                db.update_job(i, status="paused")
-            st.rerun()
-        if a[2].button("Cho chạy lại", disabled=not sel, help="Video lỗi được chuyển lại về CHƯA UP"):
-            for i in sel:
-                j = db.get_job(i)
-                if j["platform"] == "tiktok" and FOLDER_ERR in j["video_path"]:
-                    new = chs.move_to(j["video_path"], ROOT, j["channel"], FOLDER_TODO)
-                    note = Path(j["video_path"]).with_suffix(".LOI.txt")
-                    if note.exists():
-                        note.unlink()
-                    db.rename_video_path(j["video_path"], new)
-                db.update_job(i, status="pending", result="")
-            st.rerun()
-        if a[3].button("Đưa về Duyệt", disabled=not sel):
-            for i in sel:
-                if db.get_job(i)["status"] in ("pending", "paused", "error"):
-                    db.update_job(i, status="draft")
-            st.rerun()
-        if a[4].button("Xoá", disabled=not sel):
-            db.delete_jobs(sel)
-            st.rerun()
-        st.caption("Cần kiểm tra: tool đã bấm đăng nhưng chưa thấy TikTok xác nhận → bác mở kênh xem. "
-                   "Lỗi: video đã chuyển vào VIDEO LỖI kèm file .LOI.txt ghi lý do.")
+    from core import queue_ui
+    queue_ui.render(S, ROOT)
 
 # =============================== KÊNH & SẢN PHẨM ===============================
 with tabs[3]:

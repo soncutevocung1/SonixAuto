@@ -84,7 +84,7 @@ DEFAULTS = {
              "golden_first": True, "golden_per_slot": 1},
     "tt_confirm_before_post": False,  # True = dừng trên TikTok cho người dùng xem lại trước khi bấm Đăng
     "tt_ask_on_fail": True,           # bước nào tool không làm được -> nhờ người dùng làm tay
-    "tt_headless": False,
+    "tt_headless": True,                  # đăng chạy ẩn (bật hiện trình duyệt ở tab Hàng chờ khi cần xem lỗi)
     "tt_max_ahead_days": 10,          # TikTok cho hẹn giờ tối đa ~10 ngày
     "tt_gap_seconds": [10, 25],       # nghỉ giữa 2 lần tải video lên (giây)
     "tt_fast": True,                  # đăng nhanh: rút ngắn thời gian chờ giữa các bước

@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 os.environ.setdefault("PYTHONUTF8", "1")
 
 from core import channels as chs  # noqa: E402
-from core import db, facebook, fbq, sounds, stats, tiktok  # noqa: E402
+from core import db, facebook, fbq, progress, sounds, stats, tiktok  # noqa: E402
 from core.caption import build_text  # noqa: E402
 from core.config import (DATA_DIR, FOLDER_DONE, FOLDER_ERR, FOLDER_TODO, HEARTBEAT_FILE, RUNNER_LOG, WORK_DIR,  # noqa: E402
                          ensure_dirs, get_channel, load_settings, save_settings, slug)
@@ -34,7 +34,13 @@ except Exception:
     pass
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(message)s", datefmt="%d/%m %H:%M:%S",
                     handlers=[logging.FileHandler(RUNNER_LOG, encoding="utf-8"), logging.StreamHandler(sys.stdout)])
-log = logging.getLogger("sonix").info
+_info = logging.getLogger("sonix").info
+
+
+def log(msg):
+    """Ghi nhật ký + cập nhật tiến độ cho tab Hàng chờ."""
+    _info(msg)
+    progress.on_log(str(msg))
 
 BLOCK_DIR = DATA_DIR / "blocked"
 
