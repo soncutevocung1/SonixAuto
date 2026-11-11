@@ -96,8 +96,14 @@ def plan_new(channel, ids, settings):
 
 def _loop():
     _log("Bắt đầu luồng phân tích ngầm")
+    last_scan = 0
     while True:
         try:
+            if time.time() - last_scan > 60:  # Facebook tự động: 1 phút quét CHƯA UP 1 lần
+                last_scan = time.time()
+                added = fbq.auto_scan(load_settings())
+                if added:
+                    _log(f"Facebook tự động: thêm {added} video mới vào phân tích")
             todo = db.list_jobs(["analyzing"])
             if not todo:
                 time.sleep(2)

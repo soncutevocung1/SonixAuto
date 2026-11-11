@@ -215,7 +215,9 @@ def _plan(S, pg):
         today = datetime.now().date()
         a, b, c = st.columns(3)
         d0 = a.date_input("Từ ngày", max(p_from or today, today), format="DD/MM/YYYY", key="fpl_d0")
-        lim = b.toggle("Giới hạn đến ngày", bool(p_to), key="fpl_lim")
+        lim = b.toggle("Giới hạn đến ngày", bool(p_to), key="fpl_lim",
+                       help="Đang bật chế độ Tự động thì video mới tự xếp nối tiếp, không theo 'Đến ngày'."
+                       if pg.get("auto") else None)
         d1 = c.date_input("Đến ngày", p_to or today + timedelta(days=13), format="DD/MM/YYYY", key="fpl_d1",
                           disabled=not lim)
         mode = st.radio("Khung giờ", ["chung", "thu"], horizontal=True, index=1 if pg.get("by_day") else 0,
@@ -281,15 +283,50 @@ def _new(S, pg):
                 "nhập thư mục riêng của trang rồi bấm Lưu.")
         return
     vids = fbq.new_videos(pg)
-    nan = len(db.list_jobs(["analyzing"], "facebook", pg["name"]))
-    st.markdown(f"### Đăng video mới\n**{len(vids)}** video mới trong `{fbq.folder(pg)}`"
-                + (f" · {nan} video đang phân tích" if nan else ""))
-    if st.button("Mở thư mục CHƯA UP", key="fb_open"):
+    ov = fbq.overview(pg)
+    st.markdown(f"### Video của trang\n`{pg['folder']}`")
+    st.markdown(ui.tiles_html([
+        ("Trong CHƯA UP", ov["chua_up"], "var(--sx-blue)"),
+        ("Chưa phân tích", ov["moi"], "var(--sx-purple)"),
+        ("Đang phân tích", ov["analyzing"], "var(--sx-purple)"),
+        ("Chờ duyệt", ov["draft"], "var(--sx-blue)"),
+        ("Chờ đăng", ov["pending"], "var(--sx-cyan)"),
+        ("Đã lên Facebook", ov["scheduled_fb"], "var(--sx-ok)"),
+        ("ĐÃ UP", ov["da_up"], "var(--sx-ok)"),
+        ("Lỗi", ov["loi"] + ov["error"], "var(--sx-danger)")], cols=4), unsafe_allow_html=True)
+    if ov["het_lich"]:
+        st.caption(f"Lịch hiện có tới **{datetime.strptime(ov['het_lich'], FMT):%H:%M %d/%m/%Y}**.")
+    c1, c2 = st.columns([1, 1])
+    if c1.button("Mở thư mục CHƯA UP", key="fb_open"):
         _open_folder(fbq.folder(pg))
-    if not vids:
-        return
     opts = list(MODELS) + [NO_AI]
     dm = S.get("ai_model") if S.get("ai_model") in MODELS and ai_key(S, S.get("ai_model")) else NO_AI
+    # ----- chế độ tự động -----
+    with st.container(border=True):
+        auto = st.toggle("Tự động: đọc toàn bộ video trong CHƯA UP, AI viết caption và lên lịch nối tiếp",
+                         bool(pg.get("auto")), key="fb_auto")
+        am = pg.get("auto_model") if pg.get("auto_model") in opts else dm
+        am = st.selectbox("Mức AI cho chế độ tự động", opts, index=opts.index(am), key="fb_auto_model",
+                          format_func=lambda m: MODELS.get(m, "Không dùng AI · caption mẫu (miễn phí)"))
+        if auto != bool(pg.get("auto")) or (auto and am != pg.get("auto_model")):
+            pg.update(auto=bool(auto), auto_model=am)
+            _save_page(S, pg)
+            if auto:
+                st.session_state["_fb_auto_now"] = True
+            st.rerun()
+        if auto:
+            st.caption("Tool kiểm tra thư mục mỗi phút. Video mới chép vào (chép xong được 1 phút) sẽ được phân tích "
+                       "và xếp vào các ngày tiếp theo, bỏ qua 'Đến ngày' của lịch. Video chỉ đăng sau khi bác bấm "
+                       "Xác nhận. Cửa sổ tool cần được mở ít nhất 1 lần sau khi bật máy.")
+            if st.session_state.pop("_fb_auto_now", False) or (vids and c2.button(
+                    f"Phân tích ngay {len(vids)} video", key="fb_auto_go")):
+                n_ = fbq.auto_scan({**S, "facebook_pages": [pg]})
+                worker.start()
+                if n_:
+                    st.rerun()
+            return
+    if not vids:
+        return
     a, b = st.columns([3, 1])
     model = a.selectbox("Mức AI viết caption", opts, index=opts.index(dm), key="fb_model",
                         format_func=lambda m: MODELS.get(m, "Không dùng AI · caption mẫu (miễn phí)"))

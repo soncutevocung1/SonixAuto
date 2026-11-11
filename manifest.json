@@ -1,7 +1,7 @@
 {
- "version": "2.2.5",
- "built_at": "2026-11-11T06:50:41Z",
- "notes": "- Facebook: video ngoài khoảng ngày của lịch đăng ghi rõ \"Chưa có giờ\", không còn hiện giờ giả (hôm nay +1 tiếng), không xác nhận được.\n- Nút \"Trả video chưa có giờ về CHƯA UP\"; xếp lại giờ thì video thiếu chỗ tự trả về CHƯA UP đợi lịch sau.\n- Phân tích không quá số khung giờ còn trống trong lịch. Bộ đăng không bao giờ đăng video chưa có giờ.",
+ "version": "2.3.0",
+ "built_at": "2026-11-11T07:00:51Z",
+ "notes": "- Facebook · Video của trang: xem số video trong CHƯA UP, chưa phân tích, đang phân tích, chờ duyệt, chờ đăng, đã lên Facebook, ĐÃ UP, lỗi; lịch hiện có tới ngày nào.\n- Facebook · Chế độ Tự động: đọc toàn bộ video trong CHƯA UP, AI viết caption và lên lịch nối tiếp sau video có lịch muộn nhất. Chép thêm video vào lúc nào, tool tự phát hiện (1 phút/lần) và xếp vào những ngày tiếp theo. Video chỉ đăng sau khi bác bấm Xác nhận.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "d7e9cd61d64f812fe5a775fe903676d69baeb7803a074d880d225b9d71b0aa58",
-   "size": 4055
+   "sha256": "3b74e7c6148ff7e25f57e063019161bf3beddc99ac5df8d80b442b56d2afd305",
+   "size": 4597
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,7 +60,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "f56c797a25f16ade37ae22d56124b085d6bc58d05cc9f73d2075f474c170204b",
+   "sha256": "a42caf4a54bbbe27aa45b6efbc6356c5e299b19763e728b6cdb7201b02ebbe36",
    "size": 6
   },
   {
@@ -130,13 +130,13 @@
   },
   {
    "path": "core/fb_ui.py",
-   "sha256": "ee6f0f094141622c701df8605388830c0b75c8ca306a26f06451bf3444797712",
-   "size": 28900
+   "sha256": "65a40bcc8ec248f129af5bf079785d3568394f6c4aa6ce8594d6cfd7001de39d",
+   "size": 31246
   },
   {
    "path": "core/fbq.py",
-   "sha256": "52321a0721e95179d30b0724341f6d92dbe3ce9d6c5cfab0e1bb8fbb40e41093",
-   "size": 6558
+   "sha256": "8a007efc87114699564dcd387f388d5dee5704eabd1ec130e6a3b9e628bb44bb",
+   "size": 9116
   },
   {
    "path": "core/products.py",
@@ -180,8 +180,8 @@
   },
   {
    "path": "core/worker.py",
-   "sha256": "4a28952a66d2003a645bf690fb8c03f6e2c78afd69edc0fb0d7e752b8a8d391a",
-   "size": 6725
+   "sha256": "8cb5108483cb7963aaf335c782b7e67ec3579b2d2f071e86ecf127fed5ace7fa",
+   "size": 7061
   },
   {
    "path": "dong_goi.py",

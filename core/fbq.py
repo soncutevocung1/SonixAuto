@@ -5,6 +5,7 @@ Giờ đăng do bác tự đặt (vd 11:30, 19:30) → mỗi ngày đăng đúng
 """
 import re
 import shutil
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -69,16 +70,63 @@ def _natural(p: Path):
     return [int(t) if t.isdigit() else t.lower() for t in re.split(r"(\d+)", p.stem)]
 
 
-def new_videos(pg) -> list:
-    """Video trong CHƯA UP chưa nằm trong hàng chờ, xếp theo số trong tên (1, 2, ..., 10)."""
+def _known_paths() -> set:
+    """Mọi video Facebook đang có trong hàng chờ (kể cả lỗi) -> không quét lại."""
+    with db.conn() as c:
+        return {r[0] for r in c.execute("SELECT video_path FROM jobs WHERE platform='facebook'")}
+
+
+def new_videos(pg, min_age=0) -> list:
+    """Video trong CHƯA UP chưa nằm trong hàng chờ, xếp theo số trong tên (1, 2, ..., 10).
+    min_age: chỉ lấy file đã chép xong (không đổi trong `min_age` giây) để không đọc file đang chép dở."""
     if not (pg.get("folder") or "").strip():
         return []
     d = folder(pg)
     if not d.is_dir():
         return []
-    busy = db.active_paths("facebook")
-    return sorted([p for p in d.iterdir() if p.is_file() and p.suffix.lower() in VIDEO_EXTS and str(p) not in busy],
-                  key=_natural)
+    busy, now = _known_paths(), time.time()
+    out = []
+    for p in d.iterdir():
+        try:
+            if (p.is_file() and p.suffix.lower() in VIDEO_EXTS and str(p) not in busy
+                    and now - p.stat().st_mtime >= min_age):
+                out.append(p)
+        except OSError:
+            pass
+    return sorted(out, key=_natural)
+
+
+def overview(pg) -> dict:
+    """Số video theo từng chặng của trang."""
+    out = {"chua_up": 0, "da_up": 0, "loi": 0}
+    try:
+        for key, sub in (("chua_up", FOLDER_TODO), ("da_up", FOLDER_DONE), ("loi", FOLDER_ERR)):
+            d = folder(pg, sub)
+            out[key] = sum(1 for p in d.iterdir() if p.is_file() and p.suffix.lower() in VIDEO_EXTS) \
+                if d.is_dir() else 0
+    except Exception:
+        pass
+    js = db.list_jobs(None, "facebook", pg["name"])
+    for st_ in ("analyzing", "draft", "pending", "scheduled_fb", "error"):
+        out[st_] = sum(j["status"] == st_ for j in js)
+    out["moi"] = len(new_videos(pg))
+    out["het_lich"] = max([j["scheduled_at"] for j in js if j.get("scheduled_at")
+                           and j["status"] in ("draft", "pending", "scheduled_fb")] or [""])
+    return out
+
+
+def auto_scan(settings) -> int:
+    """Chế độ tự động: đưa video mới (đã chép xong) trong CHƯA UP vào phân tích. Trả về số video thêm."""
+    n = 0
+    for pg in pages(settings):
+        if not pg.get("auto") or not pg.get("token") or not (pg.get("folder") or "").strip():
+            continue
+        for v in new_videos(pg, min_age=60):
+            db.add_job(platform="facebook", channel=pg["name"], video_path=str(v), status="analyzing",
+                       ai_model=pg.get("auto_model") or settings.get("ai_model") or "",
+                       fb_story=1 if pg.get("story") else 0)
+            n += 1
+    return n
 
 
 def taken(name, exclude_ids=()) -> set:
@@ -91,6 +139,8 @@ def taken(name, exclude_ids=()) -> set:
 def next_slots(pg, n, start=None, end_day=None, exclude_ids=()) -> list:
     """n khung giờ trống tiếp theo của trang, trong khoảng [start, end_day]. Thiếu chỗ thì trả về ít hơn n."""
     p_from, p_to = plan_range(pg)
+    if pg.get("auto"):  # tự động: lên lịch toàn bộ video, bỏ qua 'Đến ngày'
+        p_to = None
     soon = datetime.now() + timedelta(minutes=30)
     if start is None:
         start = max(soon, datetime.combine(p_from, datetime.min.time())) if p_from else soon
@@ -115,9 +165,16 @@ def plan_new(name, ids, settings) -> int:
     pg = page(settings, name)
     if not pg:
         return 0
-    jobs = [j for j in db.list_jobs(["draft"], "facebook", name) if j["id"] in ids and not j.get("scheduled_at")]
+    drafts = db.list_jobs(["draft"], "facebook", name)
+    if pg.get("auto"):  # tự động: xếp mọi video chưa có giờ, nối tiếp SAU video có lịch muộn nhất
+        jobs = [j for j in drafts if not j.get("scheduled_at")]
+        last = max(taken(name) or [""])
+        start = datetime.strptime(last, FMT) + timedelta(minutes=1) if last else None
+    else:
+        jobs = [j for j in drafts if j["id"] in ids and not j.get("scheduled_at")]
+        start = None
     jobs.sort(key=lambda j: _natural(Path(j["video_path"])))
-    slots = next_slots(pg, len(jobs))
+    slots = next_slots(pg, len(jobs), start)
     for j, t in zip(jobs, slots):
         db.update_job(j["id"], scheduled_at=t.strftime(FMT))
     return len(slots)

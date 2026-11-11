@@ -1,5 +1,9 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.3.0
+- Facebook · Video của trang: xem số video trong CHƯA UP, chưa phân tích, đang phân tích, chờ duyệt, chờ đăng, đã lên Facebook, ĐÃ UP, lỗi; lịch hiện có tới ngày nào.
+- Facebook · Chế độ Tự động: đọc toàn bộ video trong CHƯA UP, AI viết caption và lên lịch nối tiếp sau video có lịch muộn nhất. Chép thêm video vào lúc nào, tool tự phát hiện (1 phút/lần) và xếp vào những ngày tiếp theo. Video chỉ đăng sau khi bác bấm Xác nhận.
+
 ## 2.2.5
 - Facebook: video ngoài khoảng ngày của lịch đăng ghi rõ "Chưa có giờ", không còn hiện giờ giả (hôm nay +1 tiếng), không xác nhận được.
 - Nút "Trả video chưa có giờ về CHƯA UP"; xếp lại giờ thì video thiếu chỗ tự trả về CHƯA UP đợi lịch sau.
