@@ -623,7 +623,7 @@ with tabs[1]:
         bad_ids = {p["id"] for p in show_all} - {p["id"] for p in show}
         favs = [f for f in snd.load_favs(chname) if f.get("title") and not f.get("skip")]
         themes = [str(p) for p in cov.theme_files(ROOT)]  # ảnh bìa có sẵn trong thư mục ẢNH BÌA
-        if cov.auto_defaults(S, chname, ROOT):  # sản phẩm chưa đặt bìa mặc định -> ghép theo tên ảnh trong ẢNH BÌA
+        if cov.undo_auto_defaults(S):  # bỏ bìa mặc định bản 2.3.1 tự đặt: mặc định là khung hình trong video
             save_settings(S)
         cov.auto_assign(chname, S, jobs, ROOT)  # video chưa tự chọn bìa -> dùng bìa mặc định của sản phẩm
         amo = auto_music_opts()

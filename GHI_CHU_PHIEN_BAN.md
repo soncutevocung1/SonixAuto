@@ -1,5 +1,8 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.3.2
+- TikTok · Ảnh bìa: mặc định vẫn là khung hình cắt từ video. Chỉ khi bấm "Tự gắn ảnh bìa theo sản phẩm" thì tool mới nhận diện và gắn ảnh trong thư mục ẢNH BÌA. Gỡ các ảnh bìa mặc định bản 2.3.1 đã tự đặt.
+
 ## 2.3.1
 - TikTok · Ảnh bìa: nút "Tự gắn ảnh bìa theo sản phẩm" — mỗi video đang chọn tự lấy ảnh trong thư mục ẢNH BÌA trùng tên sản phẩm AI nhận ra (vd Kích rễ TC01.png, Đạm cá amino.png dùng cho cả can 1 lít và 5 lít).
 - Sản phẩm chưa đặt ảnh bìa mặc định thì tool tự ghép theo tên ảnh (1 lần), video mới phân tích xong có bìa luôn. Đổi lại được ở mục Ảnh bìa mặc định theo sản phẩm.

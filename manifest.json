@@ -1,7 +1,7 @@
 {
- "version": "2.3.1",
- "built_at": "2026-11-11T07:53:02Z",
- "notes": "- TikTok · Ảnh bìa: nút \"Tự gắn ảnh bìa theo sản phẩm\" — mỗi video đang chọn tự lấy ảnh trong thư mục ẢNH BÌA trùng tên sản phẩm AI nhận ra (vd Kích rễ TC01.png, Đạm cá amino.png dùng cho cả can 1 lít và 5 lít).\n- Sản phẩm chưa đặt ảnh bìa mặc định thì tool tự ghép theo tên ảnh (1 lần), video mới phân tích xong có bìa luôn. Đổi lại được ở mục Ảnh bìa mặc định theo sản phẩm.",
+ "version": "2.3.2",
+ "built_at": "2026-11-11T07:53:47Z",
+ "notes": "- TikTok · Ảnh bìa: mặc định vẫn là khung hình cắt từ video. Chỉ khi bấm \"Tự gắn ảnh bìa theo sản phẩm\" thì tool mới nhận diện và gắn ảnh trong thư mục ẢNH BÌA. Gỡ các ảnh bìa mặc định bản 2.3.1 đã tự đặt.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "424f9f9893cad0176b5a1f5c148753995260abdae0328dbe02327b05efe371a0",
-   "size": 5097
+   "sha256": "a16778aff89bcab01108d0e510c33dc2e2452d4613b731c7bcf421956b418007",
+   "size": 5383
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,13 +60,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "ad8650bc9057d9dfd809961b69dbad640c288d809fa44437d44d83d3b118c821",
+   "sha256": "e1d31f14bed34a1c7e6227931673f0bb4ec1e26ee4278d00dac169809c4d9539",
    "size": 6
   },
   {
    "path": "app.py",
-   "sha256": "ad674ced4030e87af2ecba2866b4a8eb272e3635b7df7eb3c0da34674612708b",
-   "size": 100019
+   "sha256": "26dd12fb74f6d1c1710af15ba243aea8ea315b5a4457235ea47108167f199b28",
+   "size": 100014
   },
   {
    "path": "assets/sonix.ico",
@@ -105,8 +105,8 @@
   },
   {
    "path": "core/covers.py",
-   "sha256": "49b6f4fc0153bccddf354d4eb8bdd3afadb3df95086878d2e0e04d97c25719dc",
-   "size": 8688
+   "sha256": "1ae7db4084d0b124da2126d1f70804c07fb981d162353b729e7f57034e0468ae",
+   "size": 9142
   },
   {
    "path": "core/cua_so.py",

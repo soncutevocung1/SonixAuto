@@ -196,6 +196,18 @@ def auto_defaults(settings, channel, root) -> int:
     return n
 
 
+def undo_auto_defaults(settings) -> bool:
+    """Gỡ các ảnh bìa mặc định bản 2.3.1 tự ghép (bác chỉ muốn gắn khi bấm nút). Bìa bác tự đặt thì giữ."""
+    done = settings.pop("cover_auto_done", None)
+    if done is None:
+        return False
+    for ch, keys in (done or {}).items():
+        m = (settings.get("cover_by_product") or {}).get(ch) or {}
+        for k in keys:
+            m.pop(k, None)
+    return True
+
+
 def theme_for_job(settings, channel, job, root):
     """Ảnh bìa cho video theo sản phẩm của nó: ảnh mặc định đã đặt, không có thì ảnh trùng tên sản phẩm."""
     key = job.get("item_key") or ""
