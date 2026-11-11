@@ -50,6 +50,7 @@ COLUMNS = {
     "keep_audio": "INTEGER DEFAULT 1",
     "music_by_user": "INTEGER DEFAULT 0",    # 1 = bác tự chọn nhạc cho video này (tool không tự đổi nữa)
     "redo_caption": "INTEGER DEFAULT 0",     # 1 = chỉ viết lại caption (giữ sản phẩm, ảnh bìa)       # 1 = giữ âm thanh gốc, 0 = tắt tiếng gốc trước khi đăng           # mức AI chọn lúc bấm Phân tích (luồng ngầm dùng)
+    "cover_checked": "INTEGER DEFAULT 0",    # TikTok: 0 chưa kiểm ảnh bìa, 1 đúng, 2 thiếu bìa (đợi bác xoá bài)
     "fb_story": "INTEGER DEFAULT 0",         # Facebook: 1 = đăng kèm vào Tin lúc tới giờ
     "fb_story_state": "TEXT DEFAULT ''",     # '' | done | skip | lỗi...
     "created_at": "TEXT",

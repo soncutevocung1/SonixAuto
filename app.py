@@ -444,6 +444,12 @@ with st.sidebar:
                                ("Chờ đăng", len(_live["pending"]), "var(--sx-purple)"),
                                ("Đã hẹn giờ", _today["hen_gio"]["total"], "var(--sx-cyan)"),
                                ("Lỗi", _today["loi"]["total"], "var(--sx-danger)")]), unsafe_allow_html=True)
+    _nocover = [j for j in db.list_jobs(["check"], "tiktok") if int(j.get("cover_checked") or 0) == 2]
+    if _nocover:
+        st.error(f"**{len(_nocover)} bài thiếu ảnh bìa trên TikTok.** Bác vào app TikTok (điện thoại) xoá các bài hẹn "
+                 "giờ này, tool tự đăng lại kèm ảnh bìa:\n" + "\n".join(
+                     f"- {j['channel']} · {datetime.strptime(j['scheduled_at'], FMT):%H:%M %d/%m}"
+                     for j in sorted(_nocover, key=lambda x: x["scheduled_at"])[:12]))
     _pick = st.pills("Xem chi tiết", ["Chờ duyệt", "Chờ đăng", "Đã hẹn giờ", "Lỗi"], key="sx_pick",
                      help="Bấm 1 mục để xem số video theo từng kênh hoặc từng sản phẩm")
     if _pick:

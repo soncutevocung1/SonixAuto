@@ -1,5 +1,11 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.3.3
+- TikTok · Ảnh bìa: lưu ảnh bìa xong chờ TikTok tải ảnh lên máy chủ rồi mới làm bước tiếp; kiểm tra ô bìa trên trang (làm lại 1 lần nếu chưa giống).
+- TikTok · Kiểm tra ảnh bìa sau khi hẹn giờ: lúc rảnh, tool vào TikTok Studio so ảnh bìa thật của từng bài. Thiếu bìa → video về CHƯA UP, thanh bên báo bài cần xoá trong app TikTok (web không cho xoá bài có giỏ hàng). Bác xoá xong → tool tự đăng lại kèm ảnh bìa.
+- Máy nhẹ hơn: bộ đăng và phân tích chạy ở mức ưu tiên dưới bình thường (nhường máy cho việc khác của bác); AI phân tích 2 video/lần thay vì 4.
+- Xếp lịch TikTok: đổi tên ô cho rõ ("Ngày đầu: bắt đầu lúc" và "Mỗi ngày chỉ đăng từ / đến"), có dòng tóm tắt và nhắc khi 2 giờ này khác nhau.
+
 ## 2.3.2
 - TikTok · Ảnh bìa: mặc định vẫn là khung hình cắt từ video. Chỉ khi bấm "Tự gắn ảnh bìa theo sản phẩm" thì tool mới nhận diện và gắn ảnh trong thư mục ẢNH BÌA. Gỡ các ảnh bìa mặc định bản 2.3.1 đã tự đặt.
 

@@ -23,7 +23,7 @@ os.environ.setdefault("PYTHONUTF8", "1")
 from core import channels as chs  # noqa: E402
 from core import db, facebook, fbq, sounds, stats, tiktok  # noqa: E402
 from core.caption import build_text  # noqa: E402
-from core.config import (DATA_DIR, FOLDER_DONE, FOLDER_ERR, HEARTBEAT_FILE, RUNNER_LOG, WORK_DIR,  # noqa: E402
+from core.config import (DATA_DIR, FOLDER_DONE, FOLDER_ERR, FOLDER_TODO, HEARTBEAT_FILE, RUNNER_LOG, WORK_DIR,  # noqa: E402
                          ensure_dirs, get_channel, load_settings, save_settings, slug)
 from core.video_utils import mix_music, strip_audio  # noqa: E402
 
@@ -164,6 +164,64 @@ def fail_facebook(job, settings, err):
     log(f"  ✖ FB lỗi: {msg}")
 
 
+_LAST_COVER_CHECK = {}
+
+
+def check_covers(settings):
+    """Lúc rảnh: vào TikTok Studio kiểm tra ảnh bìa các video đã hẹn giờ.
+    - Thiếu bìa: đưa video về CHƯA UP, báo bác xoá bài trong app TikTok (web không cho xoá bài có giỏ hàng).
+    - Bác đã xoá bài (thiếu bìa, hoặc chưa kiểm): tự đăng lại kèm ảnh bìa."""
+    from core import schedule as sch
+    from core.config import channel_plan
+    now = datetime.now()
+    soon, old = (now + timedelta(minutes=5)).strftime(db.TIME_FMT), (now - timedelta(minutes=3)).strftime(db.TIME_FMT)
+    todo = {}
+    for j in db.list_jobs(["scheduled", "check"], "tiktok"):
+        if (int(j.get("cover_checked") or 0) in (0, 2) and j.get("cover_path") and j.get("scheduled_at", "") > soon
+                and (j.get("updated_at") or "") <= old and (j["status"] == "scheduled" or int(j.get("cover_checked") or 0) == 2)):
+            todo.setdefault(j["channel"], []).append(j)
+    blocked = blocked_channels()
+    for ch, jobs in todo.items():
+        if ch in blocked or time.time() - _LAST_COVER_CHECK.get(ch, 0) < 15 * 60:
+            continue
+        _LAST_COVER_CHECK[ch] = time.time()
+        log(f"Kiểm tra ảnh bìa {len(jobs)} video đã hẹn giờ của kênh «{ch}» trên TikTok Studio...")
+        heartbeat()
+        try:
+            res = tiktok.verify_covers(settings, ch, jobs, log)
+        except Exception as e:
+            log(f"  ! Chưa kiểm tra được: {str(e)[:150]}")
+            continue
+        root = settings.get("root_folder")
+        for j in jobs:
+            kind, sc = res.get(j["id"], ("chua_ro", -1))
+            name = Path(j["video_path"]).name
+            if kind == "ok":
+                db.update_job(j["id"], cover_checked=1)
+            elif kind == "thieu_bia" and int(j.get("cover_checked") or 0) == 0:
+                new_path = chs.move_to(j["video_path"], root, ch, FOLDER_TODO) if root else j["video_path"]
+                db.rename_video_path(j["video_path"], new_path)
+                t = datetime.strptime(j["scheduled_at"], db.TIME_FMT)
+                db.update_job(j["id"], status="check", cover_checked=2,
+                              result=f"THIẾU ẢNH BÌA trên TikTok (bài hẹn {t:%H:%M %d/%m}). Bác vào app TikTok xoá bài "
+                                     f"đó, tool tự đăng lại kèm ảnh bìa.")
+                log(f"  ✖ {name}: thiếu ảnh bìa (điểm {sc:.0f}) → về CHƯA UP, nhờ bác xoá bài {t:%H:%M %d/%m} trong app")
+            elif kind == "da_xoa":
+                if root:
+                    new_path = chs.move_to(j["video_path"], root, ch, FOLDER_TODO)
+                    db.rename_video_path(j["video_path"], new_path)
+                t = datetime.strptime(j["scheduled_at"], db.TIME_FMT)
+                if t < now + timedelta(minutes=40):  # giờ cũ sắp tới / đã qua -> khung trống kế tiếp
+                    p = channel_plan(settings, ch)
+                    slots = sch.plan(1, now + timedelta(minutes=30), settings["golden_hours"], p["per_day"],
+                                     p["gap_min"], p["start"], p["end"], p["golden_first"], p["golden_per_slot"],
+                                     taken=db.taken_times(ch))
+                    t = slots[0] if slots else now + timedelta(minutes=30)
+                db.update_job(j["id"], status="pending", cover_checked=0, scheduled_at=t.strftime(db.TIME_FMT),
+                              result="Bài cũ đã bị xoá trên TikTok → đăng lại kèm ảnh bìa")
+                log(f"  ↻ {name}: bài đã xoá trên TikTok → đăng lại lúc {t:%H:%M %d/%m}")
+
+
 def run_fb_stories(settings, now):
     """Video đã tới giờ đăng mà bác chọn 'đăng kèm vào Tin' -> đăng vào Tin (Tin không hẹn giờ trước được)."""
     for job in db.list_jobs(["scheduled_fb", "done"], "facebook"):
@@ -243,6 +301,11 @@ def run_once():
         except Exception as e:
             fail_tiktok(job, settings, e)
         did_tt = True
+    if not did_tt:  # rảnh: kiểm tra ảnh bìa các bài đã hẹn giờ trên TikTok
+        try:
+            check_covers(settings)
+        except Exception as e:
+            log(f"  ! Kiểm tra ảnh bìa lỗi: {str(e)[:150]}")
 
 
 def label_sounds(ch, settings, force=False):

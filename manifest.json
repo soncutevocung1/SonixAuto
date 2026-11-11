@@ -1,7 +1,7 @@
 {
- "version": "2.3.2",
- "built_at": "2026-11-11T07:53:47Z",
- "notes": "- TikTok · Ảnh bìa: mặc định vẫn là khung hình cắt từ video. Chỉ khi bấm \"Tự gắn ảnh bìa theo sản phẩm\" thì tool mới nhận diện và gắn ảnh trong thư mục ẢNH BÌA. Gỡ các ảnh bìa mặc định bản 2.3.1 đã tự đặt.",
+ "version": "2.3.3",
+ "built_at": "2026-11-11T09:14:56Z",
+ "notes": "- TikTok · Ảnh bìa: lưu ảnh bìa xong chờ TikTok tải ảnh lên máy chủ rồi mới làm bước tiếp; kiểm tra ô bìa trên trang (làm lại 1 lần nếu chưa giống).\n- TikTok · Kiểm tra ảnh bìa sau khi hẹn giờ: lúc rảnh, tool vào TikTok Studio so ảnh bìa thật của từng bài. Thiếu bìa → video về CHƯA UP, thanh bên báo bài cần xoá trong app TikTok (web không cho xoá bài có giỏ hàng). Bác xoá xong → tool tự đăng lại kèm ảnh bìa.\n- Máy nhẹ hơn: bộ đăng và phân tích chạy ở mức ưu tiên dưới bình thường (nhường máy cho việc khác của bác); AI phân tích 2 video/lần thay vì 4.\n- Xếp lịch TikTok: đổi tên ô cho rõ (\"Ngày đầu: bắt đầu lúc\" và \"Mỗi ngày chỉ đăng từ / đến\"), có dòng tóm tắt và nhắc khi 2 giờ này khác nhau.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "a16778aff89bcab01108d0e510c33dc2e2452d4613b731c7bcf421956b418007",
-   "size": 5383
+   "sha256": "9cd6e86addf8b7e74994a9a4c777d8cb23f2bc96f0f86f14843594f789bbc618",
+   "size": 6281
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,13 +60,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "e1d31f14bed34a1c7e6227931673f0bb4ec1e26ee4278d00dac169809c4d9539",
+   "sha256": "ef6949f5950f6f55fd1676a55619a3decdff9426d41a7d8078d3c4dab2e4449b",
    "size": 6
   },
   {
    "path": "app.py",
-   "sha256": "26dd12fb74f6d1c1710af15ba243aea8ea315b5a4457235ea47108167f199b28",
-   "size": 100014
+   "sha256": "5361bcf05ae43862cbf24660d324919addbcd38282e020286b83e0ea8611c62e",
+   "size": 101280
   },
   {
    "path": "assets/sonix.ico",
@@ -115,13 +115,13 @@
   },
   {
    "path": "core/db.py",
-   "sha256": "776d853fc8c563cacd7858164bb334c71cac115ab7a94384df2c63f0a3d0d743",
-   "size": 6960
+   "sha256": "877e7f3a25086f2628b9b16a8f2b3cf4f896cd356dc5267a7f8bf8c92f4bf0e5",
+   "size": 7091
   },
   {
    "path": "core/desktop.py",
-   "sha256": "a557f03bc5d48d84d0f8e0c96b135a6d6ef55969584b92e84a1110a446459ae2",
-   "size": 8606
+   "sha256": "f7baa63fd34522eacbc6645cd2c7001fc471a11b28781e2045800582abb26472",
+   "size": 9122
   },
   {
    "path": "core/facebook.py",
@@ -160,8 +160,8 @@
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "bd259039e3565a26c404d02fac24caa7833495f02fd51884d8c4a9a9e418908b",
-   "size": 67526
+   "sha256": "c1a928f8d5e16359d44afdcff2d01ccdfdea223f7ee0f1cff35bfe6d93dd0147",
+   "size": 73941
   },
   {
    "path": "core/ui.py",
@@ -180,8 +180,8 @@
   },
   {
    "path": "core/worker.py",
-   "sha256": "8cb5108483cb7963aaf335c782b7e67ec3579b2d2f071e86ecf127fed5ace7fa",
-   "size": 7061
+   "sha256": "5f78585f908360a1e20f3746fa6d6d2b5e1df1aded22543e2acf1a96a72043d8",
+   "size": 7142
   },
   {
    "path": "dong_goi.py",
@@ -200,8 +200,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "3bc05acaaa55ad3a332f35778755f78f588e83a60670df9d27f7c4871bbdfdda",
-   "size": 15936
+   "sha256": "140f0f807aa480b20199f47c2c5abf3504386758b3d10f8882923e73b7cd0314",
+   "size": 20007
   },
   {
    "path": "tao_manifest.py",

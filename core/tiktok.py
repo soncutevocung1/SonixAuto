@@ -383,6 +383,19 @@ def type_caption(page, caption, hashtags):
 
 
 # =============================== Ảnh bìa ===============================
+def set_cover_checked(page, cover_path, log=print):
+    """Đặt ảnh bìa rồi kiểm tra ô bìa trên trang; chưa giống thì làm lại 1 lần."""
+    sc = -1
+    for attempt in range(2):
+        set_cover(page, cover_path)
+        sc = cover_score(page, cover_path)
+        if sc < 0 or sc >= 70:  # không đọc được ô bìa thì để bước kiểm tra sau khi đăng lo
+            break
+        log(f"    (ô ảnh bìa trên trang chưa giống, điểm {sc:.0f}" + (", làm lại)" if attempt == 0 else ")"))
+    log(f"    ô ảnh bìa trên trang: điểm {sc:.0f}/100 (sau khi đăng tool còn kiểm tra lại trên TikTok Studio)")
+    return True
+
+
 def set_cover(page, cover_path):
     if not cover_path or not Path(cover_path).exists():
         return True
@@ -403,27 +416,55 @@ def set_cover(page, cover_path):
     _sleep(2.5, 4)
     if not click_button(modal, r"^(Xác nhận|Lưu|Xong|Áp dụng|Confirm|Save|Done|Apply)$", timeout=10):
         raise TikTokError("không bấm được nút xác nhận ảnh bìa")
-    _sleep(1.5, 2.5)
+    try:  # chờ TikTok tải ảnh bìa lên máy chủ xong rồi mới làm bước khác
+        page.wait_for_load_state("networkidle", timeout=15000)
+    except Exception:
+        pass
+    _sleep(2.5, 3.5)
     return True
 
 
-def cover_score(page, cover_path) -> float:
-    """Ô 'Ảnh bìa' trên trang đăng giống file bìa đến đâu (0-100). Chụp ô bìa, thu nhỏ, so từng điểm ảnh
-    (bỏ dải dưới có chữ 'Sửa ảnh bìa'). Trả -1 nếu không chụp được ô bìa."""
+def image_similarity(shot, ref_path) -> float:
+    """Ảnh TikTok hiển thị (shot: ảnh PIL hoặc bytes) giống file ảnh bìa đến đâu (0-100).
+    Cắt ảnh gốc theo đúng tỉ lệ ảnh hiển thị (TikTok hay cắt 3:4) rồi so từng điểm ảnh ở kích thước nhỏ."""
     import io
     from PIL import Image, ImageChops, ImageStat
+    if isinstance(shot, (bytes, bytearray)):
+        shot = Image.open(io.BytesIO(shot))
+    a = shot.convert("L")
+    b = Image.open(ref_path).convert("L")
+    ra, rb = a.width / a.height, b.width / b.height
+    if rb > ra:  # gốc rộng hơn -> cắt 2 bên
+        w = int(b.height * ra)
+        b = b.crop(((b.width - w) // 2, 0, (b.width - w) // 2 + w, b.height))
+    elif rb < ra:  # gốc cao hơn -> cắt trên dưới
+        h = int(b.width / ra)
+        b = b.crop((0, (b.height - h) // 2, b.width, (b.height - h) // 2 + h))
+    size = (32, max(8, int(32 / ra)))
+    d = ImageStat.Stat(ImageChops.difference(a.resize(size), b.resize(size))).mean[0]
+    return max(0.0, 100 - d / 255 * 100 * 2.5)
+
+
+def cover_score(page, cover_path) -> float:
+    """Ô 'Ảnh bìa' trên trang đăng giống file bìa đến đâu (0-100). -1 nếu không chụp được ô bìa."""
+    import io
+    from PIL import Image
     try:
         img = _visible(page.locator('[data-e2e="cover_container"] img'), 3) or \
             _visible(page.get_by_text(_rx(r"^Ảnh bìa")).locator("xpath=following::img[1]"), 2)
         if not img:
             return -1
-        shot = Image.open(io.BytesIO(img.screenshot())).convert("L")
-        ref = Image.open(cover_path).convert("L")
-        w, h = 36, 64
-        a = shot.resize((w, h)).crop((0, 0, w, int(h * 0.78)))
-        b = ref.resize((w, h)).crop((0, 0, w, int(h * 0.78)))
-        diff = ImageStat.Stat(ImageChops.difference(a, b)).mean[0]  # 0 = giống hệt, 255 = khác hẳn
-        return max(0.0, 100 - diff / 255 * 100 * 3)
+        shot = Image.open(io.BytesIO(img.screenshot()))
+        shot = shot.crop((0, 0, shot.width, int(shot.height * 0.8)))  # bỏ dải chữ 'Sửa ảnh bìa' ở dưới
+        full = Image.open(cover_path)
+        # ảnh gốc cũng bỏ phần dưới tương ứng: so theo tỉ lệ ô hiển thị gốc
+        tmp = WORK_DIR / "_bia_so.jpg"
+        r = (shot.width / (shot.height / 0.8))
+        h = int(full.width / r) if full.width / full.height > r else full.height
+        w = int(full.height * r) if full.width / full.height > r else full.width
+        x0, y0 = (full.width - w) // 2, (full.height - h) // 2
+        full.crop((x0, y0, x0 + w, y0 + int(h * 0.8))).convert("RGB").save(tmp)
+        return image_similarity(shot, tmp)
     except Exception:
         return -1
 
@@ -1246,7 +1287,7 @@ def post(job, settings, log=print, lock=None):
                  "Bác gõ/dán mô tả giúp.")
             if job.get("cover_path"):
                 log("  - Đặt ảnh bìa...")
-                step("Ảnh bìa", lambda: set_cover(page, job["cover_path"]),
+                step("Ảnh bìa", lambda: set_cover_checked(page, job["cover_path"], log),
                      f"Bác bấm 'Sửa ảnh bìa' → Tải lên → chọn file {job['cover_path']}.")
             for pr in job.get("products") or []:
                 log(f"  - Gắn sản phẩm …{str(pr['id'])[-6:]}...")
@@ -1562,6 +1603,74 @@ def inspect_ui(settings, channel, log=print):
                 for _ in range(2):
                     click_button(top_modal(page), r"^(Hủy|Cancel|Đóng|Close)$", timeout=1)
             return shots
+        finally:
+            try:
+                page.goto("about:blank")
+            except Exception:
+                pass
+            ctx.close()
+
+
+# =============================== Kiểm tra ảnh bìa bài đã hẹn giờ ===============================
+def verify_covers(settings, channel, jobs, log=print) -> dict:
+    """Mở TikTok Studio > Bài đăng, tìm bài hẹn giờ của từng video (theo giờ hẹn), tải ảnh bìa TikTok đang giữ
+    và so với ảnh bìa của video. Trả về {job_id: ("ok"|"thieu_bia"|"da_xoa"|"chua_ro", điểm)}.
+    'da_xoa' chỉ khi đã đọc hết danh sách bài tới trước lúc đăng video đó mà vẫn không thấy."""
+    from playwright.sync_api import sync_playwright
+    items = {}
+
+    def on_resp(r):
+        try:
+            if "item_list" in r.url:
+                for it in (r.json().get("item_list") or []):
+                    items[it["item_id"]] = it
+        except Exception:
+            pass
+
+    oldest_post = min(datetime.strptime(j["updated_at"], "%Y-%m-%d %H:%M") for j in jobs) - timedelta(hours=1)
+    out = {}
+    with ProfileLock(channel) as lock, sync_playwright() as p:
+        ctx = launch(p, settings, channel, True)
+        page = ctx.pages[0] if ctx.pages else ctx.new_page()
+        page.on("response", on_resp)
+        try:
+            page.goto("https://www.tiktok.com/tiktokstudio/content", wait_until="domcontentloaded", timeout=60000)
+            if "login" in page.url:
+                raise NeedLogin(f"Kênh «{channel}» cần đăng nhập lại")
+            _sleep(6, 7)
+            covered, last_n = False, -1
+            for _ in range(30):  # cuộn tới khi gặp bài tạo trước lúc đăng video cũ nhất (hoặc hết danh sách)
+                lock.touch()
+                times = [int(it.get("create_time") or 0) for it in items.values()]
+                if times and min(times) < oldest_post.timestamp():
+                    covered = True
+                    break
+                if len(items) == last_n:
+                    covered = bool(items)  # hết danh sách
+                    break
+                last_n = len(items)
+                page.mouse.wheel(0, 5000)
+                _sleep(2.5, 3.5)
+            by_t = {}
+            for it in items.values():
+                if int(it.get("schedule_time") or 0):
+                    by_t[datetime.fromtimestamp(int(it["schedule_time"])).strftime("%Y-%m-%d %H:%M")] = it
+            for j in jobs:
+                it = by_t.get(j["scheduled_at"])
+                if not it:
+                    out[j["id"]] = ("da_xoa" if covered else "chua_ro", -1)
+                    continue
+                if not j.get("cover_path") or not Path(j["cover_path"]).exists():
+                    out[j["id"]] = ("ok", -1)
+                    continue
+                try:
+                    body = ctx.request.get((it.get("cover_url") or [""])[0], timeout=30000).body()
+                    sc = image_similarity(body, j["cover_path"])
+                except Exception:
+                    out[j["id"]] = ("chua_ro", -1)
+                    continue
+                out[j["id"]] = ("ok" if sc >= 80 else "thieu_bia", sc)
+            return out
         finally:
             try:
                 page.goto("about:blank")
