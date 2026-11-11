@@ -11,6 +11,7 @@ from .config import APP_NAME, BASE_DIR, DATA_DIR, ensure_dirs
 PORT = 8501
 ICON = BASE_DIR / "assets" / "sonix.ico"
 LAUNCHER = BASE_DIR / "SonixDangVideo.pyw"
+LAUNCHER_EXE = BASE_DIR / "SonixDangVideo.exe"   # file bấm mở app (gọi Python chạy SonixDangVideo.pyw)
 
 BROWSERS = [
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
@@ -98,7 +99,9 @@ def _make_lnk(link: Path, target, args="", workdir="", icon=""):
 
 
 def _shortcut(path: Path, args: str = "", desc: str = APP_NAME):
-    """Tạo file .lnk mở app SonixDangVideo."""
+    """Tạo file .lnk mở app SonixDangVideo (trỏ vào SonixDangVideo.exe; chưa có exe thì trỏ vào Python)."""
+    if LAUNCHER_EXE.exists():
+        return _make_lnk(path, LAUNCHER_EXE, args, BASE_DIR, icon_path())
     return _make_lnk(path, _python_w(), f'"{LAUNCHER}" {args}'.strip(), BASE_DIR, icon_path())
 
 

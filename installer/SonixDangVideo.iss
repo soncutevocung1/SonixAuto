@@ -46,14 +46,14 @@ Source: "..\build\app\manifest.json"; DestDir: "{app}\data\capnhat"; DestName: "
 Name: "{app}\data"; Flags: uninsneveruninstall
 
 [Icons]
-Name: "{userprograms}\{#MyLnk}"; Filename: "{app}\python\pythonw.exe"; Parameters: """{app}\SonixDangVideo.pyw"""; WorkingDir: "{app}"; IconFilename: "{app}\assets\sonix.ico"; Comment: "{#MyName}"
-Name: "{userdesktop}\{#MyLnk}"; Filename: "{app}\python\pythonw.exe"; Parameters: """{app}\SonixDangVideo.pyw"""; WorkingDir: "{app}"; IconFilename: "{app}\assets\sonix.ico"; Comment: "{#MyName}"; Tasks: desktopicon
-Name: "{userstartup}\{#MyLnk} (chạy nền)"; Filename: "{app}\python\pythonw.exe"; Parameters: """{app}\SonixDangVideo.pyw"" --nen"; WorkingDir: "{app}"; IconFilename: "{app}\assets\sonix.ico"; Comment: "{#MyName} chạy nền"; Tasks: autostart
+Name: "{userprograms}\{#MyLnk}"; Filename: "{app}\SonixDangVideo.exe"; WorkingDir: "{app}"; IconFilename: "{app}\assets\sonix.ico"; Comment: "{#MyName}"
+Name: "{userdesktop}\{#MyLnk}"; Filename: "{app}\SonixDangVideo.exe"; WorkingDir: "{app}"; IconFilename: "{app}\assets\sonix.ico"; Comment: "{#MyName}"; Tasks: desktopicon
+Name: "{userstartup}\{#MyLnk} (chạy nền)"; Filename: "{app}\SonixDangVideo.exe"; Parameters: "--nen"; WorkingDir: "{app}"; IconFilename: "{app}\assets\sonix.ico"; Comment: "{#MyName} chạy nền"; Tasks: autostart
 
 [Run]
 ; Máy chưa có Chrome: tải trình duyệt dự phòng để đăng TikTok (cần mạng, ~150 MB)
 Filename: "{app}\python\python.exe"; Parameters: "-m playwright install chromium"; WorkingDir: "{app}"; StatusMsg: "Đang tải trình duyệt dự phòng (máy chưa có Chrome)..."; Flags: runhidden; Check: NoChrome
-Filename: "{app}\python\pythonw.exe"; Parameters: """{app}\SonixDangVideo.pyw"""; WorkingDir: "{app}"; Description: "Mở {#MyName} ngay"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\SonixDangVideo.exe"; WorkingDir: "{app}"; Description: "Mở {#MyName} ngay"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
 ; Chỉ xoá chương trình + thư viện; thư mục data (dữ liệu của bác) được giữ lại

@@ -1,7 +1,7 @@
 {
- "version": "2.0.4",
- "built_at": "2026-11-10T13:15:03Z",
- "notes": "- Có bộ cài SonixDangVideo_Setup.exe: mang sẵn Python và thư viện, cài trên máy mới chỉ cần bấm Tiếp.\n- Cài đè bản cũ không mất dữ liệu (đăng nhập kênh, hàng chờ, khoá AI).",
+ "version": "2.1.0",
+ "built_at": "2026-11-11T01:16:41Z",
+ "notes": "- Cửa sổ app riêng (giống Kid TE), không còn mượn Chrome. Có màn hình chờ lúc khởi động, hết màn hình đen.\n- Tool khởi động lại (sau cập nhật) thì cửa sổ tự kết nối lại.\n- Có file SonixDangVideo.exe để bấm mở; biểu tượng ngoài màn hình tự đổi sang file này.\n- Bấm mở lần nữa thì đưa cửa sổ đang mở lên trước, không mở thêm cửa sổ mới.\n- Tắt cửa sổ: bộ đăng vẫn chạy nền, tới giờ hẹn vẫn đăng.\n- Cần thêm 1 thư viện nhỏ (pywebview), tool tự cài khi cập nhật.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "7464f065efba4b4b6c23a9fe4601f8ed098c9323461ee078bca83f4f03e70536",
-   "size": 895
+   "sha256": "fdc31d5286137419c27f28690a409ce1e32068991f42769f0fff3ceca75861e9",
+   "size": 1510
   },
   {
    "path": "HUONG_DAN.md",
@@ -49,13 +49,18 @@
    "size": 17005
   },
   {
+   "path": "SonixDangVideo.exe",
+   "sha256": "989949040d3fb617a466e6ec8a40cd124bf5ea283cecdd59eb7caedd39e814a9",
+   "size": 1644544
+  },
+  {
    "path": "SonixDangVideo.pyw",
-   "sha256": "68e1e98f8ca0ff3bb4955e4770a1c2d2aa187d022294f1076a115d9de25052a9",
-   "size": 2274
+   "sha256": "658f75268082abf5f7bfb791aee3ce3e3ae397afabb150ba1f727253a8eab454",
+   "size": 3067
   },
   {
    "path": "VERSION",
-   "sha256": "137f467241023dadfa605db00e630b25a9394d0fc7232718812983ba24b93945",
+   "sha256": "c89b87c262e9d5ffd20e73aac74a1772adcc9f5a21682cc33adcf5086e5fef5c",
    "size": 6
   },
   {
@@ -104,14 +109,19 @@
    "size": 6362
   },
   {
+   "path": "core/cua_so.py",
+   "sha256": "1a40bcf74f1ff4ee6b13bb99da0b03f1762dc6da28862c960d4dc3217aaf5a47",
+   "size": 5842
+  },
+  {
    "path": "core/db.py",
    "sha256": "aa22e77f98af25b4a3f31dd0064b20bacf86e166c8c4d3ac8145bde58ede62e5",
    "size": 6763
   },
   {
    "path": "core/desktop.py",
-   "sha256": "6ebe84198b966b41a763ccd6202d7534c6c9362eb9c54511277f730fbb5efde7",
-   "size": 8320
+   "sha256": "a557f03bc5d48d84d0f8e0c96b135a6d6ef55969584b92e84a1110a446459ae2",
+   "size": 8606
   },
   {
    "path": "core/facebook.py",
@@ -175,8 +185,8 @@
   },
   {
    "path": "requirements.txt",
-   "sha256": "d342e09e089f0c71b3e2fb9353b1cf7494c698c24c276c857e5d97e5fd4d3723",
-   "size": 207
+   "sha256": "29c77592f5e3fc375011fd487fe62ddd33c0d28d8b65c8d5b638f1f7bd5b8dcc",
+   "size": 283
   },
   {
    "path": "runner.py",

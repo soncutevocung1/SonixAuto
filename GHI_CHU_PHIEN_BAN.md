@@ -1,5 +1,13 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.1.0
+- Cửa sổ app riêng (giống Kid TE), không còn mượn Chrome. Có màn hình chờ lúc khởi động, hết màn hình đen.
+- Tool khởi động lại (sau cập nhật) thì cửa sổ tự kết nối lại.
+- Có file SonixDangVideo.exe để bấm mở; biểu tượng ngoài màn hình tự đổi sang file này.
+- Bấm mở lần nữa thì đưa cửa sổ đang mở lên trước, không mở thêm cửa sổ mới.
+- Tắt cửa sổ: bộ đăng vẫn chạy nền, tới giờ hẹn vẫn đăng.
+- Cần thêm 1 thư viện nhỏ (pywebview), tool tự cài khi cập nhật.
+
 ## 2.0.4
 - Có bộ cài SonixDangVideo_Setup.exe: mang sẵn Python và thư viện, cài trên máy mới chỉ cần bấm Tiếp.
 - Cài đè bản cũ không mất dữ liệu (đăng nhập kênh, hàng chờ, khoá AI).

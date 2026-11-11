@@ -3,6 +3,7 @@
   SonixDangVideo.pyw         bật bộ đăng tự động + giao diện, mở cửa sổ app
   SonixDangVideo.pyw --nen   chỉ chạy nền (dùng khi tự bật lúc mở máy), không mở cửa sổ
 """
+import os
 import subprocess
 import sys
 import time
@@ -52,13 +53,34 @@ def start_ui():
     return False
 
 
+def refresh_shortcuts_once():
+    """Bản cũ: biểu tượng trỏ vào Python. Có SonixDangVideo.exe rồi thì làm lại biểu tượng 1 lần cho trỏ vào exe."""
+    flag = DATA_DIR / "bieu_tuong_exe.flag"
+    if sys.platform != "win32" or flag.exists() or not desktop.LAUNCHER_EXE.exists():
+        return
+    try:
+        desktop.create_shortcuts()
+        if desktop.is_autostart():
+            desktop.set_autostart(True)
+        flag.write_text("ok", encoding="utf-8")
+    except Exception:
+        pass
+
+
 if __name__ == "__main__":
     start_runner()
-    ok = start_ui()
-    if "--nen" not in sys.argv:
-        if ok:
-            desktop.open_app_window()
-        else:
-            import ctypes
-            ctypes.windll.user32.MessageBoxW(0, "Không mở được giao diện. Xem file data\\logs\\giao_dien.log",
-                                             "SonixDangVideo", 0x10)
+    if "--nen" in sys.argv:
+        start_ui()
+        sys.exit(0)
+    import threading
+    threading.Thread(target=refresh_shortcuts_once, daemon=True).start()
+    from core import cua_so
+    if cua_so.run(start_ui):
+        os._exit(0)
+    # máy không mở được cửa sổ riêng: dùng cửa sổ Chrome như trước
+    if start_ui():
+        desktop.open_app_window()
+    else:
+        import ctypes
+        ctypes.windll.user32.MessageBoxW(0, "Không mở được giao diện. Xem file data\\logs\\giao_dien.log",
+                                         "SonixDangVideo", 0x10)
