@@ -1,7 +1,7 @@
 {
- "version": "2.4.1",
- "built_at": "2026-11-11T09:58:13Z",
- "notes": "- Đăng video · Bước 1: mỗi kênh là 1 nút bấm (tên + số video mới), bấm để chọn/bỏ chọn; tự chọn sẵn kênh có video mới.\n- Nút \"Quản lý kênh\": thêm kênh mới (tự tạo thư mục), tạm ẩn kênh, xoá kênh khỏi app (thư mục video và đăng nhập vẫn giữ).",
+ "version": "2.4.2",
+ "built_at": "2026-11-11T13:56:27Z",
+ "notes": "- Sửa lỗi: mở tool bằng biểu tượng (SonixDangVideo.exe) thì cửa sổ app bị ẩn, không thấy gì. Nay cửa sổ luôn hiện ra; bấm biểu tượng lần nữa cũng đưa cửa sổ lên trước.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "f25639fac26959b928f2e0babe16b39b100dc68488bf735f6bedb1f4cc3c8e92",
-   "size": 8422
+   "sha256": "96a24bdeb25064798cbf1bb060596acb2fe1af9a3548385c31e06d9d51567a24",
+   "size": 8655
   },
   {
    "path": "HUONG_DAN.md",
@@ -50,8 +50,8 @@
   },
   {
    "path": "SonixDangVideo.exe",
-   "sha256": "989949040d3fb617a466e6ec8a40cd124bf5ea283cecdd59eb7caedd39e814a9",
-   "size": 1644544
+   "sha256": "ef73f86e4c991715fcb7ba9e33ab418459c00af2890766334d6e8da9b735da4c",
+   "size": 1645056
   },
   {
    "path": "SonixDangVideo.pyw",
@@ -60,7 +60,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "6d850e3ac42d0dd06bfdcce9151c1e6b40f4cf5272778f63eececea27c78f0b6",
+   "sha256": "7df73b8e407cc08ce7babfd544ab4ad92a7f62cf73a21468d2bfae85c0508c7c",
    "size": 6
   },
   {
@@ -110,8 +110,8 @@
   },
   {
    "path": "core/cua_so.py",
-   "sha256": "1a40bcf74f1ff4ee6b13bb99da0b03f1762dc6da28862c960d4dc3217aaf5a47",
-   "size": 5842
+   "sha256": "5433f50496dbed342e4da8fb7567dcd99aa4e252d27a760af3161688b580bab2",
+   "size": 6175
   },
   {
    "path": "core/db.py",

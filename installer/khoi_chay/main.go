@@ -41,7 +41,8 @@ func main() {
 	cmd := exec.Command(py, args...)
 	cmd.Dir = dir
 	cmd.Env = append(os.Environ(), "PYTHONUTF8=1", "PYTHONIOENCODING=utf-8")
-	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	// pythonw không có cửa sổ đen nên không cần ẩn; ẩn ở đây sẽ làm cửa sổ app bị ẩn theo
+	cmd.SysProcAttr = &syscall.SysProcAttr{}
 	if err := cmd.Start(); err != nil {
 		msg("Không mở được tool: " + err.Error())
 	}

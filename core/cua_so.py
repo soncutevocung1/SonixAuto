@@ -59,6 +59,7 @@ def bring_existing() -> bool:
         if h:
             u = ctypes.windll.user32
             u.ShowWindow(h, 9)  # SW_RESTORE
+            u.ShowWindow(h, 5)  # SW_SHOW (cửa sổ đang ẩn cũng hiện ra)
             u.SetForegroundWindow(h)
             return True
         time.sleep(0.25)
@@ -86,6 +87,10 @@ def _set_icon():
     for _ in range(40):
         h = _find()
         if h:
+            if not u.IsWindowVisible(h):  # mở bằng file .exe bản cũ: cửa sổ bị ẩn -> cho hiện ra
+                u.ShowWindow(h, 9)  # SW_RESTORE
+                u.ShowWindow(h, 5)  # SW_SHOW
+                u.SetForegroundWindow(h)
             for which, size in ((1, 256), (0, 32)):  # ICON_BIG, ICON_SMALL
                 hi = u.LoadImageW(None, ico, 1, size, size, 0x10)  # IMAGE_ICON, LR_LOADFROMFILE
                 if hi:
