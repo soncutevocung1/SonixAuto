@@ -8,7 +8,7 @@ import hashlib
 import time
 from pathlib import Path
 
-from .config import FOLDER_COVER, IMAGE_EXTS, WORK_DIR
+from .config import FOLDER_COVER, IMAGE_EXTS, WORK_DIR, norm
 
 THUMB_DIR = WORK_DIR / "theme_thumbs"
 PREFIX = "theme__"
@@ -152,3 +152,57 @@ def auto_assign(channel, settings, jobs, root) -> list:
         j["cover_path"] = new
         changed.append(j["id"])
     return changed
+
+
+# ------------------------- tự nhận diện ảnh bìa theo tên sản phẩm -------------------------
+def _tokens(text) -> set:
+    import re
+    return {t for t in re.split(r"[^0-9a-z]+", norm(str(text)).replace("đ", "d")) if t}
+
+
+def match_theme(item, themes):
+    """Ảnh theme khớp sản phẩm: mọi chữ trong tên ảnh đều có trong tên/từ khoá sản phẩm
+    (vd «Đạm cá amino.png» khớp «Đạm cá Amino can 1 lít»). Nhiều ảnh khớp thì lấy ảnh khớp nhiều chữ nhất."""
+    have = _tokens(item.get("name", "")) | _tokens((item.get("keywords") or "").replace(",", " ")) \
+        | _tokens(item.get("key", "").replace("_", " "))
+    best, score = None, 0
+    for t in themes:
+        tk = _tokens(Path(t).stem)
+        if not tk:
+            continue
+        hit = len(tk & have)
+        ok = hit == len(tk) or (hit >= 2 and hit / len(tk) >= 0.75)
+        if ok and hit > score:
+            best, score = Path(t), hit
+    return best
+
+
+def auto_defaults(settings, channel, root) -> int:
+    """Sản phẩm chưa đặt ảnh bìa mặc định: tự ghép theo tên file trong thư mục ẢNH BÌA. Trả về số sản phẩm vừa ghép."""
+    themes = theme_files(root) if root else []
+    if not themes:
+        return 0
+    m = settings.setdefault("cover_by_product", {}).setdefault(channel, {})
+    done = settings.setdefault("cover_auto_done", {}).setdefault(channel, [])  # đã ghép 1 lần (bác xoá thì không ghép lại)
+    n = 0
+    for it in settings.get("items", []):
+        if it["key"] in m or it["key"] in done:
+            continue
+        t = match_theme(it, themes)
+        done.append(it["key"])
+        if t:
+            m[it["key"]] = t.name
+            n += 1
+    return n
+
+
+def theme_for_job(settings, channel, job, root):
+    """Ảnh bìa cho video theo sản phẩm của nó: ảnh mặc định đã đặt, không có thì ảnh trùng tên sản phẩm."""
+    key = job.get("item_key") or ""
+    if not key or not root:
+        return None
+    name = default_for(settings, channel, key)
+    if name and (cover_dir(root) / name).exists():
+        return cover_dir(root) / name
+    it = next((x for x in settings.get("items", []) if x["key"] == key), None)
+    return match_theme(it, theme_files(root)) if it else None

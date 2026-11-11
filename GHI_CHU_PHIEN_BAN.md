@@ -1,5 +1,9 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.3.1
+- TikTok · Ảnh bìa: nút "Tự gắn ảnh bìa theo sản phẩm" — mỗi video đang chọn tự lấy ảnh trong thư mục ẢNH BÌA trùng tên sản phẩm AI nhận ra (vd Kích rễ TC01.png, Đạm cá amino.png dùng cho cả can 1 lít và 5 lít).
+- Sản phẩm chưa đặt ảnh bìa mặc định thì tool tự ghép theo tên ảnh (1 lần), video mới phân tích xong có bìa luôn. Đổi lại được ở mục Ảnh bìa mặc định theo sản phẩm.
+
 ## 2.3.0
 - Facebook · Video của trang: xem số video trong CHƯA UP, chưa phân tích, đang phân tích, chờ duyệt, chờ đăng, đã lên Facebook, ĐÃ UP, lỗi; lịch hiện có tới ngày nào.
 - Facebook · Chế độ Tự động: đọc toàn bộ video trong CHƯA UP, AI viết caption và lên lịch nối tiếp sau video có lịch muộn nhất. Chép thêm video vào lúc nào, tool tự phát hiện (1 phút/lần) và xếp vào những ngày tiếp theo. Video chỉ đăng sau khi bác bấm Xác nhận.

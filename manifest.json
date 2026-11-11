@@ -1,7 +1,7 @@
 {
- "version": "2.3.0",
- "built_at": "2026-11-11T07:00:51Z",
- "notes": "- Facebook · Video của trang: xem số video trong CHƯA UP, chưa phân tích, đang phân tích, chờ duyệt, chờ đăng, đã lên Facebook, ĐÃ UP, lỗi; lịch hiện có tới ngày nào.\n- Facebook · Chế độ Tự động: đọc toàn bộ video trong CHƯA UP, AI viết caption và lên lịch nối tiếp sau video có lịch muộn nhất. Chép thêm video vào lúc nào, tool tự phát hiện (1 phút/lần) và xếp vào những ngày tiếp theo. Video chỉ đăng sau khi bác bấm Xác nhận.",
+ "version": "2.3.1",
+ "built_at": "2026-11-11T07:53:02Z",
+ "notes": "- TikTok · Ảnh bìa: nút \"Tự gắn ảnh bìa theo sản phẩm\" — mỗi video đang chọn tự lấy ảnh trong thư mục ẢNH BÌA trùng tên sản phẩm AI nhận ra (vd Kích rễ TC01.png, Đạm cá amino.png dùng cho cả can 1 lít và 5 lít).\n- Sản phẩm chưa đặt ảnh bìa mặc định thì tool tự ghép theo tên ảnh (1 lần), video mới phân tích xong có bìa luôn. Đổi lại được ở mục Ảnh bìa mặc định theo sản phẩm.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "3b74e7c6148ff7e25f57e063019161bf3beddc99ac5df8d80b442b56d2afd305",
-   "size": 4597
+   "sha256": "424f9f9893cad0176b5a1f5c148753995260abdae0328dbe02327b05efe371a0",
+   "size": 5097
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,13 +60,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "a42caf4a54bbbe27aa45b6efbc6356c5e299b19763e728b6cdb7201b02ebbe36",
+   "sha256": "ad8650bc9057d9dfd809961b69dbad640c288d809fa44437d44d83d3b118c821",
    "size": 6
   },
   {
    "path": "app.py",
-   "sha256": "3d4d6aad92fb689da8f6896bbf8638376f63f4b5368b7bc73d68ad75d2a6c41e",
-   "size": 97856
+   "sha256": "ad674ced4030e87af2ecba2866b4a8eb272e3635b7df7eb3c0da34674612708b",
+   "size": 100019
   },
   {
    "path": "assets/sonix.ico",
@@ -105,8 +105,8 @@
   },
   {
    "path": "core/covers.py",
-   "sha256": "b382ed53c575131fbe54cc9406eaba8fb48348b552a59cd992f290f0c8fe7476",
-   "size": 6362
+   "sha256": "49b6f4fc0153bccddf354d4eb8bdd3afadb3df95086878d2e0e04d97c25719dc",
+   "size": 8688
   },
   {
    "path": "core/cua_so.py",

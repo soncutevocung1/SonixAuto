@@ -282,6 +282,30 @@ def use_theme_cb(ids, theme, msg_key=""):
                                      + (f" Lỗi: {err}" if err else ""))
 
 
+def auto_theme_cb(ids, channel, msg_key=""):
+    """Mỗi video lấy ảnh bìa trùng tên sản phẩm của nó (đi theo sản phẩm: đổi sản phẩm thì bìa đổi theo)."""
+    ok, miss, err = 0, [], ""
+    for i in ids:
+        j = db.get_job(i)
+        if not j:
+            continue
+        t = cov.theme_for_job(S, channel, j, ROOT)
+        if not t:
+            miss.append(Path(j["video_path"]).name)
+            continue
+        try:
+            follow = bool(cov.default_for(S, channel, j.get("item_key")))  # có bìa mặc định -> bìa đi theo sản phẩm
+            db.update_job(i, cover_path=cov.make_cover(j, t), cover_by_user=0 if follow else 1)
+            ok += 1
+        except Exception as e:
+            err = str(e)[:150]
+    if msg_key:
+        st.session_state[msg_key] = (f"Đã gắn ảnh bìa theo sản phẩm cho {ok} video."
+                                     + (f" {len(miss)} video chưa có ảnh trùng sản phẩm (hoặc chưa nhận ra sản phẩm): "
+                                        + ", ".join(miss[:5]) + ("…" if len(miss) > 5 else "") if miss else "")
+                                     + (f" Lỗi: {err}" if err else ""))
+
+
 def upload_theme_cb(wkey, nkey, ids, msg_key):
     """Lưu ảnh bác tải lên vào thư mục ẢNH BÌA; tải cho 1 video thì dùng luôn ảnh đó làm bìa."""
     files = st.session_state.get(wkey) or []
@@ -599,6 +623,8 @@ with tabs[1]:
         bad_ids = {p["id"] for p in show_all} - {p["id"] for p in show}
         favs = [f for f in snd.load_favs(chname) if f.get("title") and not f.get("skip")]
         themes = [str(p) for p in cov.theme_files(ROOT)]  # ảnh bìa có sẵn trong thư mục ẢNH BÌA
+        if cov.auto_defaults(S, chname, ROOT):  # sản phẩm chưa đặt bìa mặc định -> ghép theo tên ảnh trong ẢNH BÌA
+            save_settings(S)
         cov.auto_assign(chname, S, jobs, ROOT)  # video chưa tự chọn bìa -> dùng bìa mặc định của sản phẩm
         amo = auto_music_opts()
         fav_opts = list(dict.fromkeys("tiktok::" + snd.ref_of(f) for f in favs))  # bỏ trùng tên
@@ -731,6 +757,14 @@ with tabs[1]:
             bv = r3[2].selectbox("Người xem", list(VIS), key=f"bv_{slug(chname)}", format_func=VIS.get)
             r3[3].button("Áp dụng người xem", key=f"bva_{slug(chname)}", disabled=not sel_ids,
                          on_click=lambda ids=sel_ids, v=bv: _bulk(ids, visibility=v))
+            rca = st.columns([2, 3])
+            rca[0].button("Tự gắn ảnh bìa theo sản phẩm", key=f"bthauto_{slug(chname)}", type="primary",
+                          disabled=not (sel_ids and themes),
+                          on_click=lambda ids=sel_ids, c_=chname, m=f"thmsg_{slug(chname)}": auto_theme_cb(ids, c_, m),
+                          help="Mỗi video đang chọn lấy ảnh trong thư mục ẢNH BÌA trùng tên sản phẩm AI nhận ra "
+                               "(vd video Kích rễ TC01 → Kích rễ TC01.png)")
+            rca[1].caption("Tool so tên ảnh với tên sản phẩm của từng video. Đặt tên ảnh theo tên sản phẩm là được, "
+                           "ví dụ «Kích rễ TC01.png», «Đạm cá amino.png».")
             rcv = st.columns([2, 1, 2])
             bth = rcv[0].selectbox("Ảnh bìa có sẵn (theme)", themes or [""], key=f"bth_{slug(chname)}",
                                    format_func=lambda x: Path(x).name if x else "(chưa có ảnh, tải lên ở ô bên phải)")
