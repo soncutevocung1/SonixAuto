@@ -1,7 +1,7 @@
 {
- "version": "2.2.3",
- "built_at": "2026-11-11T02:51:38Z",
- "notes": "- Facebook · Lịch đăng: chọn từ ngày, đến ngày; khung giờ giống nhau mọi ngày hoặc riêng từng thứ trong tuần (để trống = nghỉ); xếp lại giờ cho tất cả hoặc video đang chọn; bảng xem trước lịch theo ngày.\n- Facebook · Ảnh bìa: chọn 1 trong 8 khung hình của video, tự tải ảnh lên, hoặc để Facebook tự chọn.\n- Sửa lỗi: sau khi Viết lại caption / xếp lại giờ, ô trên màn hình vẫn hiện nội dung cũ.",
+ "version": "2.2.4",
+ "built_at": "2026-11-11T04:59:09Z",
+ "notes": "- Facebook: khi AI đang phân tích / viết lại caption, màn hình tự kiểm tra 3 giây/lần và tự hiện kết quả khi xong (trước đây phải tải lại trang mới thấy, trông như bị đứng).",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "ec672af6e9a9ddf1a9ff4d618f5dfc7f30a01a78e6e6065a24a4dc3f54861773",
-   "size": 3376
+   "sha256": "272c8c2d92c6963fc57d11307c66e3d9aa9e9cd9ec8600c06daa33f88220620a",
+   "size": 3607
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,7 +60,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "4d66ce434c5ffb80f286227e918f77e14a9bc80e7bcc445353c02d484c33b699",
+   "sha256": "a8b03dbcd0ad4e8c077f65e496f0e4de651467fd28d0f494d21633c90dbada10",
    "size": 6
   },
   {
@@ -130,8 +130,8 @@
   },
   {
    "path": "core/fb_ui.py",
-   "sha256": "2ec034fe8aed2af1e9e19e0663630ea9d6cc4d0dd54f10b4825e5b95aca20609",
-   "size": 27129
+   "sha256": "459d7c88e3e39176b2b8297b98abe02e909a6a71d7badeacc0763918e92b9fe1",
+   "size": 27452
   },
   {
    "path": "core/fbq.py",

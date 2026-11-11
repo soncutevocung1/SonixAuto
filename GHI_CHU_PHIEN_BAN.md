@@ -1,5 +1,8 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.2.4
+- Facebook: khi AI đang phân tích / viết lại caption, màn hình tự kiểm tra 3 giây/lần và tự hiện kết quả khi xong (trước đây phải tải lại trang mới thấy, trông như bị đứng).
+
 ## 2.2.3
 - Facebook · Lịch đăng: chọn từ ngày, đến ngày; khung giờ giống nhau mọi ngày hoặc riêng từng thứ trong tuần (để trống = nghỉ); xếp lại giờ cho tất cả hoặc video đang chọn; bảng xem trước lịch theo ngày.
 - Facebook · Ảnh bìa: chọn 1 trong 8 khung hình của video, tự tải ảnh lên, hoặc để Facebook tự chọn.

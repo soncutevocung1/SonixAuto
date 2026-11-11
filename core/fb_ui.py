@@ -344,7 +344,15 @@ def _review(S, pg):
     drafts = sorted(db.list_jobs(["draft"], "facebook", pg["name"]), key=lambda j: j.get("scheduled_at") or "z")
     busy = len(db.list_jobs(["analyzing"], "facebook", pg["name"]))
     if busy:
-        st.info(f"AI đang viết {busy} caption... bấm phím F5 hoặc chuyển tab qua lại sau ít phút để xem.")
+        worker.start()
+
+        def _wait():  # tự kiểm tra 3 giây/lần, AI viết xong thì tải lại để hiện caption mới
+            left = len(db.list_jobs(["analyzing"], "facebook", pg["name"]))
+            if left:
+                st.info(f"AI đang viết {left} caption... xong sẽ tự hiện, bác không cần bấm gì.")
+            else:
+                st.rerun(scope="app")
+        st.fragment(run_every=3)(_wait)()
     if not drafts:
         return
     st.markdown(f"### Chờ duyệt ({len(drafts)} video)")
