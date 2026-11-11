@@ -1,5 +1,9 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.4.1
+- Đăng video · Bước 1: mỗi kênh là 1 nút bấm (tên + số video mới), bấm để chọn/bỏ chọn; tự chọn sẵn kênh có video mới.
+- Nút "Quản lý kênh": thêm kênh mới (tự tạo thư mục), tạm ẩn kênh, xoá kênh khỏi app (thư mục video và đăng nhập vẫn giữ).
+
 ## 2.4.0
 - Hàng chờ làm mới: chọn theo kênh TikTok / trang Facebook; lọc Sắp đăng / Đã hẹn giờ / Đã đăng / Lỗi; lọc thời gian, tìm theo caption hoặc tên file.
 - Video hiện dạng lưới thẻ (5 video/hàng) chia theo ngày: ảnh bìa, trạng thái, giờ, kênh, tên file gốc, caption, sản phẩm; nút ⋯ xem đủ thông tin.

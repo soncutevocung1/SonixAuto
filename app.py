@@ -488,6 +488,48 @@ with st.sidebar:
 
     components.html(ui.theme_script(S), height=0)
 
+def manage_channels():
+    """Thêm kênh, tạm ẩn, hoặc xoá kênh khỏi app (thư mục video, đăng nhập trình duyệt vẫn giữ)."""
+    chans = S.get("channels") or []
+    st.markdown("**Kênh trong app**")
+    for i, c in enumerate(chans):
+        a, b, d = st.columns([3, 1.3, 1])
+        a.markdown(f"{c['name']}" + (f" · @{c['handle']}" if c.get("handle") else ""))
+        on = b.toggle("Dùng", c.get("enabled", True), key=f"mc_on_{i}")
+        if on != c.get("enabled", True):
+            c["enabled"] = on
+            save_settings(S)
+            st.rerun()
+        if d.button("Xoá", key=f"mc_del_{i}"):
+            st.session_state["mc_confirm"] = c["name"]
+        if st.session_state.get("mc_confirm") == c["name"]:
+            st.warning(f"Xoá kênh «{c['name']}» khỏi app? Thư mục video và đăng nhập TikTok vẫn giữ, thêm lại là dùng tiếp.")
+            y, n_ = st.columns(2)
+            if y.button("Xoá khỏi app", key=f"mc_yes_{i}", type="primary"):
+                S["channels"] = [x for x in chans if x["name"] != c["name"]]
+                save_settings(S)
+                st.session_state.pop("mc_confirm", None)
+                st.rerun()
+            if n_.button("Thôi", key=f"mc_no_{i}"):
+                st.session_state.pop("mc_confirm", None)
+                st.rerun()
+    st.divider()
+    st.markdown("**Thêm kênh mới**")
+    nm = st.text_input("Tên kênh (cũng là tên thư mục)", key="mc_new_name", placeholder="vd: Phân Bón Sầu Riêng")
+    hd = st.text_input("@ tên TikTok", key="mc_new_handle", placeholder="vd: phanbonsaurieng")
+    if st.button("Thêm kênh", type="primary", key="mc_add", disabled=not nm.strip()):
+        if any(x["name"].lower() == nm.strip().lower() for x in chans):
+            st.error("Đã có kênh tên này.")
+        else:
+            chans.append({"name": nm.strip(), "handle": hd.strip().lstrip("@"), "enabled": True, "profile_dir": ""})
+            S["channels"] = chans
+            save_settings(S)
+            if ROOT:
+                chs.ensure_structure(ROOT, chans)
+            st.success("Đã thêm. Vào tab Kênh & sản phẩm để đăng nhập TikTok cho kênh này.")
+            st.rerun()
+
+
 _t = st.tabs(["Đăng video", "Duyệt & xác nhận", "Hàng chờ", "Tổng hợp", "Kênh & sản phẩm", "Nhạc nền", "Cài đặt",
               "Facebook", "Nhật ký"])
 tabs = [_t[0], _t[1], _t[2], _t[4], _t[5], _t[6], _t[7], _t[8]]
@@ -544,25 +586,34 @@ D:\\VIDEO_TIKTOK\\
                 except Exception as e:
                     st.error(f"Không tạo được thư mục: {e}")
     else:
-        st.header("Bước 1 · Chọn kênh cần đăng")
+        h1, h2 = st.columns([4, 1])
+        h1.header("Bước 1 · Chọn kênh cần đăng")
+        with h2.popover("Quản lý kênh", width="stretch"):
+            manage_channels()
         active = db.active_paths()
         counts = {}
         for c in CHANNELS:
             vids = [v for v in chs.todo_videos(ROOT, c["name"]) if str(v) not in active]
             counts[c["name"]] = vids
         anc = worker.pending_counts()
-        sel = st.multiselect("Kênh", [c["name"] for c in CHANNELS], default=[c["name"] for c in CHANNELS],
-                             format_func=lambda n: f"{n}  ({len(counts[n])} video mới trong {FOLDER_TODO}"
-                             + (f", {anc[n]} đang phân tích" if anc.get(n) else "") + ")")
-        cols = st.columns(max(1, len(sel)))
-        for i, n in enumerate(sel):
-            with cols[i]:
-                st.markdown(f"**{n}** · {len(counts[n])} video mới"
-                            + (f" · {anc[n]} video đang phân tích" if anc.get(n) else ""))
-                if st.button("Mở thư mục CHƯA UP", key=f"open_{slug(n)}"):
-                    open_folder(str(chs.channel_dir(ROOT, n) / FOLDER_TODO))
-                if not prod.load_showcase(n)["products"]:
-                    st.warning("Chưa đồng bộ Trưng bày sản phẩm → chưa gắn giỏ tự động được. Vào tab Kênh & sản phẩm.")
+        names = [c["name"] for c in CHANNELS]
+
+        def _ch_label(n):
+            k = len(counts[n])
+            return f"{n} · {k} mới" + (f" · {anc[n]} đang phân tích" if anc.get(n) else "")
+
+        sel = st.pills("Bấm để chọn / bỏ chọn kênh", names, selection_mode="multi", key="pick_channels",
+                       default=[n for n in names if counts[n]] or names, format_func=_ch_label) or []
+        if not sel:
+            st.info("Chưa chọn kênh nào. Bấm vào tên kênh ở trên để chọn.")
+        for n in sel:
+            r = st.columns([3, 1.2, 3])
+            r[0].markdown(f"**{n}** · {len(counts[n])} video mới trong {FOLDER_TODO}"
+                          + (f" · {anc[n]} đang phân tích" if anc.get(n) else ""))
+            if r[1].button("Mở thư mục", key=f"open_{slug(n)}"):
+                open_folder(str(chs.channel_dir(ROOT, n) / FOLDER_TODO))
+            if not prod.load_showcase(n)["products"]:
+                r[2].caption("Chưa đồng bộ Trưng bày sản phẩm → chưa tự gắn giỏ được (tab Kênh & sản phẩm).")
         st.header("Bước 2 · Chọn AI để nhận diện sản phẩm & viết caption")
         opts = list(MODELS) + [NO_AI]
         default = default_model()

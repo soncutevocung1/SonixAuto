@@ -1,7 +1,7 @@
 {
- "version": "2.4.0",
- "built_at": "2026-11-11T09:52:34Z",
- "notes": "- Hàng chờ làm mới: chọn theo kênh TikTok / trang Facebook; lọc Sắp đăng / Đã hẹn giờ / Đã đăng / Lỗi; lọc thời gian, tìm theo caption hoặc tên file.\n- Video hiện dạng lưới thẻ (5 video/hàng) chia theo ngày: ảnh bìa, trạng thái, giờ, kênh, tên file gốc, caption, sản phẩm; nút ⋯ xem đủ thông tin.\n- Khung \"Đang đăng\": video đang đăng, thanh tiến độ từng bước, thời gian đã chạy, các bước vừa làm (tự cập nhật 2 giây/lần).\n- Đăng chạy ẩn (không bật cửa sổ trình duyệt). Công tắc \"Hiện trình duyệt khi đăng\" ở tab Hàng chờ để bật khi cần xem lỗi.",
+ "version": "2.4.1",
+ "built_at": "2026-11-11T09:58:13Z",
+ "notes": "- Đăng video · Bước 1: mỗi kênh là 1 nút bấm (tên + số video mới), bấm để chọn/bỏ chọn; tự chọn sẵn kênh có video mới.\n- Nút \"Quản lý kênh\": thêm kênh mới (tự tạo thư mục), tạm ẩn kênh, xoá kênh khỏi app (thư mục video và đăng nhập vẫn giữ).",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "a588b63abc80429d0172aed40f7cebbd803f4478f88488c8ef1b4bb3d5ff504c",
-   "size": 8094
+   "sha256": "f25639fac26959b928f2e0babe16b39b100dc68488bf735f6bedb1f4cc3c8e92",
+   "size": 8422
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,13 +60,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "2ad7b0c3f0ede58c3165b7a8a5479e890a758d39bfe8683eaef50ce6afad7232",
+   "sha256": "6d850e3ac42d0dd06bfdcce9151c1e6b40f4cf5272778f63eececea27c78f0b6",
    "size": 6
   },
   {
    "path": "app.py",
-   "sha256": "3d6d12fe31934743ad949cb1998948990ecbc7906a7866b9b44bbb5f28f73e6e",
-   "size": 98750
+   "sha256": "f6c421383c7afb12d21aaac3227ad56542852e644bc4af15d90fe86d40a8356a",
+   "size": 101271
   },
   {
    "path": "assets/sonix.ico",
