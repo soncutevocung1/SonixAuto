@@ -76,6 +76,15 @@ def _upload_video(page_id, token, path, description, schedule_ts, ver):
     return _check(r).get("id")
 
 
+def set_thumbnail(video_id, token, image_path, ver="v23.0"):
+    """Đặt ảnh bìa cho video/Reels đã tải lên."""
+    with open(image_path, "rb") as f:
+        r = requests.post(f"https://graph.facebook.com/{ver}/{video_id}/thumbnails",
+                          data={"is_preferred": "true", "access_token": token},
+                          files={"source": (os.path.basename(image_path), f, "image/jpeg")}, timeout=120)
+    return _check(r)
+
+
 def comment(object_id, token, message, ver="v23.0"):
     r = requests.post(f"https://graph.facebook.com/{ver}/{object_id}/comments",
                       data={"message": message, "access_token": token}, timeout=60)
@@ -83,7 +92,7 @@ def comment(object_id, token, message, ver="v23.0"):
 
 
 def post(video_path: str, text: str, page: dict, scheduled_at: datetime, product_link: str = "",
-         ver: str = "v23.0") -> tuple:
+         ver: str = "v23.0", cover: str = "") -> tuple:
     """Đăng/hẹn giờ. Trả về (status, ghi_chú). status: 'done' hoặc 'scheduled_fb'."""
     if not page.get("page_id") or not page.get("token"):
         raise FacebookError(f"Trang '{page.get('name')}' chưa có Page ID hoặc token (vào Cài đặt).")
@@ -105,6 +114,12 @@ def post(video_path: str, text: str, page: dict, scheduled_at: datetime, product
         vid = _upload_video(page["page_id"], page["token"], video_path, text, schedule_ts, ver)
 
     note = f"{kind} id={vid}"
+    if cover and os.path.exists(cover):
+        try:
+            set_thumbnail(vid, page["token"], cover, ver)
+            note += " + ảnh bìa riêng"
+        except Exception as e:
+            note += f" (đặt ảnh bìa lỗi, Facebook tự chọn bìa: {safe(e)[:120]})"
     if schedule_ts:
         return "scheduled_fb", note + f" — FB sẽ tự đăng lúc {scheduled_at:%d/%m %H:%M}"
     if product_link:

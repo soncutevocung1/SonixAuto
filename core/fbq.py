@@ -24,14 +24,39 @@ def page(settings, name) -> dict:
     return next((p for p in pages(settings) if p["name"] == name), {}) or {}
 
 
-def times_of(pg) -> list:
+WEEKDAYS = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"]
+
+
+def parse_times(text) -> list:
     out = []
-    for x in re.split(r"[,;\s]+", str(pg.get("times") or "11:30, 19:30")):
+    for x in re.split(r"[,;\s]+", str(text or "")):
         try:
             out.append(datetime.strptime(x.strip(), "%H:%M").strftime("%H:%M"))
         except ValueError:
             pass
-    return sorted(set(out)) or ["11:30", "19:30"]
+    return sorted(set(out))
+
+
+def times_of(pg) -> list:
+    """Khung giờ chung mỗi ngày."""
+    return parse_times(pg.get("times") or "11:30, 19:30") or ["11:30", "19:30"]
+
+
+def times_for(pg, day) -> list:
+    """Khung giờ của 1 ngày: theo từng thứ (nếu bật) hoặc khung chung. Ngày để trống = nghỉ."""
+    if pg.get("by_day"):
+        return parse_times((pg.get("times_by_day") or {}).get(str(day.weekday()), ""))
+    return times_of(pg)
+
+
+def plan_range(pg):
+    """(từ ngày, đến ngày) đã lưu của trang; None = không giới hạn."""
+    def d(x):
+        try:
+            return datetime.strptime(x, "%Y-%m-%d").date()
+        except Exception:
+            return None
+    return d(pg.get("plan_from")), d(pg.get("plan_to"))
 
 
 def folder(pg, sub=FOLDER_TODO) -> Path:
@@ -56,24 +81,29 @@ def new_videos(pg) -> list:
                   key=_natural)
 
 
-def taken(name) -> set:
+def taken(name, exclude_ids=()) -> set:
     with db.conn() as c:
-        rows = c.execute("SELECT scheduled_at FROM jobs WHERE platform='facebook' AND channel=? AND scheduled_at!='' "
-                         "AND status NOT IN ('error')", (name,)).fetchall()
-    return {r[0] for r in rows}
+        rows = c.execute("SELECT id, scheduled_at FROM jobs WHERE platform='facebook' AND channel=? "
+                         "AND scheduled_at!='' AND status NOT IN ('error')", (name,)).fetchall()
+    return {r[1] for r in rows if r[0] not in set(exclude_ids)}
 
 
-def next_slots(pg, n, start=None) -> list:
-    """n khung giờ trống tiếp theo của trang (cách bây giờ ít nhất 30 phút)."""
-    start = start or datetime.now() + timedelta(minutes=30)
-    used, out, day = taken(pg["name"]), [], start.date()
-    while len(out) < n and day < start.date() + timedelta(days=400):
-        for hm in times_of(pg):
+def next_slots(pg, n, start=None, end_day=None, exclude_ids=()) -> list:
+    """n khung giờ trống tiếp theo của trang, trong khoảng [start, end_day]. Thiếu chỗ thì trả về ít hơn n."""
+    p_from, p_to = plan_range(pg)
+    soon = datetime.now() + timedelta(minutes=30)
+    if start is None:
+        start = max(soon, datetime.combine(p_from, datetime.min.time())) if p_from else soon
+    start = max(start, soon)
+    end_day = end_day or p_to or start.date() + timedelta(days=400)
+    used, out, day = taken(pg["name"], exclude_ids), [], start.date()
+    while len(out) < n and day <= end_day:
+        for hm in times_for(pg, day):
             t = datetime.combine(day, datetime.strptime(hm, "%H:%M").time())
-            s = t.strftime(FMT)
-            if t >= start and s not in used:
+            s_ = t.strftime(FMT)
+            if t >= start and s_ not in used:
                 out.append(t)
-                used.add(s)
+                used.add(s_)
                 if len(out) >= n:
                     break
         day += timedelta(days=1)
@@ -86,9 +116,20 @@ def plan_new(name, ids, settings) -> int:
     if not pg:
         return 0
     jobs = [j for j in db.list_jobs(["draft"], "facebook", name) if j["id"] in ids and not j.get("scheduled_at")]
-    for j, t in zip(jobs, next_slots(pg, len(jobs))):
+    jobs.sort(key=lambda j: _natural(Path(j["video_path"])))
+    slots = next_slots(pg, len(jobs))
+    for j, t in zip(jobs, slots):
         db.update_job(j["id"], scheduled_at=t.strftime(FMT))
-    return len(jobs)
+    return len(slots)
+
+
+def replan(pg, jobs, start, end_day=None) -> tuple:
+    """Xếp lại giờ cho các video (chưa đẩy lên Facebook). Trả về (số đã xếp, số thiếu chỗ)."""
+    jobs = sorted(jobs, key=lambda j: (j.get("scheduled_at") or "9999", _natural(Path(j["video_path"]))))
+    slots = next_slots(pg, len(jobs), start, end_day, exclude_ids=[j["id"] for j in jobs])
+    for i, j in enumerate(jobs):
+        db.update_job(j["id"], scheduled_at=slots[i].strftime(FMT) if i < len(slots) else "")
+    return len(slots), len(jobs) - len(slots)
 
 
 def move(video_path, pg, sub) -> str:

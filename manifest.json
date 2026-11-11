@@ -1,7 +1,7 @@
 {
- "version": "2.2.2",
- "built_at": "2026-11-11T02:45:33Z",
- "notes": "- Facebook: nút Viết lại caption (cả đợt hoặc từng video), giữ nguyên giờ đăng. Hiện số ký tự của caption.\n- Giới hạn từ 160 ký tự trở xuống thì AI chỉ viết 1-2 câu ngắn; vượt giới hạn thì tự cắt gọn.\n- Video duyệt trễ, giờ đăng đã qua: tự dời sang khung giờ trống kế tiếp, không đăng dồn.",
+ "version": "2.2.3",
+ "built_at": "2026-11-11T02:51:38Z",
+ "notes": "- Facebook · Lịch đăng: chọn từ ngày, đến ngày; khung giờ giống nhau mọi ngày hoặc riêng từng thứ trong tuần (để trống = nghỉ); xếp lại giờ cho tất cả hoặc video đang chọn; bảng xem trước lịch theo ngày.\n- Facebook · Ảnh bìa: chọn 1 trong 8 khung hình của video, tự tải ảnh lên, hoặc để Facebook tự chọn.\n- Sửa lỗi: sau khi Viết lại caption / xếp lại giờ, ô trên màn hình vẫn hiện nội dung cũ.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "47e4283f80d9c88b347ccef85add8f1941096785b2eef51027d08a3abf74a060",
-   "size": 2862
+   "sha256": "ec672af6e9a9ddf1a9ff4d618f5dfc7f30a01a78e6e6065a24a4dc3f54861773",
+   "size": 3376
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,7 +60,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "91930425f31d5132e78e0ad7195620e435121a2fdf87cf655f8323aa45ae0468",
+   "sha256": "4d66ce434c5ffb80f286227e918f77e14a9bc80e7bcc445353c02d484c33b699",
    "size": 6
   },
   {
@@ -125,18 +125,18 @@
   },
   {
    "path": "core/facebook.py",
-   "sha256": "440decd483753874edd3bda0f2ae71b1c769e262b7dd715d281c9c2efd2cd1d7",
-   "size": 10771
+   "sha256": "f8dca16077d84c40dccc0377483211d86ea98cfe17c60b2fb07b421e7863b3c3",
+   "size": 11521
   },
   {
    "path": "core/fb_ui.py",
-   "sha256": "c3a0c43cca56d07dd29a0e5b9fabad08a4ad48643081ff2e04c5559f92eb70ad",
-   "size": 20316
+   "sha256": "2ec034fe8aed2af1e9e19e0663630ea9d6cc4d0dd54f10b4825e5b95aca20609",
+   "size": 27129
   },
   {
    "path": "core/fbq.py",
-   "sha256": "3b4bd612607c57c58d51c701ecead2d2bc5355ea0ad4a0a7266e25beb06d8dea",
-   "size": 4785
+   "sha256": "52321a0721e95179d30b0724341f6d92dbe3ce9d6c5cfab0e1bb8fbb40e41093",
+   "size": 6558
   },
   {
    "path": "core/products.py",
@@ -180,8 +180,8 @@
   },
   {
    "path": "core/worker.py",
-   "sha256": "cad8814faf40814c1144a04982a6367687d59502065827ba08ec50bfaff40338",
-   "size": 6552
+   "sha256": "4a28952a66d2003a645bf690fb8c03f6e2c78afd69edc0fb0d7e752b8a8d391a",
+   "size": 6725
   },
   {
    "path": "dong_goi.py",
@@ -200,8 +200,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "64f9e142a043946d81897a511a3d147b223a3590cfbfe3feb1c6741e1502ef55",
-   "size": 15670
+   "sha256": "7b083e77d0fe13672e3207bccb76c10ea226058848a17df51903f9927d7fffa4",
+   "size": 15882
   },
   {
    "path": "tao_manifest.py",

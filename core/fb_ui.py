@@ -175,11 +175,8 @@ def _tasks(S, pg):
 # ------------------------------- cài đặt đăng -------------------------------
 def _settings(S, pg):
     with st.expander("Cài đặt đăng cho trang này", expanded=not pg.get("folder")):
-        a, b = st.columns([3, 2])
-        fd = a.text_input("Thư mục gốc RIÊNG của trang này (trong có CHƯA UP / ĐÃ UP / VIDEO LỖI)",
+        fd = st.text_input("Thư mục gốc RIÊNG của trang này (trong có CHƯA UP / ĐÃ UP / VIDEO LỖI)",
                           pg.get("folder") or "", placeholder=r"Ví dụ D:\REUP")
-        tm = b.text_input("Giờ đăng mỗi ngày (cách nhau dấu phẩy)", pg.get("times") or "11:30, 19:30",
-                          help="Mỗi giờ là 1 video. Ví dụ 11:30, 19:30 = 2 video/ngày.")
         c1, c2 = st.columns(2)
         story = c1.toggle("Đăng kèm vào Tin (Story) lúc tới giờ", bool(pg.get("story")),
                           help="Giúp làm nhiệm vụ 'Tạo tin mới'. Tin không hẹn giờ trước được nên máy phải bật lúc "
@@ -196,7 +193,7 @@ def _settings(S, pg):
             if other:
                 st.error(f"Thư mục này đang dùng cho trang «{other}». Mỗi trang 1 thư mục riêng để không đăng nhầm.")
                 return
-            pg.update(folder=fd.strip(), times=", ".join(fbq.times_of({"times": tm})), story=bool(story),
+            pg.update(folder=fd.strip(), story=bool(story),
                       hashtags=tags.strip(), caption_guide=guide.strip(), caption_max=int(mx))
             _save_page(S, pg)
             try:
@@ -210,6 +207,71 @@ def _settings(S, pg):
 
 
 # ------------------------------- phân tích + duyệt -------------------------------
+def _plan(S, pg):
+    """Lịch đăng: từ ngày - đến ngày, khung giờ chung hoặc riêng từng thứ, xếp lại giờ cho video chưa đẩy lên FB."""
+    jobs = [j for j in db.list_jobs(["draft", "pending"], "facebook", pg["name"])]
+    with st.expander("Lịch đăng: từ ngày, đến ngày, khung giờ từng thứ", expanded=False):
+        p_from, p_to = fbq.plan_range(pg)
+        today = datetime.now().date()
+        a, b, c = st.columns(3)
+        d0 = a.date_input("Từ ngày", max(p_from or today, today), format="DD/MM/YYYY", key="fpl_d0")
+        lim = b.toggle("Giới hạn đến ngày", bool(p_to), key="fpl_lim")
+        d1 = c.date_input("Đến ngày", p_to or today + timedelta(days=13), format="DD/MM/YYYY", key="fpl_d1",
+                          disabled=not lim)
+        mode = st.radio("Khung giờ", ["chung", "thu"], horizontal=True, index=1 if pg.get("by_day") else 0,
+                        key="fpl_mode", format_func={"chung": "Giống nhau mọi ngày",
+                                                     "thu": "Riêng từng thứ trong tuần"}.get)
+        tbd = dict(pg.get("times_by_day") or {})
+        if mode == "chung":
+            tm = st.text_input("Giờ đăng mỗi ngày (cách nhau dấu phẩy, mỗi giờ 1 video)", pg.get("times") or "11:30, 19:30",
+                               key="fpl_times")
+        else:
+            st.caption("Mỗi giờ là 1 video, cách nhau dấu phẩy. Để trống = ngày đó nghỉ, không đăng.")
+            cols = st.columns(7)
+            for i, wd in enumerate(fbq.WEEKDAYS):
+                tbd[str(i)] = cols[i].text_input(wd, tbd.get(str(i), pg.get("times") or "11:30, 19:30"),
+                                                 key=f"fpl_w{i}")
+            tm = pg.get("times") or "11:30, 19:30"
+        sel = [j["id"] for j in jobs if st.session_state.get(f"fsel_{j['id']}")]
+        scope = st.radio("Xếp lại giờ cho", ["all", "sel"], horizontal=True, key="fpl_scope",
+                         format_func={"all": f"Tất cả video chưa đẩy lên Facebook ({len(jobs)})",
+                                      "sel": f"Video đang chọn ({len(sel)})"}.get)
+        new_pg = {**pg, "times": ", ".join(fbq.parse_times(tm)) or "11:30, 19:30", "by_day": mode == "thu",
+                  "times_by_day": {k: ", ".join(fbq.parse_times(v)) for k, v in tbd.items()},
+                  "plan_from": d0.isoformat(), "plan_to": d1.isoformat() if lim else ""}
+        per_week = sum(len(fbq.times_for(new_pg, d0 + timedelta(days=i))) for i in range(7))
+        st.caption(f"Lịch này đăng **{per_week} video/tuần**. Lưu xong, video phân tích sau cũng tự xếp theo lịch này.")
+        x, y = st.columns(2)
+        if x.button("Lưu lịch", key="fpl_save"):
+            _save_page(S, new_pg)
+            st.success("Đã lưu lịch")
+            st.rerun()
+        target = jobs if scope == "all" else [j for j in jobs if j["id"] in sel]
+        if y.button(f"Lưu lịch và xếp lại giờ ({len(target)} video)", type="primary", key="fpl_go",
+                    disabled=not target or per_week == 0):
+            _save_page(S, new_pg)
+            start = max(datetime.combine(d0, datetime.min.time()), datetime.now() + timedelta(minutes=30))
+            ok, miss = fbq.replan(new_pg, target, start, d1 if lim else None)
+            st.success(f"Đã xếp {ok} video." + (f" {miss} video không đủ chỗ trong khoảng ngày này "
+                                                 "(chưa có giờ): kéo dài 'Đến ngày' hoặc thêm khung giờ." if miss else ""))
+            st.rerun()
+        rows = {}
+        for j in db.list_jobs(["draft", "pending", "scheduled_fb"], "facebook", pg["name"]):
+            if j.get("scheduled_at") and j["scheduled_at"] >= datetime.now().strftime("%Y-%m-%d"):
+                d, t = j["scheduled_at"].split(" ")
+                rows.setdefault(d, []).append(t + ("" if j["status"] != "scheduled_fb" else " (đã lên FB)"))
+        if rows:
+            import pandas as pd
+            st.dataframe(pd.DataFrame([{"Ngày": fbq.WEEKDAYS[datetime.strptime(d, "%Y-%m-%d").weekday()] + " "
+                                        + datetime.strptime(d, "%Y-%m-%d").strftime("%d/%m"),
+                                        "Số video": len(v), "Giờ đăng": "  ·  ".join(sorted(v))}
+                                       for d, v in sorted(rows.items())]), hide_index=True, width="stretch")
+        no_time = [j for j in jobs if not j.get("scheduled_at")]
+        if no_time:
+            st.warning(f"{len(no_time)} video chưa có giờ đăng (không đủ chỗ trong lịch).")
+        st.caption("Video đã đẩy lên Facebook (đã lên FB) thì đổi giờ trong Meta Business Suite.")
+
+
 def _new(S, pg):
     if not pg.get("folder"):
         st.info("Trang này chưa chọn thư mục video. Mở mục **Cài đặt đăng cho trang này** ở trên, "
@@ -228,9 +290,10 @@ def _new(S, pg):
     a, b = st.columns([3, 1])
     model = a.selectbox("Mức AI viết caption", opts, index=opts.index(dm), key="fb_model",
                         format_func=lambda m: MODELS.get(m, "Không dùng AI · caption mẫu (miễn phí)"))
-    per_day = len(fbq.times_of(pg))
-    n = b.number_input("Số video", 1, len(vids), min(len(vids), per_day * 7), key="fb_n",
-                       help=f"Mặc định đủ 1 tuần ({per_day} video/ngày).")
+    today = datetime.now().date()
+    per_week = sum(len(fbq.times_for(pg, today + timedelta(days=i))) for i in range(7)) or 7
+    n = b.number_input("Số video", 1, len(vids), min(len(vids), per_week), key="fb_n",
+                       help=f"Mặc định đủ 1 tuần theo lịch đăng ({per_week} video/tuần).")
     has_key = model == NO_AI or bool(ai_key(S, model))
     if not has_key:
         st.error("Chưa có API key cho mức AI này → vào tab Cài đặt dán key, hoặc chọn mức khác.")
@@ -241,6 +304,40 @@ def _new(S, pg):
         worker.start()
         st.success(f"Đã đưa {n} video vào phân tích. Xong video nào hiện ngay bên dưới để bác duyệt.")
         st.rerun()
+
+
+def _cover_picker(j):
+    """Chọn ảnh bìa: 1 khung hình trong video, tự tải ảnh lên, hoặc để Facebook tự chọn."""
+    from . import analyze as ana
+    from .config import WORK_DIR
+    with st.expander("Ảnh bìa"):
+        frames = [(i, f) for i, f in enumerate(j.get("frames") or []) if Path(f.get("thumb", "")).exists()][:8]
+        if frames:
+            cols = st.columns(len(frames))
+            for c_, (i, f) in zip(cols, frames):
+                c_.image(f["thumb"], width="stretch")
+                if c_.button(f"Khung {i + 1}", key=f"fcv_{j['id']}_{i}"):
+                    try:
+                        db.update_job(j["id"], cover_path=ana.set_cover(j, i), cover_by_user=1)
+                    except Exception as e:
+                        st.error(f"Không cắt được khung: {e}")
+                    st.rerun()
+        up = st.file_uploader("Hoặc tải ảnh bìa lên (dọc 9:16 đẹp nhất)", type=["jpg", "jpeg", "png", "webp"],
+                              key=f"fup_{j['id']}")
+        a, b = st.columns(2)
+        if up is not None and a.button("Dùng ảnh này", key=f"fupok_{j['id']}", type="primary"):
+            from PIL import Image, ImageOps
+            import io
+            im = ImageOps.exif_transpose(Image.open(io.BytesIO(up.getvalue()))).convert("RGB")
+            im.thumbnail((1080, 1920))
+            out = WORK_DIR / str(j["id"]) / "cover_rieng.jpg"
+            out.parent.mkdir(parents=True, exist_ok=True)
+            im.save(out, "JPEG", quality=90)
+            db.update_job(j["id"], cover_path=str(out), cover_by_user=1)
+            st.rerun()
+        if int(j.get("cover_by_user") or 0) and b.button("Để Facebook tự chọn bìa", key=f"fcvoff_{j['id']}"):
+            db.update_job(j["id"], cover_by_user=0)
+            st.rerun()
 
 
 def _review(S, pg):
@@ -272,21 +369,25 @@ def _review(S, pg):
     for j in drafts[:30]:
         with st.container(border=True):
             l, r = st.columns([1, 4])
+            l.checkbox("Chọn", key=f"fsel_{j['id']}")
+            own = int(j.get("cover_by_user") or 0)
             if j.get("cover_path") and Path(j["cover_path"]).exists():
                 l.image(j["cover_path"], width="stretch")
+            l.caption("Bìa: tự chọn" if own else "Bìa: Facebook tự chọn")
             r.markdown(f"**{Path(j['video_path']).name}** · {j.get('ai_note') or ''}")
-            capt = r.text_area("Caption", j.get("caption") or "", key=f"fc_{j['id']}", height=130)
+            v = abs(hash((j.get("caption"), j.get("hashtags"), j.get("scheduled_at")))) % 10**8  # đổi nội dung -> ô mới
+            capt = r.text_area("Caption", j.get("caption") or "", key=f"fc_{j['id']}_{v}", height=130)
             x, y, z = r.columns([3, 2, 2])
-            tags = x.text_input("Hashtag", j.get("hashtags") or "", key=f"fh_{j['id']}")
+            tags = x.text_input("Hashtag", j.get("hashtags") or "", key=f"fh_{j['id']}_{v}")
             try:
                 t0 = datetime.strptime(j["scheduled_at"], FMT)
             except Exception:
                 t0 = datetime.now() + timedelta(hours=1)
-            d = y.date_input("Ngày", t0.date(), format="DD/MM/YYYY", key=f"fd_{j['id']}")
-            tm = z.time_input("Giờ", t0.time(), step=300, key=f"ft_{j['id']}")
+            d = y.date_input("Ngày", t0.date(), format="DD/MM/YYYY", key=f"fd_{j['id']}_{v}")
+            tm = z.time_input("Giờ", t0.time(), step=300, key=f"ft_{j['id']}_{v}")
             r.caption(f"{len(capt)} ký tự")
             s1, s2, s3, s4, s5 = r.columns(5)
-            sto = s1.checkbox("Kèm Tin", bool(int(j.get("fb_story") or 0)), key=f"fs_{j['id']}")
+            sto = s1.checkbox("Kèm Tin", bool(int(j.get("fb_story") or 0)), key=f"fs_{j['id']}_{v}")
             new = dict(caption=capt, hashtags=tags, scheduled_at=datetime.combine(d, tm).strftime(FMT),
                        fb_story=1 if sto else 0)
             if s2.button("Xác nhận", key=f"fok_{j['id']}", type="primary"):
@@ -303,6 +404,7 @@ def _review(S, pg):
             if s4.button("Bỏ video", key=f"fdel_{j['id']}"):
                 db.delete_jobs([j["id"]])
                 st.rerun()
+            _cover_picker(j)
     if len(drafts) > 30:
         st.caption(f"Còn {len(drafts) - 30} video nữa, duyệt xong đợt này sẽ hiện tiếp.")
 
@@ -357,6 +459,7 @@ def render(S):
     _tasks(S, pg)
     st.divider()
     _settings(S, pg)
+    _plan(S, pg)
     _new(S, pg)
     _review(S, pg)
     _queue(pg)

@@ -136,12 +136,14 @@ def run_facebook(job, settings):
         raise facebook.FacebookError(f"Không thấy trang FB '{job['channel']}' trong tool (tab Facebook)")
     t = datetime.strptime(job["scheduled_at"], db.TIME_FMT) if job.get("scheduled_at") else datetime.now()
     if t < datetime.now() - timedelta(minutes=15):  # đã qua giờ (duyệt trễ / máy tắt) -> dời sang khung trống kế tiếp
-        t = fbq.next_slots(page, 1)[0]
+        slots = fbq.next_slots(page, 1, exclude_ids=[job["id"]])
+        t = slots[0] if slots else datetime.now()  # hết khung trong lịch -> đăng ngay
         db.update_job(job["id"], scheduled_at=t.strftime(db.TIME_FMT))
         log(f"  - Lỡ giờ cũ, dời sang {t:%d/%m %H:%M}")
     text = build_text(job["caption"], job["hashtags"], job.get("product_link", ""), "facebook")
+    cover = job.get("cover_path") if int(job.get("cover_by_user") or 0) else ""
     status, note = facebook.post(job["video_path"], text, page, t, job.get("product_link", ""),
-                                 settings.get("fb_graph_version", "v23.0"))
+                                 settings.get("fb_graph_version", "v23.0"), cover=cover)
     if page.get("folder"):
         new_path = fbq.move(job["video_path"], page, FOLDER_DONE)
         db.rename_video_path(job["video_path"], new_path)

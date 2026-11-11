@@ -42,6 +42,8 @@ def _log(msg):
 def analyze_fb_job(jid, video, page, model, settings, redo=False) -> str:
     try:
         r = ana.analyze_fb(jid, video, page, settings, model)
+        if redo and int((db.get_job(jid) or {}).get("cover_by_user") or 0):
+            r.pop("cover_path", None)  # viết lại caption: giữ ảnh bìa bác đã chọn
         db.update_job(jid, status="draft", redo_caption=0, **r)
         if not redo:  # viết lại caption thì không đếm thêm lượt phân tích
             stats.record("phan_tich", db.get_job(jid))
