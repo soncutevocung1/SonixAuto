@@ -1,5 +1,11 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.4.0
+- Hàng chờ làm mới: chọn theo kênh TikTok / trang Facebook; lọc Sắp đăng / Đã hẹn giờ / Đã đăng / Lỗi; lọc thời gian, tìm theo caption hoặc tên file.
+- Video hiện dạng lưới thẻ (5 video/hàng) chia theo ngày: ảnh bìa, trạng thái, giờ, kênh, tên file gốc, caption, sản phẩm; nút ⋯ xem đủ thông tin.
+- Khung "Đang đăng": video đang đăng, thanh tiến độ từng bước, thời gian đã chạy, các bước vừa làm (tự cập nhật 2 giây/lần).
+- Đăng chạy ẩn (không bật cửa sổ trình duyệt). Công tắc "Hiện trình duyệt khi đăng" ở tab Hàng chờ để bật khi cần xem lỗi.
+
 ## 2.3.7
 - Sửa lỗi bản 2.3.6: đoạn kiểm tra ảnh bìa cũ bị chép trùng nên tool vẫn chạy cách cũ. Nay chỉ còn cách mới (đọc thẳng file ảnh bìa, bìa không lên thì không đăng).
 - Bước đóng gói tự chặn phát hành nếu có hàm trùng tên.

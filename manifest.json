@@ -1,7 +1,7 @@
 {
- "version": "2.3.7",
- "built_at": "2026-11-11T09:32:44Z",
- "notes": "- Sửa lỗi bản 2.3.6: đoạn kiểm tra ảnh bìa cũ bị chép trùng nên tool vẫn chạy cách cũ. Nay chỉ còn cách mới (đọc thẳng file ảnh bìa, bìa không lên thì không đăng).\n- Bước đóng gói tự chặn phát hành nếu có hàm trùng tên.",
+ "version": "2.4.0",
+ "built_at": "2026-11-11T09:52:34Z",
+ "notes": "- Hàng chờ làm mới: chọn theo kênh TikTok / trang Facebook; lọc Sắp đăng / Đã hẹn giờ / Đã đăng / Lỗi; lọc thời gian, tìm theo caption hoặc tên file.\n- Video hiện dạng lưới thẻ (5 video/hàng) chia theo ngày: ảnh bìa, trạng thái, giờ, kênh, tên file gốc, caption, sản phẩm; nút ⋯ xem đủ thông tin.\n- Khung \"Đang đăng\": video đang đăng, thanh tiến độ từng bước, thời gian đã chạy, các bước vừa làm (tự cập nhật 2 giây/lần).\n- Đăng chạy ẩn (không bật cửa sổ trình duyệt). Công tắc \"Hiện trình duyệt khi đăng\" ở tab Hàng chờ để bật khi cần xem lỗi.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "095817a5bb1157833ff3c0a3241081413cc3de88a5476ef429999df9a45eaecd",
-   "size": 7392
+   "sha256": "a588b63abc80429d0172aed40f7cebbd803f4478f88488c8ef1b4bb3d5ff504c",
+   "size": 8094
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,13 +60,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "0fd7d1833844253d87dd014218f5f0c8cf6f8a2eb9ed9c9eab0d5ebb061e4607",
+   "sha256": "2ad7b0c3f0ede58c3165b7a8a5479e890a758d39bfe8683eaef50ce6afad7232",
    "size": 6
   },
   {
    "path": "app.py",
-   "sha256": "5361bcf05ae43862cbf24660d324919addbcd38282e020286b83e0ea8611c62e",
-   "size": 101280
+   "sha256": "3d6d12fe31934743ad949cb1998948990ecbc7906a7866b9b44bbb5f28f73e6e",
+   "size": 98750
   },
   {
    "path": "assets/sonix.ico",
@@ -100,8 +100,8 @@
   },
   {
    "path": "core/config.py",
-   "sha256": "b9b302147d086faebc78898b2dc764e35d8d07b948bc8a4377e44000be591c3e",
-   "size": 8632
+   "sha256": "4ff7fcc398a3ff5579f42b4019d8e88bebad19d4c85beac81eee1251605ee485",
+   "size": 8739
   },
   {
    "path": "core/covers.py",
@@ -142,6 +142,16 @@
    "path": "core/products.py",
    "sha256": "31ce300f1ce7120e02bd47b621af60c3a39e0ba6427485ffa486118ebbc536c3",
    "size": 3821
+  },
+  {
+   "path": "core/progress.py",
+   "sha256": "53051b5d72e7a2d18249dc7bfb0fbad16b0ba2603d1843d46def1931c3b9a9b8",
+   "size": 3038
+  },
+  {
+   "path": "core/queue_ui.py",
+   "sha256": "39e074cb744afd8ae2a29c2bc2614cc120a737e7f1c1b1b29baa26079474dd5a",
+   "size": 13967
   },
   {
    "path": "core/schedule.py",
@@ -200,8 +210,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "55ba674ab07efc067313c3e2092f25c0c3c0b6887091d5150122202c803e65d8",
-   "size": 22172
+   "sha256": "84d23d76fc8fa9ed6bc6ce9da79c70686705203e20677c2e3039cb4d7d30a20e",
+   "size": 22319
   },
   {
    "path": "tao_manifest.py",
