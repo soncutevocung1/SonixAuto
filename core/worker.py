@@ -112,7 +112,7 @@ def _loop():
             batch = todo[:8]
             touched = {}
             gem = any(str(j.get("ai_model") or default_model(settings)).startswith("gemini") for j in batch)
-            with ThreadPoolExecutor(max_workers=2 if gem else 4) as ex:  # Gemini miễn phí giới hạn lượt/phút
+            with ThreadPoolExecutor(max_workers=2) as ex:  # 2 video/lần: đỡ nghẽn ổ cứng, Gemini miễn phí đỡ vượt lượt/phút
                 futs = {ex.submit(analyze_job, j["id"], j["video_path"], j["channel"],
                                   j.get("ai_model") or default_model(settings), settings,
                                   bool(j.get("redo_caption")), j.get("item_key") or "",
@@ -131,6 +131,8 @@ def _loop():
 
 def start():
     """Bật luồng phân tích ngầm (nếu chưa chạy). Gọi nhiều lần cũng chỉ có 1 luồng."""
+    from . import desktop
+    desktop.low_priority()
     with _lock:
         if any(t.name == NAME and t.is_alive() for t in threading.enumerate()):
             return False

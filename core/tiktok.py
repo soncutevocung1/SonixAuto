@@ -407,6 +407,27 @@ def set_cover(page, cover_path):
     return True
 
 
+def cover_score(page, cover_path) -> float:
+    """Ô 'Ảnh bìa' trên trang đăng giống file bìa đến đâu (0-100). Chụp ô bìa, thu nhỏ, so từng điểm ảnh
+    (bỏ dải dưới có chữ 'Sửa ảnh bìa'). Trả -1 nếu không chụp được ô bìa."""
+    import io
+    from PIL import Image, ImageChops, ImageStat
+    try:
+        img = _visible(page.locator('[data-e2e="cover_container"] img'), 3) or \
+            _visible(page.get_by_text(_rx(r"^Ảnh bìa")).locator("xpath=following::img[1]"), 2)
+        if not img:
+            return -1
+        shot = Image.open(io.BytesIO(img.screenshot())).convert("L")
+        ref = Image.open(cover_path).convert("L")
+        w, h = 36, 64
+        a = shot.resize((w, h)).crop((0, 0, w, int(h * 0.78)))
+        b = ref.resize((w, h)).crop((0, 0, w, int(h * 0.78)))
+        diff = ImageStat.Stat(ImageChops.difference(a, b)).mean[0]  # 0 = giống hệt, 255 = khác hẳn
+        return max(0.0, 100 - diff / 255 * 100 * 3)
+    except Exception:
+        return -1
+
+
 # =============================== Gắn sản phẩm (giỏ hàng) ===============================
 def _open_add_link(page):
     clear_popups(page)

@@ -231,3 +231,16 @@ def reset_icon():
         except Exception:
             pass
     return create_shortcuts()
+
+
+def low_priority():
+    """Cho tool chạy ở mức ưu tiên dưới bình thường: máy bận việc khác thì tool nhường CPU,
+    máy rảnh thì vẫn chạy hết tốc độ. Chrome, ffmpeg do tool mở ra cũng nhường theo (Windows tự kế thừa)."""
+    if sys.platform != "win32":
+        return
+    try:
+        import ctypes
+        k = ctypes.windll.kernel32
+        k.SetPriorityClass(k.GetCurrentProcess(), 0x00004000)  # BELOW_NORMAL_PRIORITY_CLASS
+    except Exception:
+        pass

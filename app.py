@@ -655,13 +655,13 @@ with tabs[1]:
                        f"lịch sau khi phân tích. Giờ vàng ngoài khung 'Đăng từ - Đến' sẽ không dùng.")
             a1, a2, a3, a4 = st.columns(4)
             sd = a1.date_input("Từ ngày", datetime.now().date(), key=f"pl_d_{slug(chname)}", format="DD/MM/YYYY")
-            stt = a2.time_input("Từ giờ", sch.round5(datetime.now() + timedelta(minutes=30)).time(),
+            stt = a2.time_input("Ngày đầu: bắt đầu lúc", sch.round5(datetime.now() + timedelta(minutes=30)).time(),
                                 key=f"pl_t_{slug(chname)}", step=300)
             per_day = a3.number_input("Số video/ngày", 1, 30, int(p["per_day"]), key=f"pl_n_{slug(chname)}")
             gap = a4.number_input("Cách nhau ít nhất (phút)", 5, 1440, int(p["gap_min"]), 5, key=f"pl_g_{slug(chname)}")
             b1, b2, b3, b4 = st.columns(4)
-            w0 = b1.text_input("Đăng từ (giờ)", p["start"], key=f"pl_w0_{slug(chname)}")
-            w1 = b2.text_input("Đến (giờ)", p["end"], key=f"pl_w1_{slug(chname)}")
+            w0 = b1.text_input("Mỗi ngày chỉ đăng từ (giờ)", p["start"], key=f"pl_w0_{slug(chname)}")
+            w1 = b2.text_input("Mỗi ngày đăng đến (giờ)", p["end"], key=f"pl_w1_{slug(chname)}")
             gf = b3.checkbox("Ưu tiên giờ vàng", p["golden_first"], key=f"pl_gf_{slug(chname)}")
             gps = b4.number_input("Số video mỗi khung giờ vàng", 1, 5, int(p["golden_per_slot"]),
                                   key=f"pl_gp_{slug(chname)}", help="Tăng lên để dồn nhiều video vào giờ vàng")
@@ -674,6 +674,16 @@ with tabs[1]:
                 bad_w = "giờ phải ghi dạng HH:MM, ví dụ 14:50"
             if bad_w:
                 st.error(f"Khung 'Đăng từ - Đến' chưa đúng: {bad_w}.")
+            else:
+                st.caption(f"Ngày {sd:%d/%m} bắt đầu lúc **{stt:%H:%M}** · các ngày sau đăng từ **{w0.strip()}** "
+                           f"đến **{w1.strip()}**.")
+                try:
+                    if stt > datetime.strptime(w0.strip(), "%H:%M").time():
+                        st.warning(f"Ngày đầu bắt đầu {stt:%H:%M} nhưng các ngày sau lại đăng từ {w0.strip()}. "
+                                   f"Muốn ngày nào cũng từ {stt:%H:%M} thì sửa ô 'Mỗi ngày chỉ đăng từ' thành "
+                                   f"{stt:%H:%M}.")
+                except ValueError:
+                    pass
             if st.button("Xếp lịch", key=f"pl_go_{slug(chname)}", disabled=bool(bad_w)):
                 target = jobs if scope == "all" else [j for j in jobs if j["id"] in sel_ids]
                 n = plan_channel(chname, target, {"start_dt": datetime.combine(sd, stt), "per_day": per_day,

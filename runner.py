@@ -314,6 +314,8 @@ def main():
         time.sleep(10)
         return
     _ALIVE.set()
+    from core import desktop as _dk
+    _dk.low_priority()  # nhường CPU cho việc khác của bác (Chrome, ffmpeg tool mở cũng nhường theo)
     threading.Thread(target=_beat_forever, name="nhip-tim", daemon=True).start()
     db.reset_stuck()
     stop_flag = DATA_DIR / "stop_runner.flag"
