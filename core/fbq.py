@@ -35,7 +35,9 @@ def times_of(pg) -> list:
 
 
 def folder(pg, sub=FOLDER_TODO) -> Path:
-    return Path(pg.get("folder") or r"D:\REUP") / sub
+    if not (pg.get("folder") or "").strip():
+        raise ValueError(f"Trang «{pg.get('name')}» chưa chọn thư mục video")
+    return Path(pg["folder"].strip()) / sub
 
 
 def _natural(p: Path):
@@ -44,6 +46,8 @@ def _natural(p: Path):
 
 def new_videos(pg) -> list:
     """Video trong CHƯA UP chưa nằm trong hàng chờ, xếp theo số trong tên (1, 2, ..., 10)."""
+    if not (pg.get("folder") or "").strip():
+        return []
     d = folder(pg)
     if not d.is_dir():
         return []

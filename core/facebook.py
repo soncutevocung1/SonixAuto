@@ -34,7 +34,7 @@ def _check(r: requests.Response) -> dict:
         if code == 190:
             msg = "Token Facebook hết hạn hoặc sai. Vào Cài đặt lấy token mới. (" + msg + ")"
         elif code in (10, 200):
-            msg = "Token thiếu quyền đăng bài (cần pages_manage_posts, publish_video). (" + msg + ")"
+            msg = "Mã Facebook thiếu quyền cho việc này (" + msg + "). Lấy mã lại và tick đủ quyền."
         raise FacebookError(msg)
     return data
 
@@ -119,7 +119,7 @@ def post(video_path: str, text: str, page: dict, scheduled_at: datetime, product
 # ======================= Kết nối trang, nhiệm vụ tuần, bình luận, Tin =======================
 GRAPH = "https://graph.facebook.com"
 PERMS = ["pages_show_list", "pages_read_engagement", "pages_manage_posts", "pages_read_user_content",
-         "pages_manage_engagement", "business_management"]
+         "pages_manage_engagement", "business_management", "read_insights"]
 
 
 def _get(path, token, ver="v23.0", **params):

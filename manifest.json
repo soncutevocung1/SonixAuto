@@ -1,7 +1,7 @@
 {
- "version": "2.2.0",
- "built_at": "2026-11-11T02:03:27Z",
- "notes": "- Làm lại tab Facebook để đăng Reels lên Trang tự động:\n  - Kết nối trang bằng mã chính thức của Meta, tool tự đổi sang mã trang không hết hạn.\n  - Lấy video từ thư mục CHƯA UP của trang, AI xem video và đọc phụ đề để viết caption (giống TikTok), bác duyệt rồi xác nhận.\n  - Tự xếp giờ theo khung giờ bác đặt (vd 11:30, 19:30), đẩy lên Facebook hẹn giờ trước 2 ngày, đăng xong chuyển video sang ĐÃ UP.\n  - Tuỳ chọn đăng kèm vào Tin (Story).\n- Nhiệm vụ tuần của trang: số Reels / bài viết / Tin đã đăng so với chỉ tiêu, việc còn phải làm, bình luận chưa trả lời và trả lời ngay trong tool.",
+ "version": "2.2.1",
+ "built_at": "2026-11-11T02:29:18Z",
+ "notes": "- Mỗi trang Facebook phải có thư mục video riêng, tránh đăng nhầm video sang trang khác.\n- Thêm quyền read_insights (không bắt buộc) để sau này xem lượt xem từng video.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "b30017f41ca8f8186724af5bd69c7707363627874d7b72c348c8bba4257575c3",
-   "size": 2259
+   "sha256": "fbc6d5f0491e049f72ebb9cd0b1d82e330eb5d2fe4b7d05764500f216b6ae00f",
+   "size": 2470
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,7 +60,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "c4a2383a03bdb6739d16a0e24058e4b9c7da4e63d203e0be2f448868cc03c530",
+   "sha256": "fe650098093fad42070e8a2cacfb216a6c416af57bd26dd6ff479fef69f8bc71",
    "size": 6
   },
   {
@@ -125,18 +125,18 @@
   },
   {
    "path": "core/facebook.py",
-   "sha256": "4e96d323c72cc73517fc12cd29771c76f5847dbd74e36d60b8996b3b6d524784",
-   "size": 10745
+   "sha256": "440decd483753874edd3bda0f2ae71b1c769e262b7dd715d281c9c2efd2cd1d7",
+   "size": 10771
   },
   {
    "path": "core/fb_ui.py",
-   "sha256": "ee321dc709fde4fcba71c1720d04f531de1ab0aaa96c8e1e8581a9d86a3a3e43",
-   "size": 18446
+   "sha256": "f1a9f513efc3f17012bb9c22b579fdbcf591b66f10eccb3bcd8a3b0d9ffdf38e",
+   "size": 19250
   },
   {
    "path": "core/fbq.py",
-   "sha256": "3a8506ed2b106f182def67a29737415f9dc6a120395d596e2994a4744f458cc7",
-   "size": 4601
+   "sha256": "3b4bd612607c57c58d51c701ecead2d2bc5355ea0ad4a0a7266e25beb06d8dea",
+   "size": 4785
   },
   {
    "path": "core/products.py",

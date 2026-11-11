@@ -1,5 +1,9 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.2.1
+- Mỗi trang Facebook phải có thư mục video riêng, tránh đăng nhầm video sang trang khác.
+- Thêm quyền read_insights (không bắt buộc) để sau này xem lượt xem từng video.
+
 ## 2.2.0
 - Làm lại tab Facebook để đăng Reels lên Trang tự động:
   - Kết nối trang bằng mã chính thức của Meta, tool tự đổi sang mã trang không hết hạn.

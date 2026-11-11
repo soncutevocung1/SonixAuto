@@ -18,7 +18,7 @@ TOKEN_GUIDE = """
 1. Vào **developers.facebook.com**, đăng nhập bằng tài khoản Facebook đang quản trị trang. Lần đầu Facebook hỏi đăng ký nhà phát triển thì bấm theo, xác minh số điện thoại.
 2. Bấm **Ứng dụng của tôi (My Apps) → Tạo ứng dụng (Create App)**. Ở mục trường hợp sử dụng chọn **Quản lý mọi thứ trên Trang (Manage everything on your Page)**, đặt tên ví dụ `Sonix Dang Video`, bấm tạo.
 3. Vào **Công cụ (Tools) → Graph API Explorer**. Ô **Meta App** chọn ứng dụng vừa tạo. Ô **User or Page** chọn **Get User Access Token**.
-4. Tick đủ các quyền: `pages_show_list`, `pages_read_engagement`, `pages_manage_posts`, `pages_read_user_content`, `pages_manage_engagement`, `business_management`. Bấm **Generate Access Token**, Facebook hỏi chọn trang thì chọn trang của bác, bấm đồng ý.
+4. Tick đủ các quyền: `pages_show_list`, `pages_read_engagement`, `pages_manage_posts`, `pages_read_user_content`, `pages_manage_engagement`, `business_management`, `read_insights` (xem lượt xem từng video, không bắt buộc). Bấm **Generate Access Token**, Facebook hỏi chọn trang thì chọn trang của bác, bấm đồng ý.
 5. Bấm biểu tượng **(i)** cạnh mã → **Open in Access Token Tool**. Kéo xuống cuối bấm **Extend Access Token** (gia hạn mã) → bấm **Copy**.
 6. Dán mã vừa copy vào ô bên dưới → bấm **Lấy mã trang**. Tool tự đổi sang mã trang **không hết hạn**.
 
@@ -64,7 +64,6 @@ def _connect(S):
                                              if p.get("page_id") in (f["id"], f.get("username"))
                                              or n.lower() == f["name"].lower()), {}) or {}
             pg = {**base, "name": f["name"], "page_id": f["id"], "token": f["access_token"]}
-            pg.setdefault("folder", r"D:\REUP")
             pg.setdefault("times", "11:30, 19:30")
             _save_page(S, pg)
         st.success("Đã kết nối: " + ", ".join(f"{f['name']} ({f.get('followers_count', '?')} người theo dõi)"
@@ -177,7 +176,8 @@ def _tasks(S, pg):
 def _settings(S, pg):
     with st.expander("Cài đặt đăng cho trang này", expanded=not pg.get("folder")):
         a, b = st.columns([3, 2])
-        fd = a.text_input("Thư mục gốc (trong có CHƯA UP / ĐÃ UP / VIDEO LỖI)", pg.get("folder") or r"D:\REUP")
+        fd = a.text_input("Thư mục gốc RIÊNG của trang này (trong có CHƯA UP / ĐÃ UP / VIDEO LỖI)",
+                          pg.get("folder") or "", placeholder=r"Ví dụ D:\REUP")
         tm = b.text_input("Giờ đăng mỗi ngày (cách nhau dấu phẩy)", pg.get("times") or "11:30, 19:30",
                           help="Mỗi giờ là 1 video. Ví dụ 11:30, 19:30 = 2 video/ngày.")
         c1, c2 = st.columns(2)
@@ -190,6 +190,11 @@ def _settings(S, pg):
                              placeholder="Ví dụ: xưng 'em', gọi 'bà con'; luôn kết bằng câu mời theo dõi trang.")
         mx = st.number_input("Caption tối đa (ký tự)", 100, 1500, int(pg.get("caption_max") or 350), 50)
         if st.button("Lưu cài đặt trang", type="primary", key="fb_pg_save"):
+            other = next((p["name"] for p in fbq.pages(S) if p["name"] != pg["name"] and fd.strip()
+                          and (p.get("folder") or "").strip().lower() == fd.strip().lower()), "")
+            if other:
+                st.error(f"Thư mục này đang dùng cho trang «{other}». Mỗi trang 1 thư mục riêng để không đăng nhầm.")
+                return
             pg.update(folder=fd.strip(), times=", ".join(fbq.times_of({"times": tm})), story=bool(story),
                       hashtags=tags.strip(), caption_guide=guide.strip(), caption_max=int(mx))
             _save_page(S, pg)
@@ -205,6 +210,10 @@ def _settings(S, pg):
 
 # ------------------------------- phân tích + duyệt -------------------------------
 def _new(S, pg):
+    if not pg.get("folder"):
+        st.info("Trang này chưa chọn thư mục video. Mở mục **Cài đặt đăng cho trang này** ở trên, "
+                "nhập thư mục riêng của trang rồi bấm Lưu.")
+        return
     vids = fbq.new_videos(pg)
     nan = len(db.list_jobs(["analyzing"], "facebook", pg["name"]))
     st.markdown(f"### Đăng video mới\n**{len(vids)}** video mới trong `{fbq.folder(pg)}`"
@@ -322,7 +331,8 @@ def render(S):
         return
     names = [p["name"] for p in ready]
     a, b = st.columns([3, 1])
-    name = a.selectbox("Trang", names, key="fb_page") if len(names) > 1 else names[0]
+    first = next((i for i, p in enumerate(ready) if p.get("folder")), 0)
+    name = a.selectbox("Trang", names, index=first, key="fb_page") if len(names) > 1 else names[0]
     if len(names) == 1:
         a.markdown(f"## {name}")
     with b.popover("Kết nối lại / thêm trang"):
