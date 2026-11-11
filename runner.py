@@ -83,7 +83,7 @@ def due_facebook(job, now, settings=None) -> bool:
     """Đẩy lên Facebook trước giờ đăng tối đa N ngày (FB tự giữ lịch, máy tắt vẫn đăng).
     Để N nhỏ (mặc định 2) để bác còn sửa caption/giờ trong tool trước khi đẩy."""
     if not job.get("scheduled_at"):
-        return True
+        return False  # chưa có giờ thì không bao giờ tự đăng
     t = datetime.strptime(job["scheduled_at"], db.TIME_FMT)
     ahead = timedelta(days=float((settings or {}).get("fb_max_ahead_days", 2)))
     return t <= now or (t - now) <= ahead

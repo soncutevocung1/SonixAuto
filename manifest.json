@@ -1,7 +1,7 @@
 {
- "version": "2.2.4",
- "built_at": "2026-11-11T04:59:09Z",
- "notes": "- Facebook: khi AI đang phân tích / viết lại caption, màn hình tự kiểm tra 3 giây/lần và tự hiện kết quả khi xong (trước đây phải tải lại trang mới thấy, trông như bị đứng).",
+ "version": "2.2.5",
+ "built_at": "2026-11-11T06:50:41Z",
+ "notes": "- Facebook: video ngoài khoảng ngày của lịch đăng ghi rõ \"Chưa có giờ\", không còn hiện giờ giả (hôm nay +1 tiếng), không xác nhận được.\n- Nút \"Trả video chưa có giờ về CHƯA UP\"; xếp lại giờ thì video thiếu chỗ tự trả về CHƯA UP đợi lịch sau.\n- Phân tích không quá số khung giờ còn trống trong lịch. Bộ đăng không bao giờ đăng video chưa có giờ.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "272c8c2d92c6963fc57d11307c66e3d9aa9e9cd9ec8600c06daa33f88220620a",
-   "size": 3607
+   "sha256": "d7e9cd61d64f812fe5a775fe903676d69baeb7803a074d880d225b9d71b0aa58",
+   "size": 4055
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,7 +60,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "a8b03dbcd0ad4e8c077f65e496f0e4de651467fd28d0f494d21633c90dbada10",
+   "sha256": "f56c797a25f16ade37ae22d56124b085d6bc58d05cc9f73d2075f474c170204b",
    "size": 6
   },
   {
@@ -130,8 +130,8 @@
   },
   {
    "path": "core/fb_ui.py",
-   "sha256": "459d7c88e3e39176b2b8297b98abe02e909a6a71d7badeacc0763918e92b9fe1",
-   "size": 27452
+   "sha256": "ee6f0f094141622c701df8605388830c0b75c8ca306a26f06451bf3444797712",
+   "size": 28900
   },
   {
    "path": "core/fbq.py",
@@ -200,8 +200,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "7b083e77d0fe13672e3207bccb76c10ea226058848a17df51903f9927d7fffa4",
-   "size": 15882
+   "sha256": "3bc05acaaa55ad3a332f35778755f78f588e83a60670df9d27f7c4871bbdfdda",
+   "size": 15936
   },
   {
    "path": "tao_manifest.py",

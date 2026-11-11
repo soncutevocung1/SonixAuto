@@ -1,5 +1,10 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.2.5
+- Facebook: video ngoài khoảng ngày của lịch đăng ghi rõ "Chưa có giờ", không còn hiện giờ giả (hôm nay +1 tiếng), không xác nhận được.
+- Nút "Trả video chưa có giờ về CHƯA UP"; xếp lại giờ thì video thiếu chỗ tự trả về CHƯA UP đợi lịch sau.
+- Phân tích không quá số khung giờ còn trống trong lịch. Bộ đăng không bao giờ đăng video chưa có giờ.
+
 ## 2.2.4
 - Facebook: khi AI đang phân tích / viết lại caption, màn hình tự kiểm tra 3 giây/lần và tự hiện kết quả khi xong (trước đây phải tải lại trang mới thấy, trông như bị đứng).
 

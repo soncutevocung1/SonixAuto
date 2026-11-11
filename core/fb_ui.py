@@ -252,8 +252,11 @@ def _plan(S, pg):
             _save_page(S, new_pg)
             start = max(datetime.combine(d0, datetime.min.time()), datetime.now() + timedelta(minutes=30))
             ok, miss = fbq.replan(new_pg, target, start, d1 if lim else None)
-            st.success(f"Đã xếp {ok} video." + (f" {miss} video không đủ chỗ trong khoảng ngày này "
-                                                 "(chưa có giờ): kéo dài 'Đến ngày' hoặc thêm khung giờ." if miss else ""))
+            if miss:  # không đủ chỗ trong lịch -> bỏ khỏi hàng, video vẫn nằm trong CHƯA UP đợi lịch sau
+                db.delete_jobs([j["id"] for j in db.list_jobs(["draft", "pending"], "facebook", pg["name"])
+                                if not j.get("scheduled_at")])
+            st.success(f"Đã xếp {ok} video." + (f" {miss} video ngoài khoảng ngày đã trả về CHƯA UP, "
+                                                 "lần sau lên lịch tiếp sẽ phân tích lại." if miss else ""))
             st.rerun()
         rows = {}
         for j in db.list_jobs(["draft", "pending", "scheduled_fb"], "facebook", pg["name"]):
@@ -292,8 +295,16 @@ def _new(S, pg):
                         format_func=lambda m: MODELS.get(m, "Không dùng AI · caption mẫu (miễn phí)"))
     today = datetime.now().date()
     per_week = sum(len(fbq.times_for(pg, today + timedelta(days=i))) for i in range(7)) or 7
-    n = b.number_input("Số video", 1, len(vids), min(len(vids), per_week), key="fb_n",
-                       help=f"Mặc định đủ 1 tuần theo lịch đăng ({per_week} video/tuần).")
+    p_to = fbq.plan_range(pg)[1]
+    free = len(fbq.next_slots(pg, len(vids))) if p_to else len(vids)
+    if p_to and free == 0:
+        st.warning(f"Lịch đăng đã kín tới {p_to:%d/%m}. Mở mục Lịch đăng, kéo dài 'Đến ngày' để lên lịch tiếp.")
+        return
+    n = b.number_input("Số video", 1, max(1, free), min(free, per_week), key="fb_n",
+                       help=f"Mặc định đủ 1 tuần theo lịch đăng ({per_week} video/tuần)."
+                       + (f" Lịch tới {p_to:%d/%m} còn {free} khung trống." if p_to else ""))
+    if p_to:
+        st.caption(f"Lịch tới {p_to:%d/%m} còn **{free} khung giờ trống**.")
     has_key = model == NO_AI or bool(ai_key(S, model))
     if not has_key:
         st.error("Chưa có API key cho mức AI này → vào tab Cài đặt dán key, hoặc chọn mức khác.")
@@ -363,7 +374,14 @@ def _review(S, pg):
             db.update_job(j["id"], status="analyzing", redo_caption=1)
         worker.start()
         st.rerun()
-    if c[0].button(f"Xác nhận tất cả {len(drafts)} video", type="primary", key="fb_all"):
+    no_t = [j for j in drafts if not j.get("scheduled_at")]
+    if no_t:
+        st.warning(f"{len(no_t)} video chưa có giờ vì ngoài khoảng ngày của lịch đăng.")
+        if st.button(f"Trả {len(no_t)} video này về CHƯA UP (đợi lịch sau)", key="fb_back"):
+            db.delete_jobs([j["id"] for j in no_t])
+            st.rerun()
+    n_ok = len(drafts) - len(no_t)
+    if c[0].button(f"Xác nhận tất cả {n_ok} video có giờ", type="primary", key="fb_all", disabled=not n_ok):
         for j in drafts:
             if j.get("scheduled_at"):
                 db.update_job(j["id"], status="pending", reviewed=1)
@@ -387,18 +405,22 @@ def _review(S, pg):
             capt = r.text_area("Caption", j.get("caption") or "", key=f"fc_{j['id']}_{v}", height=130)
             x, y, z = r.columns([3, 2, 2])
             tags = x.text_input("Hashtag", j.get("hashtags") or "", key=f"fh_{j['id']}_{v}")
-            try:
-                t0 = datetime.strptime(j["scheduled_at"], FMT)
-            except Exception:
-                t0 = datetime.now() + timedelta(hours=1)
-            d = y.date_input("Ngày", t0.date(), format="DD/MM/YYYY", key=f"fd_{j['id']}_{v}")
-            tm = z.time_input("Giờ", t0.time(), step=300, key=f"ft_{j['id']}_{v}")
+            has_t = bool(j.get("scheduled_at"))
+            set_t = has_t or y.toggle("Tự đặt giờ", key=f"fst_{j['id']}_{v}")
+            if not has_t:
+                z.warning("Chưa có giờ (ngoài lịch)")
+            if set_t:
+                t0 = datetime.strptime(j["scheduled_at"], FMT) if has_t else datetime.now() + timedelta(hours=1)
+                d = y.date_input("Ngày", t0.date(), format="DD/MM/YYYY", key=f"fd_{j['id']}_{v}")
+                tm = z.time_input("Giờ", t0.time(), step=300, key=f"ft_{j['id']}_{v}")
+                when = datetime.combine(d, tm).strftime(FMT)
+            else:
+                when = ""
             r.caption(f"{len(capt)} ký tự")
             s1, s2, s3, s4, s5 = r.columns(5)
             sto = s1.checkbox("Kèm Tin", bool(int(j.get("fb_story") or 0)), key=f"fs_{j['id']}_{v}")
-            new = dict(caption=capt, hashtags=tags, scheduled_at=datetime.combine(d, tm).strftime(FMT),
-                       fb_story=1 if sto else 0)
-            if s2.button("Xác nhận", key=f"fok_{j['id']}", type="primary"):
+            new = dict(caption=capt, hashtags=tags, scheduled_at=when, fb_story=1 if sto else 0)
+            if s2.button("Xác nhận", key=f"fok_{j['id']}", type="primary", disabled=not when):
                 db.update_job(j["id"], status="pending", reviewed=1, **new)
                 st.rerun()
             if s3.button("Lưu", key=f"fsv_{j['id']}"):
