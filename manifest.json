@@ -1,7 +1,7 @@
 {
- "version": "2.1.0",
- "built_at": "2026-11-11T01:16:41Z",
- "notes": "- Cửa sổ app riêng (giống Kid TE), không còn mượn Chrome. Có màn hình chờ lúc khởi động, hết màn hình đen.\n- Tool khởi động lại (sau cập nhật) thì cửa sổ tự kết nối lại.\n- Có file SonixDangVideo.exe để bấm mở; biểu tượng ngoài màn hình tự đổi sang file này.\n- Bấm mở lần nữa thì đưa cửa sổ đang mở lên trước, không mở thêm cửa sổ mới.\n- Tắt cửa sổ: bộ đăng vẫn chạy nền, tới giờ hẹn vẫn đăng.\n- Cần thêm 1 thư viện nhỏ (pywebview), tool tự cài khi cập nhật.",
+ "version": "2.2.0",
+ "built_at": "2026-11-11T02:03:27Z",
+ "notes": "- Làm lại tab Facebook để đăng Reels lên Trang tự động:\n  - Kết nối trang bằng mã chính thức của Meta, tool tự đổi sang mã trang không hết hạn.\n  - Lấy video từ thư mục CHƯA UP của trang, AI xem video và đọc phụ đề để viết caption (giống TikTok), bác duyệt rồi xác nhận.\n  - Tự xếp giờ theo khung giờ bác đặt (vd 11:30, 19:30), đẩy lên Facebook hẹn giờ trước 2 ngày, đăng xong chuyển video sang ĐÃ UP.\n  - Tuỳ chọn đăng kèm vào Tin (Story).\n- Nhiệm vụ tuần của trang: số Reels / bài viết / Tin đã đăng so với chỉ tiêu, việc còn phải làm, bình luận chưa trả lời và trả lời ngay trong tool.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "fdc31d5286137419c27f28690a409ce1e32068991f42769f0fff3ceca75861e9",
-   "size": 1510
+   "sha256": "b30017f41ca8f8186724af5bd69c7707363627874d7b72c348c8bba4257575c3",
+   "size": 2259
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,13 +60,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "c89b87c262e9d5ffd20e73aac74a1772adcc9f5a21682cc33adcf5086e5fef5c",
+   "sha256": "c4a2383a03bdb6739d16a0e24058e4b9c7da4e63d203e0be2f448868cc03c530",
    "size": 6
   },
   {
    "path": "app.py",
-   "sha256": "0435440f1da0f238098b1e539aa0fbff188e11cb667cbf382eb9ea243c7f4bfb",
-   "size": 100383
+   "sha256": "3d4d6aad92fb689da8f6896bbf8638376f63f4b5368b7bc73d68ad75d2a6c41e",
+   "size": 97856
   },
   {
    "path": "assets/sonix.ico",
@@ -85,8 +85,8 @@
   },
   {
    "path": "core/analyze.py",
-   "sha256": "d04602ef5aaaead9172221ac8d3af1beebf8e77d3057faa239c830906b350043",
-   "size": 16681
+   "sha256": "27f7237bfe426d3597fc2ef99b3550dc581fb007e39fc8c18ef9490b6cc86fa4",
+   "size": 22089
   },
   {
    "path": "core/caption.py",
@@ -100,8 +100,8 @@
   },
   {
    "path": "core/config.py",
-   "sha256": "749de7816a5215aeeda5e0238bbfa47ffbf953a04715d60a7d6d6e83f55b268f",
-   "size": 8527
+   "sha256": "b9b302147d086faebc78898b2dc764e35d8d07b948bc8a4377e44000be591c3e",
+   "size": 8632
   },
   {
    "path": "core/covers.py",
@@ -115,8 +115,8 @@
   },
   {
    "path": "core/db.py",
-   "sha256": "aa22e77f98af25b4a3f31dd0064b20bacf86e166c8c4d3ac8145bde58ede62e5",
-   "size": 6763
+   "sha256": "776d853fc8c563cacd7858164bb334c71cac115ab7a94384df2c63f0a3d0d743",
+   "size": 6960
   },
   {
    "path": "core/desktop.py",
@@ -125,8 +125,18 @@
   },
   {
    "path": "core/facebook.py",
-   "sha256": "5eec34eb6ea397e6955837c93cebe76fb8daf443ab1e0c2310e7badc6eac4f71",
-   "size": 4806
+   "sha256": "4e96d323c72cc73517fc12cd29771c76f5847dbd74e36d60b8996b3b6d524784",
+   "size": 10745
+  },
+  {
+   "path": "core/fb_ui.py",
+   "sha256": "ee321dc709fde4fcba71c1720d04f531de1ab0aaa96c8e1e8581a9d86a3a3e43",
+   "size": 18446
+  },
+  {
+   "path": "core/fbq.py",
+   "sha256": "3a8506ed2b106f182def67a29737415f9dc6a120395d596e2994a4744f458cc7",
+   "size": 4601
   },
   {
    "path": "core/products.py",
@@ -170,8 +180,8 @@
   },
   {
    "path": "core/worker.py",
-   "sha256": "702339c9e348443bc0c8716432ffdfbbf312f9c03358c46ac9406612ec3d8ef6",
-   "size": 5637
+   "sha256": "86e07d65a6cb271b37bcd6f62ae9370a3a9d2369e4d6ae5ba78599f51b3dac46",
+   "size": 6427
   },
   {
    "path": "dong_goi.py",
@@ -190,8 +200,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "1e62e8a967c8460171f39fcae79cf7b83401743f1f7a9013828e00ab9ec14da7",
-   "size": 12704
+   "sha256": "8e5b89916d9f88ffe469adbdf9ffabe8e786329ffc2dddae64830512dc2ad224",
+   "size": 15651
   },
   {
    "path": "tao_manifest.py",

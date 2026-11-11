@@ -13,6 +13,7 @@ from pathlib import Path
 
 from . import analyze as ana
 from . import db
+from . import fbq
 from . import schedule as sch
 from . import sounds as snd
 from . import stats
@@ -38,8 +39,22 @@ def _log(msg):
         pass
 
 
-def analyze_job(jid, video, channel, model, settings, caption_only=False, item_key="") -> str:
+def analyze_fb_job(jid, video, page, model, settings) -> str:
+    try:
+        r = ana.analyze_fb(jid, video, page, settings, model)
+        db.update_job(jid, status="draft", redo_caption=0, **r)
+        stats.record("phan_tich", db.get_job(jid))
+        return ""
+    except Exception as e:
+        db.update_job(jid, status="draft", frames=[], cover_path="",
+                      ai_note=f"Phân tích lỗi: {str(e)[:150]} → bấm Phân tích lại hoặc Bỏ video")
+        return f"{Path(video).name}: {e}"
+
+
+def analyze_job(jid, video, channel, model, settings, caption_only=False, item_key="", platform="tiktok") -> str:
     """Phân tích 1 video, ghi ngay kết quả vào hàng chờ. Trả về '' nếu ổn, hoặc nội dung lỗi."""
+    if platform == "facebook":
+        return analyze_fb_job(jid, video, channel, model, settings)
     try:
         r = ana.analyze(jid, video, channel, settings, model, caption_only=caption_only, known_item=item_key)
         db.update_job(jid, status="draft", redo_caption=0, **r)
@@ -80,7 +95,7 @@ def _loop():
     _log("Bắt đầu luồng phân tích ngầm")
     while True:
         try:
-            todo = db.list_jobs(["analyzing"], "tiktok")
+            todo = db.list_jobs(["analyzing"])
             if not todo:
                 time.sleep(2)
                 continue
@@ -91,14 +106,15 @@ def _loop():
             with ThreadPoolExecutor(max_workers=2 if gem else 4) as ex:  # Gemini miễn phí giới hạn lượt/phút
                 futs = {ex.submit(analyze_job, j["id"], j["video_path"], j["channel"],
                                   j.get("ai_model") or default_model(settings), settings,
-                                  bool(j.get("redo_caption")), j.get("item_key") or ""): j for j in batch}
+                                  bool(j.get("redo_caption")), j.get("item_key") or "",
+                                  j.get("platform") or "tiktok"): j for j in batch}
                 for fu in as_completed(futs):
                     j = futs[fu]
                     err = fu.result()
-                    touched.setdefault(j["channel"], set()).add(j["id"])
+                    touched.setdefault((j.get("platform") or "tiktok", j["channel"]), set()).add(j["id"])
                     _log(f"{'✖ ' + err if err else '✔ ' + Path(j['video_path']).name} ({j['channel']})")
-            for ch, ids in touched.items():
-                plan_new(ch, ids, settings)
+            for (pf, ch), ids in touched.items():
+                (fbq.plan_new if pf == "facebook" else plan_new)(ch, ids, settings)
         except Exception:
             _log("Lỗi luồng phân tích: " + traceback.format_exc()[-600:])
             time.sleep(5)

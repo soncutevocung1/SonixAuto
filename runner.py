@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 os.environ.setdefault("PYTHONUTF8", "1")
 
 from core import channels as chs  # noqa: E402
-from core import db, facebook, sounds, stats, tiktok  # noqa: E402
+from core import db, facebook, fbq, sounds, stats, tiktok  # noqa: E402
 from core.caption import build_text  # noqa: E402
 from core.config import (DATA_DIR, FOLDER_DONE, FOLDER_ERR, HEARTBEAT_FILE, RUNNER_LOG, WORK_DIR,  # noqa: E402
                          ensure_dirs, get_channel, load_settings, save_settings, slug)
@@ -79,9 +79,14 @@ def due_tiktok(job, now, settings) -> bool:
     return t - now <= timedelta(days=int(settings.get("tt_max_ahead_days", 10)))
 
 
-def due_facebook(job, now) -> bool:
+def due_facebook(job, now, settings=None) -> bool:
+    """Đẩy lên Facebook trước giờ đăng tối đa N ngày (FB tự giữ lịch, máy tắt vẫn đăng).
+    Để N nhỏ (mặc định 2) để bác còn sửa caption/giờ trong tool trước khi đẩy."""
+    if not job.get("scheduled_at"):
+        return True
     t = datetime.strptime(job["scheduled_at"], db.TIME_FMT)
-    return t <= now or timedelta(minutes=15) <= (t - now) <= timedelta(days=28)
+    ahead = timedelta(days=float((settings or {}).get("fb_max_ahead_days", 2)))
+    return t <= now or (t - now) <= ahead
 
 
 def run_tiktok(job, settings):
@@ -126,16 +131,65 @@ def fail_tiktok(job, settings, err):
 
 
 def run_facebook(job, settings):
-    pages = {pg["name"]: pg for pg in settings.get("facebook_pages", [])}
-    page = pages.get(job["channel"])
+    page = fbq.page(settings, job["channel"])
     if not page:
-        raise facebook.FacebookError(f"Không thấy trang FB '{job['channel']}' trong Cài đặt")
-    t = datetime.strptime(job["scheduled_at"], db.TIME_FMT)
+        raise facebook.FacebookError(f"Không thấy trang FB '{job['channel']}' trong tool (tab Facebook)")
+    t = datetime.strptime(job["scheduled_at"], db.TIME_FMT) if job.get("scheduled_at") else datetime.now()
+    if t < datetime.now() - timedelta(hours=6):  # máy tắt lâu, lỡ giờ -> dời sang khung trống kế tiếp
+        t = fbq.next_slots(page, 1)[0]
+        db.update_job(job["id"], scheduled_at=t.strftime(db.TIME_FMT))
+        log(f"  - Lỡ giờ cũ, dời sang {t:%d/%m %H:%M}")
     text = build_text(job["caption"], job["hashtags"], job.get("product_link", ""), "facebook")
     status, note = facebook.post(job["video_path"], text, page, t, job.get("product_link", ""),
                                  settings.get("fb_graph_version", "v23.0"))
+    if page.get("folder"):
+        new_path = fbq.move(job["video_path"], page, FOLDER_DONE)
+        db.rename_video_path(job["video_path"], new_path)
     db.update_job(job["id"], status=status, result=note)
+    stats.record("hen_gio", job)
     log(f"  ✔ FB {db.STATUS_LABELS.get(status)}: {note}")
+
+
+def fail_facebook(job, settings, err):
+    msg = f"{type(err).__name__}: {facebook.safe(err)[:400]}"
+    page = fbq.page(settings, job["channel"])
+    if page.get("folder") and "Token" not in msg and "token" not in msg:  # lỗi mã thì giữ video để đăng lại
+        new_path = fbq.move(job["video_path"], page, FOLDER_ERR)
+        db.rename_video_path(job["video_path"], new_path)
+        chs.write_error_note(new_path, msg)
+    db.update_job(job["id"], status="error", result=msg)
+    stats.record("loi", job)
+    log(f"  ✖ FB lỗi: {msg}")
+
+
+def run_fb_stories(settings, now):
+    """Video đã tới giờ đăng mà bác chọn 'đăng kèm vào Tin' -> đăng vào Tin (Tin không hẹn giờ trước được)."""
+    for job in db.list_jobs(["scheduled_fb", "done"], "facebook"):
+        if not int(job.get("fb_story") or 0) or job.get("fb_story_state"):
+            continue
+        try:
+            t = datetime.strptime(job["scheduled_at"], db.TIME_FMT)
+        except Exception:
+            continue
+        if now < t + timedelta(minutes=2):
+            continue
+        if now > t + timedelta(hours=12):  # máy tắt quá lâu: bỏ, tránh đăng Tin cũ dồn cục
+            db.update_job(job["id"], fb_story_state="bỏ (quá giờ)")
+            continue
+        page = fbq.page(settings, job["channel"])
+        heartbeat()
+        try:
+            from core.video_utils import probe
+            if probe(job["video_path"])["duration"] > 60:
+                db.update_job(job["id"], fb_story_state="bỏ (video dài hơn 60 giây)")
+                continue
+            facebook.post_story(page["page_id"], page["token"], job["video_path"],
+                                settings.get("fb_graph_version", "v23.0"))
+            db.update_job(job["id"], fb_story_state="done")
+            log(f"  ✔ FB Tin: {Path(job['video_path']).name} ({job['channel']})")
+        except Exception as e:
+            db.update_job(job["id"], fb_story_state=f"lỗi: {facebook.safe(e)[:150]}")
+            log(f"  ✖ FB Tin lỗi: {facebook.safe(e)}")
 
 
 def run_once():
@@ -143,17 +197,20 @@ def run_once():
     now = datetime.now()
     blocked = blocked_channels()
     did_tt = False
+    try:
+        run_fb_stories(settings, now)
+    except Exception as e:
+        log(f"  ✖ FB Tin: {facebook.safe(e)}")
     for job in db.list_jobs(["pending"]):
         heartbeat()
         if job["platform"] == "facebook":
-            if not due_facebook(job, now) or not db.claim_job(job["id"]):
+            if not due_facebook(job, now, settings) or not db.claim_job(job["id"]):
                 continue
             log(f"▶ #{job['id']} FACEBOOK · {job['channel']} · {Path(job['video_path']).name}")
             try:
                 run_facebook(db.get_job(job["id"]), settings)
             except Exception as e:
-                db.update_job(job["id"], status="error", result=f"{type(e).__name__}: {str(e)[:400]}")
-                log(f"  ✖ {e}")
+                fail_facebook(db.get_job(job["id"]), settings, e)
             continue
 
         if job["channel"] in blocked or not due_tiktok(job, now, settings):

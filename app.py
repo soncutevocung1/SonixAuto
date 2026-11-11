@@ -1476,10 +1476,6 @@ Không dán key vào chat. Key nằm trong thư mục `data` trên máy bác."""
             if st.button("Về biểu tượng mặc định"):
                 desktop.reset_icon()
                 st.rerun()
-    st.subheader("Trang Facebook (giữ như bản cũ)")
-    pages_df = st.data_editor(pd.DataFrame(S.get("facebook_pages", []) or [], columns=["name", "page_id", "token"]),
-                              num_rows="dynamic", hide_index=True, width="stretch", key="fbp",
-                              column_config={"name": "Tên trang", "page_id": "Page ID", "token": "Page Access Token"})
     if st.button("Lưu cài đặt", type="primary"):
         try:
             golden = []
@@ -1498,9 +1494,7 @@ Không dán key vào chat. Key nằm trong thư mục `data` trên máy bác."""
                      tt_confirm_before_post=confirm_cb, tt_ask_on_fail=ask_cb, tt_headless=head_cb,
                      tt_fast=bool(fast_cb), tt_gap_seconds=[int(min(gap_a, gap_b)), int(max(gap_a, gap_b))],
                      tt_max_ahead_days=int(ahead), music_volume=float(vol), default_visibility=vis_d,
-                     default_disclosure=disc_d, lan_access=bool(lan), app_pin=pin.strip(),
-                     facebook_pages=[{kk: str(v or "").strip() for kk, v in r.items()}
-                                     for r in pages_df.fillna("").to_dict("records") if r.get("name")])
+                     default_disclosure=disc_d, lan_access=bool(lan), app_pin=pin.strip())
             save_settings(S)
             st.success("Đã lưu!")
             st.rerun()
@@ -1509,36 +1503,8 @@ Không dán key vào chat. Key nằm trong thư mục `data` trên máy bác."""
 
 # =============================== FACEBOOK ===============================
 with tabs[6]:
-    st.caption("Phần Facebook giữ nguyên như bản cũ: đăng video lên Trang qua API chính thức, FB tự hẹn giờ.")
-    pages = [p["name"] for p in S.get("facebook_pages", [])]
-    if not pages:
-        st.info("Chưa có Trang Facebook. Thêm ở tab Cài đặt (cần Page ID + Token, xem HUONG_DAN.md).")
-    else:
-        fb_folder = st.text_input("Thư mục video", S.get("fb_last_folder") or ROOT)
-        files = sorted([p for p in Path(fb_folder).rglob("*") if p.suffix.lower() in VIDEO_EXTS]) \
-            if fb_folder and Path(fb_folder).is_dir() else []
-        chosen = st.multiselect("Video", [str(f) for f in files], format_func=lambda x: Path(x).name)
-        c1, c2 = st.columns(2)
-        page_sel = c1.selectbox("Trang", pages)
-        link = c2.text_input("Link sản phẩm (sẽ ghi vào bài + bình luận)")
-        capt = st.text_area("Caption chung")
-        tags_fb = st.text_input("Hashtag", S.get("default_hashtags", ""))
-        c1, c2 = st.columns(2)
-        fd = c1.date_input("Ngày", datetime.now().date(), format="DD/MM/YYYY", key="fb_d")
-        ft = c2.time_input("Giờ", (datetime.now() + timedelta(minutes=30)).time(), step=300, key="fb_t")
-        if st.button("Thêm vào hàng chờ Facebook", disabled=not chosen):
-            S["fb_last_folder"] = fb_folder
-            save_settings(S)
-            for v in chosen:
-                db.add_job(platform="facebook", channel=page_sel, video_path=v, status="pending", caption=capt,
-                           hashtags=tags_fb, product_link=link, scheduled_at=datetime.combine(fd, ft).strftime(FMT))
-            st.success(f"Đã thêm {len(chosen)} video.")
-        if st.button("Kiểm tra token các trang"):
-            for p in S["facebook_pages"]:
-                try:
-                    st.success(f"{p['name']}: {facebook.check_token(p['page_id'], p['token'], S['fb_graph_version'])}")
-                except Exception as e:
-                    st.error(f"{p['name']}: {e}")
+    from core import fb_ui
+    fb_ui.render(S)
 
 # =============================== NHẬT KÝ ===============================
 with tabs[7]:

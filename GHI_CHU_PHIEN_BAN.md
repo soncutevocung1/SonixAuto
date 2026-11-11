@@ -1,5 +1,13 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.2.0
+- Làm lại tab Facebook để đăng Reels lên Trang tự động:
+  - Kết nối trang bằng mã chính thức của Meta, tool tự đổi sang mã trang không hết hạn.
+  - Lấy video từ thư mục CHƯA UP của trang, AI xem video và đọc phụ đề để viết caption (giống TikTok), bác duyệt rồi xác nhận.
+  - Tự xếp giờ theo khung giờ bác đặt (vd 11:30, 19:30), đẩy lên Facebook hẹn giờ trước 2 ngày, đăng xong chuyển video sang ĐÃ UP.
+  - Tuỳ chọn đăng kèm vào Tin (Story).
+- Nhiệm vụ tuần của trang: số Reels / bài viết / Tin đã đăng so với chỉ tiêu, việc còn phải làm, bình luận chưa trả lời và trả lời ngay trong tool.
+
 ## 2.1.0
 - Cửa sổ app riêng (giống Kid TE), không còn mượn Chrome. Có màn hình chờ lúc khởi động, hết màn hình đen.
 - Tool khởi động lại (sau cập nhật) thì cửa sổ tự kết nối lại.

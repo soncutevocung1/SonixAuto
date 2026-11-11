@@ -308,3 +308,83 @@ def set_cover(job, frame_index) -> str:
     cover = WORK_DIR / str(job["id"]) / "cover.jpg"
     export_frame(job["video_path"], f["t"], str(cover), width=1080)
     return str(cover)
+
+
+# ======================= Facebook: video chia sẻ kiến thức (chưa gắn sản phẩm) =======================
+FB_SYSTEM = """Bạn viết caption cho Reels của trang Facebook «{page}», trang chia sẻ mẹo và kiến thức làm vườn, trồng trọt cho bà con nông dân Việt Nam. Mục tiêu: người xem dừng lại xem hết, bình luận, và bấm theo dõi trang.
+
+Bạn được xem các khung hình đánh số của 1 video. Trong video có phụ đề tiếng Việt: đọc kỹ phụ đề để hiểu đúng mẹo/kiến thức.
+
+Viết:
+1. caption:
+   - Giọng miền Nam, gần gũi, xưng "em", gọi người xem là "bác". Câu ngắn, dễ hiểu. Không dùng từ tiếng Anh.
+   - Dòng 1: câu móc dưới 80 ký tự, gây tò mò hoặc chạm đúng cái sai bà con hay mắc (vd "Tỉa ngọn ớt sai lúc này là mất cả lứa trái"), có thể 1 emoji.
+   - 1-3 dòng thân: mẹo chính trong video, đúng những gì thấy/đọc được. Không bịa số liệu, liều lượng, giống cây.
+   - Dòng cuối: mời bình luận hoặc theo dõi trang (vd "Bác thấy mẹo này được không? Theo dõi trang để xem mẹo mỗi ngày nha").
+   - Tối đa {mx} ký tự, không chứa hashtag.
+   - Cấm dùng: tốt nhất, số 1, 100%, cam kết, thần kỳ, chữa khỏi, vĩnh viễn, rẻ nhất, duy nhất, diệt sạch, trị dứt điểm. Không hứa năng suất bằng con số.
+2. title: tên ngắn của video 3-8 chữ (vd "Mẹo tỉa ngọn ớt"), để chủ trang dễ nhận ra.
+3. best_frame: số thứ tự khung hình đẹp, rõ nội dung nhất.
+4. hashtags: 3-5 cái, tiếng Việt không dấu, viết liền, chữ thường, không có dấu #."""
+
+
+def _fb_system(settings, page) -> str:
+    pg = next((p for p in settings.get("facebook_pages", []) if p.get("name") == page), {}) or {}
+    mx = int(pg.get("caption_max") or settings.get("fb_caption_max_chars") or 350)
+    s = FB_SYSTEM.replace("{page}", page).replace("{mx}", str(mx))
+    g = (pg.get("caption_guide") or "").strip()
+    if g:
+        s += ("\n\nHƯỚNG DẪN RIÊNG CỦA CHỦ TRANG (ưu tiên cao nhất, nhưng vẫn giữ danh sách từ cấm):\n" + g)
+    return s, mx
+
+
+def analyze_fb(job_id, video_path, page, settings, model) -> dict:
+    """Video Facebook: AI xem khung hình + phụ đề -> caption, tên ngắn, khung bìa, hashtag."""
+    work = WORK_DIR / str(job_id)
+    work.mkdir(parents=True, exist_ok=True)
+    frames = []
+    for i, t in enumerate(frame_times(video_path, 8)):
+        out = work / f"f{i}.jpg"
+        if export_frame(video_path, t, str(out), width=448):
+            frames.append({"t": t, "thumb": str(out)})
+    if not frames:
+        raise RuntimeError("Không đọc được video (file hỏng hoặc định dạng lạ)")
+    pg = next((p for p in settings.get("facebook_pages", []) if p.get("name") == page), {}) or {}
+    fixed = cap.parse_tags(pg.get("hashtags") or "")
+    system, mx = _fb_system(settings, page)
+    res, note = None, ""
+    if model and model != "khong_ai" and ai_key(settings, model):
+        content = [{"type": "text", "text": f"VIDEO: {Path(video_path).name}. Các khung hình:"}]
+        for i, f in enumerate(frames):
+            content.append({"type": "text", "text": f"Khung {i}:"})
+            content.append(_img(f["thumb"]))
+        content.append({"type": "text", "text": "Hashtag bắt buộc phải có: " + ", ".join(fixed) if fixed
+                        else "Trả lời theo đúng định dạng."})
+        schema = {"type": "object", "properties": {
+            "caption": {"type": "string"}, "title": {"type": "string"}, "best_frame": {"type": "integer"},
+            "hashtags": {"type": "array", "items": {"type": "string"}}},
+            "required": ["caption", "title", "best_frame", "hashtags"], "additionalProperties": False}
+        try:
+            data = (_gemini if str(model).startswith("gemini") else _claude)(content, schema, settings, model, system)
+            text, tail = cap.split_tail_tags(data["caption"])
+            tags = []
+            for t in fixed + tail + data.get("hashtags", []):
+                t = cap.clean_tag(t)
+                if t and t not in tags:
+                    tags.append(t)
+            res = {"caption": _trim(text.strip(), mx), "hashtags": tags[:6],
+                   "best": max(0, min(len(frames) - 1, int(data["best_frame"]))),
+                   "note": "AI: " + (data.get("title") or "").strip()}
+        except Exception as e:
+            note = f"AI lỗi ({type(e).__name__}: {str(e)[:120]}) → dùng caption mẫu. "
+    if res is None:
+        name = pg.get("name") or page
+        res = {"caption": f"Mẹo làm vườn hay, bác xem tới cuối nha 🌱\nTheo dõi {name} để xem mẹo mỗi ngày.",
+               "hashtags": fixed or ["lamvuon", "meolamvuon", "nongnghiep"], "best": len(frames) // 2,
+               "note": note + "Caption mẫu"}
+    cover = work / "cover.jpg"
+    export_frame(video_path, frames[res["best"]]["t"], str(cover), width=720)
+    warn = cap.check_policy(res["caption"])
+    return {"caption": res["caption"], "hashtags": ", ".join(res["hashtags"]), "frames": frames,
+            "cover_path": str(cover), "confidence": 0,
+            "ai_note": res["note"] + (f" | Có từ dễ bị bóp: {', '.join(warn)}" if warn else "")}

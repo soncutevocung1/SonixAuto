@@ -102,6 +102,7 @@ DEFAULTS = {
     # Facebook (giữ nguyên như bản cũ)
     "facebook_pages": [],
     "fb_graph_version": "v23.0",
+    "fb_max_ahead_days": 2,               # đẩy video lên FB trước giờ đăng tối đa 2 ngày
     "fb_last_folder": "",
 }
 
