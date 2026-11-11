@@ -1,7 +1,7 @@
 {
- "version": "2.3.6",
- "built_at": "2026-11-11T09:28:46Z",
- "notes": "- TikTok · Ảnh bìa: kiểm tra bằng cách đọc thẳng file ảnh trong ô bìa (trước: chụp màn hình bị lệch, điểm sai). Đúng bìa ~99 điểm, khung video ~30-55.\n- Ảnh bìa không lên → KHÔNG đăng; video giữ ở CHƯA UP, 10 phút sau thử lại; 3 lần vẫn lỗi → 'Cần kiểm tra'.",
+ "version": "2.3.7",
+ "built_at": "2026-11-11T09:32:44Z",
+ "notes": "- Sửa lỗi bản 2.3.6: đoạn kiểm tra ảnh bìa cũ bị chép trùng nên tool vẫn chạy cách cũ. Nay chỉ còn cách mới (đọc thẳng file ảnh bìa, bìa không lên thì không đăng).\n- Bước đóng gói tự chặn phát hành nếu có hàm trùng tên.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "6af5146f6048c7d7d8ae121acca173006fb866a55cb484a37d85125a4c7126c5",
-   "size": 7097
+   "sha256": "095817a5bb1157833ff3c0a3241081413cc3de88a5476ef429999df9a45eaecd",
+   "size": 7392
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,7 +60,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "f18cc8c50c2e628bfd9d781563336c450ef5852c5713f8d04b42f3528268a1ee",
+   "sha256": "0fd7d1833844253d87dd014218f5f0c8cf6f8a2eb9ed9c9eab0d5ebb061e4607",
    "size": 6
   },
   {
@@ -160,8 +160,8 @@
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "2b1fd14bec4646023aad8c56b9c96e05f70306ccf999da946f0b5a286c6c58ad",
-   "size": 79261
+   "sha256": "22107fef3f88e01e66f577a14bb710b140f39e44bcefff8c1a4eac80d81a7dcd",
+   "size": 75096
   },
   {
    "path": "core/ui.py",
@@ -205,8 +205,8 @@
   },
   {
    "path": "tao_manifest.py",
-   "sha256": "d022204bdafedf0cf957f12983c073ce295d6906f2e3bf4fcc184426b7c64d8a",
-   "size": 1211
+   "sha256": "6dcb33c88afa4b4cf0d916e2406cba216f992dc783c3a3f31b05b598c3e01365",
+   "size": 1803
   }
  ]
 }

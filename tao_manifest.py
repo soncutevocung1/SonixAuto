@@ -6,6 +6,18 @@ from pathlib import Path
 from core.updater import SKIP_DIRS, SKIP_FILES, digest
 
 base = Path(__file__).resolve().parent
+
+# Chặn phát hành nếu có file Python lỗi cú pháp hoặc 2 hàm trùng tên (hàm sau đè hàm trước, rất khó thấy)
+import ast
+import collections
+for py in sorted(base.rglob("*.py")):
+    if set(py.relative_to(base).parts) & SKIP_DIRS:
+        continue
+    tree = ast.parse(py.read_text(encoding="utf-8"), str(py))
+    names = collections.Counter(n.name for n in tree.body if isinstance(n, (ast.FunctionDef, ast.ClassDef)))
+    dup = [k for k, v in names.items() if v > 1]
+    if dup:
+        raise SystemExit(f"DỪNG: {py.relative_to(base)} có hàm trùng tên: {dup}")
 version = (base / "VERSION").read_text(encoding="utf-8").strip()
 log = (base / "GHI_CHU_PHIEN_BAN.md").read_text(encoding="utf-8")
 notes = log.split("\n## ")[1].split("\n", 1)[1].strip() if "\n## " in log else ""

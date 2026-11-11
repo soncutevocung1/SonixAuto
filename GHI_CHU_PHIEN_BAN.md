@@ -1,5 +1,9 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.3.7
+- Sửa lỗi bản 2.3.6: đoạn kiểm tra ảnh bìa cũ bị chép trùng nên tool vẫn chạy cách cũ. Nay chỉ còn cách mới (đọc thẳng file ảnh bìa, bìa không lên thì không đăng).
+- Bước đóng gói tự chặn phát hành nếu có hàm trùng tên.
+
 ## 2.3.6
 - TikTok · Ảnh bìa: kiểm tra bằng cách đọc thẳng file ảnh trong ô bìa (trước: chụp màn hình bị lệch, điểm sai). Đúng bìa ~99 điểm, khung video ~30-55.
 - Ảnh bìa không lên → KHÔNG đăng; video giữ ở CHƯA UP, 10 phút sau thử lại; 3 lần vẫn lỗi → 'Cần kiểm tra'.
