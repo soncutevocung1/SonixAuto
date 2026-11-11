@@ -1661,13 +1661,24 @@ def verify_covers(settings, channel, jobs, log=print) -> dict:
             for it in items.values():
                 if int(it.get("schedule_time") or 0):
                     by_t[datetime.fromtimestamp(int(it["schedule_time"])).strftime("%Y-%m-%d %H:%M")] = it
+            def _key(t):
+                return re.sub(r"\W+", "", norm(t or ""))[:30]
+            by_desc = {}
+            for it in items.values():
+                by_desc.setdefault(_key(it.get("desc")), []).append(it)
             for j in jobs:
                 it = by_t.get(j["scheduled_at"])
+                if not it and len(_key(j.get("caption"))) >= 12:  # giờ hẹn trên TikTok khác -> tìm theo mô tả
+                    same = by_desc.get(_key(j.get("caption"))) or []
+                    if same:
+                        it = same[0]
+                        st_ = int(it.get("schedule_time") or 0)
+                        j["_tiktok_time"] = datetime.fromtimestamp(st_).strftime("%Y-%m-%d %H:%M") if st_ else ""
                 if not it:
                     out[j["id"]] = ("da_xoa" if covered else "chua_ro", -1)
                     continue
                 if not j.get("cover_path") or not Path(j["cover_path"]).exists():
-                    out[j["id"]] = ("ok", -1)
+                    out[j["id"]] = ("ok", -1, j.get("_tiktok_time"))
                     continue
                 try:
                     body = ctx.request.get((it.get("cover_url") or [""])[0], timeout=30000).body()
@@ -1675,7 +1686,7 @@ def verify_covers(settings, channel, jobs, log=print) -> dict:
                 except Exception:
                     out[j["id"]] = ("chua_ro", -1)
                     continue
-                out[j["id"]] = ("ok" if sc >= 80 else "thieu_bia", sc)
+                out[j["id"]] = ("ok" if sc >= 80 else "thieu_bia", sc, j.get("_tiktok_time"))
             return out
         finally:
             try:

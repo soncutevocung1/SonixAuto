@@ -1,5 +1,8 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.3.5
+- Kiểm tra ảnh bìa TikTok: không thấy bài đúng giờ hẹn thì tìm tiếp theo mô tả. Bài còn trên TikTok (chỉ khác giờ, hoặc đã đăng) thì sửa lại giờ trong tool, KHÔNG coi là đã xoá → tránh đăng trùng.
+
 ## 2.3.4
 - Kiểm tra ảnh bìa TikTok: chờ danh sách bài tải về lâu hơn (máy bận), cuộn tới hết danh sách; ghi kết quả vào nhật ký (đúng bìa / thiếu bìa / đã xoá / chưa rõ).
 

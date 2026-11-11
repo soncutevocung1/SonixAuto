@@ -198,8 +198,14 @@ def check_covers(settings):
             f"{cnt.get('da_xoa', 0)} đã xoá trên TikTok · {cnt.get('chua_ro', 0)} chưa rõ (kiểm lại sau)")
         root = settings.get("root_folder")
         for j in jobs:
-            kind, sc = res.get(j["id"], ("chua_ro", -1))
+            r_ = res.get(j["id"], ("chua_ro", -1))
+            kind, sc = r_[0], r_[1]
             name = Path(j["video_path"]).name
+            if len(r_) > 2 and r_[2] is not None:  # bài còn trên TikTok nhưng giờ hẹn khác giờ tool ghi -> sửa lại giờ
+                log(f"  · {name}: giờ hẹn thật trên TikTok là {r_[2] or 'đã đăng'} (tool ghi {j['scheduled_at']})")
+                if r_[2]:
+                    db.update_job(j["id"], scheduled_at=r_[2])
+                    j["scheduled_at"] = r_[2]
             if kind == "ok":
                 db.update_job(j["id"], cover_checked=1)
             elif kind == "thieu_bia" and int(j.get("cover_checked") or 0) == 0:

@@ -1,7 +1,7 @@
 {
- "version": "2.3.4",
- "built_at": "2026-11-11T09:20:46Z",
- "notes": "- Kiểm tra ảnh bìa TikTok: chờ danh sách bài tải về lâu hơn (máy bận), cuộn tới hết danh sách; ghi kết quả vào nhật ký (đúng bìa / thiếu bìa / đã xoá / chưa rõ).",
+ "version": "2.3.5",
+ "built_at": "2026-11-11T09:25:11Z",
+ "notes": "- Kiểm tra ảnh bìa TikTok: không thấy bài đúng giờ hẹn thì tìm tiếp theo mô tả. Bài còn trên TikTok (chỉ khác giờ, hoặc đã đăng) thì sửa lại giờ trong tool, KHÔNG coi là đã xoá → tránh đăng trùng.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "1eef7c83db41b1fc13aade451043aff609c99952767cf03e3d2f9a124d20f980",
-   "size": 6497
+   "sha256": "9e5f30ece48ed96fd5ff046ad185764b91a257be08fd1c937bd93e9ddf33291e",
+   "size": 6758
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,7 +60,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "386a85ff43996bfa097ad213275fa5294bd3d9668eafd1f41aafeade18423a9a",
+   "sha256": "717395a9f692749ed344f7237e736d43ec5ba651437c4e5f91c8dfc62a74ea26",
    "size": 6
   },
   {
@@ -160,8 +160,8 @@
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "c61905c8b95c3a7085d948c7365dae10573c5ae50f0b8065ee28c83b4526bcd7",
-   "size": 74307
+   "sha256": "4ee226edaed3c9c931109b1ff202b4597628545c3682c4c579dca5f2576a4d8d",
+   "size": 75009
   },
   {
    "path": "core/ui.py",
@@ -200,8 +200,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "9906125f2ad312468257e851cc2b86c74dd2382890bf06f74e6b1272fd994442",
-   "size": 20322
+   "sha256": "e7f72734021944b980f42f95442371f3a14b130bd895180f778f3fb66380f801",
+   "size": 20753
   },
   {
    "path": "tao_manifest.py",
