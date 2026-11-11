@@ -188,7 +188,8 @@ def _settings(S, pg):
         guide = st.text_area("Hướng dẫn riêng cho AI viết caption trang này (không bắt buộc)",
                              pg.get("caption_guide") or "", height=80,
                              placeholder="Ví dụ: xưng 'em', gọi 'bà con'; luôn kết bằng câu mời theo dõi trang.")
-        mx = st.number_input("Caption tối đa (ký tự)", 100, 1500, int(pg.get("caption_max") or 350), 50)
+        mx = st.number_input("Caption tối đa (ký tự)", 40, 1500, int(pg.get("caption_max") or 350), 10,
+                             help="Từ 160 trở xuống AI chỉ viết 1-2 câu ngắn. Sửa xong bấm Lưu rồi Viết lại caption.")
         if st.button("Lưu cài đặt trang", type="primary", key="fb_pg_save"):
             other = next((p["name"] for p in fbq.pages(S) if p["name"] != pg["name"] and fd.strip()
                           and (p.get("folder") or "").strip().lower() == fd.strip().lower()), "")
@@ -244,10 +245,19 @@ def _new(S, pg):
 
 def _review(S, pg):
     drafts = sorted(db.list_jobs(["draft"], "facebook", pg["name"]), key=lambda j: j.get("scheduled_at") or "z")
+    busy = len(db.list_jobs(["analyzing"], "facebook", pg["name"]))
+    if busy:
+        st.info(f"AI đang viết {busy} caption... bấm phím F5 hoặc chuyển tab qua lại sau ít phút để xem.")
     if not drafts:
         return
     st.markdown(f"### Chờ duyệt ({len(drafts)} video)")
-    c = st.columns([2, 2, 3])
+    c = st.columns([2, 2, 2])
+    if c[2].button(f"Viết lại caption cả đợt ({len(drafts)})", key="fb_redo_all",
+                   help="AI viết lại theo giới hạn ký tự và hướng dẫn riêng đang lưu. Giữ nguyên giờ đăng."):
+        for j in drafts:
+            db.update_job(j["id"], status="analyzing", redo_caption=1)
+        worker.start()
+        st.rerun()
     if c[0].button(f"Xác nhận tất cả {len(drafts)} video", type="primary", key="fb_all"):
         for j in drafts:
             if j.get("scheduled_at"):
@@ -274,7 +284,8 @@ def _review(S, pg):
                 t0 = datetime.now() + timedelta(hours=1)
             d = y.date_input("Ngày", t0.date(), format="DD/MM/YYYY", key=f"fd_{j['id']}")
             tm = z.time_input("Giờ", t0.time(), step=300, key=f"ft_{j['id']}")
-            s1, s2, s3, s4 = r.columns(4)
+            r.caption(f"{len(capt)} ký tự")
+            s1, s2, s3, s4, s5 = r.columns(5)
             sto = s1.checkbox("Kèm Tin", bool(int(j.get("fb_story") or 0)), key=f"fs_{j['id']}")
             new = dict(caption=capt, hashtags=tags, scheduled_at=datetime.combine(d, tm).strftime(FMT),
                        fb_story=1 if sto else 0)
@@ -283,6 +294,11 @@ def _review(S, pg):
                 st.rerun()
             if s3.button("Lưu", key=f"fsv_{j['id']}"):
                 db.update_job(j["id"], **new)
+                st.rerun()
+            if s5.button("Viết lại", key=f"fre_{j['id']}"):
+                db.update_job(j["id"], status="analyzing", redo_caption=1, hashtags=tags,
+                              scheduled_at=new["scheduled_at"], fb_story=new["fb_story"])
+                worker.start()
                 st.rerun()
             if s4.button("Bỏ video", key=f"fdel_{j['id']}"):
                 db.delete_jobs([j["id"]])

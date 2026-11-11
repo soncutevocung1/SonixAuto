@@ -1,5 +1,10 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.2.2
+- Facebook: nút Viết lại caption (cả đợt hoặc từng video), giữ nguyên giờ đăng. Hiện số ký tự của caption.
+- Giới hạn từ 160 ký tự trở xuống thì AI chỉ viết 1-2 câu ngắn; vượt giới hạn thì tự cắt gọn.
+- Video duyệt trễ, giờ đăng đã qua: tự dời sang khung giờ trống kế tiếp, không đăng dồn.
+
 ## 2.2.1
 - Mỗi trang Facebook phải có thư mục video riêng, tránh đăng nhầm video sang trang khác.
 - Thêm quyền read_insights (không bắt buộc) để sau này xem lượt xem từng video.

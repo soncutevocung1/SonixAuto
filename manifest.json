@@ -1,7 +1,7 @@
 {
- "version": "2.2.1",
- "built_at": "2026-11-11T02:29:18Z",
- "notes": "- Mỗi trang Facebook phải có thư mục video riêng, tránh đăng nhầm video sang trang khác.\n- Thêm quyền read_insights (không bắt buộc) để sau này xem lượt xem từng video.",
+ "version": "2.2.2",
+ "built_at": "2026-11-11T02:45:33Z",
+ "notes": "- Facebook: nút Viết lại caption (cả đợt hoặc từng video), giữ nguyên giờ đăng. Hiện số ký tự của caption.\n- Giới hạn từ 160 ký tự trở xuống thì AI chỉ viết 1-2 câu ngắn; vượt giới hạn thì tự cắt gọn.\n- Video duyệt trễ, giờ đăng đã qua: tự dời sang khung giờ trống kế tiếp, không đăng dồn.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "fbc6d5f0491e049f72ebb9cd0b1d82e330eb5d2fe4b7d05764500f216b6ae00f",
-   "size": 2470
+   "sha256": "47e4283f80d9c88b347ccef85add8f1941096785b2eef51027d08a3abf74a060",
+   "size": 2862
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,7 +60,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "fe650098093fad42070e8a2cacfb216a6c416af57bd26dd6ff479fef69f8bc71",
+   "sha256": "91930425f31d5132e78e0ad7195620e435121a2fdf87cf655f8323aa45ae0468",
    "size": 6
   },
   {
@@ -85,8 +85,8 @@
   },
   {
    "path": "core/analyze.py",
-   "sha256": "27f7237bfe426d3597fc2ef99b3550dc581fb007e39fc8c18ef9490b6cc86fa4",
-   "size": 22089
+   "sha256": "340aedadb5fce82e77fda2b00432f2a79385d01a107930dd91b1822012bc9e81",
+   "size": 23013
   },
   {
    "path": "core/caption.py",
@@ -130,8 +130,8 @@
   },
   {
    "path": "core/fb_ui.py",
-   "sha256": "f1a9f513efc3f17012bb9c22b579fdbcf591b66f10eccb3bcd8a3b0d9ffdf38e",
-   "size": 19250
+   "sha256": "c3a0c43cca56d07dd29a0e5b9fabad08a4ad48643081ff2e04c5559f92eb70ad",
+   "size": 20316
   },
   {
    "path": "core/fbq.py",
@@ -180,8 +180,8 @@
   },
   {
    "path": "core/worker.py",
-   "sha256": "86e07d65a6cb271b37bcd6f62ae9370a3a9d2369e4d6ae5ba78599f51b3dac46",
-   "size": 6427
+   "sha256": "cad8814faf40814c1144a04982a6367687d59502065827ba08ec50bfaff40338",
+   "size": 6552
   },
   {
    "path": "dong_goi.py",
@@ -200,8 +200,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "8e5b89916d9f88ffe469adbdf9ffabe8e786329ffc2dddae64830512dc2ad224",
-   "size": 15651
+   "sha256": "64f9e142a043946d81897a511a3d147b223a3590cfbfe3feb1c6741e1502ef55",
+   "size": 15670
   },
   {
    "path": "tao_manifest.py",

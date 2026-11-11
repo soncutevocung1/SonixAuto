@@ -135,7 +135,7 @@ def run_facebook(job, settings):
     if not page:
         raise facebook.FacebookError(f"Không thấy trang FB '{job['channel']}' trong tool (tab Facebook)")
     t = datetime.strptime(job["scheduled_at"], db.TIME_FMT) if job.get("scheduled_at") else datetime.now()
-    if t < datetime.now() - timedelta(hours=6):  # máy tắt lâu, lỡ giờ -> dời sang khung trống kế tiếp
+    if t < datetime.now() - timedelta(minutes=15):  # đã qua giờ (duyệt trễ / máy tắt) -> dời sang khung trống kế tiếp
         t = fbq.next_slots(page, 1)[0]
         db.update_job(job["id"], scheduled_at=t.strftime(db.TIME_FMT))
         log(f"  - Lỡ giờ cũ, dời sang {t:%d/%m %H:%M}")

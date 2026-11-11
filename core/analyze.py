@@ -332,10 +332,25 @@ def _fb_system(settings, page) -> str:
     pg = next((p for p in settings.get("facebook_pages", []) if p.get("name") == page), {}) or {}
     mx = int(pg.get("caption_max") or settings.get("fb_caption_max_chars") or 350)
     s = FB_SYSTEM.replace("{page}", page).replace("{mx}", str(mx))
+    if mx <= 160:  # caption ngắn: bỏ khuôn 3 phần, chỉ 1-2 câu
+        a = s.index("   - Dòng 1:")
+        b = s.index("   - Tối đa")
+        s = s[:a] + ("   - CHỈ 1-2 câu ngắn trên 1 dòng: nói mẹo chính hoặc đặt câu hỏi gây tò mò mà lời giải nằm "
+                     "trong video. Không thêm câu mời theo dõi, không giải thích dài. Có thể 1 emoji.\n") + s[b:]
+        s = s.replace(f"Tối đa {mx} ký tự", f"TUYỆT ĐỐI không quá {mx} ký tự")
     g = (pg.get("caption_guide") or "").strip()
     if g:
         s += ("\n\nHƯỚNG DẪN RIÊNG CỦA CHỦ TRANG (ưu tiên cao nhất, nhưng vẫn giữ danh sách từ cấm):\n" + g)
     return s, mx
+
+
+def _trim_fb(text, mx):
+    """Facebook: vượt giới hạn quá 10% thì cắt ở cuối câu gần nhất (không thì cắt chữ + '…')."""
+    if len(text) <= mx * 1.1:
+        return text
+    cut = text[:mx]
+    pos = max(cut.rfind("\n"), cut.rfind(". "), cut.rfind("! "), cut.rfind("? "), cut.rfind("?"))
+    return (cut[: pos + 1] if pos > mx * 0.4 else cut.rstrip(" ,.") + "…").strip()
 
 
 def analyze_fb(job_id, video_path, page, settings, model) -> dict:
@@ -372,7 +387,7 @@ def analyze_fb(job_id, video_path, page, settings, model) -> dict:
                 t = cap.clean_tag(t)
                 if t and t not in tags:
                     tags.append(t)
-            res = {"caption": _trim(text.strip(), mx), "hashtags": tags[:6],
+            res = {"caption": _trim_fb(text.strip(), mx), "hashtags": tags[:6],
                    "best": max(0, min(len(frames) - 1, int(data["best_frame"]))),
                    "note": "AI: " + (data.get("title") or "").strip()}
         except Exception as e:

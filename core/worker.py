@@ -39,11 +39,12 @@ def _log(msg):
         pass
 
 
-def analyze_fb_job(jid, video, page, model, settings) -> str:
+def analyze_fb_job(jid, video, page, model, settings, redo=False) -> str:
     try:
         r = ana.analyze_fb(jid, video, page, settings, model)
         db.update_job(jid, status="draft", redo_caption=0, **r)
-        stats.record("phan_tich", db.get_job(jid))
+        if not redo:  # viết lại caption thì không đếm thêm lượt phân tích
+            stats.record("phan_tich", db.get_job(jid))
         return ""
     except Exception as e:
         db.update_job(jid, status="draft", frames=[], cover_path="",
@@ -54,7 +55,7 @@ def analyze_fb_job(jid, video, page, model, settings) -> str:
 def analyze_job(jid, video, channel, model, settings, caption_only=False, item_key="", platform="tiktok") -> str:
     """Phân tích 1 video, ghi ngay kết quả vào hàng chờ. Trả về '' nếu ổn, hoặc nội dung lỗi."""
     if platform == "facebook":
-        return analyze_fb_job(jid, video, channel, model, settings)
+        return analyze_fb_job(jid, video, channel, model, settings, redo=caption_only)
     try:
         r = ana.analyze(jid, video, channel, settings, model, caption_only=caption_only, known_item=item_key)
         db.update_job(jid, status="draft", redo_caption=0, **r)
