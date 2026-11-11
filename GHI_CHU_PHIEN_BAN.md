@@ -1,5 +1,9 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.3.6
+- TikTok · Ảnh bìa: kiểm tra bằng cách đọc thẳng file ảnh trong ô bìa (trước: chụp màn hình bị lệch, điểm sai). Đúng bìa ~99 điểm, khung video ~30-55.
+- Ảnh bìa không lên → KHÔNG đăng; video giữ ở CHƯA UP, 10 phút sau thử lại; 3 lần vẫn lỗi → 'Cần kiểm tra'.
+
 ## 2.3.5
 - Kiểm tra ảnh bìa TikTok: không thấy bài đúng giờ hẹn thì tìm tiếp theo mô tả. Bài còn trên TikTok (chỉ khác giờ, hoặc đã đăng) thì sửa lại giờ trong tool, KHÔNG coi là đã xoá → tránh đăng trùng.
 

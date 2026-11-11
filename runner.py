@@ -165,6 +165,7 @@ def fail_facebook(job, settings, err):
 
 
 _LAST_COVER_CHECK = {}
+_RETRY_AFTER = {}  # job id -> lúc được thử lại (ảnh bìa chưa lên)
 
 
 def check_covers(settings):
@@ -283,7 +284,8 @@ def run_once():
                 fail_facebook(db.get_job(job["id"]), settings, e)
             continue
 
-        if job["channel"] in blocked or not due_tiktok(job, now, settings):
+        if job["channel"] in blocked or not due_tiktok(job, now, settings) \
+                or _RETRY_AFTER.get(job["id"], 0) > time.time():
             continue
         if not settings.get("root_folder"):
             log("! Chưa chọn thư mục gốc trong tool")
@@ -308,6 +310,22 @@ def run_once():
             block_channel(job["channel"], str(e))
             blocked[job["channel"]] = str(e)
             log(f"  ⛔ DỪNG KÊNH «{job['channel']}»: {e}")
+        except tiktok.TikTokError as e:
+            if str(e).startswith("Ảnh bìa"):  # bìa không lên -> KHÔNG đăng, giữ ở CHƯA UP, 10 phút sau thử lại
+                n = int(job.get("attempts") or 0) + 1
+                if n >= 3:
+                    db.update_job(job["id"], status="check", attempts=n,
+                                  result=f"Không gắn được ảnh bìa sau {n} lần → chưa đăng, video vẫn ở CHƯA UP. {e}")
+                    log(f"  ✖ Không gắn được ảnh bìa sau {n} lần → chuyển 'Cần kiểm tra', video vẫn ở CHƯA UP")
+                else:
+                    t = max(datetime.strptime(job["scheduled_at"], db.TIME_FMT) if job.get("scheduled_at") else now,
+                            datetime.now() + timedelta(minutes=10))
+                    db.update_job(job["id"], status="pending", attempts=n, result=f"Ảnh bìa chưa lên, thử lại ({n}/3)",
+                                  scheduled_at=job.get("scheduled_at") or t.strftime(db.TIME_FMT))
+                    _RETRY_AFTER[job["id"]] = time.time() + 600
+                    log(f"  ! Ảnh bìa chưa lên → chưa đăng, 10 phút sau thử lại ({n}/3)")
+            else:
+                fail_tiktok(job, settings, e)
         except Exception as e:
             fail_tiktok(job, settings, e)
         did_tt = True

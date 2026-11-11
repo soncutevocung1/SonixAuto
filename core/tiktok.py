@@ -384,6 +384,99 @@ def type_caption(page, caption, hashtags):
 
 # =============================== Ảnh bìa ===============================
 def set_cover_checked(page, cover_path, log=print):
+    """Đặt ảnh bìa rồi đọc lại file ảnh trong ô bìa để chắc đã đổi (đúng bìa ~99 điểm, khung video ~30-55).
+    Chưa đổi thì làm lại 1 lần. Sau khi hẹn giờ tool còn kiểm tra lần nữa trên TikTok Studio."""
+    set_cover(page, cover_path)
+    sc = cover_score(page, cover_path)
+    if 0 <= sc < 80:
+        log(f"    (ảnh bìa chưa đổi, điểm {sc:.0f}, làm lại)")
+        try:
+            page.keyboard.press("Escape")
+            set_cover(page, cover_path)
+        except Exception as e:
+            log(f"    (làm lại ảnh bìa lỗi: {str(e)[:100]})")
+        sc = cover_score(page, cover_path)
+    log(f"    ảnh bìa trên trang: {sc:.0f}/100" if sc >= 0 else "    (không đọc được ô ảnh bìa)")
+    if 0 <= sc < 80:
+        raise TikTokError(f"ảnh bìa không lên (điểm {sc:.0f})")
+    return True
+
+
+def set_cover(page, cover_path):
+    if not cover_path or not Path(cover_path).exists():
+        return True
+    clear_popups(page)
+    if not click_text(page, r"^(Sửa ảnh bìa|Edit cover)$", timeout=4):
+        img = _visible(page.get_by_text(_rx(r"^Ảnh bìa$")).locator("xpath=following::img[1]"), 2)
+        if not img:
+            raise TikTokError("không thấy nút Sửa ảnh bìa")
+        img.click()
+    _sleep(1.5, 2.5)
+    modal = top_modal(page)
+    click_text(modal, r"^(Tải lên|Upload|Tải ảnh lên)$", timeout=5)
+    _sleep(1, 1.5)
+    inp = modal.locator('input[type="file"]')
+    if not inp.count():
+        inp = page.locator('input[type="file"][accept*="image"]')
+    inp.last.set_input_files(cover_path)
+    _sleep(2.5, 4)
+    if not click_button(modal, r"^(Xác nhận|Lưu|Xong|Áp dụng|Confirm|Save|Done|Apply)$", timeout=10):
+        raise TikTokError("không bấm được nút xác nhận ảnh bìa")
+    try:  # chờ TikTok tải ảnh bìa lên máy chủ xong rồi mới làm bước khác
+        page.wait_for_load_state("networkidle", timeout=15000)
+    except Exception:
+        pass
+    _sleep(2.5, 3.5)
+    return True
+
+
+def image_similarity(shot, ref_path) -> float:
+    """Ảnh TikTok hiển thị (shot: ảnh PIL hoặc bytes) giống file ảnh bìa đến đâu (0-100).
+    Cắt ảnh gốc theo đúng tỉ lệ ảnh hiển thị (TikTok hay cắt 3:4) rồi so từng điểm ảnh ở kích thước nhỏ."""
+    import io
+    from PIL import Image, ImageChops, ImageStat
+    if isinstance(shot, (bytes, bytearray)):
+        shot = Image.open(io.BytesIO(shot))
+    a = shot.convert("L")
+    b = Image.open(ref_path).convert("L")
+    ra, rb = a.width / a.height, b.width / b.height
+    if rb > ra:  # gốc rộng hơn -> cắt 2 bên
+        w = int(b.height * ra)
+        b = b.crop(((b.width - w) // 2, 0, (b.width - w) // 2 + w, b.height))
+    elif rb < ra:  # gốc cao hơn -> cắt trên dưới
+        h = int(b.width / ra)
+        b = b.crop((0, (b.height - h) // 2, b.width, (b.height - h) // 2 + h))
+    size = (32, max(8, int(32 / ra)))
+    d = ImageStat.Stat(ImageChops.difference(a.resize(size), b.resize(size))).mean[0]
+    return max(0.0, 100 - d / 255 * 100 * 2.5)
+
+
+BLOB_JS = """async (src) => { const b = await (await fetch(src)).blob();
+  return await new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(b); }); }"""
+
+
+def cover_score(page, cover_path) -> float:
+    """Ảnh bìa trang đăng đang giữ giống file bìa đến đâu (0-100). Lấy thẳng file ảnh của ô 'Ảnh bìa'
+    (không chụp màn hình vì dễ lệch). Trả -1 nếu không đọc được."""
+    import base64
+    try:
+        img = _visible(page.locator('[data-e2e="cover_container"] img'), 3)
+        if not img:
+            return -1
+        src = img.get_attribute("src") or ""
+        if src.startswith("blob:") or src.startswith("http"):
+            data = page.evaluate(BLOB_JS, src)
+            raw = base64.b64decode(data.split(",", 1)[1])
+        elif src.startswith("data:"):
+            raw = base64.b64decode(src.split(",", 1)[1])
+        else:
+            return -1
+        return image_similarity(raw, cover_path)
+    except Exception:
+        return -1
+
+
+def set_cover_checked(page, cover_path, log=print):
     """Đặt ảnh bìa rồi kiểm tra ô bìa trên trang; chưa giống thì làm lại 1 lần."""
     sc = -1
     for attempt in range(2):
@@ -1288,7 +1381,7 @@ def post(job, settings, log=print, lock=None):
             if job.get("cover_path"):
                 log("  - Đặt ảnh bìa...")
                 step("Ảnh bìa", lambda: set_cover_checked(page, job["cover_path"], log),
-                     f"Bác bấm 'Sửa ảnh bìa' → Tải lên → chọn file {job['cover_path']}.")
+                     f"Bác bấm 'Sửa ảnh bìa' → Tải lên → chọn file {job['cover_path']}.", critical=True)
             for pr in job.get("products") or []:
                 log(f"  - Gắn sản phẩm …{str(pr['id'])[-6:]}...")
                 step("Gắn sản phẩm", lambda pr=pr: add_product(page, pr, job.get("cart_name", ""), log),

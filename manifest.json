@@ -1,7 +1,7 @@
 {
- "version": "2.3.5",
- "built_at": "2026-11-11T09:25:11Z",
- "notes": "- Kiểm tra ảnh bìa TikTok: không thấy bài đúng giờ hẹn thì tìm tiếp theo mô tả. Bài còn trên TikTok (chỉ khác giờ, hoặc đã đăng) thì sửa lại giờ trong tool, KHÔNG coi là đã xoá → tránh đăng trùng.",
+ "version": "2.3.6",
+ "built_at": "2026-11-11T09:28:46Z",
+ "notes": "- TikTok · Ảnh bìa: kiểm tra bằng cách đọc thẳng file ảnh trong ô bìa (trước: chụp màn hình bị lệch, điểm sai). Đúng bìa ~99 điểm, khung video ~30-55.\n- Ảnh bìa không lên → KHÔNG đăng; video giữ ở CHƯA UP, 10 phút sau thử lại; 3 lần vẫn lỗi → 'Cần kiểm tra'.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "9e5f30ece48ed96fd5ff046ad185764b91a257be08fd1c937bd93e9ddf33291e",
-   "size": 6758
+   "sha256": "6af5146f6048c7d7d8ae121acca173006fb866a55cb484a37d85125a4c7126c5",
+   "size": 7097
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,7 +60,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "717395a9f692749ed344f7237e736d43ec5ba651437c4e5f91c8dfc62a74ea26",
+   "sha256": "f18cc8c50c2e628bfd9d781563336c450ef5852c5713f8d04b42f3528268a1ee",
    "size": 6
   },
   {
@@ -160,8 +160,8 @@
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "4ee226edaed3c9c931109b1ff202b4597628545c3682c4c579dca5f2576a4d8d",
-   "size": 75009
+   "sha256": "2b1fd14bec4646023aad8c56b9c96e05f70306ccf999da946f0b5a286c6c58ad",
+   "size": 79261
   },
   {
    "path": "core/ui.py",
@@ -200,8 +200,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "e7f72734021944b980f42f95442371f3a14b130bd895180f778f3fb66380f801",
-   "size": 20753
+   "sha256": "55ba674ab07efc067313c3e2092f25c0c3c0b6887091d5150122202c803e65d8",
+   "size": 22172
   },
   {
    "path": "tao_manifest.py",
