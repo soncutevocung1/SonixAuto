@@ -192,6 +192,10 @@ def check_covers(settings):
         except Exception as e:
             log(f"  ! Chưa kiểm tra được: {str(e)[:150]}")
             continue
+        from collections import Counter
+        cnt = Counter(v[0] for v in res.values())
+        log(f"  Kết quả: {cnt.get('ok', 0)} đúng bìa · {cnt.get('thieu_bia', 0)} thiếu bìa · "
+            f"{cnt.get('da_xoa', 0)} đã xoá trên TikTok · {cnt.get('chua_ro', 0)} chưa rõ (kiểm lại sau)")
         root = settings.get("root_folder")
         for j in jobs:
             kind, sc = res.get(j["id"], ("chua_ro", -1))

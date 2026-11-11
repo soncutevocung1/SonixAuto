@@ -1637,20 +1637,26 @@ def verify_covers(settings, channel, jobs, log=print) -> dict:
             page.goto("https://www.tiktok.com/tiktokstudio/content", wait_until="domcontentloaded", timeout=60000)
             if "login" in page.url:
                 raise NeedLogin(f"Kênh «{channel}» cần đăng nhập lại")
-            _sleep(6, 7)
-            covered, last_n = False, -1
-            for _ in range(30):  # cuộn tới khi gặp bài tạo trước lúc đăng video cũ nhất (hoặc hết danh sách)
+            for _ in range(15):  # chờ danh sách bài tải về (máy bận có thể chậm)
+                if items:
+                    break
+                time.sleep(2)
+            clear_popups(page)
+            covered, last_n, same = False, -1, 0
+            for _ in range(40):  # cuộn tới khi gặp bài tạo trước lúc đăng video cũ nhất (hoặc hết danh sách)
                 lock.touch()
                 times = [int(it.get("create_time") or 0) for it in items.values()]
                 if times and min(times) < oldest_post.timestamp():
                     covered = True
                     break
-                if len(items) == last_n:
-                    covered = bool(items)  # hết danh sách
+                same = same + 1 if len(items) == last_n else 0
+                if same >= 2:  # cuộn 2 lần không thêm bài nào -> hết danh sách
+                    covered = bool(items)
                     break
                 last_n = len(items)
                 page.mouse.wheel(0, 5000)
                 _sleep(2.5, 3.5)
+            log(f"  (đọc được {len(items)} bài trên TikTok Studio)")
             by_t = {}
             for it in items.values():
                 if int(it.get("schedule_time") or 0):

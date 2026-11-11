@@ -1,7 +1,7 @@
 {
- "version": "2.3.3",
- "built_at": "2026-11-11T09:14:56Z",
- "notes": "- TikTok · Ảnh bìa: lưu ảnh bìa xong chờ TikTok tải ảnh lên máy chủ rồi mới làm bước tiếp; kiểm tra ô bìa trên trang (làm lại 1 lần nếu chưa giống).\n- TikTok · Kiểm tra ảnh bìa sau khi hẹn giờ: lúc rảnh, tool vào TikTok Studio so ảnh bìa thật của từng bài. Thiếu bìa → video về CHƯA UP, thanh bên báo bài cần xoá trong app TikTok (web không cho xoá bài có giỏ hàng). Bác xoá xong → tool tự đăng lại kèm ảnh bìa.\n- Máy nhẹ hơn: bộ đăng và phân tích chạy ở mức ưu tiên dưới bình thường (nhường máy cho việc khác của bác); AI phân tích 2 video/lần thay vì 4.\n- Xếp lịch TikTok: đổi tên ô cho rõ (\"Ngày đầu: bắt đầu lúc\" và \"Mỗi ngày chỉ đăng từ / đến\"), có dòng tóm tắt và nhắc khi 2 giờ này khác nhau.",
+ "version": "2.3.4",
+ "built_at": "2026-11-11T09:20:46Z",
+ "notes": "- Kiểm tra ảnh bìa TikTok: chờ danh sách bài tải về lâu hơn (máy bận), cuộn tới hết danh sách; ghi kết quả vào nhật ký (đúng bìa / thiếu bìa / đã xoá / chưa rõ).",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "9cd6e86addf8b7e74994a9a4c777d8cb23f2bc96f0f86f14843594f789bbc618",
-   "size": 6281
+   "sha256": "1eef7c83db41b1fc13aade451043aff609c99952767cf03e3d2f9a124d20f980",
+   "size": 6497
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,7 +60,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "ef6949f5950f6f55fd1676a55619a3decdff9426d41a7d8078d3c4dab2e4449b",
+   "sha256": "386a85ff43996bfa097ad213275fa5294bd3d9668eafd1f41aafeade18423a9a",
    "size": 6
   },
   {
@@ -160,8 +160,8 @@
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "c1a928f8d5e16359d44afdcff2d01ccdfdea223f7ee0f1cff35bfe6d93dd0147",
-   "size": 73941
+   "sha256": "c61905c8b95c3a7085d948c7365dae10573c5ae50f0b8065ee28c83b4526bcd7",
+   "size": 74307
   },
   {
    "path": "core/ui.py",
@@ -200,8 +200,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "140f0f807aa480b20199f47c2c5abf3504386758b3d10f8882923e73b7cd0314",
-   "size": 20007
+   "sha256": "9906125f2ad312468257e851cc2b86c74dd2382890bf06f74e6b1272fd994442",
+   "size": 20322
   },
   {
    "path": "tao_manifest.py",
