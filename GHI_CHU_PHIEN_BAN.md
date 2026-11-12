@@ -1,5 +1,9 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.4.4
+- Cập nhật / Tắt hẳn tool: bộ đăng dừng ngay sau video đang đăng (trước: đăng hết cả hàng chờ rồi mới dừng, cập nhật phải chờ lâu).
+- Khởi động lại sau cập nhật chạy ẩn, không hiện cửa sổ đen python.exe nữa.
+
 ## 2.4.3
 - Sửa lỗi đỏ "st.session_state has no key it_…" ở tab Duyệt: video vừa xác nhận / bỏ mà ô chọn sản phẩm, giờ, nhạc… vẫn gửi lệnh lưu. Nay bỏ qua lặng lẽ.
 

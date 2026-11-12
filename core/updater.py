@@ -206,7 +206,9 @@ def rollback() -> str:
 
 
 # ------------------------------- khởi động lại -------------------------------
-_FLAGS = (0x08000000 | 0x00000008 | 0x00000200) if sys.platform == "win32" else 0
+# CREATE_NO_WINDOW + nhóm tiến trình mới. KHÔNG dùng DETACHED_PROCESS: với python.exe của .venv (là chương trình
+# trung gian gọi Python thật), tách hẳn console làm Python thật tự mở 1 cửa sổ đen mới.
+_FLAGS = (0x08000000 | 0x00000200) if sys.platform == "win32" else 0
 
 
 def _py():
@@ -214,9 +216,15 @@ def _py():
     return str(exe.with_name("python.exe")) if sys.platform == "win32" and exe.name.lower() == "pythonw.exe" else str(exe)
 
 
+def _pyw():
+    """Python không cửa sổ (pythonw) cho tiến trình chạy ngầm; không có thì dùng python thường."""
+    w = Path(_py()).with_name("pythonw.exe")
+    return str(w) if sys.platform == "win32" and w.exists() else _py()
+
+
 def restart_later(ui_pid: int, pip=False):
     """Nhờ 1 tiến trình riêng: chờ bộ đăng xong video đang đăng, tắt, (cài thư viện mới), bật lại tất cả."""
-    args = [_py(), "-m", "core.updater", "--khoi-dong-lai", str(ui_pid)] + (["--pip"] if pip else [])
+    args = [_pyw(), "-m", "core.updater", "--khoi-dong-lai", str(ui_pid)] + (["--pip"] if pip else [])
     subprocess.Popen(args, cwd=str(BASE_DIR), creationflags=_FLAGS, stdin=subprocess.DEVNULL,
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, close_fds=True,
                      env=dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8"))
@@ -258,7 +266,7 @@ def _helper(ui_pid: int, pip: bool):
     time.sleep(3)
     (DATA_DIR / "stop_runner.flag").unlink(missing_ok=True)
     pyw = BASE_DIR / "SonixDangVideo.pyw"
-    subprocess.Popen([_py(), str(pyw), "--nen"], cwd=str(BASE_DIR), creationflags=_FLAGS, close_fds=True,
+    subprocess.Popen([_pyw(), str(pyw), "--nen"], cwd=str(BASE_DIR), creationflags=_FLAGS, close_fds=True,
                      stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                      env=dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8"))
     say("Đã bật lại bộ đăng + giao diện")

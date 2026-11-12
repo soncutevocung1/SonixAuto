@@ -1,7 +1,7 @@
 {
- "version": "2.4.3",
- "built_at": "2026-11-12T03:03:25Z",
- "notes": "- Sửa lỗi đỏ \"st.session_state has no key it_…\" ở tab Duyệt: video vừa xác nhận / bỏ mà ô chọn sản phẩm, giờ, nhạc… vẫn gửi lệnh lưu. Nay bỏ qua lặng lẽ.",
+ "version": "2.4.4",
+ "built_at": "2026-11-12T03:09:04Z",
+ "notes": "- Cập nhật / Tắt hẳn tool: bộ đăng dừng ngay sau video đang đăng (trước: đăng hết cả hàng chờ rồi mới dừng, cập nhật phải chờ lâu).\n- Khởi động lại sau cập nhật chạy ẩn, không hiện cửa sổ đen python.exe nữa.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "35724561f378c9ec3b2c65925f620806649c946411fffcd780c5eb86cf8eb588",
-   "size": 8866
+   "sha256": "4327d536751a7a263db554539c6e7b43e0de24eb8a6a99da3d17758c27909f00",
+   "size": 9153
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,7 +60,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "e4cf0f13257be2accc4bcb9613548624c13b7f1857229ed43e967fce34171b9a",
+   "sha256": "9ecc8cb252b269596adeed39e2636ff205ca8235b44a3db8212d03255fd55c0b",
    "size": 6
   },
   {
@@ -180,8 +180,8 @@
   },
   {
    "path": "core/updater.py",
-   "sha256": "b6423abab19e8cf0fb9678e315101e3fee63d8d08daf58a7fff30bf26b86003c",
-   "size": 11753
+   "sha256": "8cc9212ca6e7167c4d69d6006333e0e4e948a721920be3889bdb74d07c5ac9d3",
+   "size": 12228
   },
   {
    "path": "core/video_utils.py",
@@ -210,8 +210,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "84d23d76fc8fa9ed6bc6ce9da79c70686705203e20677c2e3039cb4d7d30a20e",
-   "size": 22319
+   "sha256": "02f3d6d9bf913374ed0db0dba11d09bea4ee18a8e8ad95d941821aaf1ff8446d",
+   "size": 22563
   },
   {
    "path": "tao_manifest.py",

@@ -280,6 +280,9 @@ def run_once():
         log(f"  ✖ FB Tin: {facebook.safe(e)}")
     for job in db.list_jobs(["pending"]):
         heartbeat()
+        if (DATA_DIR / "stop_runner.flag").exists():  # có lệnh dừng (tắt tool / cập nhật): dừng sau video đang đăng
+            log("  · Có lệnh dừng → không đăng thêm video, dừng bộ đăng")
+            return
         if job["platform"] == "facebook":
             if not due_facebook(job, now, settings) or not db.claim_job(job["id"]):
                 continue
