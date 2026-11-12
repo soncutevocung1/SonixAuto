@@ -1,5 +1,8 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.4.12
+- Duyệt & xác nhận: mục "Thứ tự đăng" cho từng kênh: Theo thứ tự trong thư mục / Xen kẽ sản phẩm / Ngẫu nhiên (không để 2 video cùng sản phẩm liền nhau). Áp dụng khi tool tự xếp lịch, khi bấm Xếp lịch, và khi Xác nhận tất cả ở chế độ đăng ngay.
+
 ## 2.4.11
 - Mượn âm thanh giữa các kênh: kênh không có âm thanh Yêu thích riêng (vd tài khoản doanh nghiệp Kỹ Thuật Nông Nghiệp Toàn Cầu) tự mượn âm thanh đúng sản phẩm từ kênh khác, ghép sẵn vào video và tắt hẳn âm gốc trước khi đăng.
 - Tab Nhạc nền: ô "Cho phép kênh khác dùng" cho từng âm thanh. Mặc định chỉ tick âm thanh của mình / người quen (Toàn Cầu, Nông Dược, Phân Bón Cà Phê, Sơn Phân Thuốc, Nguyên nông dân 81); nhạc, bài hát của người khác không tick.

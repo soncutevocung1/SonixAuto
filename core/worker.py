@@ -93,6 +93,7 @@ def plan_new(channel, ids, settings):
         return 0
     others = {j["scheduled_at"] for j in drafts if j["id"] not in ids and j.get("scheduled_at")}
     p = channel_plan(settings, channel)
+    jobs = sch.order_jobs(jobs, p.get("order", "folder"))  # thứ tự đăng: theo thư mục / xen kẽ / ngẫu nhiên
     times = sch.plan(len(jobs), datetime.now() + timedelta(minutes=30), settings["golden_hours"], p["per_day"],
                      p["gap_min"], p["start"], p["end"], p["golden_first"], p["golden_per_slot"],
                      taken=db.taken_times(channel) | others)

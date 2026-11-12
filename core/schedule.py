@@ -65,3 +65,41 @@ def plan(n, start: datetime, golden, per_day=4, gap_min=90, day_start="05:00", d
         out.extend(sorted(chosen))
         day += timedelta(days=1)
     return sorted(out)[:n]
+
+
+ORDERS = {"folder": "Theo thứ tự trong thư mục (tên file)",
+          "mix": "Xen kẽ sản phẩm (lần lượt từng sản phẩm)",
+          "random": "Ngẫu nhiên (không để 2 video cùng sản phẩm liền nhau)"}
+
+
+def order_jobs(jobs, mode="folder", seed=None) -> list:
+    """Sắp thứ tự đăng các video: theo thư mục (tên file), xen kẽ sản phẩm, hoặc ngẫu nhiên tránh trùng liền nhau."""
+    import random
+    import re as _re
+    from pathlib import Path
+
+    def nat(j):
+        return [int(t) if t.isdigit() else t.lower() for t in _re.split(r"(\d+)", Path(j["video_path"]).name)]
+
+    base = sorted(jobs, key=nat)
+    if mode not in ("mix", "random") or len(base) < 3:
+        return base
+    groups = {}
+    for j in base:
+        groups.setdefault(j.get("item_key") or "", []).append(j)
+    rnd = random.Random(seed)
+    if mode == "random":
+        for g in groups.values():
+            rnd.shuffle(g)
+    out, last = [], None
+    while any(groups.values()):
+        # lấy nhóm còn nhiều video nhất (khác sản phẩm vừa đăng) -> trải đều; ngẫu nhiên thì chọn bừa trong các nhóm hợp lệ
+        ok = [k for k, g in groups.items() if g and k != last] or [k for k, g in groups.items() if g]
+        if mode == "random":
+            weights = [len(groups[k]) for k in ok]
+            k = rnd.choices(ok, weights=weights)[0]
+        else:
+            k = max(ok, key=lambda x: (len(groups[x]), -list(groups).index(x)))
+        out.append(groups[k].pop(0))
+        last = k
+    return out

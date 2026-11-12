@@ -386,6 +386,7 @@ def save_cart_template(channel, jid):
 
 
 def plan_channel(channel, jobs, p):
+    jobs = sch.order_jobs(jobs, channel_plan(S, channel).get("order", "folder"))  # thứ tự đăng bác chọn
     others = {j["scheduled_at"] for j in db.list_jobs(["draft"], "tiktok", channel)
               if j["id"] not in {x["id"] for x in jobs}}
     times = sch.plan(len(jobs), p["start_dt"], S["golden_hours"], p["per_day"], p["gap_min"], p["start"], p["end"],
@@ -769,6 +770,15 @@ with tabs[1]:
             _chobj["post_now"] = bool(_pn_new)
             save_settings(S)
             st.rerun()
+        _po = channel_plan(S, chname).get("order", "folder")
+        _po_new = st.radio("Thứ tự đăng", list(sch.ORDERS), index=list(sch.ORDERS).index(_po) if _po in sch.ORDERS else 0,
+                           format_func=sch.ORDERS.get, horizontal=True, key=f"po_{slug(chname)}",
+                           help="Áp dụng khi tool xếp lịch (sau khi phân tích, hoặc bấm Xếp lịch) và khi Xác nhận tất cả ở "
+                                "chế độ đăng ngay. Đổi xong bấm Xếp lịch trong mục bên dưới để xếp lại các video đang chờ.")
+        if _po_new != _po:
+            S.setdefault("plan_by_channel", {}).setdefault(chname, {})["order"] = _po_new
+            save_settings(S)
+            st.rerun()
         if _pn:
             st.info("Kênh này **đăng ngay khi xác nhận**: giờ ghi ở từng video không dùng tới. Bấm Xác nhận video nào "
                     "là video đó vào hàng đăng ngay (mỗi video cách nhau vài chục giây).")
@@ -816,7 +826,7 @@ with tabs[1]:
                                                   "golden_per_slot": gps})
                 S.setdefault("plan_by_channel", {})[chname] = dict(
                     per_day=int(per_day), gap_min=int(gap), start=w0.strip(), end=w1.strip(), golden_first=bool(gf),
-                    golden_per_slot=int(gps))
+                    golden_per_slot=int(gps), order=channel_plan(S, chname).get("order", "folder"))
                 save_settings(S)
                 st.success(f"Đã xếp {n} video.")
                 st.rerun()
@@ -1135,11 +1145,14 @@ with tabs[1]:
             if bad:
                 st.session_state[f"cf_err_{slug(chn)}"] = bad
                 return
-            now_s = datetime.now().strftime(FMT)
-            for i in ids:
+            now_ = datetime.now()
+            if post_now(S, chn) and len(ids) > 1:  # đăng ngay nhiều video: sắp theo thứ tự đăng bác chọn
+                ids = [x["id"] for x in sch.order_jobs([db.get_job(i) for i in ids],
+                                                        channel_plan(S, chn).get("order", "folder"))]
+            for n_, i in enumerate(ids):
                 j = db.get_job(i)
-                if post_now(S, chn):  # đăng ngay: giờ = bây giờ (bộ đăng đăng thẳng, không bấm Lên lịch)
-                    db.update_job(i, scheduled_at=now_s)
+                if post_now(S, chn):  # đăng ngay: giờ đã qua theo đúng thứ tự -> bộ đăng đăng thẳng lần lượt
+                    db.update_job(i, scheduled_at=(now_ - timedelta(minutes=len(ids) - n_)).strftime(FMT))
                 elif not j["scheduled_at"]:
                     db.update_job(i, scheduled_at=sch.round5(datetime.now()).strftime(FMT))
                 db.update_job(i, status="pending")

@@ -1,7 +1,7 @@
 {
- "version": "2.4.11",
- "built_at": "2026-11-12T09:45:05Z",
- "notes": "- Mượn âm thanh giữa các kênh: kênh không có âm thanh Yêu thích riêng (vd tài khoản doanh nghiệp Kỹ Thuật Nông Nghiệp Toàn Cầu) tự mượn âm thanh đúng sản phẩm từ kênh khác, ghép sẵn vào video và tắt hẳn âm gốc trước khi đăng.\n- Tab Nhạc nền: ô \"Cho phép kênh khác dùng\" cho từng âm thanh. Mặc định chỉ tick âm thanh của mình / người quen (Toàn Cầu, Nông Dược, Phân Bón Cà Phê, Sơn Phân Thuốc, Nguyên nông dân 81); nhạc, bài hát của người khác không tick.\n- Tab Duyệt: ô Nhạc nền có thêm các âm thanh \"Mượn · ... (từ kênh ...)\" để chọn tay.",
+ "version": "2.4.12",
+ "built_at": "2026-11-12T09:51:27Z",
+ "notes": "- Duyệt & xác nhận: mục \"Thứ tự đăng\" cho từng kênh: Theo thứ tự trong thư mục / Xen kẽ sản phẩm / Ngẫu nhiên (không để 2 video cùng sản phẩm liền nhau). Áp dụng khi tool tự xếp lịch, khi bấm Xếp lịch, và khi Xác nhận tất cả ở chế độ đăng ngay.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "5ca11fc8280b91afe9ffc0f8dd8a6a62715dcfa5cba2f5ab6e33a9c581003e87",
-   "size": 11485
+   "sha256": "b80d15d8738cad60f1f6bb913a514765d7fae665212b58731ea4e3b4fc079410",
+   "size": 11816
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,13 +60,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "670de6166c206272bd71bcaf81dcdf0ec37431fc9d2d8e6b39e5ff6032b65a50",
+   "sha256": "52c2b3d02f0c6aaac5d6f814f3285894d7416cbdccab0954791e3f18112858aa",
    "size": 7
   },
   {
    "path": "app.py",
-   "sha256": "534a2d69d20ee172689b925a1b28564b7cc36c5140dffb2ca401c3d0ffcc787a",
-   "size": 106374
+   "sha256": "59132375df7b86742e20333f05aa65227857fc53b7af0ffa38bd8de060671587",
+   "size": 107675
   },
   {
    "path": "assets/sonix.ico",
@@ -155,8 +155,8 @@
   },
   {
    "path": "core/schedule.py",
-   "sha256": "c376aba6f1201f8e37f65101ac73bf8462b6c81b0129b47f8a5218477ae1723d",
-   "size": 2407
+   "sha256": "93bc795f4ce0e567ff8458b2f4866688f37382059d6779dabd835bbb7f75fcf6",
+   "size": 3985
   },
   {
    "path": "core/sounds.py",
@@ -190,8 +190,8 @@
   },
   {
    "path": "core/worker.py",
-   "sha256": "1299f4a0ee00da40ef40a00b416a15571b229a2f763b35e827a9913384b2ae38",
-   "size": 7595
+   "sha256": "6d7a5ff27259e6c3e21565dcd944ebfa4ba2fac3ffe6d6631e9c8dec644bb41f",
+   "size": 7718
   },
   {
    "path": "dong_goi.py",
