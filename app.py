@@ -21,7 +21,7 @@ from core import channels as chs  # noqa: E402
 from core import db, facebook  # noqa: E402
 from core import products as prod  # noqa: E402
 from core import schedule as sch  # noqa: E402
-from core.config import (ai_key, channel_plan, APP_NAME, BASE_DIR, DATA_DIR, DEBUG_DIR, FOLDER_ERR, FOLDER_MUSIC,  # noqa: E402
+from core.config import (ai_key, channel_plan, post_now, APP_NAME, BASE_DIR, DATA_DIR, DEBUG_DIR, FOLDER_ERR, FOLDER_MUSIC,  # noqa: E402
                          FOLDER_TODO, HEARTBEAT_FILE, MODELS, NO_AI, REF_DIR, RUNNER_LOG, SOUNDS_DIR,
                          VIDEO_EXTS, load_settings, profile_dir, save_settings, slug)
 from core import desktop  # noqa: E402
@@ -750,6 +750,21 @@ with tabs[1]:
                        "'Đồng bộ Trưng bày' rồi quay lại chọn lại sản phẩm.")
         sel_ids = [j["id"] for j in jobs if st.session_state.get(k("sel", j["id"]))]
 
+        # ----- Đăng ngay hay hẹn giờ -----
+        _chobj = next((c for c in S.get("channels", []) if c["name"] == chname), None)
+        _pn = bool((_chobj or {}).get("post_now"))
+        _pn_new = st.toggle("Đăng ngay khi bấm Xác nhận (không hẹn giờ, đăng lần lượt từng video)", _pn,
+                            key=f"pn_{slug(chname)}",
+                            help="Bật: bấm Xác nhận video nào thì bộ đăng đăng thẳng video đó lên TikTok, lần lượt theo "
+                                 "thứ tự xác nhận. Tắt: hẹn giờ theo lịch giờ vàng như bình thường. Lưu riêng cho kênh này.")
+        if _chobj is not None and _pn_new != _pn:
+            _chobj["post_now"] = bool(_pn_new)
+            save_settings(S)
+            st.rerun()
+        if _pn:
+            st.info("Kênh này **đăng ngay khi xác nhận**: giờ ghi ở từng video không dùng tới. Bấm Xác nhận video nào "
+                    "là video đó vào hàng đăng ngay (mỗi video cách nhau vài chục giây).")
+
         # ----- Xếp lịch -----
         with st.expander("Xếp lịch tự động (ưu tiên giờ vàng)", expanded=False):
             p = channel_plan(S, chname)
@@ -1112,9 +1127,12 @@ with tabs[1]:
             if bad:
                 st.session_state[f"cf_err_{slug(chn)}"] = bad
                 return
+            now_s = datetime.now().strftime(FMT)
             for i in ids:
                 j = db.get_job(i)
-                if not j["scheduled_at"]:
+                if post_now(S, chn):  # đăng ngay: giờ = bây giờ (bộ đăng đăng thẳng, không bấm Lên lịch)
+                    db.update_job(i, scheduled_at=now_s)
+                elif not j["scheduled_at"]:
                     db.update_job(i, scheduled_at=sch.round5(datetime.now()).strftime(FMT))
                 db.update_job(i, status="pending")
                 stats.record("xac_nhan", j)

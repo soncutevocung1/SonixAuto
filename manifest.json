@@ -1,7 +1,7 @@
 {
- "version": "2.4.8",
- "built_at": "2026-11-12T03:54:46Z",
- "notes": "- Sửa lỗi \"Không tạo được thư mục ... D:\\\" trên máy không có ổ D: tool gợi ý thư mục gốc theo ổ có thật (ổ D, hoặc ổ đang cài tool), và báo rõ \"Máy này không có ổ D:, các ổ đang có: ...\" khi nhập sai ổ (cả thư mục trang Facebook).",
+ "version": "2.4.9",
+ "built_at": "2026-11-12T09:09:29Z",
+ "notes": "- Duyệt & xác nhận: công tắc \"Đăng ngay khi bấm Xác nhận\" cho từng kênh. Bật lên thì video không hẹn giờ: bấm Xác nhận video nào là bộ đăng đăng thẳng video đó lên TikTok, lần lượt từng video. Video phân tích xong của kênh này cũng không tự xếp giờ vàng.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "387a4de0d655e9c629a8a7b9616373a6a19bef318b5f109d94fb08264ae787f8",
-   "size": 10189
+   "sha256": "554f7b305e786d5dcd7b666f8bc4e57f55cdfde5ab0c3c0f1f06f8dacb6c5ca3",
+   "size": 10521
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,13 +60,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "ece1e54cfc7a05cc56d9ac299d20025197ed1b70d60f4c2ee09ce36fa398a200",
+   "sha256": "b31892017a594c8bd32fb9bb718aeb7521d407274d5cad3c0fb58781767577e2",
    "size": 6
   },
   {
    "path": "app.py",
-   "sha256": "2a639ceef876e42b3c4496c64fbe33365eb5664cdca3e02691da35429f5c131a",
-   "size": 103882
+   "sha256": "b34db383189d749caebebcbe7fb135799105f825b7696d167f7fb0cc0b17700d",
+   "size": 105209
   },
   {
    "path": "assets/sonix.ico",
@@ -100,8 +100,8 @@
   },
   {
    "path": "core/config.py",
-   "sha256": "4ff7fcc398a3ff5579f42b4019d8e88bebad19d4c85beac81eee1251605ee485",
-   "size": 8739
+   "sha256": "49487b06ba0d0df22c0de40e21a4daa8021a8f940bcd742a9ddd4db8943b5706",
+   "size": 8998
   },
   {
    "path": "core/covers.py",
@@ -190,8 +190,8 @@
   },
   {
    "path": "core/worker.py",
-   "sha256": "5f78585f908360a1e20f3746fa6d6d2b5e1df1aded22543e2acf1a96a72043d8",
-   "size": 7142
+   "sha256": "4c77f1e458570a9d26812b021fdec54ff8d76f2358eae874ff5f4a5c9d88e640",
+   "size": 7287
   },
   {
    "path": "dong_goi.py",

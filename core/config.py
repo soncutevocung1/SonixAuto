@@ -168,3 +168,8 @@ def profile_dir(settings, name) -> Path:
     p = Path(custom) if custom else PROFILES_DIR / slug(name)
     p.mkdir(parents=True, exist_ok=True)
     return p
+
+
+def post_now(settings, channel) -> bool:
+    """Kênh chọn 'Đăng ngay khi bấm Xác nhận' (không hẹn giờ): đăng lần lượt từng video theo thứ tự xác nhận."""
+    return bool((get_channel(settings, channel) or {}).get("post_now"))

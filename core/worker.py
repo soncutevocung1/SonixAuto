@@ -80,6 +80,9 @@ def analyze_job(jid, video, channel, model, settings, caption_only=False, item_k
 
 def plan_new(channel, ids, settings):
     """Xếp lịch giờ vàng cho các video vừa phân tích xong (không đụng lịch bác đã chỉnh ở video khác)."""
+    from .config import post_now
+    if post_now(settings, channel):  # kênh đăng ngay khi xác nhận -> không xếp giờ
+        return 0
     drafts = db.list_jobs(["draft"], "tiktok", channel)
     jobs = [j for j in drafts if j["id"] in ids and not j.get("scheduled_at")]
     if not jobs:

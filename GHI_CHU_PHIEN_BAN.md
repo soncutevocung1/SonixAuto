@@ -1,5 +1,8 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.4.9
+- Duyệt & xác nhận: công tắc "Đăng ngay khi bấm Xác nhận" cho từng kênh. Bật lên thì video không hẹn giờ: bấm Xác nhận video nào là bộ đăng đăng thẳng video đó lên TikTok, lần lượt từng video. Video phân tích xong của kênh này cũng không tự xếp giờ vàng.
+
 ## 2.4.8
 - Sửa lỗi "Không tạo được thư mục ... D:\" trên máy không có ổ D: tool gợi ý thư mục gốc theo ổ có thật (ổ D, hoặc ổ đang cài tool), và báo rõ "Máy này không có ổ D:, các ổ đang có: ..." khi nhập sai ổ (cả thư mục trang Facebook).
 
