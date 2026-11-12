@@ -1,4 +1,7 @@
-# Ghi chú phiên bản Sonix Đăng Video
+# Ghi chú phiên bản Sonix Auto
+
+## 2.5.1
+- Sửa lỗi cửa sổ app hiện "Internal Server Error", không vào được app sau một lúc chạy (máy chủ giao diện mất dấu vòng sự kiện). Nay tool tự sửa ngay khi gặp, không cần tắt mở lại.
 
 ## 2.5.0
 - App đổi tên chung thành **Sonix Auto**, gồm 2 mục chọn ở trên cùng: **Sonix Up Video** (đăng video như cũ) và **Sonix Edit Video**.

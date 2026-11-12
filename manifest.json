@@ -1,7 +1,7 @@
 {
- "version": "2.5.0",
- "built_at": "2026-11-12T17:45:45Z",
- "notes": "- App đổi tên chung thành **Sonix Auto**, gồm 2 mục chọn ở trên cùng: **Sonix Up Video** (đăng video như cũ) và **Sonix Edit Video**.\n- Cập nhật lên bản này: tool tự đổi tên thư mục `SonixDangVideo` thành `Sonix Auto`, file mở app thành `Sonix Auto.exe`, làm lại biểu tượng ngoài màn hình / menu Start / tự chạy khi mở máy (dữ liệu, đăng nhập, hàng chờ giữ nguyên). Bộ cài mới tên `SonixAuto_Setup_x.y.z.exe`.\n- Biểu tượng app, file exe, bộ cài và ảnh cạnh tên app dùng hình mới cố định. Bỏ chức năng tự đổi hình biểu tượng; chức năng đổi ảnh nền trong app giữ nguyên.\n- Mục mới **Sonix Edit Video**: viết kịch bản → lồng tiếng → tự chọn cảnh → tạo sẵn dự án CapCut (mở CapCut sửa và xuất 1080p).\n  - Kịch bản: AI học cách viết của kênh TikTok tham khảo (dán link video, tool tự tải tiếng và chép lời trên máy), viết lại cho Đạm cá Amino / Kích rễ TC01. Không có AI thì viết theo công thức. Bác sửa lời trước khi lồng tiếng.\n  - Lồng tiếng: Vbee (App ID + Token; mặc định Ngọc Huyền 2.0, tốc độ 1.05, thêm giọng theo mã) hoặc giọng miễn phí Microsoft.\n  - Cảnh quay: quét thư mục nguồn (D:\\VIDEO_INPUT), tự bỏ cảnh có người, chữ/sticker chèn, outro, ảnh tĩnh, sản phẩm khác hãng; AI xếp cảnh sản phẩm / cách dùng / kết quả theo từng câu thoại; mỗi đoạn tự đẩy lên vừa đủ để dải xanh không che sản phẩm; khung 4 ô người dùng.\n  - Dự án CapCut chép từ dự án mẫu \"mẫu\" (khung, chữ, người dẫn, màu, mũi tên); phải tắt CapCut khi tạo.",
+ "version": "2.5.1",
+ "built_at": "2026-11-12T17:58:55Z",
+ "notes": "- Sửa lỗi cửa sổ app hiện \"Internal Server Error\", không vào được app sau một lúc chạy (máy chủ giao diện mất dấu vòng sự kiện). Nay tool tự sửa ngay khi gặp, không cần tắt mở lại.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "app.py",
-   "sha256": "94125f2303950f6961b5532f65602184fb9ab0689dacd7e5a95cc151d92aca41",
-   "size": 106784
+   "sha256": "466d950297ef6bfc521df4826309cd73b166ac56f89ace65996423e91d1a2785",
+   "size": 106909
   },
   {
    "path": "assets/sonix.ico",
@@ -204,6 +204,11 @@
    "size": 17222
   },
   {
+   "path": "core/va_loi.py",
+   "sha256": "2beb897124f6a349a7b5a13c8a55c638667d12bff4694fc0b73419ccb5562c7b",
+   "size": 1724
+  },
+  {
    "path": "core/vbee.py",
    "sha256": "ad232181f66da3f832f7211dee900470bb0847a00ac175ccfbf0132542b1a932",
    "size": 4899
@@ -225,8 +230,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "92fff30404fe7ae0bccfe47b352c644f7df4c3f72ae705955273a6bf61f49e9b",
-   "size": 13623
+   "sha256": "b93279255d19294884795820ced3adaae4619ea42011f53090865e656005a446",
+   "size": 13856
   },
   {
    "path": "HUONG_DAN.md",
@@ -270,7 +275,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "f0ea2fc99f3b79d332baa91b88d4e4e469cb6b9f2c96669b3b4ec8f0d6f5b863",
+   "sha256": "43711a46b6e95c7e543f95f906afc1b49fbc4010a449d705ed8c7fd17fa470a3",
    "size": 5
   }
  ]

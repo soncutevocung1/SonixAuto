@@ -1,4 +1,4 @@
-"""GIAO DIỆN SonixDangVideo — chạy bằng 2_MO_SonixDangVideo.bat"""
+"""GIAO DIỆN Sonix Auto — chạy bằng Sonix Auto.exe (hoặc 2_MO_SonixAuto.bat)"""
 import io
 import json
 import os
@@ -14,6 +14,8 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from core import va_loi  # noqa: E402,F401  (vá lỗi 'Internal Server Error' của máy chủ giao diện)
 
 from core import analyze as ana  # noqa: E402
 from core import caption as cap  # noqa: E402
