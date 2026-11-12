@@ -1,5 +1,9 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.4.7
+- Cài đặt → Giao diện: chọn "Mở tool bằng: Cửa sổ app riêng / Chrome". Máy nào gõ tiếng Việt có dấu bị lỗi (Unikey/EVKey trong cửa sổ app) thì chọn Chrome.
+- Kênh & sản phẩm: trình duyệt kênh đăng nhập tên khác với ô @ tên TikTok (vd gõ thiếu chữ) → hiện cảnh báo + nút "Dùng @tên đang đăng nhập" sửa 1 chạm, rồi Đồng bộ Trưng bày lại.
+
 ## 2.4.6
 - Tự cập nhật không cần mã đọc GitHub nữa (kho công khai): máy nào cài cũng tự thấy bản mới và cập nhật được.
 

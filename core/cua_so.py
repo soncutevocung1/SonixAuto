@@ -124,7 +124,14 @@ def _watch(win, start_ui):
 
 
 def run(start_ui) -> bool:
-    """Mở cửa sổ app. Trả về False nếu máy không mở được kiểu này (khi đó dùng cửa sổ Chrome như cũ)."""
+    """Mở cửa sổ app. Trả về False nếu máy không mở được kiểu này hoặc bác chọn mở bằng Chrome
+    (khi đó dùng cửa sổ Chrome như cũ)."""
+    try:
+        from .config import load_settings
+        if load_settings().get("ui_window") == "chrome":  # bộ gõ tiếng Việt lỗi trong cửa sổ app -> dùng Chrome
+            return False
+    except Exception:
+        pass
     try:
         import webview
     except Exception:

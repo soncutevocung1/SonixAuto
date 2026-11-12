@@ -508,6 +508,26 @@ with st.sidebar:
 
     components.html(ui.theme_script(S), height=0)
 
+def handle_mismatch(channel):
+    """Lần gần nhất tool báo 'đang đăng nhập @A, KHÔNG PHẢI @B' cho kênh này (mà ô @ vẫn ghi B) -> (A, B)."""
+    import re as _re
+    try:
+        lines = RUNNER_LOG.read_text(encoding="utf-8", errors="ignore").splitlines()[-300:]
+    except Exception:
+        return None
+    want = (next((c.get("handle") or "" for c in S.get("channels", []) if c["name"] == channel), "")).lstrip("@")
+    for ln in reversed(lines):
+        if f"«{channel}»" not in ln:
+            continue
+        m = _re.search(r"đang đăng nhập @([\w.]+), KHÔNG PHẢI @([\w.]+)", ln)
+        if m:
+            got, need = m.group(1).rstrip("."), m.group(2).rstrip(".")  # bỏ dấu chấm cuối câu
+            return (got, need) if need == want and got != want else None
+        if "OK @" in ln or "Đồng bộ" in ln and "✖" not in ln:
+            continue
+    return None
+
+
 def manage_channels():
     """Thêm kênh, tạm ẩn, hoặc xoá kênh khỏi app (thư mục video, đăng nhập trình duyệt vẫn giữ)."""
     chans = S.get("channels") or []
@@ -1170,6 +1190,14 @@ with tabs[3]:
             if b[1].button("Tạo biểu tượng", key=f"sc_{slug(n)}"):
                 ok, err = make_shortcut(n)
                 st.success("Đã tạo biểu tượng ngoài màn hình.") if ok else st.error(f"Không tạo được: {err}")
+            _mm = handle_mismatch(n)
+            if _mm:
+                m1, m2 = st.columns([3, 1.3])
+                m1.warning(f"Trình duyệt kênh này đang đăng nhập **@{_mm[0]}**, nhưng ô @ tên TikTok ghi **@{_mm[1]}**.")
+                if m2.button(f"Dùng @{_mm[0]}", key=f"fixh_{slug(n)}", type="primary"):
+                    c["handle"] = _mm[0]
+                    save_settings(S)
+                    st.rerun()
             if b[2].button("Đồng bộ Trưng bày", key=f"ss_{slug(n)}"):
                 spawn(["--sync-showcase", n])
                 st.info("Đang mở trình duyệt đọc Trưng bày sản phẩm (không đăng gì). Xong bấm Làm mới.")
@@ -1334,6 +1362,12 @@ video sẽ lấy đúng âm thanh của sản phẩm đó và tắt âm gốc. N
 with tabs[5]:
     st.subheader("Giao diện")
     st.caption("Đổi là thấy ngay, không cần bấm Lưu.")
+    st.radio("Mở tool bằng", ["app", "chrome"], index=1 if S.get("ui_window") == "chrome" else 0, horizontal=True,
+             format_func={"app": "Cửa sổ app riêng (mặc định)",
+                          "chrome": "Chrome (chọn khi gõ tiếng Việt có dấu bị lỗi)"}.get,
+             key="ui_window_set", on_change=save_ui, args=("ui_window", "ui_window_set"),
+             help="Bộ gõ Unikey/EVKey có thể gõ sai dấu trong cửa sổ app riêng. Chọn Chrome rồi tắt tool, mở lại bằng "
+                  "biểu tượng ngoài màn hình.")
     g1, g2, g3 = st.columns([1, 1.4, 1.4])
     g1.radio("Sáng / tối", ["light", "dark"], index=0 if ui.mode(S) == "light" else 1, horizontal=True,
              format_func={"light": "Sáng", "dark": "Tối"}.get, key="ui_theme_set", on_change=save_ui,

@@ -1,7 +1,7 @@
 {
- "version": "2.4.6",
- "built_at": "2026-11-12T03:22:12Z",
- "notes": "- Tự cập nhật không cần mã đọc GitHub nữa (kho công khai): máy nào cài cũng tự thấy bản mới và cập nhật được.",
+ "version": "2.4.7",
+ "built_at": "2026-11-12T03:48:24Z",
+ "notes": "- Cài đặt → Giao diện: chọn \"Mở tool bằng: Cửa sổ app riêng / Chrome\". Máy nào gõ tiếng Việt có dấu bị lỗi (Unikey/EVKey trong cửa sổ app) thì chọn Chrome.\n- Kênh & sản phẩm: trình duyệt kênh đăng nhập tên khác với ô @ tên TikTok (vd gõ thiếu chữ) → hiện cảnh báo + nút \"Dùng @tên đang đăng nhập\" sửa 1 chạm, rồi Đồng bộ Trưng bày lại.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "a6ceaafd37b18f31739d551bdd20467f5db50cf142f0aa93721bdedc56d702d4",
-   "size": 9444
+   "sha256": "6a55460c07573e4fc76daf4bb45ffacc1e6deef98c2d61a5fbcf75387e955393",
+   "size": 9884
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,13 +60,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "9f984f771f5004593c1ab64ab40b50185e35f9f90677372182e7c223ed25a52e",
+   "sha256": "b45053a060dd216bdf8547ccf97add70509344dcb138856bf7d8a41325499e85",
    "size": 6
   },
   {
    "path": "app.py",
-   "sha256": "1a36cb65786b4e40ef2c5e1271af1a52099e00239c04716d57f73ccbf6b64148",
-   "size": 101697
+   "sha256": "806ab70dc39b630cb265fd06cf1611b357d971499a2b1a695094ecf24f6665cc",
+   "size": 103637
   },
   {
    "path": "assets/sonix.ico",
@@ -110,8 +110,8 @@
   },
   {
    "path": "core/cua_so.py",
-   "sha256": "5433f50496dbed342e4da8fb7567dcd99aa4e252d27a760af3161688b580bab2",
-   "size": 6175
+   "sha256": "9b1ead3e0fb923f11494a2ace92b1c719c42e2b5599603abb08595ec2c093eef",
+   "size": 6455
   },
   {
    "path": "core/db.py",
