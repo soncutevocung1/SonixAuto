@@ -399,9 +399,7 @@ def plan_channel(channel, jobs, p):
 # =============================== THANH BÊN ===============================
 @st.cache_data(ttl=6 * 3600, show_spinner=False)
 def new_version_cached(repo, channel, token):
-    """Hỏi GitHub có bản mới không (6 giờ hỏi 1 lần). Lỗi mạng / chưa có mã đọc thì im lặng."""
-    if not token:
-        return ""
+    """Hỏi GitHub có bản mới không (6 giờ hỏi 1 lần). Kho công khai nên không cần mã đọc. Lỗi mạng thì im lặng."""
     try:
         man = json.loads(upd.fetch("manifest.json", {"update_repo": repo, "update_channel": channel,
                                                      "github_token": token}).decode("utf-8"))
@@ -1375,7 +1373,7 @@ with tabs[5]:
     st.caption(f"Phiên bản đang dùng: {upd.local_version()}. Tool tải bản mới từ GitHub, kiểm tra mã từng file, chờ "
                "hết video đang đăng rồi mới thay. Dữ liệu (đăng nhập kênh, khoá AI, hàng chờ, thống kê) không bị đụng tới.")
     u1, u2 = st.columns([2, 1])
-    u1.text_input("Mã đọc GitHub (token chỉ có quyền đọc)", S.get("github_token", ""), type="password",
+    u1.text_input("Mã đọc GitHub (không bắt buộc)", S.get("github_token", ""), type="password",
                   key="gh_token_set", on_change=save_ui, args=("github_token", "gh_token_set"),
                   placeholder="github_pat_...", help="Tạo ở github.com → Settings → Developer settings → "
                   "Fine-grained tokens, chỉ chọn kho sonixdangvideo, quyền Contents: Read-only. Không gửi mã này cho ai.")

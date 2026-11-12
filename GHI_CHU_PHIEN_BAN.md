@@ -1,5 +1,8 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.4.6
+- Tự cập nhật không cần mã đọc GitHub nữa (kho công khai): máy nào cài cũng tự thấy bản mới và cập nhật được.
+
 ## 2.4.5
 - Sửa lỗi: cập nhật xong đôi khi bộ đăng không tự bật lại (tool tưởng bộ đăng cũ còn chạy).
 
