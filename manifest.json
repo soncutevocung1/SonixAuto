@@ -1,7 +1,7 @@
 {
- "version": "2.4.2",
- "built_at": "2026-11-11T13:56:27Z",
- "notes": "- Sửa lỗi: mở tool bằng biểu tượng (SonixDangVideo.exe) thì cửa sổ app bị ẩn, không thấy gì. Nay cửa sổ luôn hiện ra; bấm biểu tượng lần nữa cũng đưa cửa sổ lên trước.",
+ "version": "2.4.3",
+ "built_at": "2026-11-12T03:03:25Z",
+ "notes": "- Sửa lỗi đỏ \"st.session_state has no key it_…\" ở tab Duyệt: video vừa xác nhận / bỏ mà ô chọn sản phẩm, giờ, nhạc… vẫn gửi lệnh lưu. Nay bỏ qua lặng lẽ.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "96a24bdeb25064798cbf1bb060596acb2fe1af9a3548385c31e06d9d51567a24",
-   "size": 8655
+   "sha256": "35724561f378c9ec3b2c65925f620806649c946411fffcd780c5eb86cf8eb588",
+   "size": 8866
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,13 +60,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "7df73b8e407cc08ce7babfd544ab4ad92a7f62cf73a21468d2bfae85c0508c7c",
+   "sha256": "e4cf0f13257be2accc4bcb9613548624c13b7f1857229ed43e967fce34171b9a",
    "size": 6
   },
   {
    "path": "app.py",
-   "sha256": "f6c421383c7afb12d21aaac3227ad56542852e644bc4af15d90fe86d40a8356a",
-   "size": 101271
+   "sha256": "b07023dbed378a21f956199a44486006a2901f72a9db2cc6d3054ef5951ab0d3",
+   "size": 101722
   },
   {
    "path": "assets/sonix.ico",

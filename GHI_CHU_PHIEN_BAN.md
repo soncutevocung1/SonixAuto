@@ -1,5 +1,8 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.4.3
+- Sửa lỗi đỏ "st.session_state has no key it_…" ở tab Duyệt: video vừa xác nhận / bỏ mà ô chọn sản phẩm, giờ, nhạc… vẫn gửi lệnh lưu. Nay bỏ qua lặng lẽ.
+
 ## 2.4.2
 - Sửa lỗi: mở tool bằng biểu tượng (SonixDangVideo.exe) thì cửa sổ app bị ẩn, không thấy gì. Nay cửa sổ luôn hiện ra; bấm biểu tượng lần nữa cũng đưa cửa sổ lên trước.
 

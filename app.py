@@ -227,15 +227,32 @@ def init_state(j):
             ss[k(f, jid)] = v
 
 
+def quiet_cb(fn):
+    """Lệnh lưu chạy khi ô nhập của video đã biến mất (video vừa xác nhận / bỏ / phân tích lại) thì bỏ qua,
+    không hiện lỗi đỏ."""
+    import functools
+
+    @functools.wraps(fn)
+    def run(*a, **kw):
+        try:
+            return fn(*a, **kw)
+        except KeyError:
+            return None
+    return run
+
+
+@quiet_cb
 def save(jid, field, f, conv=lambda v: v):
     db.update_job(jid, **{field: conv(st.session_state[k(f, jid)])})
 
 
+@quiet_cb
 def save_products(jid, channel):
     names = {p["id"]: p.get("name", "") for p in prod.load_showcase(channel)["products"]}
     db.update_job(jid, products=[{"id": i, "name": names.get(i, "")} for i in st.session_state[k("pr", jid)]])
 
 
+@quiet_cb
 def save_item(jid, channel):
     key = st.session_state[k("it", jid)]
     products, cart = prod.resolve(S, channel, key)
@@ -243,11 +260,13 @@ def save_item(jid, channel):
     forget(jid, ("pr", "cart", "rev"))
 
 
+@quiet_cb
 def save_time(jid):
     dt = datetime.combine(st.session_state[k("d", jid)], st.session_state[k("t", jid)])
     db.update_job(jid, scheduled_at=sch.round5(dt).strftime(FMT))
 
 
+@quiet_cb
 def save_music(jid):
     v = st.session_state[k("mu", jid)]
     mode, _, ref = v.partition("::")
@@ -337,6 +356,7 @@ def set_cover_cb(jid, idx):
     db.update_job(jid, cover_path=ana.set_cover(j, idx), reviewed=1, cover_by_user=1)
 
 
+@quiet_cb
 def save_cover_default(channel, item_key, wkey):
     """Lưu ảnh bìa mặc định cho 1 sản phẩm của kênh."""
     m = S.setdefault("cover_by_product", {}).setdefault(channel, {})
@@ -352,6 +372,7 @@ def reset_cover_cb(jid):
     db.update_job(jid, cover_by_user=0)
 
 
+@quiet_cb
 def save_cart_template(channel, jid):
     item_key, cart = st.session_state[k("it", jid)], st.session_state[k("cart", jid)]
     if not item_key:
@@ -393,6 +414,7 @@ def item_name(key):
     return ITEMS.get(key, {}).get("name", key) if key else "Không gắn sản phẩm (video kiến thức)"
 
 
+@quiet_cb
 def save_ui(field, wkey):
     S[field] = st.session_state[wkey]
     save_settings(S)
