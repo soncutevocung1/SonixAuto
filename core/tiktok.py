@@ -1535,8 +1535,11 @@ def sync_sounds(settings, channel, log=print):
             _open_sound_editor(page)
             rows = _load_all_favorites(page)
             if not rows and _visible(page.get_by_text(_rx(r"(Không có kết quả|No results)")), 3):
-                raise TikTokError("mục Yêu thích của kênh này đang TRỐNG. Bác mở app TikTok, bấm lưu (Yêu thích) "
-                                  "các âm thanh hay dùng, rồi bấm Đồng bộ lại.")
+                raise TikTokError("mục Yêu thích trong TikTok Studio của kênh này đang TRỐNG. Nếu đây là TÀI KHOẢN DOANH "
+                                  "NGHIỆP / gian hàng: TikTok chỉ hiện nhạc thương mại, các âm thanh gốc hay bài hát "
+                                  "thường đã lưu sẽ bị ẩn. Cách sửa: (1) trên app, vào mục Nhạc thương mại / Không giới "
+                                  "hạn và bấm lưu các bài muốn dùng rồi Đồng bộ lại; hoặc (2) chọn nhạc 'Tự động: nhạc "
+                                  "TikTok đề xuất' cho kênh này. Nhớ lưu bằng đúng tài khoản của kênh.")
             if not rows:
                 dump_debug(page, "am_thanh_yeu_thich")
                 raise TikTokError("không đọc được danh sách Yêu thích (đã lưu ảnh + HTML vào data/logs/debug)")

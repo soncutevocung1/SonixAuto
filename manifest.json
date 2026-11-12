@@ -1,7 +1,7 @@
 {
- "version": "2.4.9",
- "built_at": "2026-11-12T09:09:29Z",
- "notes": "- Duyệt & xác nhận: công tắc \"Đăng ngay khi bấm Xác nhận\" cho từng kênh. Bật lên thì video không hẹn giờ: bấm Xác nhận video nào là bộ đăng đăng thẳng video đó lên TikTok, lần lượt từng video. Video phân tích xong của kênh này cũng không tự xếp giờ vàng.",
+ "version": "2.4.10",
+ "built_at": "2026-11-12T09:14:58Z",
+ "notes": "- Đồng bộ âm thanh Yêu thích: khi mục Yêu thích trong TikTok Studio trống, báo rõ lý do thường gặp (tài khoản doanh nghiệp / gian hàng chỉ hiện nhạc thương mại, âm thanh gốc đã lưu bị ẩn) và cách khắc phục.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "554f7b305e786d5dcd7b666f8bc4e57f55cdfde5ab0c3c0f1f06f8dacb6c5ca3",
-   "size": 10521
+   "sha256": "38b3ce419ed04f44ac1d01127f20fd34c7ca0a7b43b20538194ff5d0f7340c33",
+   "size": 10793
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,8 +60,8 @@
   },
   {
    "path": "VERSION",
-   "sha256": "b31892017a594c8bd32fb9bb718aeb7521d407274d5cad3c0fb58781767577e2",
-   "size": 6
+   "sha256": "0a40811a93b16dbe0b807348be57c9f523d881f2451e2d989df1a34605d3dcd6",
+   "size": 7
   },
   {
    "path": "app.py",
@@ -170,8 +170,8 @@
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "22107fef3f88e01e66f577a14bb710b140f39e44bcefff8c1a4eac80d81a7dcd",
-   "size": 75096
+   "sha256": "5f0b90a662215a1d1c469bc6f4d4a0f35224962b54b0adcac0b68cfd743af6d9",
+   "size": 75576
   },
   {
    "path": "core/ui.py",

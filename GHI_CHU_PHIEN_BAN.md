@@ -1,5 +1,8 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.4.10
+- Đồng bộ âm thanh Yêu thích: khi mục Yêu thích trong TikTok Studio trống, báo rõ lý do thường gặp (tài khoản doanh nghiệp / gian hàng chỉ hiện nhạc thương mại, âm thanh gốc đã lưu bị ẩn) và cách khắc phục.
+
 ## 2.4.9
 - Duyệt & xác nhận: công tắc "Đăng ngay khi bấm Xác nhận" cho từng kênh. Bật lên thì video không hẹn giờ: bấm Xác nhận video nào là bộ đăng đăng thẳng video đó lên TikTok, lần lượt từng video. Video phân tích xong của kênh này cũng không tự xếp giờ vàng.
 
