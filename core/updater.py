@@ -1,4 +1,4 @@
-"""Tự cập nhật Sonix Đăng Video từ GitHub (kho riêng tư của bác).
+"""Tự cập nhật Sonix Auto từ GitHub.
 
 Trên GitHub có file manifest.json: phiên bản + mã SHA-256 của từng file chương trình.
 Tool so với file trên máy, chỉ tải file khác, kiểm tra mã từng file, chờ lúc không có video đang đăng,
@@ -23,7 +23,8 @@ from pathlib import Path
 
 from .config import BASE_DIR, DATA_DIR, HEARTBEAT_FILE
 
-DEFAULT_REPO = "soncutevocung1/SonixDangVideo"
+# Kho đổi tên từ SonixDangVideo (13/11/2026); máy bản cũ vẫn tìm thấy nhờ GitHub tự chuyển link tên cũ.
+DEFAULT_REPO = "soncutevocung1/SonixAuto"
 CHANNELS = {"main": "Ổn định", "thu-nghiem": "Thử nghiệm"}
 VERSION_FILE = BASE_DIR / "VERSION"
 ROOT = DATA_DIR / "capnhat"
@@ -32,7 +33,7 @@ BACKUP = ROOT / "sao_luu"
 CURRENT = ROOT / "manifest_dang_dung.json"
 JOURNAL = ROOT / "nhat_ky.json"
 SKIP_DIRS = {"data", ".venv", "python", "static", "patches", "__pycache__", ".git", ".github", "installer", "build", "dist"}
-SKIP_FILES = {"manifest.json"}
+SKIP_FILES = {"manifest.json", "unins000.exe", "unins000.dat"}  # unins000: do bộ cài tạo trên từng máy
 
 
 class UpdateError(Exception):
@@ -64,7 +65,7 @@ def _safe(rel: str) -> Path:
 
 # ------------------------------- tải từ GitHub -------------------------------
 def _get(url: str, token: str, timeout=60) -> bytes:
-    h = {"Accept": "application/vnd.github.raw", "User-Agent": "SonixDangVideo-capnhat",
+    h = {"Accept": "application/vnd.github.raw", "User-Agent": "SonixAuto-capnhat",
          "X-GitHub-Api-Version": "2022-11-28"}
     if token:
         h["Authorization"] = f"Bearer {token}"
@@ -266,6 +267,12 @@ def _helper(ui_pid: int, pip: bool):
     say("Đã tắt giao diện cũ")
     time.sleep(3)
     (DATA_DIR / "stop_runner.flag").unlink(missing_ok=True)
+    if sys.platform == "win32" and BASE_DIR.name.lower() == OLD_DIR_NAME.lower():
+        try:
+            doi_ten_thu_muc(say)
+            return  # script đổi tên tự bật lại tool từ thư mục mới
+        except Exception as e:
+            say(f"Không đổi được tên thư mục ({e}), bật lại ở thư mục cũ")
     pyw = BASE_DIR / "SonixDangVideo.pyw"
     subprocess.Popen([_pyw(), str(pyw), "--nen"], cwd=str(BASE_DIR), creationflags=_FLAGS, close_fds=True,
                      stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
@@ -273,6 +280,94 @@ def _helper(ui_pid: int, pip: bool):
     say("Đã bật lại bộ đăng + giao diện")
 
 
+# ------------------------------- đổi tên thư mục (bản 2.5: SonixDangVideo -> Sonix Auto) -------------------------------
+OLD_DIR_NAME = "SonixDangVideo"
+NEW_DIR_NAME = "Sonix Auto"
+INNO_KEY = r"HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\{6B1F3C2A-5D7E-4A8B-9C0D-50A1DA06E0F1}_is1"
+
+_DOI_TEN_PS = r"""
+$ErrorActionPreference = 'SilentlyContinue'
+$old = '__OLD__'; $new = '__NEW__'; $log = '__LOG__'
+function Say($m) { Add-Content -LiteralPath $log -Value ((Get-Date -Format 'dd/MM HH:mm:ss') + '  ' + $m) -Encoding UTF8 }
+Start-Sleep 4
+$ok = $false
+for ($i = 0; $i -lt 40 -and -not $ok; $i++) {
+  Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -ne $PID -and ($_.ExecutablePath -like "$old\*" -or $_.CommandLine -like "*$old\*") } |
+    ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+  Start-Sleep 2
+  try { Rename-Item -LiteralPath $old -NewName (Split-Path $new -Leaf) -ErrorAction Stop; $ok = $true } catch { Say ('Chua doi ten duoc: ' + $_.Exception.Message) }
+}
+if ($ok) {
+  Say 'Da doi ten thu muc'
+  $k = '__KEY__'
+  if (Test-Path $k) {
+    $p = Get-ItemProperty $k
+    foreach ($n in 'InstallLocation','Inno Setup: App Path','UninstallString','QuietUninstallString','DisplayIcon','ModifyPath') {
+      $v = $p.$n; if ($v) { Set-ItemProperty $k -Name $n -Value ($v.Replace($old, $new)) }
+    }
+    Set-ItemProperty $k -Name 'DisplayName' -Value ('Sonix Auto ' + $p.DisplayVersion)
+  }
+  $dir = $new
+} else { Say 'Khong doi ten duoc, bat lai o thu muc cu'; $dir = $old }
+$py = Join-Path $dir 'python\pythonw.exe'
+if (-not (Test-Path $py)) { $py = Join-Path $dir '.venv\Scripts\pythonw.exe' }
+$env:PYTHONUTF8 = '1'; $env:PYTHONIOENCODING = 'utf-8'
+Start-Process -FilePath $py -ArgumentList '-m','core.updater','--sau-doi-ten',('"' + $old + '"') -WorkingDirectory $dir -WindowStyle Hidden -Wait
+Start-Process -FilePath $py -ArgumentList ('"' + (Join-Path $dir 'SonixDangVideo.pyw') + '"'),'--nen' -WorkingDirectory $dir -WindowStyle Hidden
+Say 'Da bat lai tool'
+"""
+
+
+def doi_ten_thu_muc(say=print):
+    """Nhờ PowerShell (nằm ngoài thư mục tool) chờ tool tắt hẳn rồi đổi tên thư mục và bật lại."""
+    import tempfile
+    new = BASE_DIR.parent / NEW_DIR_NAME
+    if new.exists():
+        raise UpdateError(f"Đã có thư mục {new}")
+    log = Path(tempfile.gettempdir()) / "sonix_doi_ten.log"
+    ps = (_DOI_TEN_PS.replace("__OLD__", str(BASE_DIR).replace("'", "''"))
+          .replace("__NEW__", str(new).replace("'", "''")).replace("__LOG__", str(log)).replace("__KEY__", INNO_KEY))
+    f = Path(tempfile.gettempdir()) / "sonix_doi_ten.ps1"
+    f.write_text(ps, encoding="utf-8-sig")
+    subprocess.Popen(["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden", "-File", str(f)],
+                     creationflags=_FLAGS, close_fds=True, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                     stderr=subprocess.DEVNULL, cwd=str(BASE_DIR.parent))
+    say(f"Đổi tên thư mục -> {new} (nhật ký: {log})")
+
+
+def sau_doi_ten(old: str):
+    """Chạy ở thư mục mới: làm lại biểu tượng, sửa đường dẫn cũ trong dữ liệu."""
+    from . import desktop
+    try:
+        desktop.create_shortcuts()
+        if desktop.is_autostart():
+            desktop.set_autostart(True)
+    except Exception:
+        pass
+    olds = {old, old.replace("\\", "/")}
+    news = {old: str(BASE_DIR), old.replace("\\", "/"): str(BASE_DIR).replace("\\", "/")}
+    files = list((DATA_DIR / "edit" / "kich_ban").glob("*.json")) + [DATA_DIR / "settings.json"]
+    try:
+        from . import capcut_draft
+        for d in ([] if capcut_draft.capcut_dang_mo() else capcut_draft.CAPCUT_DRAFTS.glob("*")):
+            files += [d / "draft_content.json"] + list(d.glob("Timelines/*/draft_content.json"))
+    except Exception:
+        pass
+    for f in files:
+        try:
+            t = f.read_text(encoding="utf-8")
+            t2 = t
+            for o in olds:
+                t2 = t2.replace(o, news[o]).replace(o.replace("\\", "\\\\"), news[o].replace("\\", "\\\\"))
+            if t2 != t:
+                f.write_text(t2, encoding="utf-8")
+        except Exception:
+            pass
+
+
 if __name__ == "__main__":
+    if "--sau-doi-ten" in sys.argv:
+        sau_doi_ten(sys.argv[sys.argv.index("--sau-doi-ten") + 1])
+        sys.exit(0)
     if "--khoi-dong-lai" in sys.argv:
         _helper(int(sys.argv[sys.argv.index("--khoi-dong-lai") + 1]), "--pip" in sys.argv)

@@ -11,7 +11,7 @@ from .config import APP_NAME, BASE_DIR, DATA_DIR, ensure_dirs
 PORT = 8501
 ICON = BASE_DIR / "assets" / "sonix.ico"
 LAUNCHER = BASE_DIR / "SonixDangVideo.pyw"
-LAUNCHER_EXE = BASE_DIR / "SonixDangVideo.exe"   # file bấm mở app (gọi Python chạy SonixDangVideo.pyw)
+LAUNCHER_EXE = BASE_DIR / "Sonix Auto.exe"   # file bấm mở app (gọi Python chạy SonixDangVideo.pyw)
 
 BROWSERS = [
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
@@ -98,6 +98,9 @@ def _make_lnk(link: Path, target, args="", workdir="", icon=""):
         return False, f"Không đổi được tên biểu tượng: {e}"
 
 
+SHORTCUT_NAME = "Sonix Auto"  # tên biểu tượng (thư mục, file exe vẫn giữ tên SonixDangVideo để cập nhật không lỗi)
+
+
 def _shortcut(path: Path, args: str = "", desc: str = APP_NAME):
     """Tạo file .lnk mở app SonixDangVideo (trỏ vào SonixDangVideo.exe; chưa có exe thì trỏ vào Python)."""
     if LAUNCHER_EXE.exists():
@@ -126,10 +129,16 @@ def create_shortcuts():
         return False, "Chỉ tạo được trên Windows"
     out = []
     for folder in (special_folder("Desktop"), special_folder("Programs")):
-        ok, err = _shortcut(folder / f"{APP_NAME}.lnk")
+        ok, err = _shortcut(folder / f"{SHORTCUT_NAME}.lnk")
         out.append(ok)
         if not ok:
             return False, err
+        old = folder / f"{APP_NAME}.lnk"  # biểu tượng tên cũ (SonixDangVideo) -> bỏ, tránh 2 biểu tượng
+        try:
+            if old.exists():
+                old.unlink()
+        except OSError:
+            pass
     return all(out), ""
 
 
@@ -180,57 +189,9 @@ def env():
     return e
 
 
-# ---------- biểu tượng riêng của người dùng ----------
-CUSTOM_PNG = DATA_DIR / "app_icon.png"
-
-
+# ---------- biểu tượng app: cố định assets/sonix.ico (đã bỏ chức năng đổi ảnh riêng) ----------
 def icon_path() -> Path:
-    """Biểu tượng đang dùng: ảnh riêng (nếu đã đặt) hoặc biểu tượng mặc định."""
-    icos = sorted(DATA_DIR.glob("app_icon_*.ico"))
-    return icos[-1] if icos else ICON
-
-
-def crop_icon(img, zoom=2.2, cx=0.5, cy=0.35, size=256):
-    """Cắt khung vuông quanh điểm (cx, cy) với độ phóng zoom, bo góc."""
-    from PIL import Image, ImageDraw
-    img = img.convert("RGBA")
-    w, h = img.size
-    side = max(16, int(min(w, h) / max(1.0, zoom)))
-    x0 = int(min(max(cx * w - side / 2, 0), w - side))
-    y0 = int(min(max(cy * h - side / 2, 0), h - side))
-    sq = img.crop((x0, y0, x0 + side, y0 + side)).resize((size, size), Image.LANCZOS)
-    mask = Image.new("L", (size, size), 0)
-    ImageDraw.Draw(mask).rounded_rectangle([0, 0, size - 1, size - 1], radius=int(size * 0.22), fill=255)
-    out = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    out.paste(sq, (0, 0), mask)
-    return out
-
-
-def set_custom_icon(icon_img):
-    """Lưu ảnh làm biểu tượng (.ico mới để Windows không dùng hình cũ trong bộ nhớ đệm), tạo lại biểu tượng."""
-    import time as _t
-    ensure_dirs()
-    for old in DATA_DIR.glob("app_icon_*.ico"):
-        try:
-            old.unlink()
-        except Exception:
-            pass
-    ico = DATA_DIR / f"app_icon_{int(_t.time())}.ico"
-    icon_img.save(ico, sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
-    icon_img.save(CUSTOM_PNG)
-    ok, err = create_shortcuts()
-    if ok and is_autostart():
-        set_autostart(True)
-    return ok, err
-
-
-def reset_icon():
-    for old in list(DATA_DIR.glob("app_icon_*.ico")) + [CUSTOM_PNG]:
-        try:
-            old.unlink()
-        except Exception:
-            pass
-    return create_shortcuts()
+    return ICON
 
 
 def low_priority():

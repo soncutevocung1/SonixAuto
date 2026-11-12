@@ -37,7 +37,7 @@ from collections import Counter  # noqa: E402
 from datetime import date  # noqa: E402
 
 st.set_page_config(page_title=ui.APP_TITLE, layout="wide",
-                   page_icon=str(desktop.CUSTOM_PNG) if desktop.CUSTOM_PNG.exists() else None)
+                   page_icon=str(ui.AVATAR) if ui.AVATAR.exists() else None)
 db.init_db()
 stats.init()
 worker.start()  # luồng phân tích ngầm
@@ -504,7 +504,7 @@ with st.sidebar:
                  "Video **chưa tải lên** sẽ không đăng cho tới khi mở lại tool.")
         if st.button("Tắt luôn", type="primary"):
             shutdown_all()
-            st.success("Đã tắt. Đóng cửa sổ này. Muốn mở lại: bấm biểu tượng Sonix Đăng Video ngoài màn hình.")
+            st.success("Đã tắt. Đóng cửa sổ này. Muốn mở lại: bấm biểu tượng Sonix Auto ngoài màn hình.")
             st.stop()
 
     components.html(ui.theme_script(S), height=0)
@@ -570,6 +570,17 @@ def manage_channels():
             st.success("Đã thêm. Vào tab Kênh & sản phẩm để đăng nhập TikTok cho kênh này.")
             st.rerun()
 
+
+# ---------- Sonix Auto: 2 mục lớn ----------
+MUC_UP, MUC_EDIT = "Sonix Up Video", "Sonix Edit Video"
+st.markdown("<style>.st-key-sx_muc button{font-size:1.1rem;font-weight:700;padding:.55rem 1.4rem;min-height:2.8rem}"
+            ".st-key-sx_muc button p{font-size:1.1rem;font-weight:700}</style>", unsafe_allow_html=True)
+_muc = st.segmented_control("Mục", [MUC_UP, MUC_EDIT], default=MUC_UP, key="sx_muc",
+                            label_visibility="collapsed") or MUC_UP
+if _muc == MUC_EDIT:
+    from core import edit_ui
+    edit_ui.render(S)
+    st.stop()
 
 _t = st.tabs(["Đăng video", "Duyệt & xác nhận", "Hàng chờ", "Tổng hợp", "Kênh & sản phẩm", "Nhạc nền", "Cài đặt",
               "Facebook", "Nhật ký"])
@@ -1601,7 +1612,7 @@ Không dán key vào chat. Key nằm trong thư mục `data` trên máy bác."""
                           help="Tool tự bật 'Khai báo nội dung bài đăng' và tick ô này cho mọi video")
     st.subheader("App trên máy tính & mở trên điện thoại")
     a1, a2 = st.columns(2)
-    if a1.button("Tạo biểu tượng SonixDangVideo (màn hình + menu Start)"):
+    if a1.button("Tạo biểu tượng Sonix Auto (màn hình + menu Start)"):
         ok, err = desktop.create_shortcuts()
         st.success("Đã tạo biểu tượng. Từ giờ bấm đúp biểu tượng là mở tool.") if ok else st.error(err)
     auto = a2.toggle("Tự bật tool (chạy nền) mỗi khi mở máy", desktop.is_autostart(),
@@ -1616,28 +1627,6 @@ Không dán key vào chat. Key nằm trong thư mục `data` trên máy bác."""
         st.caption(f"Địa chỉ mở trên điện thoại: **http://{desktop.local_ip()}:{desktop.PORT}** · Đổi xong bấm "
                    "Lưu cài đặt, rồi Tắt hẳn tool và mở lại biểu tượng. Lần đầu Windows hỏi cho phép mạng → chọn "
                    "Cho phép (Allow).")
-    with st.expander("Biểu tượng app (dùng ảnh của bạn)"):
-        up = st.file_uploader("Chọn ảnh (JPG/PNG)", type=["jpg", "jpeg", "png", "webp"], key="icon_up")
-        if up is not None:
-            from PIL import Image
-            src = Image.open(up)
-            i1, i2, i3 = st.columns(3)
-            zoom = i1.slider("Phóng to", 1.0, 5.0, 2.2, 0.1)
-            cx = i2.slider("Sang trái – phải", 0.0, 1.0, 0.53, 0.01)
-            cy = i3.slider("Lên – xuống", 0.0, 1.0, 0.32, 0.01)
-            icon = desktop.crop_icon(src, zoom, cx, cy)
-            p1, p2, p3 = st.columns([1, 1, 4])
-            p1.image(icon, caption="Ngoài màn hình", width=96)
-            p2.image(icon.resize((32, 32)), caption="Cỡ nhỏ", width=32)
-            if p3.button("Dùng ảnh này làm biểu tượng", type="primary"):
-                ok, err = desktop.set_custom_icon(icon)
-                st.success("Đã đổi biểu tượng! Nếu ngoài màn hình chưa đổi hình, bấm chuột phải ra màn hình → "
-                           "Làm mới (Refresh). Thanh tác vụ đổi sau khi mở lại tool.") if ok else st.error(err)
-        if desktop.CUSTOM_PNG.exists():
-            st.image(str(desktop.CUSTOM_PNG), caption="Biểu tượng đang dùng", width=64)
-            if st.button("Về biểu tượng mặc định"):
-                desktop.reset_icon()
-                st.rerun()
     if st.button("Lưu cài đặt", type="primary"):
         try:
             golden = []

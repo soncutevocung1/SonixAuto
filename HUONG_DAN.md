@@ -1,13 +1,13 @@
-# Sonix Đăng Video – Hướng dẫn sử dụng
+# Sonix Auto – Hướng dẫn sử dụng
 
 Tool tự động đăng video TikTok: AI nhận diện sản phẩm trong video, tự gắn giỏ hàng, đặt tên giỏ, chọn ảnh bìa, thêm nhạc, hẹn giờ theo khung giờ vàng. Người dùng chỉ cần duyệt lại và bấm **Xác nhận đăng**.
 
 ---
 
 ## 1. Cài đặt (làm 1 lần mỗi máy)
-1. Giải nén file zip ra một thư mục, ví dụ `D:\SonixDangVideo`.
+1. Giải nén file zip ra một thư mục, ví dụ `D:\Sonix Auto`.
 2. Bấm đúp **`1_CAI_DAT.bat`**. Máy chưa có Python thì tool tự cài; cài xong Python thì bấm `1_CAI_DAT.bat` lần nữa.
-3. Cài xong, ngoài màn hình (và trong menu Start) có biểu tượng **SonixDangVideo** . Từ giờ **bấm đúp biểu tượng là mở tool**, như mở 1 phần mềm:
+3. Cài xong, ngoài màn hình (và trong menu Start) có biểu tượng **Sonix Auto** . Từ giờ **bấm đúp biểu tượng là mở tool**, như mở 1 phần mềm:
    - Tool tự bật bộ đăng tự động chạy ngầm, **không hiện cửa sổ đen**.
    - Giao diện mở trong **cửa sổ riêng** (không có thanh địa chỉ như trình duyệt).
    - Đóng cửa sổ giao diện thì bộ đăng **vẫn chạy ngầm**, tới giờ vẫn đăng. Muốn tắt hẳn: bấm **Tắt hẳn tool** ở thanh bên trái.
@@ -15,13 +15,13 @@ Tool tự động đăng video TikTok: AI nhận diện sản phẩm trong video
 > Máy cần có **Google Chrome** (hoặc Edge). Mac: chạy `bash cai_dat_mac.sh`, sau đó `bash mo_tool_mac.sh`.
 
 ### Cập nhật lên bản mới (máy đã cài rồi)
-1. Giải nén file zip mới **đè lên** thư mục cũ (ví dụ `D:\SonixDangVideo`), chọn **Thay thế tất cả**. Đăng nhập kênh, cài đặt, hàng chờ nằm trong thư mục `data` nên **không mất**.
+1. Giải nén file zip mới **đè lên** thư mục cũ (ví dụ `D:\Sonix Auto`), chọn **Thay thế tất cả**. Đăng nhập kênh, cài đặt, hàng chờ nằm trong thư mục `data` nên **không mất**.
 2. Bấm đúp **`4_TAO_BIEU_TUONG_APP.bat`** để tạo biểu tượng app.
-3. Nếu đang mở bản cũ: tắt các cửa sổ đen cũ đi rồi bấm biểu tượng SonixDangVideo.
+3. Nếu đang mở bản cũ: tắt các cửa sổ đen cũ đi rồi bấm biểu tượng Sonix Auto.
 
 ### Vì sao `http://localhost:8501` không vào được?
 - `localhost` nghĩa là **chính máy tính đang chạy tool**. Mở link này trên điện thoại hay máy khác sẽ không được.
-- Tool **chưa chạy** (máy vừa khởi động lại, hoặc đã tắt cửa sổ) → bấm biểu tượng SonixDangVideo.
+- Tool **chưa chạy** (máy vừa khởi động lại, hoặc đã tắt cửa sổ) → bấm biểu tượng Sonix Auto.
 - Muốn tool **luôn chạy** sau khi mở máy: Cài đặt → bật **"Tự bật tool (chạy nền) mỗi khi mở máy"**.
 
 ### Mở tool trên điện thoại (cùng Wi-Fi với máy tính)
@@ -71,7 +71,7 @@ D:\VIDEO_TIKTOK\
 **e) Claude API key** (tab Cài đặt). Cần có để AI nhận diện sản phẩm và viết caption.
 1. Vào **https://console.anthropic.com** → đăng nhập bằng Gmail.
 2. **Billing** (thanh toán) → **Buy credits** (nạp tiền) → nạp **5 USD** (khoảng 130.000đ) bằng Visa/Mastercard. Nên đặt **Spend limit** (giới hạn chi tiêu) khoảng 10 USD/tháng.
-3. **API Keys** → **Create Key** → đặt tên `SonixDangVideo` → **Copy**. Key bắt đầu bằng `sk-ant-` và chỉ hiện 1 lần.
+3. **API Keys** → **Create Key** → đặt tên `SonixAuto` → **Copy**. Key bắt đầu bằng `sk-ant-` và chỉ hiện 1 lần.
 4. Dán vào tab Cài đặt → **Lưu cài đặt**.
 - Không gửi key cho ai, không dán vào chat.
 - Không có key thì tool nhận diện theo **tên file** (ví dụ file tên có chữ `tc01`, `dam ca 5 lit`) và dùng caption mẫu.
@@ -141,7 +141,7 @@ D:\VIDEO_TIKTOK\
   3. Gửi file đó cho người hỗ trợ. Gói này không chứa mật khẩu, token hay key.
 
 ## 6. Chia sẻ cho người khác
-- Bấm **`3_DONG_GOI_CHIA_SE.bat`** → ra file `SonixDangVideo_ngày.zip`.
+- Bấm **`3_DONG_GOI_CHIA_SE.bat`** → ra file `SonixAuto_ngày.zip`.
 - Gói này **không chứa thư mục `data`** (đăng nhập TikTok, API key, token Facebook).
 - Người nhận giải nén → `1_CAI_DAT.bat` → tự nhập kênh của họ.
 - Tuyệt đối không gửi thư mục `data` cho ai.

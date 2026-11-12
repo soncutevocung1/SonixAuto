@@ -1,9 +1,9 @@
 @echo off
 chcp 65001 >nul
 cd /d "%~dp0"
-title CAI DAT SonixDangVideo
+title CAI DAT Sonix Auto
 echo ==============================================
-echo    CAI DAT SonixDangVideo (lam 1 lan moi may)
+echo    CAI DAT Sonix Auto (lam 1 lan moi may)
 echo ==============================================
 set "PY="
 py -3 --version >nul 2>&1 && set "PY=py -3"
@@ -28,8 +28,8 @@ if errorlevel 1 ( echo LOI cai thu vien. Kiem tra mang roi chay lai. & pause & e
 echo [3/3] Tai trinh duyet du phong...
 .venv\Scripts\python.exe -m playwright install chromium
 echo.
-echo Tao bieu tuong SonixDangVideo ngoai man hinh...
+echo Tao bieu tuong Sonix Auto ngoai man hinh...
 set PYTHONUTF8=1
 .venv\Scripts\python.exe -c "from core import desktop; desktop.create_shortcuts()"
-echo ===== XONG! Bam dup bieu tuong SonixDangVideo ngoai man hinh de dung =====
+echo ===== XONG! Bam dup bieu tuong Sonix Auto ngoai man hinh de dung =====
 pause

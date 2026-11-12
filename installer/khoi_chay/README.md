@@ -1,10 +1,10 @@
-# SonixDangVideo.exe
+# Sonix Auto.exe
 
 File bấm mở app. Nó chỉ tìm Python đi kèm (`python\pythonw.exe` hoặc `.venv\Scripts\pythonw.exe`) rồi chạy `SonixDangVideo.pyw`.
+Biểu tượng lấy từ `assets\sonix.ico`.
 
-Dựng lại (cần Go):
+Dựng lại (không cần cài gì, dùng trình dịch C# có sẵn trong Windows), chạy ở thư mục gốc của tool:
 
-```bash
-python3 tao_bieu_tuong.py ../../assets/sonix.ico rsrc_windows_amd64.syso
-GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags "-H=windowsgui -s -w" -o ../../SonixDangVideo.exe .
+```bat
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /nologo /target:winexe /optimize+ /codepage:65001 /win32icon:assets\sonix.ico "/out:Sonix Auto.exe" installer\khoi_chay\SonixAuto.cs
 ```

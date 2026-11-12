@@ -1,25 +1,27 @@
-﻿; Bộ cài Sonix Đăng Video. GitHub Actions dựng tự động (.github/workflows/bo_cai.yml).
+﻿; Bộ cài Sonix Auto. GitHub Actions dựng tự động (.github/workflows/bo_cai.yml).
 ; Cần 2 thư mục do workflow chuẩn bị sẵn: build\app (mã nguồn) và build\python (Python + thư viện).
-; Dựng tay: iscc /DMyVersion=2.0.2 installer\SonixDangVideo.iss
+; Dựng tay: iscc /DMyVersion=2.5.0 installer\SonixAuto.iss
 
 #ifndef MyVersion
   #define MyVersion "0.0.0"
 #endif
-#define MyName "Sonix Đăng Video"
-#define MyLnk "SonixDangVideo"
+#define MyName "Sonix Auto"
+#define MyLnk "Sonix Auto"
+#define MyExe "Sonix Auto.exe"
 
 [Setup]
+; Giữ nguyên AppId của bản cũ (Sonix Đăng Video) để cài đè / cập nhật đúng chỗ
 AppId={{6B1F3C2A-5D7E-4A8B-9C0D-50A1DA06E0F1}
 AppName={#MyName}
 AppVersion={#MyVersion}
 AppVerName={#MyName} {#MyVersion}
 AppPublisher=Sonix
-DefaultDirName={localappdata}\Programs\SonixDangVideo
+DefaultDirName={localappdata}\Programs\Sonix Auto
 DisableDirPage=no
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=..\dist
-OutputBaseFilename=SonixDangVideo_Setup_{#MyVersion}
+OutputBaseFilename=SonixAuto_Setup_{#MyVersion}
 SetupIconFile=..\build\app\assets\sonix.ico
 UninstallDisplayIcon={app}\assets\sonix.ico
 Compression=lzma2/max
@@ -42,18 +44,25 @@ Source: "..\build\app\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs 
 Source: "..\build\python\*"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\build\app\manifest.json"; DestDir: "{app}\data\capnhat"; DestName: "manifest_dang_dung.json"; Flags: ignoreversion
 
+[InstallDelete]
+; File mở app và biểu tượng tên cũ (bản Sonix Đăng Video)
+Type: files; Name: "{app}\SonixDangVideo.exe"
+Type: files; Name: "{userdesktop}\SonixDangVideo.lnk"
+Type: files; Name: "{userprograms}\SonixDangVideo.lnk"
+Type: files; Name: "{userstartup}\SonixDangVideo (chạy nền).lnk"
+
 [Dirs]
 Name: "{app}\data"; Flags: uninsneveruninstall
 
 [Icons]
-Name: "{userprograms}\{#MyLnk}"; Filename: "{app}\SonixDangVideo.exe"; WorkingDir: "{app}"; IconFilename: "{app}\assets\sonix.ico"; Comment: "{#MyName}"
-Name: "{userdesktop}\{#MyLnk}"; Filename: "{app}\SonixDangVideo.exe"; WorkingDir: "{app}"; IconFilename: "{app}\assets\sonix.ico"; Comment: "{#MyName}"; Tasks: desktopicon
-Name: "{userstartup}\{#MyLnk} (chạy nền)"; Filename: "{app}\SonixDangVideo.exe"; Parameters: "--nen"; WorkingDir: "{app}"; IconFilename: "{app}\assets\sonix.ico"; Comment: "{#MyName} chạy nền"; Tasks: autostart
+Name: "{userprograms}\{#MyLnk}"; Filename: "{app}\{#MyExe}"; WorkingDir: "{app}"; IconFilename: "{app}\assets\sonix.ico"; Comment: "{#MyName}"
+Name: "{userdesktop}\{#MyLnk}"; Filename: "{app}\{#MyExe}"; WorkingDir: "{app}"; IconFilename: "{app}\assets\sonix.ico"; Comment: "{#MyName}"; Tasks: desktopicon
+Name: "{userstartup}\SonixDangVideo (chạy nền)"; Filename: "{app}\{#MyExe}"; Parameters: "--nen"; WorkingDir: "{app}"; IconFilename: "{app}\assets\sonix.ico"; Comment: "{#MyName} chạy nền"; Tasks: autostart
 
 [Run]
 ; Máy chưa có Chrome: tải trình duyệt dự phòng để đăng TikTok (cần mạng, ~150 MB)
 Filename: "{app}\python\python.exe"; Parameters: "-m playwright install chromium"; WorkingDir: "{app}"; StatusMsg: "Đang tải trình duyệt dự phòng (máy chưa có Chrome)..."; Flags: runhidden; Check: NoChrome
-Filename: "{app}\SonixDangVideo.exe"; WorkingDir: "{app}"; Description: "Mở {#MyName} ngay"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyExe}"; WorkingDir: "{app}"; Description: "Mở {#MyName} ngay"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
 ; Chỉ xoá chương trình + thư viện; thư mục data (dữ liệu của bác) được giữ lại

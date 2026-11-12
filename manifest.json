@@ -1,7 +1,7 @@
 {
- "version": "2.4.12",
- "built_at": "2026-11-12T09:51:27Z",
- "notes": "- Duyệt & xác nhận: mục \"Thứ tự đăng\" cho từng kênh: Theo thứ tự trong thư mục / Xen kẽ sản phẩm / Ngẫu nhiên (không để 2 video cùng sản phẩm liền nhau). Áp dụng khi tool tự xếp lịch, khi bấm Xếp lịch, và khi Xác nhận tất cả ở chế độ đăng ngay.",
+ "version": "2.5.0",
+ "built_at": "2026-11-12T17:45:45Z",
+ "notes": "- App đổi tên chung thành **Sonix Auto**, gồm 2 mục chọn ở trên cùng: **Sonix Up Video** (đăng video như cũ) và **Sonix Edit Video**.\n- Cập nhật lên bản này: tool tự đổi tên thư mục `SonixDangVideo` thành `Sonix Auto`, file mở app thành `Sonix Auto.exe`, làm lại biểu tượng ngoài màn hình / menu Start / tự chạy khi mở máy (dữ liệu, đăng nhập, hàng chờ giữ nguyên). Bộ cài mới tên `SonixAuto_Setup_x.y.z.exe`.\n- Biểu tượng app, file exe, bộ cài và ảnh cạnh tên app dùng hình mới cố định. Bỏ chức năng tự đổi hình biểu tượng; chức năng đổi ảnh nền trong app giữ nguyên.\n- Mục mới **Sonix Edit Video**: viết kịch bản → lồng tiếng → tự chọn cảnh → tạo sẵn dự án CapCut (mở CapCut sửa và xuất 1080p).\n  - Kịch bản: AI học cách viết của kênh TikTok tham khảo (dán link video, tool tự tải tiếng và chép lời trên máy), viết lại cho Đạm cá Amino / Kích rễ TC01. Không có AI thì viết theo công thức. Bác sửa lời trước khi lồng tiếng.\n  - Lồng tiếng: Vbee (App ID + Token; mặc định Ngọc Huyền 2.0, tốc độ 1.05, thêm giọng theo mã) hoặc giọng miễn phí Microsoft.\n  - Cảnh quay: quét thư mục nguồn (D:\\VIDEO_INPUT), tự bỏ cảnh có người, chữ/sticker chèn, outro, ảnh tĩnh, sản phẩm khác hãng; AI xếp cảnh sản phẩm / cách dùng / kết quả theo từng câu thoại; mỗi đoạn tự đẩy lên vừa đủ để dải xanh không che sản phẩm; khung 4 ô người dùng.\n  - Dự án CapCut chép từ dự án mẫu \"mẫu\" (khung, chữ, người dẫn, màu, mũi tên); phải tắt CapCut khi tạo.",
  "files": [
   {
    "path": ".gitattributes",
@@ -20,11 +20,11 @@
   },
   {
    "path": "1_CAI_DAT.bat",
-   "sha256": "6de24e243c2c5263b4b12a8b17942603689a367f61d124309d44f13e334cdf4e",
-   "size": 1471
+   "sha256": "3f880d526760b6d449fe945dda0cc291bd3e75ed0d881ed261e49a8001d15d52",
+   "size": 1455
   },
   {
-   "path": "2_MO_SonixDangVideo.bat",
+   "path": "2_MO_SonixAuto.bat",
    "sha256": "c1a6b624aa3e119fcf7486961550019be5466c7d9dff8643010ac0fd6b996df3",
    "size": 200
   },
@@ -35,43 +35,23 @@
   },
   {
    "path": "4_TAO_BIEU_TUONG_APP.bat",
-   "sha256": "fa550e41fa48cbfed0f663c7adce16b8e3708f1e31c554e5e8587e863599b810",
-   "size": 423
-  },
-  {
-   "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "b80d15d8738cad60f1f6bb913a514765d7fae665212b58731ea4e3b4fc079410",
-   "size": 11816
-  },
-  {
-   "path": "HUONG_DAN.md",
-   "sha256": "b44c1f88b28127c5feabf0661a8befb1e4206c9e0a7ced83fb103a0ba5842c1a",
-   "size": 17005
-  },
-  {
-   "path": "SonixDangVideo.exe",
-   "sha256": "ef73f86e4c991715fcb7ba9e33ab418459c00af2890766334d6e8da9b735da4c",
-   "size": 1645056
-  },
-  {
-   "path": "SonixDangVideo.pyw",
-   "sha256": "658f75268082abf5f7bfb791aee3ce3e3ae397afabb150ba1f727253a8eab454",
-   "size": 3067
-  },
-  {
-   "path": "VERSION",
-   "sha256": "52c2b3d02f0c6aaac5d6f814f3285894d7416cbdccab0954791e3f18112858aa",
-   "size": 7
+   "sha256": "39312738cb0cd3902679f8125bd0e1b14648373187f47f529b37ab482aeb75c8",
+   "size": 415
   },
   {
    "path": "app.py",
-   "sha256": "59132375df7b86742e20333f05aa65227857fc53b7af0ffa38bd8de060671587",
-   "size": 107675
+   "sha256": "94125f2303950f6961b5532f65602184fb9ab0689dacd7e5a95cc151d92aca41",
+   "size": 106784
   },
   {
    "path": "assets/sonix.ico",
-   "sha256": "fc1f39e37e5be94f62f812c14f753d20f10954d09426d00d3ad59e2763b35b2c",
-   "size": 30073
+   "sha256": "53888447d7bd07c012ae5e7fd5a586969f4c779d1bca64adbdaef9e25c0fb75d",
+   "size": 218227
+  },
+  {
+   "path": "assets/sonix.png",
+   "sha256": "ad5138acf5dc5948d9f33ef538352bf6e1fe0c71dbdbdc640a5dfdeb61e80810",
+   "size": 520241
   },
   {
    "path": "cai_dat_mac.sh",
@@ -87,6 +67,16 @@
    "path": "core/analyze.py",
    "sha256": "340aedadb5fce82e77fda2b00432f2a79385d01a107930dd91b1822012bc9e81",
    "size": 23013
+  },
+  {
+   "path": "core/canh.py",
+   "sha256": "8960d25a5caa2968bc0447f93a465193b6749bec4b07afda9dc61c1af0c53d85",
+   "size": 20014
+  },
+  {
+   "path": "core/capcut_draft.py",
+   "sha256": "337ed37d5e55d7d4a5e3786092ce1ed96c8fa6718342335211f015a1a0b9bd46",
+   "size": 20474
   },
   {
    "path": "core/caption.py",
@@ -110,8 +100,8 @@
   },
   {
    "path": "core/cua_so.py",
-   "sha256": "9b1ead3e0fb923f11494a2ace92b1c719c42e2b5599603abb08595ec2c093eef",
-   "size": 6455
+   "sha256": "8344d851449e285e99e6e18adb743144b6f13788a33628136597355fccdee607",
+   "size": 6439
   },
   {
    "path": "core/db.py",
@@ -120,8 +110,23 @@
   },
   {
    "path": "core/desktop.py",
-   "sha256": "f7baa63fd34522eacbc6645cd2c7001fc471a11b28781e2045800582abb26472",
-   "size": 9122
+   "sha256": "b519efe865d64afc3f05148d8fc0085ab1798451cebb9e119c532658b657bb93",
+   "size": 7746
+  },
+  {
+   "path": "core/edit_job.py",
+   "sha256": "e46df61b54b58d0de8dc02b7648867dc2bb71fb6c2b8f8f3f58c9411f88871bd",
+   "size": 3101
+  },
+  {
+   "path": "core/edit_ui.py",
+   "sha256": "fa8664c1e2bbe776ce85586c43a4f59dba94e27cc5a12d69226df7061d66c4b8",
+   "size": 14158
+  },
+  {
+   "path": "core/edit_video.py",
+   "sha256": "6581675febd10dd0c4c6bfe3286c6398d9fcc3b209d288046eb7da22bec62dee",
+   "size": 3469
   },
   {
    "path": "core/facebook.py",
@@ -137,6 +142,16 @@
    "path": "core/fbq.py",
    "sha256": "8a007efc87114699564dcd387f388d5dee5704eabd1ec130e6a3b9e628bb44bb",
    "size": 9116
+  },
+  {
+   "path": "core/giong.py",
+   "sha256": "01d0486c342acfe01616f5b6a82d2147ed49b960545aa51f5acd6a2faabfd31a",
+   "size": 2798
+  },
+  {
+   "path": "core/kich_ban.py",
+   "sha256": "1985d4a08c1e936d74af05ef036f1490daf2e307fa299dd3004e0ce6351ef7ee",
+   "size": 6272
   },
   {
    "path": "core/products.py",
@@ -169,19 +184,29 @@
    "size": 4149
   },
   {
+   "path": "core/tham_khao.py",
+   "sha256": "b817cae1ff6281963a5e4deaaf6e2d6438153578859428f8c063799fc7e939b7",
+   "size": 4012
+  },
+  {
    "path": "core/tiktok.py",
    "sha256": "5f0b90a662215a1d1c469bc6f4d4a0f35224962b54b0adcac0b68cfd743af6d9",
    "size": 75576
   },
   {
    "path": "core/ui.py",
-   "sha256": "b4fb0b5918624344dcebf6ebcdef07dd8d84e53a7dcc118822c47c1cd578e660",
-   "size": 13354
+   "sha256": "cafa22c31831552bd9be168cfc817fd520b6319dc6e60befae83e3cbbc5181b0",
+   "size": 13493
   },
   {
    "path": "core/updater.py",
-   "sha256": "d24a0267c8722476476dcf8e62501a0cb081d7f7e49df05b16b8c13040a9393b",
-   "size": 12373
+   "sha256": "648416d96b578869081206692fcf12a19263c4b8b28f906c6af8328c8ecfaeb8",
+   "size": 17222
+  },
+  {
+   "path": "core/vbee.py",
+   "sha256": "ad232181f66da3f832f7211dee900470bb0847a00ac175ccfbf0132542b1a932",
+   "size": 4899
   },
   {
    "path": "core/video_utils.py",
@@ -195,8 +220,23 @@
   },
   {
    "path": "dong_goi.py",
-   "sha256": "e25425b69091e751d78606e5d6a4f68f94e01c8c6521c4bd5c6f2ce1144fc999",
-   "size": 888
+   "sha256": "7296cfebf3555942fe570fa240d33d119584d2bfffc1bd66ff153167383c5846",
+   "size": 879
+  },
+  {
+   "path": "GHI_CHU_PHIEN_BAN.md",
+   "sha256": "92fff30404fe7ae0bccfe47b352c644f7df4c3f72ae705955273a6bf61f49e9b",
+   "size": 13623
+  },
+  {
+   "path": "HUONG_DAN.md",
+   "sha256": "8f399740c39ed6f45b02cbbda7ccb68b015f30715413c31beab74bc3ac4ff0a3",
+   "size": 16967
+  },
+  {
+   "path": "KE_HOACH_EDIT_VIDEO.md",
+   "sha256": "ab4d9ab75e2bb37105c59ccae883f7958c8c6ebe3833a6f986c714a5f65b175d",
+   "size": 9700
   },
   {
    "path": "mo_tool_mac.sh",
@@ -205,8 +245,8 @@
   },
   {
    "path": "requirements.txt",
-   "sha256": "29c77592f5e3fc375011fd487fe62ddd33c0d28d8b65c8d5b638f1f7bd5b8dcc",
-   "size": 283
+   "sha256": "ec7e1ad3af1ea0e5e35126effe3dd1d35108c160e20ca2a0d6bc7072b2ed646d",
+   "size": 611
   },
   {
    "path": "runner.py",
@@ -214,9 +254,24 @@
    "size": 22953
   },
   {
+   "path": "Sonix Auto.exe",
+   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
+   "size": 224256
+  },
+  {
+   "path": "SonixDangVideo.pyw",
+   "sha256": "8ec3356e5eabf1afb3779e9fc7673460c7981e7f3c588a889d3db62473783277",
+   "size": 3057
+  },
+  {
    "path": "tao_manifest.py",
    "sha256": "6dcb33c88afa4b4cf0d916e2406cba216f992dc783c3a3f31b05b598c3e01365",
    "size": 1803
+  },
+  {
+   "path": "VERSION",
+   "sha256": "f0ea2fc99f3b79d332baa91b88d4e4e469cb6b9f2c96669b3b4ec8f0d6f5b863",
+   "size": 5
   }
  ]
 }

@@ -1,5 +1,15 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.5.0
+- App đổi tên chung thành **Sonix Auto**, gồm 2 mục chọn ở trên cùng: **Sonix Up Video** (đăng video như cũ) và **Sonix Edit Video**.
+- Cập nhật lên bản này: tool tự đổi tên thư mục `SonixDangVideo` thành `Sonix Auto`, file mở app thành `Sonix Auto.exe`, làm lại biểu tượng ngoài màn hình / menu Start / tự chạy khi mở máy (dữ liệu, đăng nhập, hàng chờ giữ nguyên). Bộ cài mới tên `SonixAuto_Setup_x.y.z.exe`.
+- Biểu tượng app, file exe, bộ cài và ảnh cạnh tên app dùng hình mới cố định. Bỏ chức năng tự đổi hình biểu tượng; chức năng đổi ảnh nền trong app giữ nguyên.
+- Mục mới **Sonix Edit Video**: viết kịch bản → lồng tiếng → tự chọn cảnh → tạo sẵn dự án CapCut (mở CapCut sửa và xuất 1080p).
+  - Kịch bản: AI học cách viết của kênh TikTok tham khảo (dán link video, tool tự tải tiếng và chép lời trên máy), viết lại cho Đạm cá Amino / Kích rễ TC01. Không có AI thì viết theo công thức. Bác sửa lời trước khi lồng tiếng.
+  - Lồng tiếng: Vbee (App ID + Token; mặc định Ngọc Huyền 2.0, tốc độ 1.05, thêm giọng theo mã) hoặc giọng miễn phí Microsoft.
+  - Cảnh quay: quét thư mục nguồn (D:\VIDEO_INPUT), tự bỏ cảnh có người, chữ/sticker chèn, outro, ảnh tĩnh, sản phẩm khác hãng; AI xếp cảnh sản phẩm / cách dùng / kết quả theo từng câu thoại; mỗi đoạn tự đẩy lên vừa đủ để dải xanh không che sản phẩm; khung 4 ô người dùng.
+  - Dự án CapCut chép từ dự án mẫu "mẫu" (khung, chữ, người dẫn, màu, mũi tên); phải tắt CapCut khi tạo.
+
 ## 2.4.12
 - Duyệt & xác nhận: mục "Thứ tự đăng" cho từng kênh: Theo thứ tự trong thư mục / Xen kẽ sản phẩm / Ngẫu nhiên (không để 2 video cùng sản phẩm liền nhau). Áp dụng khi tool tự xếp lịch, khi bấm Xếp lịch, và khi Xác nhận tất cả ở chế độ đăng ngay.
 

@@ -6,3 +6,10 @@ imageio-ffmpeg>=0.5
 pandas>=2.0
 faster-whisper>=1.1  # nghe lời nói trong âm thanh Yêu thích để gắn sản phẩm (chạy trên máy)
 pywebview>=5.3; sys_platform == "win32"  # cửa sổ app riêng (WebView2)
+# --- Edit video ---
+edge-tts>=6.1  # giọng đọc miễn phí (Microsoft)
+yt-dlp>=2025.1  # tải tiếng video kênh tham khảo
+curl_cffi>=0.10,<0.14  # yt-dlp vào được TikTok
+scenedetect>=0.6  # tách cảnh quay
+rapidocr-onnxruntime>=1.3  # dò chữ chèn / nhãn sản phẩm
+mediapipe>=0.10  # dò mặt người

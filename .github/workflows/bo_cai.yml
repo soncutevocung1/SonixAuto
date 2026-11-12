@@ -1,4 +1,4 @@
-# Dựng bộ cài SonixDangVideo_Setup_x.y.z.exe trên máy Windows của GitHub.
+# Dựng bộ cài SonixAuto_Setup_x.y.z.exe trên máy Windows của GitHub.
 # Chạy khi file VERSION trên nhánh main đổi (= có phiên bản mới) hoặc bấm tay ở tab Actions.
 # File .exe nằm ở mục Releases của kho.
 name: Bo cai Windows
@@ -65,13 +65,13 @@ jobs:
         run: |
           $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
           if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress | Out-Null }
-          & $iscc "/DMyVersion=$env:VER" installer\SonixDangVideo.iss
+          & $iscc "/DMyVersion=$env:VER" installer\SonixAuto.iss
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup loi" }
           Get-ChildItem dist | Format-Table Name, Length
 
       - uses: actions/upload-artifact@v4
         with:
-          name: SonixDangVideo_Setup_${{ env.VER }}
+          name: SonixAuto_Setup_${{ env.VER }}
           path: dist/*.exe
 
       - name: Dua len Releases
@@ -80,5 +80,5 @@ jobs:
           tag_name: v${{ env.VER }}
           target_commitish: ${{ github.sha }}
           files: dist/*.exe
-          name: Sonix Đăng Video ${{ env.VER }}
+          name: Sonix Auto ${{ env.VER }}
           body_path: GHI_CHU_PHIEN_BAN.md

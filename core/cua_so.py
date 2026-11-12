@@ -12,7 +12,7 @@ import time
 from . import desktop
 from .config import DATA_DIR
 
-TITLE = "Sonix Đăng Video"
+TITLE = "Sonix Auto"
 APP_ID = "Sonix.DangVideo"
 URL = f"http://127.0.0.1:{desktop.PORT}"
 
@@ -27,7 +27,7 @@ justify-content:center;background:linear-gradient(135deg,#eef2ff 0%,#f3eeff 55%,
 .d{width:44px;height:44px;margin:28px auto 0;border-radius:50%;border:4px solid rgba(124,58,237,.2);
 border-top-color:#7c3aed;animation:r .9s linear infinite}
 @keyframes r{to{transform:rotate(360deg)}}
-</style></head><body><div class="b"><div class="t">Sonix Đăng Video</div><div class="s">__MSG__</div>
+</style></head><body><div class="b"><div class="t">Sonix Auto</div><div class="s">__MSG__</div>
 <div class="d"></div></div></body></html>"""
 
 

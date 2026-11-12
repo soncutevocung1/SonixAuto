@@ -8,10 +8,10 @@ import json
 
 from .config import BASE_DIR, DATA_DIR
 
-APP_TITLE = "Sonix Đăng Video"
+APP_TITLE = "Sonix Auto"  # gồm 2 mục: Sonix Up Video (đăng) + Sonix Edit Video (dựng)
 STATIC_DIR = BASE_DIR / "static"        # Streamlit phục vụ thư mục này ở /app/static/
 BG_FILE = STATIC_DIR / "nen_rieng.jpg"  # ảnh nền riêng của bác (không đóng gói khi chia sẻ)
-AVATAR = DATA_DIR / "app_icon.png"
+AVATAR = BASE_DIR / "assets" / "sonix.png"  # ảnh cố định cạnh tên app (đã bỏ chức năng đổi ảnh)
 
 # Mẫu nền: (tên, các vệt màu (x%, y%, màu rgba) cho giao diện sáng, cho giao diện tối)
 BACKGROUNDS = {
@@ -171,7 +171,7 @@ def avatar_uri(size=116) -> str:
 def brand_html(uri: str) -> str:
     img = f'<img src="{uri}" alt="Ảnh đại diện">' if uri else ""
     return (f'<div class="sx-brand">{img}<div><div class="sx-name">{APP_TITLE}</div>'
-            f'<div class="sx-note">Tự động đăng TikTok · gắn giỏ · hẹn giờ</div></div></div>')
+            f'<div class="sx-note">Đăng TikTok tự động · dựng video CapCut</div></div></div>')
 
 
 def pill_html(ok: bool) -> str:

@@ -54,8 +54,8 @@ def start_ui():
 
 
 def refresh_shortcuts_once():
-    """Bản cũ: biểu tượng trỏ vào Python. Có SonixDangVideo.exe rồi thì làm lại biểu tượng 1 lần cho trỏ vào exe."""
-    flag = DATA_DIR / "bieu_tuong_exe.flag"
+    """Làm lại biểu tượng 1 lần: trỏ vào "Sonix Auto.exe", tên mới "Sonix Auto" (bỏ biểu tượng tên cũ)."""
+    flag = DATA_DIR / "bieu_tuong_sonix_auto.flag"
     if sys.platform != "win32" or flag.exists() or not desktop.LAUNCHER_EXE.exists():
         return
     try:
@@ -83,4 +83,4 @@ if __name__ == "__main__":
     else:
         import ctypes
         ctypes.windll.user32.MessageBoxW(0, "Không mở được giao diện. Xem file data\\logs\\giao_dien.log",
-                                         "SonixDangVideo", 0x10)
+                                         "Sonix Auto", 0x10)
