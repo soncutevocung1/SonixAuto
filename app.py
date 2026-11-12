@@ -740,6 +740,14 @@ with tabs[1]:
                                                    + (f"  [{tag}]" if tag else ""))
         for m in chs.music_files(ROOT):
             mus_fmt[f"local::{m}"] = f"Trên máy: {m.name}"
+        if not snd.has_own(chname):  # kênh không có Yêu thích riêng -> cho chọn âm thanh mượn của kênh khác
+            for f in snd.shared_pool(chname, S):
+                tag = ", ".join(ITEMS.get(x, {}).get("name", x) for x in (f.get("items") or []))
+                key_ = f"local::{f['file']}"
+                if key_ not in mus_opts:
+                    mus_opts.append(key_)
+                mus_fmt[key_] = (f"Mượn · {f['title']} · {f.get('artist', '')} {f.get('duration', '')}"
+                                 + (f"  [{tag}]" if tag else "") + f" (từ {f['_src']})")
         favfile = {"tiktok::" + snd.ref_of(f): f.get("file") for f in favs}
         favfile.update({f"tiktok::{f['title']}": f.get("file") for f in favs})  # video cũ chọn theo tên
 
@@ -1380,6 +1388,12 @@ video sẽ lấy đúng âm thanh của sản phẩm đó và tắt âm gốc. N
                 if sk not in st.session_state:
                     st.session_state[sk] = bool(f.get("skip"))
                 c3.checkbox("Không dùng âm thanh này", key=sk, on_change=_save_fav, args=(cn, fid, i_f, "skip", sk))
+                shk = f"fshare_{slug(cn)}_{kid}"
+                if shk not in st.session_state:
+                    st.session_state[shk] = snd.is_shared(f, S)
+                c3.checkbox("Cho phép kênh khác dùng", key=shk, on_change=_save_fav, args=(cn, fid, i_f, "share", shk),
+                            help="Kênh không có âm thanh Yêu thích riêng (vd tài khoản doanh nghiệp) sẽ mượn âm thanh "
+                                 "này, ghép sẵn vào video và tắt hẳn âm gốc. Chỉ tick âm thanh của mình / được phép.")
 
 # =============================== CÀI ĐẶT ===============================
 with tabs[5]:

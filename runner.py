@@ -98,6 +98,12 @@ def due_facebook(job, now, settings=None) -> bool:
 def run_tiktok(job, settings):
     root = settings["root_folder"]
     tmp = None
+    if job.get("music_mode") == "auto" and job.get("music_ref") == "favitem":  # chưa gán bài: thử mượn âm thanh
+        b = sounds.borrow_for(job["channel"], job.get("item_key") or "", settings)
+        if b:
+            job.update(b)
+            db.update_job(job["id"], **b)
+            log(f"  - Mượn âm thanh kênh khác đúng sản phẩm: {Path(b['music_ref']).name}")
     keep = job.get("keep_audio") is None or int(job.get("keep_audio")) == 1
     src = Path(job["video_path"])
     if job.get("music_mode") == "local" and job.get("music_ref"):

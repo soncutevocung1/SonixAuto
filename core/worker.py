@@ -68,6 +68,10 @@ def analyze_job(jid, video, channel, model, settings, caption_only=False, item_k
                 f = snd.pick_for(channel, j.get("item_key") or "", _USED.setdefault(channel, {}))
                 if f:
                     db.update_job(jid, music_mode="tiktok", music_ref=snd.ref_of(f))
+                else:  # kênh không có Yêu thích riêng -> mượn âm thanh đúng sản phẩm của kênh khác
+                    b = snd.borrow_for(channel, j.get("item_key") or "", settings, _USED.setdefault("_muon", {}))
+                    if b:
+                        db.update_job(jid, **b)
         return ""
     except Exception as e:
         if caption_only:  # chỉ viết lại caption hỏng -> giữ nguyên mọi thứ khác

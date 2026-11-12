@@ -1,7 +1,7 @@
 {
- "version": "2.4.10",
- "built_at": "2026-11-12T09:14:58Z",
- "notes": "- Đồng bộ âm thanh Yêu thích: khi mục Yêu thích trong TikTok Studio trống, báo rõ lý do thường gặp (tài khoản doanh nghiệp / gian hàng chỉ hiện nhạc thương mại, âm thanh gốc đã lưu bị ẩn) và cách khắc phục.",
+ "version": "2.4.11",
+ "built_at": "2026-11-12T09:45:05Z",
+ "notes": "- Mượn âm thanh giữa các kênh: kênh không có âm thanh Yêu thích riêng (vd tài khoản doanh nghiệp Kỹ Thuật Nông Nghiệp Toàn Cầu) tự mượn âm thanh đúng sản phẩm từ kênh khác, ghép sẵn vào video và tắt hẳn âm gốc trước khi đăng.\n- Tab Nhạc nền: ô \"Cho phép kênh khác dùng\" cho từng âm thanh. Mặc định chỉ tick âm thanh của mình / người quen (Toàn Cầu, Nông Dược, Phân Bón Cà Phê, Sơn Phân Thuốc, Nguyên nông dân 81); nhạc, bài hát của người khác không tick.\n- Tab Duyệt: ô Nhạc nền có thêm các âm thanh \"Mượn · ... (từ kênh ...)\" để chọn tay.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "38b3ce419ed04f44ac1d01127f20fd34c7ca0a7b43b20538194ff5d0f7340c33",
-   "size": 10793
+   "sha256": "5ca11fc8280b91afe9ffc0f8dd8a6a62715dcfa5cba2f5ab6e33a9c581003e87",
+   "size": 11485
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,13 +60,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "0a40811a93b16dbe0b807348be57c9f523d881f2451e2d989df1a34605d3dcd6",
+   "sha256": "670de6166c206272bd71bcaf81dcdf0ec37431fc9d2d8e6b39e5ff6032b65a50",
    "size": 7
   },
   {
    "path": "app.py",
-   "sha256": "b34db383189d749caebebcbe7fb135799105f825b7696d167f7fb0cc0b17700d",
-   "size": 105209
+   "sha256": "534a2d69d20ee172689b925a1b28564b7cc36c5140dffb2ca401c3d0ffcc787a",
+   "size": 106374
   },
   {
    "path": "assets/sonix.ico",
@@ -160,8 +160,8 @@
   },
   {
    "path": "core/sounds.py",
-   "sha256": "aebfecb565c284b20acb07e65ef1a7703cd4c5e21d0d9663ef5725ca3edbb7ac",
-   "size": 10942
+   "sha256": "ce0b1cfdb262ef098343dbbdbfc1202d68776088436948043c624b538a7e2a9b",
+   "size": 14991
   },
   {
    "path": "core/stats.py",
@@ -190,8 +190,8 @@
   },
   {
    "path": "core/worker.py",
-   "sha256": "4c77f1e458570a9d26812b021fdec54ff8d76f2358eae874ff5f4a5c9d88e640",
-   "size": 7287
+   "sha256": "1299f4a0ee00da40ef40a00b416a15571b229a2f763b35e827a9913384b2ae38",
+   "size": 7595
   },
   {
    "path": "dong_goi.py",
@@ -210,8 +210,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "02f3d6d9bf913374ed0db0dba11d09bea4ee18a8e8ad95d941821aaf1ff8446d",
-   "size": 22563
+   "sha256": "be78fe52b907b6b12892fffef9f675249d874881e0c2493b960a74edce6c43f6",
+   "size": 22953
   },
   {
    "path": "tao_manifest.py",

@@ -196,6 +196,61 @@ def pick_for(channel, item_key, used=None):
     return f
 
 
+# ------------------------- âm thanh dùng chung giữa các kênh -------------------------
+# Âm thanh của chính mình / người quen cho phép: mặc định cho kênh khác mượn (ghép sẵn vào video trước khi đăng).
+DEFAULT_SHARE = ["toan cau", "nong duoc", "phan bon ca phe", "son phan thuoc", "nguyen nong dan 81"]
+
+
+def is_shared(fav, settings=None) -> bool:
+    """Âm thanh này có cho kênh khác dùng không (bác tick tay thì theo tay, không thì theo tên chủ âm thanh)."""
+    if "share" in fav:
+        return bool(fav["share"])
+    names = (settings or {}).get("sound_share_artists") or DEFAULT_SHARE
+    who = norm(f"{fav.get('artist', '')} {fav.get('title', '')}").replace("đ", "d")
+    return any(norm(n).replace("đ", "d") in who for n in names)
+
+
+def has_own(channel) -> bool:
+    """Kênh có âm thanh Yêu thích riêng (đã gắn sản phẩm, có file) không."""
+    return any(f.get("items") and f.get("file") and not f.get("skip") for f in load_favs(channel))
+
+
+def shared_pool(channel, settings) -> list:
+    """Âm thanh kênh khác cho mượn (có file nghe được, có gắn sản phẩm)."""
+    out = []
+    for c in settings.get("channels", []):
+        if c["name"] == channel:
+            continue
+        for f in load_favs(c["name"]):
+            if f.get("items") and f.get("file") and Path(f["file"]).exists() and not f.get("skip") \
+                    and is_shared(f, settings):
+                out.append({**f, "_src": c["name"]})
+    return out
+
+
+def pick_shared(channel, item_key, settings, used=None):
+    """Chọn 1 âm thanh mượn đúng sản phẩm, xoay vòng (theo đường dẫn file)."""
+    used = used if used is not None else {}
+    cands = [f for f in shared_pool(channel, settings) if item_key and item_key in (f.get("items") or [])]
+    if not cands:
+        return None
+    cands.sort(key=lambda f: used.get(f["file"], 0))
+    f = cands[0]
+    used[f["file"]] = used.get(f["file"], 0) + 1
+    return f
+
+
+def borrow_for(channel, item_key, settings, used=None):
+    """Kênh không có âm thanh Yêu thích riêng (vd tài khoản doanh nghiệp) -> mượn âm thanh đúng sản phẩm,
+    trả về dict cập nhật video (ghép file trên máy, tắt hẳn âm gốc), hoặc None."""
+    if not settings.get("borrow_sounds", True) or has_own(channel):
+        return None
+    f = pick_shared(channel, item_key, settings, used)
+    if not f:
+        return None
+    return {"music_mode": "local", "music_ref": f["file"], "keep_audio": 0}
+
+
 def auto_assign(channel, settings, jobs) -> list:
     """Video bác CHƯA tự chọn nhạc: gắn sẵn âm thanh Yêu thích đã nghe ra đúng sản phẩm (và tắt âm gốc), xoay vòng cho
     các video đỡ trùng. Đổi sản phẩm thì âm thanh đổi theo. Trả về id các video vừa đổi nhạc."""
@@ -203,7 +258,7 @@ def auto_assign(channel, settings, jobs) -> list:
         return []
     favs = load_favs(channel)
     if not any(f.get("items") for f in favs):
-        return []
+        return _auto_borrow(channel, settings, jobs)
     from . import db
     by_id = {f["id"]: f for f in favs if f.get("id")}
     used = {}
@@ -231,6 +286,41 @@ def auto_assign(channel, settings, jobs) -> list:
             continue
         if cur:
             used[cur["id"]] = max(0, used.get(cur["id"], 0) - 1)
+        db.update_job(j["id"], **upd)
+        j.update(upd)
+        changed.append(j["id"])
+    return changed
+
+
+def _auto_borrow(channel, settings, jobs) -> list:
+    """Như auto_assign nhưng dùng âm thanh mượn từ kênh khác (ghép file trên máy, tắt hẳn âm gốc)."""
+    if not settings.get("borrow_sounds", True):
+        return []
+    pool = {f["file"]: f for f in shared_pool(channel, settings)}
+    if not pool:
+        return []
+    from . import db
+    used = {}
+    for j in jobs:
+        if j.get("music_mode") == "local" and j.get("music_ref") in pool:
+            used[j["music_ref"]] = used.get(j["music_ref"], 0) + 1
+    changed = []
+    for j in jobs:
+        if int(j.get("music_by_user") or 0):
+            continue
+        item = j.get("item_key") or ""
+        cur = pool.get(j.get("music_ref")) if j.get("music_mode") == "local" else None
+        if cur and item and item in (cur.get("items") or []):
+            continue  # đang đúng sản phẩm
+        upd = borrow_for(channel, item, settings, used) if item else None
+        if not upd:
+            if not cur:
+                continue
+            mode, _, ref = (settings.get("default_music") or "auto::smart").partition("::")
+            upd = {"music_mode": mode if ref else "none", "music_ref": ref,
+                   "keep_audio": int(bool(settings.get("default_keep_audio", False)))}
+        if cur:
+            used[cur["file"]] = max(0, used.get(cur["file"], 0) - 1)
         db.update_job(j["id"], **upd)
         j.update(upd)
         changed.append(j["id"])

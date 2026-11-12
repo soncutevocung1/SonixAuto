@@ -1,5 +1,10 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.4.11
+- Mượn âm thanh giữa các kênh: kênh không có âm thanh Yêu thích riêng (vd tài khoản doanh nghiệp Kỹ Thuật Nông Nghiệp Toàn Cầu) tự mượn âm thanh đúng sản phẩm từ kênh khác, ghép sẵn vào video và tắt hẳn âm gốc trước khi đăng.
+- Tab Nhạc nền: ô "Cho phép kênh khác dùng" cho từng âm thanh. Mặc định chỉ tick âm thanh của mình / người quen (Toàn Cầu, Nông Dược, Phân Bón Cà Phê, Sơn Phân Thuốc, Nguyên nông dân 81); nhạc, bài hát của người khác không tick.
+- Tab Duyệt: ô Nhạc nền có thêm các âm thanh "Mượn · ... (từ kênh ...)" để chọn tay.
+
 ## 2.4.10
 - Đồng bộ âm thanh Yêu thích: khi mục Yêu thích trong TikTok Studio trống, báo rõ lý do thường gặp (tài khoản doanh nghiệp / gian hàng chỉ hiện nhạc thương mại, âm thanh gốc đã lưu bị ẩn) và cách khắc phục.
 
