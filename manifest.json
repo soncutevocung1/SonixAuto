@@ -1,7 +1,7 @@
 {
- "version": "2.4.7",
- "built_at": "2026-11-12T03:48:24Z",
- "notes": "- Cài đặt → Giao diện: chọn \"Mở tool bằng: Cửa sổ app riêng / Chrome\". Máy nào gõ tiếng Việt có dấu bị lỗi (Unikey/EVKey trong cửa sổ app) thì chọn Chrome.\n- Kênh & sản phẩm: trình duyệt kênh đăng nhập tên khác với ô @ tên TikTok (vd gõ thiếu chữ) → hiện cảnh báo + nút \"Dùng @tên đang đăng nhập\" sửa 1 chạm, rồi Đồng bộ Trưng bày lại.",
+ "version": "2.4.8",
+ "built_at": "2026-11-12T03:54:46Z",
+ "notes": "- Sửa lỗi \"Không tạo được thư mục ... D:\\\" trên máy không có ổ D: tool gợi ý thư mục gốc theo ổ có thật (ổ D, hoặc ổ đang cài tool), và báo rõ \"Máy này không có ổ D:, các ổ đang có: ...\" khi nhập sai ổ (cả thư mục trang Facebook).",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "6a55460c07573e4fc76daf4bb45ffacc1e6deef98c2d61a5fbcf75387e955393",
-   "size": 9884
+   "sha256": "387a4de0d655e9c629a8a7b9616373a6a19bef318b5f109d94fb08264ae787f8",
+   "size": 10189
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,13 +60,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "b45053a060dd216bdf8547ccf97add70509344dcb138856bf7d8a41325499e85",
+   "sha256": "ece1e54cfc7a05cc56d9ac299d20025197ed1b70d60f4c2ee09ce36fa398a200",
    "size": 6
   },
   {
    "path": "app.py",
-   "sha256": "806ab70dc39b630cb265fd06cf1611b357d971499a2b1a695094ecf24f6665cc",
-   "size": 103637
+   "sha256": "2a639ceef876e42b3c4496c64fbe33365eb5664cdca3e02691da35429f5c131a",
+   "size": 103882
   },
   {
    "path": "assets/sonix.ico",
@@ -95,8 +95,8 @@
   },
   {
    "path": "core/channels.py",
-   "sha256": "6db1ad89b22e81dea8fb48f9bfb16ae8c5c2da43e91429b1f49f59522e02d872",
-   "size": 2255
+   "sha256": "0f71b147502b659642b837e38cdd6d311761654cbf23f5eefb0394f701144a45",
+   "size": 3599
   },
   {
    "path": "core/config.py",
@@ -130,8 +130,8 @@
   },
   {
    "path": "core/fb_ui.py",
-   "sha256": "65a40bcc8ec248f129af5bf079785d3568394f6c4aa6ce8594d6cfd7001de39d",
-   "size": 31246
+   "sha256": "c1ef592e6e47b6e9f56e7bc150be65bb3a6812e9e76ce7386b9e776ce09e5cf5",
+   "size": 31409
   },
   {
    "path": "core/fbq.py",

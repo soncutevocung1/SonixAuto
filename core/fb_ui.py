@@ -188,6 +188,10 @@ def _settings(S, pg):
         mx = st.number_input("Caption tối đa (ký tự)", 40, 1500, int(pg.get("caption_max") or 350), 10,
                              help="Từ 160 trở xuống AI chỉ viết 1-2 câu ngắn. Sửa xong bấm Lưu rồi Viết lại caption.")
         if st.button("Lưu cài đặt trang", type="primary", key="fb_pg_save"):
+            from . import channels as _chs
+            if fd.strip() and _chs.check_root(fd):
+                st.error(_chs.check_root(fd))
+                return
             other = next((p["name"] for p in fbq.pages(S) if p["name"] != pg["name"] and fd.strip()
                           and (p.get("folder") or "").strip().lower() == fd.strip().lower()), "")
             if other:

@@ -1,5 +1,8 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.4.8
+- Sửa lỗi "Không tạo được thư mục ... D:\" trên máy không có ổ D: tool gợi ý thư mục gốc theo ổ có thật (ổ D, hoặc ổ đang cài tool), và báo rõ "Máy này không có ổ D:, các ổ đang có: ..." khi nhập sai ổ (cả thư mục trang Facebook).
+
 ## 2.4.7
 - Cài đặt → Giao diện: chọn "Mở tool bằng: Cửa sổ app riêng / Chrome". Máy nào gõ tiếng Việt có dấu bị lỗi (Unikey/EVKey trong cửa sổ app) thì chọn Chrome.
 - Kênh & sản phẩm: trình duyệt kênh đăng nhập tên khác với ô @ tên TikTok (vd gõ thiếu chữ) → hiện cảnh báo + nút "Dùng @tên đang đăng nhập" sửa 1 chạm, rồi Đồng bộ Trưng bày lại.

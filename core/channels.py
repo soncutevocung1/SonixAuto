@@ -66,3 +66,37 @@ def write_error_note(video_path, message):
         note.write_text(f"{datetime.now():%d/%m/%Y %H:%M}\n{message}\n", encoding="utf-8")
     except Exception:
         pass
+
+
+def drives() -> list:
+    """Các ổ đĩa đang có trên máy (Windows), vd ['C:', 'F:']."""
+    import os
+    import string
+    if os.name != "nt":
+        return []
+    return [f"{d}:" for d in string.ascii_uppercase if os.path.exists(f"{d}:\\")]
+
+
+def default_root(name="VIDEO_TIKTOK") -> str:
+    """Gợi ý thư mục gốc theo ổ có thật: ổ D nếu có, không thì ổ đang cài tool (nếu không phải C), không thì ổ đầu
+    tiên khác C, cuối cùng là C."""
+    from .config import BASE_DIR
+    ds = drives()
+    if not ds:
+        return str(Path.home() / name)
+    app_drive = str(BASE_DIR)[:2].upper()
+    pick = "D:" if "D:" in ds else app_drive if app_drive in ds and app_drive != "C:" else \
+        next((d for d in ds if d != "C:"), "C:")
+    return f"{pick}\\{name}"
+
+
+def check_root(path) -> str:
+    """'' nếu dùng được, không thì câu báo lỗi dễ hiểu (vd ổ đĩa không có trên máy)."""
+    p = str(path or "").strip()
+    if not p:
+        return "Chưa nhập thư mục."
+    ds = drives()
+    if ds and len(p) >= 2 and p[1] == ":" and f"{p[0].upper()}:" not in ds:
+        return (f"Máy này không có ổ {p[0].upper()}:. Các ổ đang có: {', '.join(ds)}. "
+                f"Sửa lại thư mục, ví dụ {default_root()}, hoặc bấm Chọn.")
+    return ""

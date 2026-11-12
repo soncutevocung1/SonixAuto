@@ -583,7 +583,7 @@ with tabs[0]:
     if not READY:
         st.header("Chào bác! Cài đặt ban đầu (làm 1 lần)")
         st.markdown("""
-1. **Chọn thư mục gốc** chứa video, ví dụ `D:\\VIDEO_TIKTOK`.
+1. **Chọn thư mục gốc** chứa video (bấm **Chọn** để chọn bằng chuột), ví dụ `D:\\VIDEO_TIKTOK`.
 2. **Nhập các kênh TikTok** sẽ đăng. Tên kênh = tên thư mục con. Tool tự tạo:
 ```
 D:\\VIDEO_TIKTOK\\
@@ -595,7 +595,7 @@ D:\\VIDEO_TIKTOK\\
 3. Qua tab **Kênh & sản phẩm**: đăng nhập TikTok cho từng kênh, đồng bộ Trưng bày sản phẩm.
 4. (Nên có) Dán **Claude API key** ở tab Cài đặt để AI nhận diện sản phẩm + viết caption.""")
         c1, c2 = st.columns([4, 1])
-        root_in = c1.text_input("Thư mục gốc", ROOT or "D:\\VIDEO_TIKTOK")
+        root_in = c1.text_input("Thư mục gốc", ROOT or chs.default_root())
         c2.write("")
         c2.write("")
         if c2.button("Chọn", key="pick_root0"):
@@ -615,6 +615,8 @@ D:\\VIDEO_TIKTOK\\
                      for r in ch_df.fillna("").to_dict("records") if str(r["name"]).strip()]
             if not root_in.strip() or not chans:
                 st.error("Cần có thư mục gốc và ít nhất 1 kênh.")
+            elif chs.check_root(root_in):
+                st.error(chs.check_root(root_in))
             else:
                 try:
                     Path(root_in).mkdir(parents=True, exist_ok=True)
@@ -1161,6 +1163,9 @@ with tabs[3]:
                                           "enabled": st.column_config.CheckboxColumn("Dùng", default=True),
                                           "profile_dir": "Thư mục hồ sơ trình duyệt (để trống = tự tạo)"})
     if st.button("Lưu kênh & tạo thư mục", type="primary"):
+        if chs.check_root(root_new):
+            st.error(chs.check_root(root_new))
+            st.stop()
         S["root_folder"] = root_new.strip()
         S["channels"] = [{"name": str(r["name"]).strip(), "handle": str(r.get("handle") or "").strip().lstrip("@"),
                           "enabled": bool(r.get("enabled") if r.get("enabled") is not None else True),
