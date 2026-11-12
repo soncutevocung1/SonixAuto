@@ -250,6 +250,7 @@ def _helper(ui_pid: int, pip: bool):
             break
         time.sleep(3)
     say("Bộ đăng đã dừng")
+    HEARTBEAT_FILE.unlink(missing_ok=True)  # để lúc bật lại không tưởng bộ đăng cũ còn sống (tool coi <90 giây là sống)
     if pip:
         r = subprocess.run([_py(), "-m", "pip", "install", "-q", "-r", str(BASE_DIR / "requirements.txt")],
                            capture_output=True, text=True, creationflags=0x08000000 if sys.platform == "win32" else 0)

@@ -1,7 +1,7 @@
 {
- "version": "2.4.4",
- "built_at": "2026-11-12T03:09:04Z",
- "notes": "- Cập nhật / Tắt hẳn tool: bộ đăng dừng ngay sau video đang đăng (trước: đăng hết cả hàng chờ rồi mới dừng, cập nhật phải chờ lâu).\n- Khởi động lại sau cập nhật chạy ẩn, không hiện cửa sổ đen python.exe nữa.",
+ "version": "2.4.5",
+ "built_at": "2026-11-12T03:11:41Z",
+ "notes": "- Sửa lỗi: cập nhật xong đôi khi bộ đăng không tự bật lại (tool tưởng bộ đăng cũ còn chạy).",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "4327d536751a7a263db554539c6e7b43e0de24eb8a6a99da3d17758c27909f00",
-   "size": 9153
+   "sha256": "818ac70b4549aacd72b2fb0002859ed42cf891933f28f849a45df82a7439c1b9",
+   "size": 9287
   },
   {
    "path": "HUONG_DAN.md",
@@ -60,7 +60,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "9ecc8cb252b269596adeed39e2636ff205ca8235b44a3db8212d03255fd55c0b",
+   "sha256": "5d038a6af9998b1157a49314369f525e6ef8dc34201a1b596b175de1df722a7d",
    "size": 6
   },
   {
@@ -180,8 +180,8 @@
   },
   {
    "path": "core/updater.py",
-   "sha256": "8cc9212ca6e7167c4d69d6006333e0e4e948a721920be3889bdb74d07c5ac9d3",
-   "size": 12228
+   "sha256": "d24a0267c8722476476dcf8e62501a0cb081d7f7e49df05b16b8c13040a9393b",
+   "size": 12373
   },
   {
    "path": "core/video_utils.py",

@@ -1,5 +1,8 @@
 # Ghi chú phiên bản Sonix Đăng Video
 
+## 2.4.5
+- Sửa lỗi: cập nhật xong đôi khi bộ đăng không tự bật lại (tool tưởng bộ đăng cũ còn chạy).
+
 ## 2.4.4
 - Cập nhật / Tắt hẳn tool: bộ đăng dừng ngay sau video đang đăng (trước: đăng hết cả hàng chờ rồi mới dừng, cập nhật phải chờ lâu).
 - Khởi động lại sau cập nhật chạy ẩn, không hiện cửa sổ đen python.exe nữa.
