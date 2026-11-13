@@ -31,11 +31,11 @@ Tool tự động đăng video TikTok: AI nhận diện sản phẩm trong video
 
 ## 2. Cài đặt ban đầu trong tool
 **a) Thư mục và kênh** (tab Đăng video hiện ngay lần đầu)
-- Chọn thư mục gốc, ví dụ `D:\VIDEO_TIKTOK`.
+- Chọn thư mục gốc, ví dụ `D:\SONIX_UP_VIDEO`.
 - Nhập các kênh: **tên kênh = tên thư mục**, kèm @ tên TikTok (để tool kiểm tra đúng tài khoản).
 - Tool tự tạo:
 ```
-D:\VIDEO_TIKTOK\
+D:\SONIX_UP_VIDEO\
  ├─ NHẠC NỀN\                 ← nhạc .mp3 của bác (không bắt buộc)
  ├─ ẢNH BÌA\                  ← ảnh bìa có sẵn (theme) của bác (không bắt buộc)
  ├─ Sơn Phân Thuốc\

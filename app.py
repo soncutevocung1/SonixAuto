@@ -609,10 +609,10 @@ with tabs[0]:
     if not READY:
         st.header("Chào bác! Cài đặt ban đầu (làm 1 lần)")
         st.markdown("""
-1. **Chọn thư mục gốc** chứa video (bấm **Chọn** để chọn bằng chuột), ví dụ `D:\\VIDEO_TIKTOK`.
+1. **Chọn thư mục gốc** chứa video (bấm **Chọn** để chọn bằng chuột), ví dụ `D:\\SONIX_UP_VIDEO`.
 2. **Nhập các kênh TikTok** sẽ đăng. Tên kênh = tên thư mục con. Tool tự tạo:
 ```
-D:\\VIDEO_TIKTOK\\
+D:\\SONIX_UP_VIDEO\\
  ├─ NHẠC NỀN\\
  └─ Tên kênh\\  ├─ CHƯA UP\\   ← bỏ video chờ đăng vào đây
                ├─ ĐÃ UP\\     ← đăng xong tool tự chuyển vào

@@ -77,7 +77,7 @@ def drives() -> list:
     return [f"{d}:" for d in string.ascii_uppercase if os.path.exists(f"{d}:\\")]
 
 
-def default_root(name="VIDEO_TIKTOK") -> str:
+def default_root(name="SONIX_UP_VIDEO") -> str:
     """Gợi ý thư mục gốc theo ổ có thật: ổ D nếu có, không thì ổ đang cài tool (nếu không phải C), không thì ổ đầu
     tiên khác C, cuối cùng là C."""
     from .config import BASE_DIR

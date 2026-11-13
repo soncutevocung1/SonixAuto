@@ -10,14 +10,18 @@ from core.config import DATA_DIR, VIDEO_EXTS
 from core.video_utils import probe
 
 EDIT_DIR = DATA_DIR / "edit"
-INPUT_ROOT = Path(r"D:\VIDEO_INPUT")
+INPUT_ROOT = Path(r"D:\SONIX_EDIT_VIDEO")
+INPUT_OLD = Path(r"D:\VIDEO_INPUT")  # tên cũ trước bản 2.5.2 (core/doi_thu_muc.py tự đổi tên)
 TAI_NGUYEN = "TÀI NGUYÊN"
 TEMPLATE = "mẫu"
 THAM_KHAO_DIR = EDIT_DIR / "tham_khao"
 
 
 def input_root(S: dict = None) -> Path:
-    return Path((S or {}).get("edit_input_root") or INPUT_ROOT)
+    p = (S or {}).get("edit_input_root")
+    if p:
+        return Path(p)
+    return INPUT_ROOT if INPUT_ROOT.exists() or not INPUT_OLD.exists() else INPUT_OLD
 
 
 def thu_muc_clip(sp_key: str, root: Path = None) -> list:

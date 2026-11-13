@@ -31,6 +31,12 @@ def runner_alive():
 def start_runner():
     (DATA_DIR / "stop_runner.flag").unlink(missing_ok=True)
     if not runner_alive():
+        if not desktop.is_up():  # tool đang tắt hẳn: lúc an toàn để đổi tên thư mục video (bản 2.5.2)
+            try:
+                from core import doi_thu_muc
+                doi_thu_muc.chay()
+            except Exception:
+                pass
         subprocess.Popen([PY, str(BASE / "runner.py")], cwd=str(BASE), env=desktop.env(),
                          creationflags=desktop.no_window_flags(),
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

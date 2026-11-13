@@ -1,5 +1,11 @@
 # Ghi chú phiên bản Sonix Auto
 
+## 2.5.2
+- Đổi tên thư mục video cho dễ nhận biết (tool tự đổi lúc mở lại sau cập nhật, trước khi bộ đăng chạy):
+  - `VIDEO_TIKTOK` → **`SONIX_UP_VIDEO`** (thư mục gốc của Sonix Up Video; Cài đặt tự trỏ sang tên mới).
+  - `VIDEO_INPUT` → **`SONIX_EDIT_VIDEO`** (thư mục nguồn của Sonix Edit Video; cảnh đã quét và dự án CapCut do tool tạo tự sửa đường dẫn).
+  - Chỉ đổi khi thư mục đang đúng tên cũ. Đang mở thư mục đó trong File Explorer thì có thể chưa đổi được, mở lại tool lần sau sẽ tự thử lại.
+
 
 ## 2.5.2
 - Sửa lỗi mất ảnh bìa trong Hàng chờ / Duyệt sau khi lên bản 2.5: bản 2.5.0 đổi tên thư mục SonixDangVideo -> Sonix Auto nhưng hàng chờ vẫn ghi đường dẫn thư mục cũ. Tool tự sửa đường dẫn cũ trong hàng chờ và dữ liệu (ảnh bìa, khung hình, âm thanh Yêu thích, âm thanh mượn) khi mở tool / bật bộ đăng.

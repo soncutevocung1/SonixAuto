@@ -1,7 +1,7 @@
 # Kế hoạch: Sonix Edit Video (tab mới trong Sonix Đăng Video)
 
 ## 1. Quy trình anh Sơn đang làm tay (tool sẽ tự động hoá y như vậy)
-1. Viết kịch bản kiểu kênh "giảm giá kịch tính" (giống 7 mẫu trong `D:\VIDEO_INPUT\MẪU`).
+1. Viết kịch bản kiểu kênh "giảm giá kịch tính" (giống 7 mẫu trong `D:\SONIX_EDIT_VIDEO\MẪU`).
 2. Đưa vào **Vbee → giọng Ngọc Huyền**, tải tiếng về.
 3. Vào CapCut: cắt video gốc (ĐẠM CÁ / KÍCH RỄ) lấy cảnh **giới thiệu sản phẩm, cảnh sử dụng, hiệu quả sau dùng**, **không dính người** (tránh bản quyền).
 4. Ghép giọng, **chỉnh màu cho bắt mắt**, thêm **nhạc nền kịch tính, gây cấn**.
@@ -9,7 +9,7 @@
 6. Xuất **1080p** (1080x1920).
 
 ## 2. Nguồn video
-- Thư mục gốc: `D:\VIDEO_INPUT`, mỗi sản phẩm 1 thư mục: `ĐẠM CÁ\ĐẠM CÁ` (164 video), `KÍCH RỄ\KÍCH RỄ` (143 video), `MẪU` (7 video mẫu).
+- Thư mục gốc: `D:\SONIX_EDIT_VIDEO`, mỗi sản phẩm 1 thư mục: `ĐẠM CÁ\ĐẠM CÁ` (164 video), `KÍCH RỄ\KÍCH RỄ` (143 video), `MẪU` (7 video mẫu).
 - Video gốc tải từ TikTok: 576x1024, 30-115 giây, nhiều đoạn có **người nói trước camera**, **chữ in sẵn / ô bình luận TikTok** → tool phải bỏ các đoạn có mặt người và tránh/che vùng chữ in sẵn.
 - Video gốc nhỏ (576x1024) → phóng lên 1080 cho phần cảnh phía trên khung.
 
@@ -66,7 +66,7 @@ Thông tin sản phẩm rút từ mẫu (anh kiểm tra lại cho đúng):
   giọng, nhạc, chữ tiêu đề (tô vàng/trắng). Giữ nguyên: lớp Điều chỉnh màu, theme.png, nhãn "phân bón chính hãng"
   (Phudu, đen nền vàng), người dẫn Sơn meme (nối lặp như mẫu), mũi tên (dời về cuối).
 - Mọi lớp tự kéo dài theo độ dài giọng. Nhạc ngắn thì nối lặp.
-- Tài nguyên: `D:\VIDEO_INPUT\TÀI NGUYÊN` (theme.png, Sơn meme.MP4, 2 nhạc kịch tính: epic new 60s, mews kịch tính 34s).
+- Tài nguyên: `D:\SONIX_EDIT_VIDEO\TÀI NGUYÊN` (theme.png, Sơn meme.MP4, 2 nhạc kịch tính: epic new 60s, mews kịch tính 34s).
 - **CapCut phải tắt** khi tool tạo dự án (CapCut ghi đè danh sách dự án lúc tắt). Danh sách cũ được sao lưu
   `root_meta_info.json.sonix_backup`.
 - Code: `core/capcut_draft.py` (tạo dự án), `core/giong.py` (giọng, đọc từng câu → biết thời gian từng câu).
@@ -77,7 +77,7 @@ Thông tin sản phẩm rút từ mẫu (anh kiểm tra lại cho đúng):
 - Khung là **mục cài đặt sẵn trong CapCut** của anh (anh tự làm). File cài đặt sẵn không nằm trong `Presets` trên máy (kho trống, có thể lưu trên tài khoản).
 - File dự án CapCut (`draft_content.json`) **không mã hoá**, đọc được → cách lấy khung: anh tạo 1 dự án tên **KHUNG MẪU**, kéo khung vào timeline, lưu lại → mình đọc dự án đó để lấy logo, người dẫn, dải xanh, chữ, mũi tên, vị trí, hiệu ứng.
 - 11/11: kiểm tra máy này: "Tài sản của tôi > Các kiểu cài sẵn" **trống**; 2 dự án CapCut trên máy (1103, 1108) chỉ có video DJI, **không có khung**. Ảnh bản đồ, nhãn hiệu sẽ được lưu vào mục đó sau.
-- Cách lấy khung: anh chép các file rời vào `D:\VIDEO_INPUT\KHUNG` (nền dải xanh có bản đồ, logo, người dẫn, mũi tên, phông chữ).
+- Cách lấy khung: anh chép các file rời vào `D:\SONIX_EDIT_VIDEO\KHUNG` (nền dải xanh có bản đồ, logo, người dẫn, mũi tên, phông chữ).
 - Mặc định: **tool tự xuất MP4** (tự động hết, dùng ffmpeg + NVENC), không cần mở CapCut.
 
 ## 8. Thứ tự làm

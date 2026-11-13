@@ -1,7 +1,7 @@
 {
  "version": "2.5.2",
- "built_at": "2026-11-13T01:08:22Z",
- "notes": "- Sửa lỗi mất ảnh bìa trong Hàng chờ / Duyệt sau khi lên bản 2.5: bản 2.5.0 đổi tên thư mục SonixDangVideo -> Sonix Auto nhưng hàng chờ vẫn ghi đường dẫn thư mục cũ. Tool tự sửa đường dẫn cũ trong hàng chờ và dữ liệu (ảnh bìa, khung hình, âm thanh Yêu thích, âm thanh mượn) khi mở tool / bật bộ đăng.",
+ "built_at": "2026-11-13T01:51:45Z",
+ "notes": "- Đổi tên thư mục video cho dễ nhận biết (tool tự đổi lúc mở lại sau cập nhật, trước khi bộ đăng chạy):\n  - `VIDEO_TIKTOK` → **`SONIX_UP_VIDEO`** (thư mục gốc của Sonix Up Video; Cài đặt tự trỏ sang tên mới).\n  - `VIDEO_INPUT` → **`SONIX_EDIT_VIDEO`** (thư mục nguồn của Sonix Edit Video; cảnh đã quét và dự án CapCut do tool tạo tự sửa đường dẫn).\n  - Chỉ đổi khi thư mục đang đúng tên cũ. Đang mở thư mục đó trong File Explorer thì có thể chưa đổi được, mở lại tool lần sau sẽ tự thử lại.",
  "files": [
   {
    "path": ".gitattributes",
@@ -39,39 +39,9 @@
    "size": 415
   },
   {
-   "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "09ffc5eddfac9297c5074295d2d33d71a5f76fef93efcf473f263e02a11e2d04",
-   "size": 14248
-  },
-  {
-   "path": "HUONG_DAN.md",
-   "sha256": "8f399740c39ed6f45b02cbbda7ccb68b015f30715413c31beab74bc3ac4ff0a3",
-   "size": 16967
-  },
-  {
-   "path": "KE_HOACH_EDIT_VIDEO.md",
-   "sha256": "ab4d9ab75e2bb37105c59ccae883f7958c8c6ebe3833a6f986c714a5f65b175d",
-   "size": 9700
-  },
-  {
-   "path": "Sonix Auto.exe",
-   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
-   "size": 224256
-  },
-  {
-   "path": "SonixDangVideo.pyw",
-   "sha256": "8ec3356e5eabf1afb3779e9fc7673460c7981e7f3c588a889d3db62473783277",
-   "size": 3057
-  },
-  {
-   "path": "VERSION",
-   "sha256": "8d093f990bc0fd8fc1299c6ddf1bd203e5ea75d208a6d38f8733a9c9b6f48c6a",
-   "size": 6
-  },
-  {
    "path": "app.py",
-   "sha256": "a926aaeaa9982feeb8b90955e6a921276aac7605611fc8fe1cec8a9b94b7974e",
-   "size": 107232
+   "sha256": "4e2dd594b6d751faddd7c3e27b56107e7b81a48800db4d41d02e0a7f9b042199",
+   "size": 107236
   },
   {
    "path": "assets/sonix.ico",
@@ -115,8 +85,8 @@
   },
   {
    "path": "core/channels.py",
-   "sha256": "0f71b147502b659642b837e38cdd6d311761654cbf23f5eefb0394f701144a45",
-   "size": 3599
+   "sha256": "9e896d0ed7ff4d5e6010283a3964ce23d6efaf98a30ceedfbe76493b19b9fd94",
+   "size": 3601
   },
   {
    "path": "core/config.py",
@@ -144,6 +114,11 @@
    "size": 7746
   },
   {
+   "path": "core/doi_thu_muc.py",
+   "sha256": "e8325396a6643b562a9af7584a2482d7c41ec63c5d2e6f48ef806dae4539a6f0",
+   "size": 3237
+  },
+  {
    "path": "core/edit_job.py",
    "sha256": "e46df61b54b58d0de8dc02b7648867dc2bb71fb6c2b8f8f3f58c9411f88871bd",
    "size": 3101
@@ -155,8 +130,8 @@
   },
   {
    "path": "core/edit_video.py",
-   "sha256": "6581675febd10dd0c4c6bfe3286c6398d9fcc3b209d288046eb7da22bec62dee",
-   "size": 3469
+   "sha256": "ace0c74831fee5cbb189fadfed0b113ecd24e9192308f324a5c24ef5b37ead83",
+   "size": 3678
   },
   {
    "path": "core/facebook.py",
@@ -259,6 +234,21 @@
    "size": 879
   },
   {
+   "path": "GHI_CHU_PHIEN_BAN.md",
+   "sha256": "29a5846d2a80e0038708f07ed66aeffd473219c4e2bc7abe3f2037f0a1e4b0b8",
+   "size": 14882
+  },
+  {
+   "path": "HUONG_DAN.md",
+   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
+   "size": 16971
+  },
+  {
+   "path": "KE_HOACH_EDIT_VIDEO.md",
+   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
+   "size": 9720
+  },
+  {
    "path": "mo_tool_mac.sh",
    "sha256": "cca941d7dc0f9085e074de3fcedfa45b19a14debc919921b1854e0643f89f93e",
    "size": 248
@@ -274,9 +264,24 @@
    "size": 23230
   },
   {
+   "path": "Sonix Auto.exe",
+   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
+   "size": 224256
+  },
+  {
+   "path": "SonixDangVideo.pyw",
+   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
+   "size": 3327
+  },
+  {
    "path": "tao_manifest.py",
    "sha256": "6dcb33c88afa4b4cf0d916e2406cba216f992dc783c3a3f31b05b598c3e01365",
    "size": 1803
+  },
+  {
+   "path": "VERSION",
+   "sha256": "d9dfad11d924947ee4b564ef5499b37b7388e28fa59f97610dda6ca0f464f1f8",
+   "size": 5
   }
  ]
 }
