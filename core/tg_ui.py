@@ -52,6 +52,16 @@ def render_settings(S):
     _admin_box(S)
 
 
+def _qr(text):
+    """Mã QR (ảnh PNG) để điện thoại quét. Chưa có thư viện segno thì bỏ qua."""
+    try:
+        import base64
+        import segno
+        return base64.b64decode(segno.make(text, error="m").png_data_uri(scale=8, border=2).split(",", 1)[1])
+    except Exception:
+        return None
+
+
 @st.cache_data(ttl=3600, show_spinner=False)
 def _bot_cached(token):
     return tg.bot_info(token)
@@ -74,8 +84,15 @@ def _setup_bot(S):
                 st.error(tg._safe(e))
     with b.container(border=True):
         st.markdown("**Cách 2 · Tự tạo bot** (Admin)")
-        st.markdown("1. Mở Telegram, tìm **@BotFather**, gõ `/newbot`, đặt tên (vd *Sonix Auto bot*).  \n"
-                    "2. BotFather gửi lại 1 **mã bot** dạng `123456:ABC...`. Dán vào ô dưới (mã chỉ lưu trên máy này).")
+        st.markdown("Làm trên **Telegram điện thoại**:  \n"
+                    "1. Ô tìm kiếm gõ **BotFather** → chọn tài khoản có **dấu tick xanh** → bấm **BẮT ĐẦU / START**.  \n"
+                    "2. Gõ `/newbot` gửi đi.  \n"
+                    "3. Nó hỏi tên: gõ `Sonix Auto` gửi đi.  \n"
+                    "4. Nó hỏi tên đăng nhập: gõ tên **không dấu, liền nhau, tận cùng bằng bot**, vd `sonixauto_son_bot` "
+                    "(bị trùng thì thêm số: `sonixauto_son2_bot`).  \n"
+                    "5. BotFather trả về 1 dòng **mã bot** dạng `8123456789:AAH...` (chữ màu, bấm vào là chép).  \n"
+                    "6. Đưa mã sang máy tính: dán vào **Zalo → Cloud của tôi** trên điện thoại, mở Zalo máy tính chép ra, "
+                    "dán vào ô dưới. Mã chỉ lưu trên máy này, **đừng gửi cho ai khác**.")
         tok = st.text_input("Mã bot", key="tg_tok_in", type="password")
         if st.button("Kiểm tra & lưu", key="tg_tok_ok", disabled=not tok):
             try:
@@ -116,37 +133,49 @@ def _receivers(S):
                     save_settings(S)
                     st.rerun()
     with st.expander("Thêm người nhận (Telegram của bác hoặc người khác)", expanded=not rs):
+        if rs and not st.toggle("Thêm 1 người nhận mới", key="tg_add_more"):
+            return  # đã có người nhận: chỉ chờ Start khi bác bật thêm (đỡ hỏi Telegram liên tục)
         code = st.session_state.setdefault("tg_link_code", tg.new_link_code())
         try:
-            url = tg.link_url(S, code)
+            url = f"https://t.me/{_bot_cached(S['tg_bot'])['username']}?start={code}"
         except Exception as e:
             st.error(tg._safe(e))
             return
-        st.markdown("1. Người nhận bấm nút dưới (hoặc quét bằng điện thoại), Telegram mở ra bot, bấm **Start / Bắt đầu**.  \n"
-                    "2. Quay lại đây bấm **Đã bấm Start**.")
-        c = st.columns([1, 1, 2])
-        c[0].link_button("Mở Telegram", url, type="primary")
-        if c[1].button("Đã bấm Start", key="tg_find"):
+        q, t = st.columns([1, 2])
+        qr = _qr(url)
+        if qr:
+            q.image(qr, width=220, caption="Quét bằng camera điện thoại")
+        t.markdown("**Telegram trên điện thoại:**  \n"
+                   "1. Mở **camera** điện thoại (hoặc Zalo → quét mã QR), quét mã bên trái.  \n"
+                   "2. Bấm vào đường link hiện ra → Telegram mở bot → bấm **BẮT ĐẦU / START** ở cuối màn hình.  \n"
+                   "3. Xong. App **tự nhận** trong vài giây, bot nhắn «Đã nối Telegram» là được.")
+        t.link_button("Hoặc mở Telegram trên máy tính này", url)
+        t.caption("Không quét được thì gõ đường link này vào trình duyệt điện thoại:")
+        t.code(url, language=None)
+
+        @st.fragment(run_every=3)
+        def _wait_start():  # tự kiểm tra 3 giây/lần, không cần bấm nút
             try:
                 found = tg.find_chat(S, code)
             except Exception as e:
-                found = None
-                st.error(tg._safe(e))
-            if found:
-                if not any(str(x["chat_id"]) == found["chat_id"] for x in rs):
-                    rs.append({**found, "kinds": list(KIND_LABEL), "apps": list(APP_LABEL), "on": True})
-                    save_settings(S)
-                st.session_state.pop("tg_link_code", None)
-                try:
-                    tg.send_to(S["tg_bot"], found["chat_id"], "up", "xong", "Đã nối Telegram với Sonix Auto",
-                               "Từ giờ bác nhận thông báo ở đây.")
-                except Exception:
-                    pass
-                st.rerun()
-            else:
-                st.warning("Chưa thấy. Bác bấm Start trong Telegram chưa? Đợi vài giây rồi bấm lại.")
-        c[2].code(url, language=None)
-
+                st.caption(f"Đang chờ... ({tg._safe(e)[:120]})")
+                return
+            if not found:
+                st.info("Đang chờ bác bấm Start trong Telegram...")
+                return
+            if not any(str(x["chat_id"]) == found["chat_id"] for x in rs):
+                rs.append({**found, "kinds": list(KIND_LABEL), "apps": list(APP_LABEL), "on": True})
+            if not S.get("tg_admin_chat"):  # người nhận đầu tiên = Admin (nhận Báo lỗi), đổi được ở dưới
+                S["tg_admin_chat"] = found["chat_id"]
+            save_settings(S)
+            st.session_state.pop("tg_link_code", None)
+            try:
+                tg.send_to(S["tg_bot"], found["chat_id"], "up", "xong", "Đã nối Telegram với Sonix Auto",
+                           "Từ giờ bác nhận thông báo ở đây.")
+            except Exception:
+                pass
+            st.rerun(scope="app")
+        _wait_start()
 
 def _admin_box(S):
     rs = S.get("tg_nguoi_nhan") or []

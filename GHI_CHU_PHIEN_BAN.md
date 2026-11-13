@@ -1,6 +1,10 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.7.2
+- Nối Telegram bằng **điện thoại** dễ hơn: app hiện **mã QR**, quét bằng camera / Zalo, bấm Start trong Telegram là app **tự nhận** (không cần bấm "Đã bấm Start"). Người nhận đầu tiên tự thành Admin (nhận Báo lỗi).
+- Hướng dẫn tạo bot với BotFather từng bước trên điện thoại, cách chuyển mã bot sang máy tính qua Zalo Cloud của tôi.
+
 ## 2.7.1 · Chốt quy trình Reup Aff
 - **Tự xuất video**: chọn **Kênh nhận video** ở bước 4 → tạo dự án xong tool tự mở CapCut, xuất **1080p**, rồi đưa vào `<kênh>\CHƯA UP\<ngày>\01.mp4, 02.mp4...` (mỗi ngày 1 thư mục, số thứ tự không trùng kể cả khi video đã đăng). Lúc xuất tool điều khiển CapCut như người, khoảng 1,5 phút / video: **đừng đụng chuột, bàn phím**. App nhớ kênh đã chọn cho từng sản phẩm.
 - Mục **Xuất dự án có sẵn vào kênh**: chọn các dự án SONIX (vd đã sửa tay trong CapCut) để xuất vào kênh.
