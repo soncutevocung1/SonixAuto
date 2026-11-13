@@ -387,6 +387,11 @@ def _cover_picker(j):
             im.save(out, "JPEG", quality=90)
             db.update_job(j["id"], cover_path=str(out), cover_by_user=1)
             st.rerun()
+        _ai = ana.ai_cover(j)
+        if _ai and j.get("cover_path") != _ai and st.button("Trả về ảnh bìa AI chọn (rõ sản phẩm nhất)",
+                                                             key=f"fcvai_{j['id']}"):
+            db.update_job(j["id"], cover_path=_ai, cover_by_user=1)
+            st.rerun()
         if int(j.get("cover_by_user") or 0) and b.button("Để Facebook tự chọn bìa", key=f"fcvoff_{j['id']}"):
             db.update_job(j["id"], cover_by_user=0)
             st.rerun()
@@ -402,6 +407,11 @@ def _review(S, pg):
             left = len(db.list_jobs(["analyzing"], "facebook", pg["name"]))
             if left:
                 st.info(f"AI đang viết {left} caption... xong sẽ tự hiện, bác không cần bấm gì.")
+                if worker.redo_counts("facebook").get(pg["name"]) and st.button(
+                        "Dừng viết lại caption", key=f"fb_redo_stop_{pg['name']}", type="primary",
+                        help="Dừng ngay. Video đã viết lại giữ caption mới, video chưa viết giữ caption cũ."):
+                    worker.stop_redo("facebook", pg["name"])
+                    st.rerun(scope="app")
             else:
                 st.rerun(scope="app")
         st.fragment(run_every=3)(_wait)()

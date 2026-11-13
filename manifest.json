@@ -1,6 +1,6 @@
 {
- "version": "2.7.0",
- "built_at": "2026-11-13T05:37:08Z",
+ "version": "2.7.1",
+ "built_at": "2026-11-13T05:39:55Z",
  "notes": "- **Tự xuất video**: chọn **Kênh nhận video** ở bước 4 → tạo dự án xong tool tự mở CapCut, xuất **1080p**, rồi đưa vào `<kênh>\\CHƯA UP\\<ngày>\\01.mp4, 02.mp4...` (mỗi ngày 1 thư mục, số thứ tự không trùng kể cả khi video đã đăng). Lúc xuất tool điều khiển CapCut như người, khoảng 1,5 phút / video: **đừng đụng chuột, bàn phím**. App nhớ kênh đã chọn cho từng sản phẩm.\n- Mục **Xuất dự án có sẵn vào kênh**: chọn các dự án SONIX (vd đã sửa tay trong CapCut) để xuất vào kênh.\n- **Sonix Up Video đọc thêm thư mục ngày** trong CHƯA UP (ngày cũ trước, trong ngày theo 01, 02, 03...).\n- Làm hàng loạt: lưu lời từng video (data\\edit\\hang_loat) để xem lại; AI soát thêm chính tả tiêu đề.\n- Mục **Quy trình Reup Aff (các bước)** ở đầu Sonix Edit Video: tóm tắt cả quy trình từ chuẩn bị tới đăng.\n- Nhật ký các việc chạy nền tự ẩn sau 1 giờ cho gọn.",
  "files": [
   {
@@ -40,8 +40,8 @@
   },
   {
    "path": "app.py",
-   "sha256": "4e2dd594b6d751faddd7c3e27b56107e7b81a48800db4d41d02e0a7f9b042199",
-   "size": 107236
+   "sha256": "617a04b82b089445717b293da08a1c9694fd6bbe4fb07d43b2a3e70c57ff82af",
+   "size": 113035
   },
   {
    "path": "assets/sonix.ico",
@@ -65,8 +65,8 @@
   },
   {
    "path": "core/analyze.py",
-   "sha256": "340aedadb5fce82e77fda2b00432f2a79385d01a107930dd91b1822012bc9e81",
-   "size": 23013
+   "sha256": "d9d8c0e26ee8d44959e673f69228c7dac774b90bf8275e2b9cf11b38f09eb79a",
+   "size": 23873
   },
   {
    "path": "core/canh.py",
@@ -95,8 +95,8 @@
   },
   {
    "path": "core/covers.py",
-   "sha256": "1ae7db4084d0b124da2126d1f70804c07fb981d162353b729e7f57034e0468ae",
-   "size": 9142
+   "sha256": "99aa4fcf9b2eb8413564f1bce208673f7dbf55a88a58577bba8621748958eb95",
+   "size": 10229
   },
   {
    "path": "core/cua_so.py",
@@ -115,13 +115,13 @@
   },
   {
    "path": "core/doi_thu_muc.py",
-   "sha256": "40a67e2c4507936c71905ca3f1011cbdbd0f96610ec6c15ea5cec09a8ac87e28",
-   "size": 5236
+   "sha256": "b02e350d67c9e8508c81537e8b47406b258bfddb5e78faecffd15a1a050b068f",
+   "size": 5680
   },
   {
    "path": "core/edit_job.py",
-   "sha256": "ea3d31a58d5738462eaa17ccb430cf98bfc2578431fa3d180f1a431418c9fbcc",
-   "size": 4889
+   "sha256": "988d5a96cbc4c0dbd70f265e6fa1160f5d9e650a0a5676642e9a701bcf50f231",
+   "size": 5848
   },
   {
    "path": "core/edit_ui.py",
@@ -145,8 +145,8 @@
   },
   {
    "path": "core/fb_ui.py",
-   "sha256": "c1ef592e6e47b6e9f56e7bc150be65bb3a6812e9e76ce7386b9e776ce09e5cf5",
-   "size": 31409
+   "sha256": "7925d05841d0e321593ec82ad63372df48938e2935fe4a8c46aa9d9c17d942ed",
+   "size": 32155
   },
   {
    "path": "core/fbq.py",
@@ -205,13 +205,28 @@
   },
   {
    "path": "core/sounds.py",
-   "sha256": "ce0b1cfdb262ef098343dbbdbfc1202d68776088436948043c624b538a7e2a9b",
-   "size": 14991
+   "sha256": "e62a96164592157a413af64ece4bd51abf6f9fbb10f6e092acff85e563faab09",
+   "size": 16316
   },
   {
    "path": "core/stats.py",
    "sha256": "dccd3b636b4da11e1e54602f37f1d195f8eb19901d0409e22201298cba8710c0",
    "size": 4149
+  },
+  {
+   "path": "core/sua_duong_dan.py",
+   "sha256": "87ab03393404e6a29ebeb6cd6f23995aed0e7c9620f674e0ff362554238c737c",
+   "size": 3292
+  },
+  {
+   "path": "core/telegram.py",
+   "sha256": "d14c84033de2bf5e9337c7a8a049363d69d366a721db1ca657fdf4d2b498238a",
+   "size": 11182
+  },
+  {
+   "path": "core/tg_ui.py",
+   "sha256": "129637e90eeb6385aff3e497bcd9d5e464100dc67b2ca37ac6bdeea944ae5e54",
+   "size": 20408
   },
   {
    "path": "core/tham_khao.py",
@@ -220,8 +235,8 @@
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "5f0b90a662215a1d1c469bc6f4d4a0f35224962b54b0adcac0b68cfd743af6d9",
-   "size": 75576
+   "sha256": "24bdc4fc4c17fd44546241aac005b2dbf8cf6eff645e5579e7bfd454e7763495",
+   "size": 75878
   },
   {
    "path": "core/ui.py",
@@ -250,8 +265,8 @@
   },
   {
    "path": "core/worker.py",
-   "sha256": "6d7a5ff27259e6c3e21565dcd944ebfa4ba2fac3ffe6d6631e9c8dec644bb41f",
-   "size": 7718
+   "sha256": "c98fc8154fdc1404c1d0c1e01f286b0967b21d25aeeae85ab1ecc363dcbf4343",
+   "size": 9279
   },
   {
    "path": "core/xuat_capcut.py",
@@ -265,8 +280,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "465205cb2140368e2e2658b9cbe6c6a877a2ec3a9af426d258cdddbfc68e3612",
-   "size": 19323
+   "sha256": "bbe746f5696efde54215825fd994c50386ac045316f7ed5b790b615494ae33fa",
+   "size": 21800
   },
   {
    "path": "HUONG_DAN.md",
@@ -290,8 +305,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "eb4a62c6562d8bceeed8492d2280b89cb0e84783d5895191fda52fe78ddccbcc",
-   "size": 23230
+   "sha256": "4b9953377b76df8eea4f561c92416a197ffd873c00faf65ede3fb8951c1fdf08",
+   "size": 26317
   },
   {
    "path": "Sonix Auto.exe",
@@ -310,7 +325,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "f972084131b8c2eba9339f5bc95cf6d85183eb1b1af87c723f12c48542f84445",
+   "sha256": "bd7f9252181a4f69c7bc99cf9ef5beded7fce04dcf5899f4314e1ca6664156e7",
    "size": 5
   }
  ]

@@ -60,6 +60,23 @@ def doc_log(name: str, n: int = 12) -> list:
     return f.read_text(encoding="utf-8", errors="replace").splitlines()[-n:]
 
 
+VIEC = {"quet_canh": "Quét cảnh", "lam_video": "Làm video", "hang_loat": "Làm video hàng loạt",
+        "cai_khuon": "Cài khuôn CapCut", "hoc_mau": "Học mẫu", "loc_sp": "Lọc video theo sản phẩm",
+        "quet_kenh": "Quét kênh tham khảo", "xuat": "Xuất video vào kênh"}
+
+
+def _tg(kind, name, loai, err):
+    """Báo Telegram [Sonix Edit Video]: việc xong / sự cố (kèm vài dòng nhật ký cuối)."""
+    try:
+        from core import telegram
+        tail = "\n".join(doc_log(name, 6))
+        title = VIEC.get(kind, kind) + (" xong" if loai == "xong" else " bị lỗi")
+        telegram.notify("edit", loai, title, (f"Lỗi: {err[:500]}\n" if err else "") + "Nhật ký:\n" + tail[-700:],
+                        wait=True)  # việc chạy riêng, đợi gửi xong rồi mới thoát
+    except Exception:
+        pass
+
+
 def main(argv):
     kind = argv[0]
     name = kind + "_" + argv[1] if len(argv) > 1 else kind
@@ -118,9 +135,12 @@ def main(argv):
         else:
             raise ValueError(f"Không biết việc {kind}")
         log("XONG")
+        _tg(kind, name, "xong", "")
     except Exception as e:
         log(f"LỖI: {e}")
         fh.write(traceback.format_exc())
+        fh.flush()
+        _tg(kind, name, "su_co", str(e))
     finally:
         fh.close()
         try:

@@ -4,6 +4,7 @@ Nhận diện âm thanh nói về sản phẩm nào: Whisper (chạy trên máy,
 rồi dò tên sản phẩm trong đoạn chữ. Người dùng nghe thử và sửa lại được trong tab 🎵 Nhạc nền.
 """
 import json
+import os
 import re
 import subprocess
 import threading
@@ -122,7 +123,7 @@ def transcribe(path, log=print) -> str:
     with _model_lock:
         if _model is None:
             log("  - Nạp bộ nghe giọng nói (lần đầu phải tải ~480 MB, chờ chút)...")
-            _model = WhisperModel("small", device="cpu", compute_type="int8", cpu_threads=8,
+            _model = WhisperModel("small", device="cpu", compute_type="int8", cpu_threads=max(2, min(4, (os.cpu_count() or 4) // 2)),  # chừa CPU cho máy khỏi đơ
                                   download_root=str(MODEL_DIR))
     segs, _ = _model.transcribe(_read_audio(path), language="vi", vad_filter=True, beam_size=1)
     return re.sub(r"\s+", " ", " ".join(s.text.strip() for s in segs)).strip()
@@ -150,6 +151,27 @@ def ai_guess(text, settings):
     return [k for k in (data.get("products") or []) if k in keys]
 
 
+def _needs_label(f) -> bool:
+    """Đã có chữ nhưng chưa có sản phẩm (kể cả bị ghi nhầm 'bác tự sửa' với danh sách trống)."""
+    return bool(f.get("transcript")) and not f.get("items") and f.get("items_by") != "none"
+
+
+def quick_label(channel, settings) -> int:
+    """Dò nhanh sản phẩm theo chữ đã nghe (không nghe lại, không tốn AI) cho âm thanh chưa có sản phẩm.
+    Chạy mỗi lần mở tab Nhạc nền, chỉ ghi file khi có thay đổi. Trả về số âm thanh vừa gắn."""
+    favs = load_favs(channel)
+    n = 0
+    for f in favs:
+        if _needs_label(f):
+            items = guess_items(f["transcript"], settings)
+            if items:
+                f["items"], f["items_by"] = items, "auto"
+                n += 1
+    if n:
+        save_favs(channel, favs)
+    return n
+
+
 def label_all(channel, settings, log=print, force=False) -> int:
     """Nghe âm thanh chưa có chữ rồi tự gắn sản phẩm (force: dò lại cả cái đã có chữ). Không đè nhãn bác đã sửa."""
     favs = load_favs(channel)
@@ -157,7 +179,7 @@ def label_all(channel, settings, log=print, force=False) -> int:
     for f in favs:
         if not f.get("file") or not Path(f["file"]).exists():
             continue
-        if f.get("transcript") is not None and not force:
+        if f.get("transcript") is not None and not force and not _needs_label(f):
             continue
         if f.get("transcript") is None:  # chưa nghe thì nghe; đã có chữ thì chỉ dò lại sản phẩm
             try:
@@ -165,7 +187,8 @@ def label_all(channel, settings, log=print, force=False) -> int:
             except Exception as e:
                 log(f"  ! Không nghe được «{f.get('title')}»: {e}")
                 continue
-        if f.get("items_by") != "user":
+        if f.get("items_by") not in ("user", "none") or (f.get("items_by") == "user" and not f.get("items")):
+            # "bác tự sửa" mà trống (bản cũ ghi nhầm) -> vẫn dò lại; bác chủ động xoá hết ("none") thì giữ
             items, by = guess_items(f["transcript"], settings), "auto"
             if not items and len(f["transcript"]) > 20:
                 try:
@@ -256,6 +279,10 @@ def auto_assign(channel, settings, jobs) -> list:
     các video đỡ trùng. Đổi sản phẩm thì âm thanh đổi theo. Trả về id các video vừa đổi nhạc."""
     if not settings.get("auto_fav_sound", True):
         return []
+    try:
+        quick_label(channel, settings)  # âm thanh mới đồng bộ đã có chữ -> gắn sản phẩm luôn
+    except Exception:
+        pass
     favs = load_favs(channel)
     if not any(f.get("items") for f in favs):
         return _auto_borrow(channel, settings, jobs)

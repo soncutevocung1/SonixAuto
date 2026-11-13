@@ -77,6 +77,8 @@ def chay():
         if new:
             S["root_folder"] = str(new)
             doi = True
+            from . import sua_duong_dan  # hàng chờ còn ghi đường dẫn video cũ -> sửa (không thì đăng báo lỗi)
+            sua_duong_dan.thay(str(root), str(new), _log)
     # Sonix Edit Video
     from . import edit_video
     src = Path(S.get("edit_input_root") or edit_video.INPUT_OLD)
@@ -122,4 +124,9 @@ def chay():
         pass
     if doi:
         save_settings(S)
+    try:  # máy đã đổi tên ở bản trước mà hàng chờ chưa sửa
+        from . import sua_duong_dan
+        sua_duong_dan.sua_thu_muc_video(S, _log)
+    except Exception as e:
+        _log(f"Sửa đường dẫn hàng chờ lỗi: {e}")
     return doi
