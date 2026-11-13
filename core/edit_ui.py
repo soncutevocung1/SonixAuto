@@ -340,7 +340,107 @@ def _scenes(S, sp):
     return len(ok)
 
 
+XEM_DIR = edit_video.EDIT_DIR / "xem"
+TEN_LOAI = {"san_pham": "Sản phẩm", "su_dung": "Cách dùng", "ket_qua": "Kết quả", "khac": "Khác"}
+
+
+def _anh(path, t):
+    """Ảnh nhỏ 1 khung (lưu tạm để không cắt lại)."""
+    import hashlib
+    from . import canh
+    XEM_DIR.mkdir(parents=True, exist_ok=True)
+    f = XEM_DIR / (hashlib.md5(f"{path}|{t:.2f}".encode("utf-8")).hexdigest() + ".jpg")
+    if not f.exists():
+        im = canh.khung(path, t, 200)
+        if im is None:
+            return None
+        import cv2
+        cv2.imwrite(str(f), im, [cv2.IMWRITE_JPEG_QUALITY, 80])
+    return str(f)
+
+
+def _preview(S, sp, kb, luoi):
+    """Xem trước cảnh theo từng câu, đổi cảnh không ưng."""
+    from . import canh
+    g = kb.get("giong")
+    if not (g and Path(g).exists()):
+        st.caption("Lồng tiếng xong mới chọn cảnh được (hoặc bấm nút làm 1 lần ở dưới).")
+        return
+    clips = kb.get("canh") if kb.get("canh_giong") == g else None
+    c = st.columns([1, 1, 3])
+    if c[0].button("Chọn cảnh" if not clips else "Chọn lại tất cả", key="ev_chon"):
+        with st.spinner("Đang chọn cảnh theo từng câu..."):
+            kb["canh"] = edit_video.chon_canh(sp, kb, g, S, luoi=luoi, seed=int(time.time()) % 1000)
+            kb["canh_giong"] = g
+            _save_kb(sp, kb)
+            st.rerun()
+    if not clips:
+        return
+    if c[1].button("Bỏ cảnh đã chọn", key="ev_bo_chon", help="Để tool tự chọn lúc tạo dự án"):
+        kb["canh"] = None
+        _save_kb(sp, kb)
+        st.rerun()
+    cau = canh.chia_cau(kb["loi"], 1)
+    c[2].caption(f"{len(clips)} cảnh · bấm **Đổi** dưới cảnh không ưng (đổi sang cảnh khác cùng loại).")
+    N = 6
+    for r0 in range(0, len(clips), N):
+        cols = st.columns(N)
+        for j, cl in enumerate(clips[r0:r0 + N]):
+            i = r0 + j
+            with cols[j]:
+                if isinstance(cl, dict):
+                    sub = st.columns(2)
+                    for q, (p, s, ln) in enumerate(cl["luoi"]):
+                        a = _anh(p, s + ln / 2)
+                        if a:
+                            sub[q % 2].image(a, width="stretch")
+                    st.caption("Khung 4 ô")
+                    if st.button("Đổi 4 người", key=f"ev_doi_{i}"):
+                        kb["canh"] = canh.doi_luoi(sp, clips, i, seed=time.time())
+                        _save_kb(sp, kb)
+                        st.rerun()
+                    continue
+                p, s, ln = cl[0], cl[1], cl[2]
+                a = _anh(p, s + ln / 2)
+                if a:
+                    st.image(a, width="stretch")
+                loai = cl[4] if len(cl) > 4 else ""
+                ci = cl[5] if len(cl) > 5 else None
+                st.caption(f"{i + 1}. {TEN_LOAI.get(loai, loai)}" + (f" · câu {ci + 1}" if ci is not None else ""),
+                           help=(cau[ci][0] if ci is not None and ci < len(cau) else None))
+                if st.button("Đổi", key=f"ev_doi_{i}"):
+                    kb["canh"] = canh.doi_canh(sp, clips, i, seed=time.time())
+                    _save_kb(sp, kb)
+                    st.rerun()
+
+
+def _khuon(S):
+    """Khuôn CapCut + tài nguyên: máy thiếu thì tải từ GitHub về cài."""
+    from . import khuon
+    tn = edit_video.input_root(S) / edit_video.TAI_NGUYEN
+    tpl = S.get("edit_template") or edit_video.TEMPLATE
+    co = (capcut_draft.CAPCUT_DRAFTS / tpl / "draft_content.json").exists()
+    nhac = edit_video.nhac_nen(edit_video.input_root(S))
+    if co and nhac:
+        return True
+    with st.container(border=True):
+        st.warning(("Máy này chưa có dự án mẫu **'" + tpl + "'** trong CapCut. " if not co else "") +
+                   ("Thư mục TÀI NGUYÊN chưa có nhạc nền. " if not nhac else "") +
+                   "Bấm nút dưới để tải khuôn Reup Aff (khung, người dẫn, nhạc, khoảng 210 MB) từ GitHub và cài tự động.")
+        name = "cai_khuon"
+        chay = edit_job.dang_chay(name)
+        mo = capcut_draft.capcut_dang_mo()
+        if mo:
+            st.caption("Tắt CapCut trước khi cài.")
+        if st.button("Tải và cài khuôn Reup Aff", type="primary", disabled=chay or mo):
+            edit_job.chay_ngam(name, "cai_khuon", "x", env=_env(), flags=_flags())
+            st.rerun()
+        _job_box(name, "Cài khuôn")
+    return co
+
+
 def _project(S, sp, kb, n_ok):
+    co_khuon = _khuon(S)
     musics = edit_video.nhac_nen(edit_video.input_root(S))
     opts = [""] + [str(m) for m in musics] + ["none"]
     c = st.columns([2, 2, 1])
@@ -349,23 +449,47 @@ def _project(S, sp, kb, n_ok):
     nhac = c[1].selectbox("Nhạc nền", opts, key="ev_music",
                           format_func=lambda x: {"": "Ngẫu nhiên", "none": "Không nhạc"}.get(x, Path(x).stem))
     luoi = c[2].checkbox("Khung 4 ô người dùng", value=True, key="ev_grid")
+    with st.expander("Xem trước cảnh theo từng câu (đổi cảnh không ưng)", expanded=bool(kb.get("canh"))):
+        _preview(S, sp, kb, luoi)
     mo = capcut_draft.capcut_dang_mo()
     if mo:
-        st.warning("CapCut đang mở: tắt CapCut rồi mới tạo dự án (tránh CapCut ghi đè danh sách dự án).")
-    g = kb.get("giong")
-    thieu = [m for m, ok in [("lời", kb.get("loi")), ("giọng (bấm Lồng tiếng)", g and Path(g).exists()),
-                             ("cảnh (bấm Quét cảnh)", n_ok)] if not ok]
+        st.info("CapCut đang mở: bấm nút vẫn được, tool sẽ chờ bác tắt CapCut rồi mới ghi dự án.")
+    thieu = [m for m, ok in [("lời", kb.get("loi")), ("cảnh (bấm Quét cảnh)", n_ok), ("khuôn CapCut", co_khuon)]
+             if not ok]
     if thieu:
         st.caption("Còn thiếu: " + ", ".join(thieu))
-    if st.button("Tạo dự án CapCut", type="primary", disabled=bool(mo or thieu)):
-        with st.spinner("Đang chọn cảnh và dựng dự án..."):
-            try:
-                from . import mau
-                nhip = mau.doc(S["edit_phong_cach"]).get("nhip", 0) if S.get("edit_phong_cach") else 0
-                r = edit_video.tao_du_an(sp, kb, g, S, ten=ten, nhac=nhac, luoi=luoi, nhip=nhip)
-                st.success(f"Đã tạo **{r['name']}** ({r['duration']:.1f} giây). Mở CapCut, dự án nằm đầu danh sách.")
-            except Exception as e:
-                st.error(f"Lỗi: {e}")
+    name = "lam_video_" + sp
+    chay = edit_job.dang_chay(name)
+    g = kb.get("giong")
+    nhan = "Tạo dự án CapCut" if g and Path(g).exists() else "Lồng tiếng + chọn cảnh + tạo dự án"
+    if st.button(nhan, type="primary", disabled=bool(thieu) or chay,
+                 help="Chạy nền: lồng tiếng (nếu chưa có), chọn cảnh (hoặc dùng cảnh đã duyệt), tạo dự án CapCut"):
+        cfg = edit_job.JOB_DIR / f"{name}.json"
+        cfg.parent.mkdir(parents=True, exist_ok=True)
+        cfg.write_text(json.dumps({"sp": sp, "kb": str(_kb_path(sp)), "ten": ten, "nhac": nhac, "luoi": luoi},
+                                  ensure_ascii=False), encoding="utf-8")
+        edit_job.chay_ngam(name, "lam_video", sp, str(cfg), env=_env(), flags=_flags())
+        st.rerun()
+    _job_box(name, "Làm video")
+
+    with st.expander("Làm hàng loạt (nhiều video, mỗi video lời khác nhau)"):
+        st.caption("AI tự viết lời mới cho từng video (theo phong cách đang chọn, không trùng câu mở), lồng tiếng, chọn "
+                   "cảnh, tạo dự án CapCut. Không duyệt lời từng bản: xem lại trong CapCut trước khi xuất.")
+        h = st.columns([1, 3])
+        n = h[0].number_input("Số video", 1, 10, 3, key="ev_hl_n")
+        y = h[1].text_input("Ưu đãi / ý tưởng chung (không bắt buộc)", key="ev_hl_y")
+        name2 = "hang_loat_" + sp
+        chay2 = edit_job.dang_chay(name2)
+        model = S.get("ai_model") or NO_AI
+        if st.button(f"Làm {int(n)} video", disabled=chay2 or bool(thieu) or model == NO_AI or model not in MODELS):
+            cfg = edit_job.JOB_DIR / f"{name2}.json"
+            cfg.parent.mkdir(parents=True, exist_ok=True)
+            cfg.write_text(json.dumps({"sp": sp, "n": int(n), "y_tuong": y, "nhac": nhac, "luoi": luoi},
+                                      ensure_ascii=False), encoding="utf-8")
+            edit_job.chay_ngam(name2, "hang_loat", sp, str(cfg), env=_env(), flags=_flags())
+            st.rerun()
+        _job_box(name2, "Làm hàng loạt")
+
     with st.expander("Dự án mẫu & thư mục nguồn"):
         st.markdown(f"Tool chép dự án mẫu **{S.get('edit_template') or edit_video.TEMPLATE}** trong CapCut "
                     "(khung, chữ, người dẫn, màu, mũi tên) rồi thay video, giọng, nhạc, tiêu đề. "

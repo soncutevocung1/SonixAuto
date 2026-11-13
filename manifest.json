@@ -1,7 +1,7 @@
 {
- "version": "2.6.1",
- "built_at": "2026-11-13T02:40:53Z",
- "notes": "- **Phong cách mẫu**: thư mục `SONIX_EDIT_VIDEO\\MẪU`, mỗi thư mục con là 1 phong cách edit (tự đặt tên, vd `Reup Aff`), bỏ vài video mẫu vào. Trong app chọn **Làm theo phong cách mẫu** → **Học phong cách này**: tool nghe chép lời các video mẫu, đo nhịp cắt cảnh, AI tóm tắt cách làm (mở đầu, giọng, chữ, nhịp, cách chốt). Sau đó AI viết lời theo đúng phong cách đó và dự án CapCut cắt cảnh theo nhịp của mẫu.\n- Máy chưa có thư mục `MẪU` / `CHƯA LỌC` trong `SONIX_EDIT_VIDEO`: tool tự tạo.",
+ "version": "2.6.2",
+ "built_at": "2026-11-13T03:03:56Z",
+ "notes": "- **Chạy được trên máy khác**: máy chưa có dự án mẫu trong CapCut hoặc chưa có nhạc nền thì Edit Video hiện nút **Tải và cài khuôn Reup Aff** (khoảng 210 MB, gồm khung, người dẫn, nền theme, 2 nhạc kịch tính). Tool tự cài vào CapCut, tự sửa đường dẫn, không cần chép tay.\n- **Xem trước cảnh**: bấm **Chọn cảnh** để xem ảnh từng cảnh theo từng câu (loại cảnh, câu số mấy); cảnh nào không ưng bấm **Đổi** (đổi sang cảnh khác cùng loại), khung 4 ô có **Đổi 4 người**. Tạo dự án sẽ dùng đúng các cảnh đã duyệt.\n- **Bấm 1 nút ra video**: nút **Lồng tiếng + chọn cảnh + tạo dự án** chạy nền, hiện tiến độ; CapCut đang mở thì tool chờ bác tắt rồi mới ghi.\n- **Làm hàng loạt**: chọn số video (1-10), AI viết lời mới cho từng video (không trùng câu mở), lồng tiếng, chọn cảnh, tạo dự án CapCut liền.",
  "files": [
   {
    "path": ".gitattributes",
@@ -70,8 +70,8 @@
   },
   {
    "path": "core/canh.py",
-   "sha256": "c74b1e74fba4b66fdf9890577736f702db232bbc7896d644942381d696dabc0c",
-   "size": 22878
+   "sha256": "fccd92076c45d9abf749ac171a0c693ad66d9554d9201dab4da303c9c9708da9",
+   "size": 24680
   },
   {
    "path": "core/capcut_draft.py",
@@ -120,18 +120,18 @@
   },
   {
    "path": "core/edit_job.py",
-   "sha256": "3222b286902fcdc0c66afb7c9002a38f4cfecd73cfe2eb1d45b9acdb7126999f",
-   "size": 3587
+   "sha256": "be3f96ed04484b1920abace66b659d0ee0930484e1867170e0cba4251877e4db",
+   "size": 4534
   },
   {
    "path": "core/edit_ui.py",
-   "sha256": "f81e741f4070bbbe337820862be8d348974b8cc61c96fff06d421a68fcb1bcff",
-   "size": 23518
+   "sha256": "7035286f41b0d276443183f603fb69bdd71a910977f14472a39e393baadf548a",
+   "size": 29586
   },
   {
    "path": "core/edit_video.py",
-   "sha256": "0b2e4970b53046140df2bbba19695def9388da8da7acc4f4a1622c1e7d119341",
-   "size": 4947
+   "sha256": "0aefd380d4cf0f93b71f02b91ab10789b6adb01ed687a9adbafe83acd1193ae1",
+   "size": 8501
   },
   {
    "path": "core/elevenlabs.py",
@@ -157,6 +157,11 @@
    "path": "core/giong.py",
    "sha256": "01d0486c342acfe01616f5b6a82d2147ed49b960545aa51f5acd6a2faabfd31a",
    "size": 2798
+  },
+  {
+   "path": "core/khuon.py",
+   "sha256": "55deda15b43cf065abb4c4502279cb96274e62811482be5b9901c47e5f967941",
+   "size": 9432
   },
   {
    "path": "core/kich_ban.py",
@@ -255,8 +260,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "292447d4b20a0c489e7d7886132f2e5eab980b4a26ad57398fe4eb8ce1408e6c",
-   "size": 16945
+   "sha256": "7e8be47be3985cc44b4b726f0c4b4a7c5416c305a733f5f7f0dfc3872d89dcfc",
+   "size": 17967
   },
   {
    "path": "HUONG_DAN.md",
@@ -300,7 +305,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "e59f33a31675c4523d151c4ffa9fad8cc1f2df9a97a110dd3e3170f24df39b86",
+   "sha256": "bc546dece8f63b83b982fd05d12cd592f7edaebf47227e4971e5953f58ad40ab",
    "size": 5
   }
  ]

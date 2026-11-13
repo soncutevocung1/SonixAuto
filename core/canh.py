@@ -394,6 +394,50 @@ def loai_cau(cau: str) -> str:
     return "san_pham"
 
 
+def doi_canh(sp_key: str, clips: list, i: int, seed=None) -> list:
+    """Đổi cảnh thứ i sang cảnh khác cùng loại (chưa dùng, khác video 2 cảnh bên cạnh)."""
+    import random
+    rnd = random.Random(seed)
+    c = list(clips[i])
+    loai = c[4] if len(c) > 4 else "san_pham"
+    dung = {(x[0], x[1]) for x in clips if not isinstance(x, dict)}
+    ke = {clips[j][0] for j in (i - 1, i + 1) if 0 <= j < len(clips) and not isinstance(clips[j], dict)}
+    idx = doc_index(sp_key)
+    ung = [(k, d) for k, v in idx.items() if Path(k).exists() for d in v["doan"]
+           if dung_duoc(d) and (d.get("loai") or ("san_pham" if d["sp"] else "ket_qua")) == loai
+           and (k, d["s"]) not in dung and k not in ke and k != c[0]]
+    if not ung:
+        return clips
+    k, d = rnd.choice(ung)
+    lay = min(d["e"] - d["s"], c[2])
+    out = list(clips)
+    out[i] = (k, d["s"], round(lay, 2), y_doan(d), loai) + (tuple(c[5:]) if len(c) > 5 else ())
+    return out
+
+
+def doi_luoi(sp_key: str, clips: list, i: int, seed=None) -> list:
+    """Đổi 4 người trong khung 4 ô."""
+    import random
+    rnd = random.Random(seed)
+    idx = doc_index(sp_key)
+    cu = {x[0] for x in clips[i]["luoi"]}
+    nguoi = [(k, d) for k, v in idx.items() if Path(k).exists() for d in v["doan"] if co_nguoi(d) and k not in cu]
+    rnd.shuffle(nguoi)
+    cell, seen = [], set()
+    for k, d in nguoi:
+        if k not in seen:
+            cell.append((k, d))
+            seen.add(k)
+        if len(cell) == 4:
+            break
+    if len(cell) < 4:
+        return clips
+    g = clips[i]["luoi"][0][2]
+    out = list(clips)
+    out[i] = {"luoi": [(k, d["s"], round(min(g, d["e"] - d["s"]), 2)) for k, d in cell]}
+    return out
+
+
 def chia_cau(loi: str, giay: float) -> list:
     """Lời -> [(câu, số giây)] chia theo số chữ (Vbee đọc đều)."""
     import re
@@ -471,6 +515,6 @@ def chon(sp_key: str, cau_list: list, speed: float = 2.0, seed=None, luoi: bool 
             if nhip:  # theo phong cách mẫu: mỗi cảnh ~nhip giây trên timeline
                 muon = min(muon, max(nhip, 0.9) * speed)
             lay = min(d["e"] - d["s"], max(DOAN_MIN * 0.9, muon))
-            out.append((k, d["s"], round(lay, 2), y_doan(d)))
+            out.append((k, d["s"], round(lay, 2), y_doan(d), ll, ci))  # thêm loại cảnh + số câu (để xem trước / đổi)
             con -= lay / speed
     return out

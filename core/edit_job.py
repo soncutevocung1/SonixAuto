@@ -80,6 +80,20 @@ def main(argv):
             log(f"Quét {len(files)} video (đã quét rồi thì bỏ qua)...")
             canh.quet(sp, files, log=log)
             canh.gan_nhan_ai(sp, S, log=log)
+        elif kind in ("lam_video", "hang_loat"):
+            from core import edit_video
+            cfg = json.loads(Path(argv[2]).read_text(encoding="utf-8"))
+            if kind == "lam_video":
+                kb = json.loads(Path(cfg["kb"]).read_text(encoding="utf-8"))
+                edit_video.lam_video(cfg["sp"], kb, S, ten=cfg.get("ten", ""), nhac=cfg.get("nhac", ""),
+                                     luoi=cfg.get("luoi", True), log=log)
+                Path(cfg["kb"]).write_text(json.dumps(kb, ensure_ascii=False, indent=1), encoding="utf-8")
+            else:
+                edit_video.hang_loat(cfg["sp"], int(cfg["n"]), S, y_tuong=cfg.get("y_tuong", ""),
+                                     nhac=cfg.get("nhac", ""), luoi=cfg.get("luoi", True), log=log)
+        elif kind == "cai_khuon":
+            from core import edit_video, khuon
+            log(khuon.cai_dat(edit_video.input_root(S) / edit_video.TAI_NGUYEN, log=log))
         elif kind == "hoc_mau":
             from core import mau
             ten = Path(argv[2]).read_text(encoding="utf-8").strip()

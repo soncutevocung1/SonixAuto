@@ -92,13 +92,27 @@ def ten_an_toan(s: str) -> str:
     return re.sub(r'[<>:"/\\|?*]', " ", s).strip()[:80] or "SONIX"
 
 
-def tao_du_an(sp_key: str, kb: dict, giong_path: str, S: dict, ten: str = "", nhac: str = "", luoi: bool = True,
-              seed=None, nhip: float = 0) -> dict:
-    """Chọn cảnh theo câu thoại rồi tạo dự án CapCut. nhac: đường dẫn file nhạc, '' = ngẫu nhiên, 'none' = không.
-    nhip: số giây mỗi cảnh theo phong cách mẫu (0 = mặc định)."""
+def nhip_phong_cach(S: dict) -> float:
+    from core import mau
+    return mau.doc(S["edit_phong_cach"]).get("nhip", 0) if S.get("edit_phong_cach") else 0
+
+
+def chon_canh(sp_key: str, kb: dict, giong_path: str, S: dict, luoi: bool = True, seed=None) -> list:
     from core import canh
     dur = probe(giong_path)["duration"]
-    clips = canh.chon(sp_key, canh.chia_cau(kb["loi"], dur), seed=seed, luoi=luoi, nhip=nhip)
+    return canh.chon(sp_key, canh.chia_cau(kb["loi"], dur), seed=seed, luoi=luoi, nhip=nhip_phong_cach(S))
+
+
+def tao_du_an(sp_key: str, kb: dict, giong_path: str, S: dict, ten: str = "", nhac: str = "", luoi: bool = True,
+              seed=None, nhip: float = None, clips: list = None) -> dict:
+    """Chọn cảnh theo câu thoại (hoặc dùng clips đã duyệt) rồi tạo dự án CapCut.
+    nhac: đường dẫn file nhạc, '' = ngẫu nhiên, 'none' = không. nhip: giây mỗi cảnh (None = theo phong cách đang chọn)."""
+    from core import canh
+    if not clips:
+        dur = probe(giong_path)["duration"]
+        clips = canh.chon(sp_key, canh.chia_cau(kb["loi"], dur), seed=seed, luoi=luoi,
+                          nhip=nhip_phong_cach(S) if nhip is None else nhip)
+    clips = [c if isinstance(c, dict) else tuple(c) for c in clips]
     if not clips:
         raise capcut_draft.CapCutError("Chưa có cảnh dùng được. Bấm 'Quét cảnh' cho sản phẩm này trước.")
     if nhac == "none":
@@ -109,3 +123,63 @@ def tao_du_an(sp_key: str, kb: dict, giong_path: str, S: dict, ten: str = "", nh
         music = capcut_draft.tach_nhac(src, EDIT_DIR / "nhac") if src else ""
     ten = ten_an_toan(ten or f"SONIX {kich_ban.SAN_PHAM[sp_key]['ten']} {time.strftime('%d-%m %H%M')}")
     return capcut_draft.tao_du_an(S.get("edit_template") or TEMPLATE, ten, clips, giong_path, music, kb["tieu_de"])
+
+
+def cho_capcut_tat(log=print, phut: int = 30):
+    """Chờ người dùng tắt CapCut (tối đa `phut` phút)."""
+    if not capcut_draft.capcut_dang_mo():
+        return
+    log("CapCut đang mở: bác tắt CapCut để tool ghi dự án (tool chờ tối đa 30 phút)...")
+    end = time.time() + phut * 60
+    while capcut_draft.capcut_dang_mo():
+        if time.time() > end:
+            raise capcut_draft.CapCutError("Chờ quá lâu, CapCut vẫn mở")
+        time.sleep(5)
+
+
+def lam_video(sp_key: str, kb: dict, S: dict, ten: str = "", nhac: str = "", luoi: bool = True, seed=None,
+              log=print) -> dict:
+    """1 nút: lồng tiếng (nếu chưa có / lời đã đổi) -> chọn cảnh (hoặc dùng cảnh đã duyệt) -> tạo dự án CapCut."""
+    g = kb.get("giong")
+    if not g or not Path(g).exists():
+        g = tao_giong(kb["loi"], EDIT_DIR / "giong" / f"{sp_key}_{time.strftime('%Y%m%d_%H%M%S')}.mp3", S, log)["path"]
+        kb["giong"], kb["canh"] = g, None
+        log(f"Giọng xong: {probe(g)['duration']:.1f} giây")
+    clips = kb.get("canh") if kb.get("canh_giong") == g else None
+    if clips:
+        log(f"Dùng {len(clips)} cảnh đã duyệt")
+    else:
+        log("Chọn cảnh theo từng câu...")
+        clips = chon_canh(sp_key, kb, g, S, luoi=luoi, seed=seed)
+    cho_capcut_tat(log)
+    log("Tạo dự án CapCut...")
+    r = tao_du_an(sp_key, kb, g, S, ten=ten, nhac=nhac, luoi=luoi, clips=clips)
+    log(f"Đã tạo dự án: {r['name']} ({r['duration']:.1f} giây)")
+    return r
+
+
+def hang_loat(sp_key: str, n: int, S: dict, y_tuong: str = "", nhac: str = "", luoi: bool = True, log=print) -> list:
+    """Làm n video liền: mỗi video AI viết lời mới (khác các bản trước) -> lồng tiếng -> chọn cảnh -> dự án CapCut."""
+    from core import mau
+    pc = mau.doc(S["edit_phong_cach"]) if S.get("edit_phong_cach") else {}
+    mau_loi = mau.loi_mau(pc["ten"]) if pc else [x for v in kich_ban_tham_khao().values() for x in v]
+    da, out = [], []
+    stamp = time.strftime("%d-%m %H%M")
+    for i in range(1, n + 1):
+        log(f"=== Video {i}/{n}: AI viết lời...")
+        y = y_tuong + (("\nĐÃ VIẾT CÁC BẢN SAU, bản này phải khác câu mở và cách dẫn: " + " | ".join(da[-4:]))
+                       if da else "")
+        try:
+            kb = kich_ban.viet(sp_key, mau_loi, S, y_tuong=y, phong_cach=pc or None)
+        except Exception as e:
+            log(f"Viết lời lỗi: {e}")
+            continue
+        da.append(kb["loi"][:80])
+        try:
+            r = lam_video(sp_key, kb, S, ten=f"SONIX {kich_ban.SAN_PHAM[sp_key]['ten'].upper()} {stamp} #{i}",
+                          nhac=nhac, luoi=luoi, seed=i * 7, log=log)
+            out.append(r)
+        except Exception as e:
+            log(f"Video {i} lỗi: {e}")
+    log(f"Xong {len(out)}/{n} video")
+    return out

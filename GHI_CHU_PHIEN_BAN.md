@@ -1,5 +1,11 @@
 # Ghi chú phiên bản Sonix Auto
 
+## 2.6.2
+- **Chạy được trên máy khác**: máy chưa có dự án mẫu trong CapCut hoặc chưa có nhạc nền thì Edit Video hiện nút **Tải và cài khuôn Reup Aff** (khoảng 210 MB, gồm khung, người dẫn, nền theme, 2 nhạc kịch tính). Tool tự cài vào CapCut, tự sửa đường dẫn, không cần chép tay.
+- **Xem trước cảnh**: bấm **Chọn cảnh** để xem ảnh từng cảnh theo từng câu (loại cảnh, câu số mấy); cảnh nào không ưng bấm **Đổi** (đổi sang cảnh khác cùng loại), khung 4 ô có **Đổi 4 người**. Tạo dự án sẽ dùng đúng các cảnh đã duyệt.
+- **Bấm 1 nút ra video**: nút **Lồng tiếng + chọn cảnh + tạo dự án** chạy nền, hiện tiến độ; CapCut đang mở thì tool chờ bác tắt rồi mới ghi.
+- **Làm hàng loạt**: chọn số video (1-10), AI viết lời mới cho từng video (không trùng câu mở), lồng tiếng, chọn cảnh, tạo dự án CapCut liền.
+
 ## 2.6.1
 - **Phong cách mẫu**: thư mục `SONIX_EDIT_VIDEO\MẪU`, mỗi thư mục con là 1 phong cách edit (tự đặt tên, vd `Reup Aff`), bỏ vài video mẫu vào. Trong app chọn **Làm theo phong cách mẫu** → **Học phong cách này**: tool nghe chép lời các video mẫu, đo nhịp cắt cảnh, AI tóm tắt cách làm (mở đầu, giọng, chữ, nhịp, cách chốt). Sau đó AI viết lời theo đúng phong cách đó và dự án CapCut cắt cảnh theo nhịp của mẫu.
 - Máy chưa có thư mục `MẪU` / `CHƯA LỌC` trong `SONIX_EDIT_VIDEO`: tool tự tạo.
