@@ -1,5 +1,12 @@
 # Ghi chú phiên bản Sonix Auto
 
+## 2.6.0
+- Máy chưa có thư mục nguồn của Edit Video: tool tự tạo **`SONIX_EDIT_VIDEO`** cùng ổ với `SONIX_UP_VIDEO`, có sẵn thư mục `CHƯA LỌC` (bỏ video lẫn lộn vào để tự lọc) và `TÀI NGUYÊN` (nhạc nền, khung, người dẫn).
+- Sonix Edit Video có **6 sản phẩm**: Đạm cá Amino, Kích rễ TC01, Nano Đồng, Canxi Bo, Siêu bám dính, Bọ trĩ Top One. Mục **Thông tin sản phẩm** để điền thành phần, công dụng, cách pha (AI viết lời dựa vào đây), chữ trên nhãn và từ khoá tên file.
+- **Tự lọc video theo sản phẩm**: chọn thư mục video lẫn lộn, tool nhận ra sản phẩm theo tên file → chữ trên nhãn → AI xem hình, rồi chép (hoặc chuyển) vào thư mục MỚI theo sản phẩm, tên kèm tên đợt (vd `KÍCH RỄ 13-11-2026`); thư mục có sẵn giữ nguyên, trùng tên thì phải đặt tên đợt khác. Không rõ / nhiều sản phẩm → `CẦN XEM`. Edit Video tự dùng cả thư mục cũ và các đợt mới.
+- Lọc cảnh kỹ hơn: bỏ cảnh có sản phẩm khác (vd cảnh Nano Đồng lẫn trong thư mục Đạm cá), bắt cả phụ đề nhỏ; AI xem ảnh to hơn; không lặp 1 video trong 4 cảnh liền, không quá 3 cảnh cùng loại liền nhau.
+- Giọng **ElevenLabs** (dán API Key, chọn giọng trong tài khoản, mẫu Eleven v3 / Flash v2.5, tốc độ).
+
 ## 2.5.2
 - Đổi tên thư mục video cho dễ nhận biết (tool tự đổi lúc mở lại sau cập nhật, trước khi bộ đăng chạy):
   - `VIDEO_TIKTOK` → **`SONIX_UP_VIDEO`** (thư mục gốc của Sonix Up Video; Cài đặt tự trỏ sang tên mới).

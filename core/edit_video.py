@@ -24,9 +24,22 @@ def input_root(S: dict = None) -> Path:
     return INPUT_ROOT if INPUT_ROOT.exists() or not INPUT_OLD.exists() else INPUT_OLD
 
 
+def thu_muc_sp(sp_key: str, root: Path = None) -> list:
+    """Mọi thư mục của sản phẩm: "KÍCH RỄ", "KÍCH RỄ 13-11-2026" (các đợt tự lọc)... (so không phân biệt dấu)."""
+    from core.san_pham import khong_dau
+    root = Path(root or input_root())
+    ten = khong_dau(kich_ban.SAN_PHAM[sp_key]["thu_muc"])
+    if not root.exists():
+        return []
+    return sorted(d for d in root.iterdir() if d.is_dir() and (khong_dau(d.name) == ten
+                                                               or khong_dau(d.name).startswith(ten + " ")))
+
+
 def thu_muc_clip(sp_key: str, root: Path = None) -> list:
-    folder = Path(root or INPUT_ROOT) / kich_ban.SAN_PHAM[sp_key]["thu_muc"]
-    return sorted(p for p in folder.rglob("*") if p.suffix.lower() in VIDEO_EXTS)
+    out = []
+    for folder in thu_muc_sp(sp_key, root):
+        out += [p for p in folder.rglob("*") if p.suffix.lower() in VIDEO_EXTS]
+    return sorted(set(out))
 
 
 def nhac_nen(root: Path = None) -> list:
@@ -52,8 +65,18 @@ def kich_ban_tham_khao() -> dict:
 def tao_giong(loi: str, out: Path, S: dict, log=print) -> dict:
     """Theo Cài đặt: edit_voice_engine = 'vbee' | 'mien_phi'."""
     out = Path(out)
+    eng = S.get("edit_voice_engine", "vbee")
+    if eng == "eleven":
+        from core import elevenlabs
+        k = elevenlabs.key(S)
+        if k:
+            log("ElevenLabs đang lồng tiếng...")
+            elevenlabs.tao_giong(loi, str(out), k, S.get("eleven_voice", ""), S.get("eleven_model") or
+                                 elevenlabs.DEFAULT_MODEL, float(S.get("eleven_speed") or 1.0))
+            return {"path": str(out), "duration": probe(str(out))["duration"], "nguon": "elevenlabs"}
+        raise elevenlabs.ElevenError("Chưa có mã ElevenLabs: dán vào mục Kết nối ElevenLabs")
     app_id, token = vbee.keys(S)
-    if S.get("edit_voice_engine", "vbee") == "vbee" and app_id and token:
+    if eng == "vbee" and app_id and token:
         log("Vbee đang lồng tiếng...")
         vbee.tao_giong(loi, str(out), app_id, token, S.get("vbee_voice") or vbee.DEFAULT_VOICE,
                        float(S.get("vbee_speed") or vbee.DEFAULT_SPEED))

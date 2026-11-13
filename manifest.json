@@ -1,7 +1,7 @@
 {
- "version": "2.5.2",
- "built_at": "2026-11-13T01:51:45Z",
- "notes": "- Đổi tên thư mục video cho dễ nhận biết (tool tự đổi lúc mở lại sau cập nhật, trước khi bộ đăng chạy):\n  - `VIDEO_TIKTOK` → **`SONIX_UP_VIDEO`** (thư mục gốc của Sonix Up Video; Cài đặt tự trỏ sang tên mới).\n  - `VIDEO_INPUT` → **`SONIX_EDIT_VIDEO`** (thư mục nguồn của Sonix Edit Video; cảnh đã quét và dự án CapCut do tool tạo tự sửa đường dẫn).\n  - Chỉ đổi khi thư mục đang đúng tên cũ. Đang mở thư mục đó trong File Explorer thì có thể chưa đổi được, mở lại tool lần sau sẽ tự thử lại.",
+ "version": "2.6.0",
+ "built_at": "2026-11-13T02:25:49Z",
+ "notes": "- Máy chưa có thư mục nguồn của Edit Video: tool tự tạo **`SONIX_EDIT_VIDEO`** cùng ổ với `SONIX_UP_VIDEO`, có sẵn thư mục `CHƯA LỌC` (bỏ video lẫn lộn vào để tự lọc) và `TÀI NGUYÊN` (nhạc nền, khung, người dẫn).\n- Sonix Edit Video có **6 sản phẩm**: Đạm cá Amino, Kích rễ TC01, Nano Đồng, Canxi Bo, Siêu bám dính, Bọ trĩ Top One. Mục **Thông tin sản phẩm** để điền thành phần, công dụng, cách pha (AI viết lời dựa vào đây), chữ trên nhãn và từ khoá tên file.\n- **Tự lọc video theo sản phẩm**: chọn thư mục video lẫn lộn, tool nhận ra sản phẩm theo tên file → chữ trên nhãn → AI xem hình, rồi chép (hoặc chuyển) vào thư mục MỚI theo sản phẩm, tên kèm tên đợt (vd `KÍCH RỄ 13-11-2026`); thư mục có sẵn giữ nguyên, trùng tên thì phải đặt tên đợt khác. Không rõ / nhiều sản phẩm → `CẦN XEM`. Edit Video tự dùng cả thư mục cũ và các đợt mới.\n- Lọc cảnh kỹ hơn: bỏ cảnh có sản phẩm khác (vd cảnh Nano Đồng lẫn trong thư mục Đạm cá), bắt cả phụ đề nhỏ; AI xem ảnh to hơn; không lặp 1 video trong 4 cảnh liền, không quá 3 cảnh cùng loại liền nhau.\n- Giọng **ElevenLabs** (dán API Key, chọn giọng trong tài khoản, mẫu Eleven v3 / Flash v2.5, tốc độ).",
  "files": [
   {
    "path": ".gitattributes",
@@ -70,8 +70,8 @@
   },
   {
    "path": "core/canh.py",
-   "sha256": "8960d25a5caa2968bc0447f93a465193b6749bec4b07afda9dc61c1af0c53d85",
-   "size": 20014
+   "sha256": "0e334fe8116047ed109b7788a948c3552a7b1511286aff29e65fb32ff1953bff",
+   "size": 22686
   },
   {
    "path": "core/capcut_draft.py",
@@ -115,23 +115,28 @@
   },
   {
    "path": "core/doi_thu_muc.py",
-   "sha256": "e8325396a6643b562a9af7584a2482d7c41ec63c5d2e6f48ef806dae4539a6f0",
-   "size": 3237
+   "sha256": "19a5472a4dcbbb61d7eabe18ff87da3ac09270f8faf5cc1fc85adb677d14d2fd",
+   "size": 4593
   },
   {
    "path": "core/edit_job.py",
-   "sha256": "e46df61b54b58d0de8dc02b7648867dc2bb71fb6c2b8f8f3f58c9411f88871bd",
-   "size": 3101
+   "sha256": "0531136f6940b966024971544b7bb180b3badc3fe3585cc15f196036af17791d",
+   "size": 3417
   },
   {
    "path": "core/edit_ui.py",
-   "sha256": "fa8664c1e2bbe776ce85586c43a4f59dba94e27cc5a12d69226df7061d66c4b8",
-   "size": 14158
+   "sha256": "b2788ae1672fc82223d2c0a6d835d2594def8d8a30ef246d67e652f1a6f109ab",
+   "size": 20553
   },
   {
    "path": "core/edit_video.py",
-   "sha256": "ace0c74831fee5cbb189fadfed0b113ecd24e9192308f324a5c24ef5b37ead83",
-   "size": 3678
+   "sha256": "eefaf93fa929c26a3b978e1221d8f15bc02c95463195cfeb4b015a6467585fda",
+   "size": 4841
+  },
+  {
+   "path": "core/elevenlabs.py",
+   "sha256": "959645a613f4e203b162e6cfbd8d5009f2a5740331876f20306bded24391c9e3",
+   "size": 3345
   },
   {
    "path": "core/facebook.py",
@@ -155,8 +160,13 @@
   },
   {
    "path": "core/kich_ban.py",
-   "sha256": "1985d4a08c1e936d74af05ef036f1490daf2e307fa299dd3004e0ce6351ef7ee",
-   "size": 6272
+   "sha256": "12867a44a793aecfb8c477817451122cec7d4d708c319836501cf985d0fb092a",
+   "size": 5484
+  },
+  {
+   "path": "core/loc_sp.py",
+   "sha256": "5275f339fd12e1dc7e4ec6450bcc675ac984e9146835bd85be7b225214159708",
+   "size": 6301
   },
   {
    "path": "core/products.py",
@@ -172,6 +182,11 @@
    "path": "core/queue_ui.py",
    "sha256": "39e074cb744afd8ae2a29c2bc2614cc120a737e7f1c1b1b29baa26079474dd5a",
    "size": 13967
+  },
+  {
+   "path": "core/san_pham.py",
+   "sha256": "06e2103a0fb4346c30036088387f7560b5acec660ec5a74391505df79f6a1261",
+   "size": 5093
   },
   {
    "path": "core/schedule.py",
@@ -235,8 +250,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "29a5846d2a80e0038708f07ed66aeffd473219c4e2bc7abe3f2037f0a1e4b0b8",
-   "size": 14882
+   "sha256": "be28e64a3193fc0db9e92bc0bb4974411659b67e46d92cd9a6187a0aab012892",
+   "size": 16335
   },
   {
    "path": "HUONG_DAN.md",
@@ -280,7 +295,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "d9dfad11d924947ee4b564ef5499b37b7388e28fa59f97610dda6ca0f464f1f8",
+   "sha256": "e33ccf6527ddb87b2dc894b17dd846206c5d18334710d253f7f366f2c4403fe0",
    "size": 5
   }
  ]

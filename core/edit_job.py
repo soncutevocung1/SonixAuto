@@ -3,6 +3,7 @@
 python -m core.edit_job quet_canh <sp_key>
 python -m core.edit_job quet_kenh <ten_kenh> <file_link.txt>
 """
+import json
 import os
 import sys
 import time
@@ -79,6 +80,11 @@ def main(argv):
             log(f"Quét {len(files)} video (đã quét rồi thì bỏ qua)...")
             canh.quet(sp, files, log=log)
             canh.gan_nhan_ai(sp, S, log=log)
+        elif kind == "loc_sp":
+            from core import edit_video, loc_sp
+            cfg = json.loads(Path(argv[2]).read_text(encoding="utf-8"))
+            loc_sp.loc(Path(cfg["nguon"]), edit_video.input_root(S), cfg["ten_dot"], S,
+                       chuyen=cfg.get("chuyen", False), log=log)
         elif kind == "quet_kenh":
             from core import tham_khao
             ten, f = argv[1], argv[2]

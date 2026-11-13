@@ -7,22 +7,8 @@ import random
 
 from core.config import MODELS, NO_AI
 
-# Thông tin sản phẩm (anh Sơn kiểm tra / sửa trong tool)
-SAN_PHAM = {
-    "dam_ca": {
-        "ten": "Đạm cá Amino", "quy_cach": "can 5 lít", "thu_muc": "ĐẠM CÁ",
-        "thong_tin": "Phân bón hữu cơ từ cá tươi thuỷ phân, dịch sánh mịn, đậm đặc, không tanh không hôi. "
-                     "Bổ sung 17 loại axit amin, humic, trung vi lượng. 1 can pha 2.000 lít nước, tưới hoặc phun, "
-                     "dùng được cho mọi loại cây. Công dụng: cây bung đọt, xanh dày lá, phục hồi cây còi cọc, "
-                     "suy kiệt sau thu hoạch, cải tạo đất tơi xốp.",
-    },
-    "tc01": {
-        "ten": "Kích rễ TC01", "quy_cach": "chai 100ml", "thu_muc": "KÍCH RỄ",
-        "thong_tin": "Kích rễ giâm cành TC01, chứa Atonik tác động thẳng vào bộ rễ, bổ sung NPK dễ hấp thu. "
-                     "Rễ tơ bung trắng, cây bung chồi, đẻ nhánh khoẻ. 1 chai 100ml pha 100 lít nước, "
-                     "5-7 ngày tưới 1 lần, cây nào cũng dùng được.",
-    },
-}
+# Danh mục sản phẩm dùng chung (sửa trong app, lưu data/edit/san_pham.json)
+from core.san_pham import SAN_PHAM  # noqa: E402
 
 CONG_THUC = """Phong cách: kênh TikTok "giảm giá kịch tính" bán phân bón cho bà con nhà vườn.
 Lời đọc 35-45 giây (110-140 chữ), giọng bản tin giật gân, xưng "bà con". Văn NÓI liền mạch: mỗi câu dài
@@ -65,6 +51,8 @@ def _goi_ai(prompt: str, settings: dict, model: str) -> dict:
 def viet(sp_key: str, tham_khao: list, settings: dict, model: str = "", y_tuong: str = "") -> dict:
     """Trả về {'tieu_de': '3 dòng\\n', 'loi': '...'}."""
     sp = SAN_PHAM[sp_key]
+    if not (sp.get("thong_tin") or "").strip():
+        raise ValueError(f"Chưa có thông tin sản phẩm {sp['ten']}: điền ở mục 'Thông tin sản phẩm' trước khi viết kịch bản")
     model = model or settings.get("ai_model") or NO_AI
     if model == NO_AI or model not in MODELS:
         return mau_khong_ai(sp_key)

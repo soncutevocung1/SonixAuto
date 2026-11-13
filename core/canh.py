@@ -8,6 +8,7 @@ Mỗi video nguồn -> cắt thành đoạn ngắn (theo cảnh quay) -> lấy 1
 Kết quả lưu data/edit/canh/<sp_key>.json, video nào quét rồi (cùng thời gian sửa) thì bỏ qua.
 """
 import json
+import os
 import subprocess
 import sys
 import unicodedata
@@ -93,8 +94,15 @@ def soi_khung(img, sp_key: str) -> dict:
     faces = [f for f in _face().detect(mp.Image(image_format=mp.ImageFormat.SRGB, data=np.ascontiguousarray(rgb))).detections
              if f.bounding_box.width * f.bounding_box.height > 0.004 * w * h]
     res, _ = _ocr()(img, use_cls=False)
-    kw = TU_KHOA.get(sp_key, [])
+    from .san_pham import SAN_PHAM
+    kw = (SAN_PHAM.get(sp_key) or {}).get("nhan") or TU_KHOA.get(sp_key, [])
+    kw = kw + ["PHAN BON", "HUONG DAN"]
     nhan, khac = [], []
+    # chữ nhãn của sản phẩm KHÁC (video nguồn hay lẫn: thư mục Đạm cá có cảnh Nano Đồng...)
+    kw_khac = {k: [x for x in v.get("nhan", []) if len(x) >= 5 and x not in kw]
+               for k, v in SAN_PHAM.items() if k != sp_key}
+    toan_bo = " ".join(_khong_dau(x[1]) for x in (res or []))
+    sp_khac = [k for k, ws in kw_khac.items() if any(x in toan_bo for x in ws)]
     for box, txt, sc in (res or []):
         p = np.array(box, float)
         x0, y0, x1, y1 = p[:, 0].min() / w, p[:, 1].min() / h, p[:, 0].max() / w, p[:, 1].max() / h
@@ -121,12 +129,12 @@ def soi_khung(img, sp_key: str) -> dict:
         cao = b[3] - b[1]
         t = _khong_dau(b[4])
         chu = sum(c.isalnum() for c in t)
-        if any(k in t for k in ("HOTLINE", "LIT", "100%", "CUC", "NHANH", "MANH")) and chu < 14:
+        if "HOTLINE" in t or (any(k in t for k in ("LIT", "100%", "CUC", "NHANH", "MANH")) and chu < 14):
             continue  # chữ in trên can (huy hiệu, dung tích, hotline)
         if cao >= 0.028 and b[5] >= 0.6 and chu >= 4:
             chen.append([round(float(v), 3) for v in b[:4]] + [b[4]])
     return {"nguoi": len(faces), "chu_chen": chen, "sp": [round(float(v), 3) for v in sp] if sp else None,
-            "vien_den": round(_vien_den(img), 2)}
+            "vien_den": round(_vien_den(img), 2), "sp_khac": sp_khac}
 
 
 def do_day(sp_box) -> float:
@@ -220,7 +228,8 @@ def quet_video(path: str, sp_key: str) -> dict:
         r = soi_khung(img, sp_key)
         r.update(s=s, e=round(e, 2), y=do_day(r["sp"]), tinh=do_dong(path, s, e))
         doan.append(r)
-    return {"mtime": Path(path).stat().st_mtime, "dur": p["duration"], "w": p["width"], "h": p["height"],
+    return {"mtime": os.stat("\\\\?\\" + os.path.abspath(str(path))).st_mtime, "dur": p["duration"],
+            "w": p["width"], "h": p["height"],
             "doan": doan}
 
 
@@ -229,8 +238,11 @@ def quet(sp_key: str, files: list, log=print) -> dict:
     idx = doc_index(sp_key)
     for i, f in enumerate(files, 1):
         k = str(f)
-        if k in idx and abs(idx[k]["mtime"] - Path(f).stat().st_mtime) < 1:
-            continue
+        try:
+            if k in idx and abs(idx[k]["mtime"] - os.stat("\\\\?\\" + os.path.abspath(k)).st_mtime) < 1:
+                continue
+        except OSError:
+            pass
         try:
             idx[k] = quet_video(k, sp_key)
             n = idx[k]["doan"]
@@ -253,30 +265,33 @@ AI_SCHEMA = {
             "loai": {"type": "string", "enum": LOAI},
             "nguoi": {"type": "boolean", "description": "thấy mặt / thân người rõ (chỉ bàn tay thì false)"},
             "chu_chen": {"type": "boolean", "description": "có chữ, sticker, phụ đề, khung bình luận chèn thêm (KHÔNG tính chữ in trên nhãn sản phẩm)"},
+            "sp_khac": {"type": "boolean", "description": "thấy rõ một sản phẩm KHÁC sản phẩm đang làm video"},
             "sp_day": {"type": "number", "description": "mép dưới sản phẩm, 0 = đỉnh ảnh, 1 = đáy ảnh; không có sản phẩm thì 0"},
             "dep": {"type": "integer", "description": "1-5: hình rõ, đẹp, đúng chủ đề phân bón"},
         },
-        "required": ["so", "loai", "nguoi", "chu_chen", "sp_day", "dep"], "additionalProperties": False}}},
+        "required": ["so", "loai", "nguoi", "chu_chen", "sp_khac", "sp_day", "dep"], "additionalProperties": False}}},
     "required": ["canh"], "additionalProperties": False,
 }
+AI_VER = 2  # đổi cách hỏi AI thì tăng số này: các đoạn gắn nhãn bằng bản cũ sẽ được AI xem lại
 AI_HUONG_DAN = (
-    "Các ảnh dưới đây là khung hình cắt từ video bán phân bón {ten}, đánh số trên góc. Với MỖI ảnh cho biết:\n"
-    "- loai: san_pham (cận sản phẩm/bao bì, đập hộp, cầm can), su_dung (pha, đổ, tưới, phun, đong), "
-    "ket_qua (cây, lá, rễ, hoa, quả, vườn tốt sau khi dùng), khac (không liên quan / mờ / màn hình đen / "
-    "đang thấy rõ một sản phẩm KHÁC không phải {ten})\n"
+    "Các ảnh dưới đây là khung hình cắt từ video bán {ten} ({hinh}), đánh số trên góc. "
+    "Các sản phẩm KHÁC cùng hãng hay lẫn vào: {khac}.\nVới MỖI ảnh cho biết:\n"
+    "- loai: san_pham (cận sản phẩm/bao bì, đập hộp, cầm chai/can), su_dung (pha, đổ, tưới, phun, đong), "
+    "ket_qua (cây, lá, rễ, hoa, quả, vườn tốt sau khi dùng), khac (không liên quan / mờ / màn hình đen)\n"
     "- nguoi: có mặt hoặc thân người thấy rõ (chỉ bàn tay cầm sản phẩm thì false)\n"
-    "- chu_chen: có chữ / sticker / phụ đề / khung bình luận / logo kênh chèn thêm lên video "
-    "(chữ in sẵn trên nhãn sản phẩm KHÔNG tính)\n"
+    "- chu_chen: có chữ / sticker / phụ đề / khung bình luận / logo kênh / nút Follow chèn thêm lên video, "
+    "KỂ CẢ dòng phụ đề nhỏ ở giữa hoặc dưới ảnh (chữ in sẵn trên nhãn sản phẩm KHÔNG tính)\n"
+    "- sp_khac: thấy rõ chai/can/gói của sản phẩm KHÁC {ten} (sản phẩm khác cùng hãng ở trên, hay hãng khác)\n"
     "- sp_day: mép dưới của sản phẩm theo chiều cao ảnh (0-1), không có sản phẩm thì 0\n"
     "- dep: 1-5")
 
 
-def _tam_anh(imgs: list, path: Path):
-    """Ghép tối đa 12 khung (đánh số) thành 1 ảnh để gửi AI 1 lần."""
+def _tam_anh(imgs: list, path: Path, rong: int = 240):
+    """Ghép các khung (đánh số, 6 khung / hàng) thành 1 ảnh để gửi AI 1 lần."""
     import cv2
     tiles = []
     for i, im in enumerate(imgs, 1):
-        t = cv2.resize(im, (240, int(240 * im.shape[0] / im.shape[1])))
+        t = cv2.resize(im, (rong, int(rong * im.shape[0] / im.shape[1])))
         cv2.rectangle(t, (0, 0), (46, 34), (0, 0, 0), -1)
         cv2.putText(t, str(i), (4, 27), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 255), 2)
         tiles.append(t)
@@ -297,19 +312,25 @@ def gan_nhan_ai(sp_key: str, settings: dict, model: str = "", log=print) -> dict
         log("Không có AI -> chỉ dùng kết quả dò trên máy")
         return doc_index(sp_key)
     idx = doc_index(sp_key)
+    # chưa gắn nhãn, hoặc gắn bằng cách hỏi cũ; bỏ qua đoạn chắc chắn hỏng (có người + ảnh tĩnh / viền đen)
     can = [(k, i) for k, v in idx.items() for i, d in enumerate(v["doan"])
-           if "loai" not in d and d.get("vien_den", 0) < 0.3 and d.get("tinh", 0) < 0.4]
+           if d.get("ai_ver", 1 if "loai" in d else 0) < AI_VER and d.get("vien_den", 0) < 0.3
+           and d.get("tinh", 0) < 0.4 and not d.get("sp_khac")]
     log(f"AI xem {len(can)} đoạn...")
     tmp = CANH_DIR / "_tam.jpg"
-    for j in range(0, len(can), 12):
-        nhom = can[j:j + 12]
-        imgs = [khung(k, (idx[k]["doan"][i]["s"] + idx[k]["doan"][i]["e"]) / 2) for k, i in nhom]
+    sp = kich_ban.SAN_PHAM[sp_key]
+    huong_dan = AI_HUONG_DAN.format(ten=sp["ten"], hinh=sp.get("hinh", ""),
+                                    khac="; ".join(f"{v['ten']} ({v.get('hinh', '')})"
+                                                   for k_, v in kich_ban.SAN_PHAM.items() if k_ != sp_key))
+    N = 6  # 6 khung / lần, ảnh to hơn để AI đọc được phụ đề nhỏ
+    for j in range(0, len(can), N):
+        nhom = can[j:j + N]
+        imgs = [khung(k, (idx[k]["doan"][i]["s"] + idx[k]["doan"][i]["e"]) / 2, 400) for k, i in nhom]
         ok = [(n, im) for n, im in zip(nhom, imgs) if im is not None]
         if not ok:
             continue
-        _tam_anh([im for _, im in ok], tmp)
-        content = [{"type": "text", "text": AI_HUONG_DAN.format(ten=kich_ban.SAN_PHAM[sp_key]["ten"])},
-                   analyze._img(tmp)]
+        _tam_anh([im for _, im in ok], tmp, 360)
+        content = [{"type": "text", "text": huong_dan}, analyze._img(tmp)]
         try:
             if model.startswith("gemini"):
                 r = analyze._gemini(content, AI_SCHEMA, settings, model, system="Bạn phân loại cảnh quay video.")
@@ -324,9 +345,11 @@ def gan_nhan_ai(sp_key: str, settings: dict, model: str = "", log=print) -> dict
                 k, i = ok[n][0]
                 d = idx[k]["doan"][i]
                 d.update(loai=c["loai"], ai_nguoi=c["nguoi"], ai_chu=c["chu_chen"], dep=c["dep"],
+                         ai_sp_khac=c.get("sp_khac", False), ai_ver=AI_VER,
                          ai_sp_day=c["sp_day"])  # nhãn không đọc được chữ -> dùng vị trí AI ước
         _luu(sp_key, idx)
-        log(f"   {min(j + 12, len(can))}/{len(can)}")
+        if (j // N) % 10 == 0 or j + N >= len(can):
+            log(f"   {min(j + N, len(can))}/{len(can)}")
     return idx
 
 
@@ -334,11 +357,15 @@ def gan_nhan_ai(sp_key: str, settings: dict, model: str = "", log=print) -> dict
 def _sach(d: dict) -> bool:
     """Không chữ chèn, không ảnh tĩnh/giật, không viền đen, không phải cảnh rác."""
     # AI đã xem thì tin AI về chữ chèn (máy dò hay nhầm chữ trên nhãn); chữ máy dò thấy rất to thì vẫn bỏ
+    # Máy đọc được cả 1 câu dài (>= 10 ký tự) ngoài nhãn: gần như chắc chắn là phụ đề -> bỏ dù AI bảo không
     if "ai_chu" in d:
-        chu = d["ai_chu"] or any(c[3] - c[1] >= 0.05 for c in d["chu_chen"])
+        chu = d["ai_chu"] or any(c[3] - c[1] >= 0.05 or (sum(ch.isalpha() for ch in c[4]) >= 10
+                                                          and "HOTLINE" not in _khong_dau(c[4]))
+                                 for c in d["chu_chen"])
     else:
         chu = bool(d["chu_chen"])
     return (not chu and d.get("tinh", 0) < 0.4 and d.get("vien_den", 0) < 0.3
+            and not d.get("sp_khac") and not d.get("ai_sp_khac")
             and d.get("loai") != "khac" and d.get("dep", 3) >= 2)
 
 
@@ -410,7 +437,7 @@ def chon(sp_key: str, cau_list: list, speed: float = 2.0, seed=None, luoi: bool 
                    if any(w in _khong_dau(c) for w in ["NGUOI DUNG", "TIN DUNG", "BA CON DUNG", "NHAN HANG"])]
             o_luoi = (hit[0] if hit else len(cau_list) // 2, cell)
 
-    dung, out, truoc = set(), [], None
+    dung, out, gan, loai_gan = set(), [], [], []
     for ci, (cau, giay) in enumerate(cau_list):
         if o_luoi and ci == o_luoi[0]:
             cell = o_luoi[1]
@@ -418,23 +445,28 @@ def chon(sp_key: str, cau_list: list, speed: float = 2.0, seed=None, luoi: bool 
             out.append({"luoi": [(k, d["s"], round(g * speed, 2)) for k, d in cell]})
             giay -= g
         l = loai_cau(cau)
-        thu_tu = [l] + [x for x in ("san_pham", "ket_qua", "su_dung") if x != l]
         con = giay
         while con > 0.3:
+            thu_tu = [l] + [x for x in ("san_pham", "ket_qua", "su_dung") if x != l]
+            if loai_gan[-3:] == [l, l, l]:  # 3 cảnh cùng loại liền nhau (vd toàn ruộng) -> chen 1 cảnh khác
+                thu_tu = thu_tu[1:] + thu_tu[:1]
             pick = None
-            for ll in thu_tu:
-                for k, d in kho.get(ll, []):
-                    key = (k, d["s"])
-                    if key not in dung and k != truoc:
-                        pick = (k, d)
+            for tranh in (gan[-4:], gan[-1:]):  # ưu tiên không trùng 4 video gần nhất, hết thì chỉ tránh liền kề
+                for ll in thu_tu:
+                    for k, d in kho.get(ll, []):
+                        if (k, d["s"]) not in dung and k not in tranh:
+                            pick = (k, d, ll)
+                            break
+                    if pick:
                         break
                 if pick:
                     break
             if not pick:
                 return out  # hết cảnh -> capcut_draft tự lặp lại
-            k, d = pick
+            k, d, ll = pick
             dung.add((k, d["s"]))
-            truoc = k
+            gan.append(k)
+            loai_gan.append(ll)
             lay = min(d["e"] - d["s"], max(DOAN_MIN, con * speed + 0.2))
             out.append((k, d["s"], round(lay, 2), y_doan(d)))
             con -= lay / speed

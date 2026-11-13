@@ -86,6 +86,28 @@ def chay():
             S["edit_input_root"] = str(new)
             _sua_du_lieu_edit(str(src), str(new))
             doi = True
+    # Máy chưa từng có thư mục nguồn Edit Video: tạo sẵn cạnh thư mục Up Video (cùng ổ)
+    if not edit_video.input_root(S).exists():
+        goc = Path(S.get("root_folder") or "")
+        o = goc.anchor if goc.anchor and Path(goc.anchor).exists() else edit_video.INPUT_ROOT.anchor
+        if not Path(o).exists():
+            from .channels import default_root
+            o = Path(default_root()).anchor
+        moi = Path(o) / EDIT_NEW
+        try:
+            for sub in ("", "TÀI NGUYÊN", "CHƯA LỌC"):
+                (moi / sub).mkdir(parents=True, exist_ok=True)
+            (moi / "DOC_TRUOC.txt").write_text(
+                "Thư mục nguồn của Sonix Edit Video.\n"
+                "- CHƯA LỌC: bỏ video lẫn lộn vào đây, rồi vào app > Sonix Edit Video > Tự lọc video theo sản phẩm.\n"
+                "  Tool tạo thư mục theo từng sản phẩm (ĐẠM CÁ ..., KÍCH RỄ ...).\n"
+                "- TÀI NGUYÊN: nhạc nền kịch tính (.mp4/.mp3), ảnh khung, video người dẫn.\n"
+                "Dự án CapCut mẫu tên 'mẫu' phải có sẵn trong CapCut.\n", encoding="utf-8")
+            S["edit_input_root"] = str(moi)
+            doi = True
+            _log(f"Đã tạo {moi}")
+        except OSError as e:
+            _log(f"Không tạo được {moi}: {e}")
     if doi:
         save_settings(S)
     return doi

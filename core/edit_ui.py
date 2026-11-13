@@ -93,11 +93,59 @@ def _vbee_setup(S):
             st.rerun()
 
 
+@st.cache_data(ttl=600, show_spinner=False)
+def _eleven_voices(k):
+    from . import elevenlabs
+    return elevenlabs.danh_sach_giong(k)
+
+
+def _eleven(S):
+    from . import elevenlabs
+    k = elevenlabs.key(S)
+    c = st.columns(2)
+    if k:
+        try:
+            voices = _eleven_voices(k)
+        except Exception as e:
+            voices = {}
+            st.error(str(e))
+        cur = S.get("eleven_voice") or (next(iter(voices)) if voices else "")
+        if voices:
+            keys = list(voices)
+            c[0].selectbox("Giọng ElevenLabs (giọng trong tài khoản của bác)", keys,
+                           index=keys.index(cur) if cur in keys else 0, format_func=lambda x: voices[x],
+                           key="ev_el_voice", on_change=_set, args=(S, "eleven_voice", "ev_el_voice"))
+            if cur not in keys:
+                S["eleven_voice"] = keys[0]
+                save_settings(S)
+        ms = list(elevenlabs.MODELS)
+        c[1].selectbox("Mẫu giọng", ms, index=ms.index(S.get("eleven_model") or elevenlabs.DEFAULT_MODEL),
+                       format_func=elevenlabs.MODELS.get, key="ev_el_model",
+                       on_change=_set, args=(S, "eleven_model", "ev_el_model"))
+        c[1].number_input("Tốc độ (0.7 - 1.2)", 0.7, 1.2, float(S.get("eleven_speed") or 1.0), 0.05,
+                          key="ev_el_speed", on_change=_set, args=(S, "eleven_speed", "ev_el_speed"))
+        st.caption("Muốn thêm giọng: vào elevenlabs.io → Voices → Voice Library, bấm Add to my voices "
+                   "(nên chọn giọng tiếng Việt), rồi tải lại trang này.")
+    with st.expander("Kết nối ElevenLabs" + (" (đã có mã)" if k else " (chưa có mã)"), expanded=not k):
+        st.markdown("Vào **elevenlabs.io → Developers → API Keys → Create API Key** (bật quyền **Text to Speech** và "
+                    "**Voices: Read**), chép mã dán vào đây. Mã chỉ lưu trên máy này.")
+        v = st.text_input("API Key", value=S.get("eleven_key", ""), type="password", key="ev_el_key")
+        if st.button("Lưu mã ElevenLabs"):
+            S["eleven_key"] = v.strip()
+            save_settings(S)
+            st.cache_data.clear()
+            st.rerun()
+
+
 def _voice_settings(S):
-    eng = st.radio("Giọng đọc", ["vbee", "mien_phi"], horizontal=True, key="ev_engine",
-                   index=0 if S.get("edit_voice_engine", "vbee") == "vbee" else 1,
-                   format_func=lambda x: {"vbee": "Vbee (trả phí)", "mien_phi": "Miễn phí (Microsoft)"}[x],
+    ten = {"vbee": "Vbee (trả phí)", "eleven": "ElevenLabs (trả phí)", "mien_phi": "Miễn phí (Microsoft)"}
+    cur_eng = S.get("edit_voice_engine", "vbee")
+    eng = st.radio("Giọng đọc", list(ten), horizontal=True, key="ev_engine",
+                   index=list(ten).index(cur_eng) if cur_eng in ten else 0, format_func=ten.get,
                    on_change=_set, args=(S, "edit_voice_engine", "ev_engine"))
+    if eng == "eleven":
+        _eleven(S)
+        return
     c = st.columns(2)
     if eng == "vbee":
         voices = dict(vbee.VOICES)
@@ -224,7 +272,8 @@ def _scenes(S, sp):
     by = {l: sum(1 for d in ok if (d.get("loai") or "") == l) for l in ("san_pham", "su_dung", "ket_qua")}
     nguoi = sum(1 for d in doan if canh.co_nguoi(d))
     da = sum(1 for f in files if str(f) in idx)
-    st.markdown(f"Thư mục: `{edit_video.input_root(S) / kich_ban.SAN_PHAM[sp]['thu_muc']}`  \n"
+    tm = edit_video.thu_muc_sp(sp, edit_video.input_root(S))
+    st.markdown(f"Thư mục: {', '.join(f'`{d.name}`' for d in tm) or 'chưa có (dùng mục Tự lọc ở trên)'}  \n"
                 f"Đã quét **{da}/{len(files)}** video · dùng được **{len(ok)}** đoạn "
                 f"(sản phẩm {by['san_pham']}, cách dùng {by['su_dung']}, kết quả {by['ket_qua']}) · "
                 f"{nguoi} đoạn có người cho khung 4 ô")
@@ -276,11 +325,67 @@ def _project(S, sp, kb, n_ok):
             st.rerun()
 
 
+def _loc(S):
+    """Tự lọc video lẫn lộn thành thư mục theo sản phẩm (mỗi đợt thư mục mới)."""
+    from . import loc_sp
+    root = edit_video.input_root(S)
+    with st.expander("Tự lọc video theo sản phẩm (đưa video mới vào)"):
+        st.markdown("Chọn thư mục chứa video **lẫn lộn** (đặt tên file có tên sản phẩm thì nhận nhanh và chắc hơn). "
+                    "Tool nhận ra sản phẩm theo **tên file → chữ trên nhãn → AI xem hình**, rồi đưa mỗi sản phẩm vào "
+                    f"1 thư mục **mới** trong `{root}`, tên kèm tên đợt (vd `KÍCH RỄ 13-11-2026`). Thư mục có sẵn giữ "
+                    "nguyên. Không nhận ra hoặc nhiều sản phẩm → thư mục `CẦN XEM`. Edit Video tự dùng cả thư mục cũ và mới.")
+        c = st.columns([3, 2, 1])
+        nguon = c[0].text_input("Thư mục video cần lọc", value=str(root / "CHƯA LỌC") if (root / "CHƯA LỌC").exists()
+                                else "", key="ev_loc_src", placeholder=r"vd D:\VIDEO MỚI")
+        ten_dot = c[1].text_input("Tên đợt (gắn sau tên thư mục)", value=time.strftime("%d-%m-%Y"), key="ev_loc_dot")
+        chuyen = c[2].checkbox("Chuyển (không giữ bản gốc)", key="ev_loc_move")
+        trung = loc_sp.trung_ten(root, ten_dot.strip()) if ten_dot.strip() else []
+        if trung:
+            st.error("Đã có thư mục " + ", ".join(f"`{p.name}`" for p in trung) + " trên máy. Bác đặt **tên đợt khác** "
+                     "(vd thêm giờ hoặc số: `13-11-2026 lần 2`).")
+        name = "loc_sp_dot"
+        chay = edit_job.dang_chay(name)
+        ok = nguon.strip() and Path(nguon.strip()).is_dir() and ten_dot.strip() and not trung
+        if nguon.strip() and not Path(nguon.strip()).is_dir():
+            st.caption("Không thấy thư mục này.")
+        if st.button("Bắt đầu lọc", type="primary", disabled=chay or not ok):
+            cfg = edit_job.JOB_DIR / "loc_sp.json"
+            cfg.parent.mkdir(parents=True, exist_ok=True)
+            cfg.write_text(json.dumps({"nguon": nguon.strip(), "ten_dot": ten_dot.strip(), "chuyen": bool(chuyen)},
+                                      ensure_ascii=False), encoding="utf-8")
+            edit_job.chay_ngam(name, "loc_sp", "dot", str(cfg), env=_env(), flags=_flags())
+            st.rerun()
+        _job_box(name, "Tự lọc video")
+
+
+def _thong_tin(S, sp):
+    from . import san_pham
+    info = kich_ban.SAN_PHAM[sp]
+    with st.expander("Thông tin sản phẩm (AI dựa vào đây để viết lời)" + ("" if info.get("thong_tin") else " · CHƯA CÓ"),
+                     expanded=not info.get("thong_tin")):
+        c = st.columns(2)
+        ten = c[0].text_input("Tên đọc trong video", info["ten"], key=f"ev_sp_ten_{sp}")
+        qc = c[1].text_input("Quy cách", info["quy_cach"], key=f"ev_sp_qc_{sp}")
+        tt = st.text_area("Thành phần · công dụng · cách pha · lưu ý (chỉ ghi điều đúng, AI không bịa thêm)",
+                          info.get("thong_tin", ""), height=140, key=f"ev_sp_tt_{sp}")
+        nh = st.text_input("Chữ in trên nhãn (để máy nhận ra, cách nhau dấu phẩy, không dấu)",
+                           ", ".join(info.get("nhan", [])), key=f"ev_sp_nh_{sp}")
+        tf = st.text_input("Từ khoá trong tên file", ", ".join(info.get("ten_file", [])), key=f"ev_sp_tf_{sp}")
+        if st.button("Lưu thông tin sản phẩm", key=f"ev_sp_save_{sp}"):
+            san_pham.luu(sp, ten=ten.strip(), quy_cach=qc.strip(), thong_tin=tt.strip(),
+                         nhan=[san_pham.khong_dau(x.strip()) for x in nh.split(",") if x.strip()],
+                         ten_file=[x.strip() for x in tf.split(",") if x.strip()])
+            st.success("Đã lưu")
+            st.rerun()
+
+
 def render(S):
     st.subheader("Sonix Edit Video: kịch bản → lồng tiếng → dựng sẵn dự án CapCut")
+    _loc(S)
     sps = list(kich_ban.SAN_PHAM)
     sp = st.radio("Sản phẩm", sps, horizontal=True, key="ev_sp",
                   format_func=lambda k: kich_ban.SAN_PHAM[k]["ten"])
+    _thong_tin(S, sp)
     with st.container(border=True):
         st.markdown("**1. Kịch bản**")
         kb = _script(S, sp)
