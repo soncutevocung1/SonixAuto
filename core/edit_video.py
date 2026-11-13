@@ -137,8 +137,18 @@ def cho_capcut_tat(log=print, phut: int = 30):
         time.sleep(5)
 
 
+def xuat(ten_du_an: list, S: dict, kenh: str, log=print) -> list:
+    """Tự xuất 1080p từ CapCut rồi đưa vào CHƯA UP\\<ngày>\\NN.mp4 của kênh."""
+    from core import xuat_capcut
+    cho_capcut_tat(log)
+    log(f"Tự xuất {len(ten_du_an)} video vào kênh {kenh} (đừng đụng chuột / bàn phím, ~1,5 phút / video)...")
+    out = xuat_capcut.xuat_va_dua(ten_du_an, S, kenh, log=log)
+    log(f"Đã đưa {len(out)}/{len(ten_du_an)} video vào CHƯA UP của {kenh}")
+    return out
+
+
 def lam_video(sp_key: str, kb: dict, S: dict, ten: str = "", nhac: str = "", luoi: bool = True, seed=None,
-              log=print) -> dict:
+              log=print, kenh: str = "") -> dict:
     """1 nút: lồng tiếng (nếu chưa có / lời đã đổi) -> chọn cảnh (hoặc dùng cảnh đã duyệt) -> tạo dự án CapCut."""
     g = kb.get("giong")
     if not g or not Path(g).exists():
@@ -155,10 +165,13 @@ def lam_video(sp_key: str, kb: dict, S: dict, ten: str = "", nhac: str = "", luo
     log("Tạo dự án CapCut...")
     r = tao_du_an(sp_key, kb, g, S, ten=ten, nhac=nhac, luoi=luoi, clips=clips)
     log(f"Đã tạo dự án: {r['name']} ({r['duration']:.1f} giây)")
+    if kenh:
+        xuat([r["name"]], S, kenh, log)
     return r
 
 
-def hang_loat(sp_key: str, n: int, S: dict, y_tuong: str = "", nhac: str = "", luoi: bool = True, log=print) -> list:
+def hang_loat(sp_key: str, n: int, S: dict, y_tuong: str = "", nhac: str = "", luoi: bool = True, log=print,
+              kenh: str = "") -> list:
     """Làm n video liền: mỗi video AI viết lời mới (khác các bản trước) -> lồng tiếng -> chọn cảnh -> dự án CapCut."""
     from core import mau
     pc = mau.doc(S["edit_phong_cach"]) if S.get("edit_phong_cach") else {}
@@ -175,6 +188,9 @@ def hang_loat(sp_key: str, n: int, S: dict, y_tuong: str = "", nhac: str = "", l
             log(f"Viết lời lỗi: {e}")
             continue
         da.append(kb["loi"][:80])
+        luu = EDIT_DIR / "hang_loat" / f"{sp_key}_{time.strftime('%Y%m%d_%H%M%S')}_{i}.json"
+        luu.parent.mkdir(parents=True, exist_ok=True)
+        luu.write_text(json.dumps(kb, ensure_ascii=False, indent=1), encoding="utf-8")  # lời từng video để xem lại
         try:
             r = lam_video(sp_key, kb, S, ten=f"SONIX {kich_ban.SAN_PHAM[sp_key]['ten'].upper()} {stamp} #{i}",
                           nhac=nhac, luoi=luoi, seed=i * 7, log=log)
@@ -182,4 +198,6 @@ def hang_loat(sp_key: str, n: int, S: dict, y_tuong: str = "", nhac: str = "", l
         except Exception as e:
             log(f"Video {i} lỗi: {e}")
     log(f"Xong {len(out)}/{n} video")
+    if kenh and out:
+        xuat([r["name"] for r in out], S, kenh, log)
     return out

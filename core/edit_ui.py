@@ -68,6 +68,9 @@ def _job_live(name, title):
 
 
 def _job_show(name, title, chay):
+    f = edit_job.log_file(name)
+    if not chay and (not f.exists() or time.time() - f.stat().st_mtime > 3600):
+        return  # việc đã xong hơn 1 giờ: ẩn nhật ký cho gọn
     lines = edit_job.doc_log(name)
     if not lines and not chay:
         return
@@ -220,6 +223,8 @@ def _phong_cach(S) -> dict:
                     st.markdown("**Cách viết lời:**\n\n" + pc.get("cach_viet", ""))
         else:
             st.caption(f"**{ten}**: {len(vids)} video, chưa học.")
+        st.caption("Quy trình dựng: **Reup Aff** (video có sẵn → chọn cảnh → lồng tiếng AI → khuôn CapCut → tự xuất). "
+                   "Các quy trình khác (quay thô tự cắt, không lồng tiếng, hiệu ứng...) sẽ thêm ở bản sau.")
         if st.button("Học phong cách này" if not pc.get("nhip") else "Học lại (có video mới)", disabled=chay or not vids,
                      key="ev_hoc"):
             f = edit_job.JOB_DIR / f"{name}.txt"
@@ -449,6 +454,18 @@ def _project(S, sp, kb, n_ok):
     nhac = c[1].selectbox("Nhạc nền", opts, key="ev_music",
                           format_func=lambda x: {"": "Ngẫu nhiên", "none": "Không nhạc"}.get(x, Path(x).stem))
     luoi = c[2].checkbox("Khung 4 ô người dùng", value=True, key="ev_grid")
+    kenhs = [c["name"] for c in S.get("channels", []) if c.get("enabled", True)]
+    k1, k2 = st.columns([2, 3])
+    nho = (S.get("edit_kenh") or {}).get(sp, "")
+    kenh = k1.selectbox("Kênh nhận video", [""] + kenhs, index=([""] + kenhs).index(nho) if nho in kenhs else 0,
+                        format_func=lambda x: x or "Chỉ tạo dự án, không tự xuất", key=f"ev_kenh_{sp}")
+    if kenh != nho:
+        S.setdefault("edit_kenh", {})[sp] = kenh
+        save_settings(S)
+    if kenh:
+        k2.caption(f"Tạo dự án xong, tool **tự xuất 1080p** từ CapCut rồi đưa vào `{kenh}\\CHƯA UP\\"
+                   f"{time.strftime('%d.%m.%Y')}\\01.mp4, 02.mp4...`. Lúc xuất tool điều khiển CapCut như người "
+                   "(khoảng 1,5 phút / video): **đừng đụng chuột, bàn phím**.")
     with st.expander("Xem trước cảnh theo từng câu (đổi cảnh không ưng)", expanded=bool(kb.get("canh"))):
         _preview(S, sp, kb, luoi)
     mo = capcut_draft.capcut_dang_mo()
@@ -466,8 +483,8 @@ def _project(S, sp, kb, n_ok):
                  help="Chạy nền: lồng tiếng (nếu chưa có), chọn cảnh (hoặc dùng cảnh đã duyệt), tạo dự án CapCut"):
         cfg = edit_job.JOB_DIR / f"{name}.json"
         cfg.parent.mkdir(parents=True, exist_ok=True)
-        cfg.write_text(json.dumps({"sp": sp, "kb": str(_kb_path(sp)), "ten": ten, "nhac": nhac, "luoi": luoi},
-                                  ensure_ascii=False), encoding="utf-8")
+        cfg.write_text(json.dumps({"sp": sp, "kb": str(_kb_path(sp)), "ten": ten, "nhac": nhac, "luoi": luoi,
+                                   "kenh": kenh}, ensure_ascii=False), encoding="utf-8")
         edit_job.chay_ngam(name, "lam_video", sp, str(cfg), env=_env(), flags=_flags())
         st.rerun()
     _job_box(name, "Làm video")
@@ -484,11 +501,26 @@ def _project(S, sp, kb, n_ok):
         if st.button(f"Làm {int(n)} video", disabled=chay2 or bool(thieu) or model == NO_AI or model not in MODELS):
             cfg = edit_job.JOB_DIR / f"{name2}.json"
             cfg.parent.mkdir(parents=True, exist_ok=True)
-            cfg.write_text(json.dumps({"sp": sp, "n": int(n), "y_tuong": y, "nhac": nhac, "luoi": luoi},
+            cfg.write_text(json.dumps({"sp": sp, "n": int(n), "y_tuong": y, "nhac": nhac, "luoi": luoi, "kenh": kenh},
                                       ensure_ascii=False), encoding="utf-8")
             edit_job.chay_ngam(name2, "hang_loat", sp, str(cfg), env=_env(), flags=_flags())
             st.rerun()
         _job_box(name2, "Làm hàng loạt")
+
+    with st.expander("Xuất dự án có sẵn vào kênh (dự án đã sửa tay trong CapCut)"):
+        ds = [n for n in capcut_draft.danh_sach_du_an() if n.upper().startswith("SONIX")]
+        chon = st.multiselect("Dự án", ds, key="ev_xuat_ds", help="Danh sách dự án SONIX trong CapCut, mới nhất trước")
+        name3 = "xuat_tay"
+        chay3 = edit_job.dang_chay(name3)
+        if not kenh:
+            st.caption("Chọn **Kênh nhận video** ở trên trước.")
+        if st.button(f"Xuất {len(chon)} dự án vào {kenh or '...'}", disabled=chay3 or not chon or not kenh):
+            cfg = edit_job.JOB_DIR / f"{name3}.json"
+            cfg.parent.mkdir(parents=True, exist_ok=True)
+            cfg.write_text(json.dumps({"du_an": chon, "kenh": kenh}, ensure_ascii=False), encoding="utf-8")
+            edit_job.chay_ngam(name3, "xuat", "tay", str(cfg), env=_env(), flags=_flags())
+            st.rerun()
+        _job_box(name3, "Xuất video")
 
     with st.expander("Dự án mẫu & thư mục nguồn"):
         st.markdown(f"Tool chép dự án mẫu **{S.get('edit_template') or edit_video.TEMPLATE}** trong CapCut "
@@ -557,8 +589,22 @@ def _thong_tin(S, sp):
             st.rerun()
 
 
+QUY_TRINH_REUP_AFF = """
+**Quy trình Reup Aff** (dùng video có sẵn, cắt ghép + lồng tiếng AI, dựng bằng khuôn CapCut):
+
+0. **Chuẩn bị (1 lần)**: khuôn CapCut + nhạc (nút *Tải và cài khuôn* nếu máy chưa có) · bỏ video lẫn lộn vào `CHƯA LỌC` → **Tự lọc video theo sản phẩm** · mỗi sản phẩm bấm **Quét cảnh** (bỏ cảnh có người, chữ chèn, sản phẩm khác, outro, ảnh tĩnh) · điền **Thông tin sản phẩm** · (tuỳ chọn) **Học phong cách** từ thư mục MẪU.
+1. **Kịch bản**: chọn sản phẩm → *AI viết kịch bản* (theo phong cách đã học, AI tự soát công dụng / ưu đãi / chính tả) → sửa lời nếu cần.
+2. **Lồng tiếng**: Vbee (Ngọc Huyền 2.0, 1.05x) / ElevenLabs / miễn phí.
+3. **Chọn cảnh**: tool chọn cảnh theo từng câu (sản phẩm / cách dùng / kết quả), mỗi cảnh tự đẩy lên tránh dải xanh, khung 4 ô người dùng; xem trước, **Đổi** cảnh không ưng.
+4. **Dựng + xuất**: chọn **kênh** → bấm 1 nút: tạo dự án CapCut từ khuôn → tự xuất 1080p → `CHƯA UP\\<ngày>\\01.mp4, 02.mp4...` của kênh → Sonix Up Video đăng như video thường.
+   Làm nhiều video: **Làm hàng loạt** (mỗi video lời khác nhau).
+"""
+
+
 def render(S):
     st.subheader("Sonix Edit Video: kịch bản → lồng tiếng → dựng sẵn dự án CapCut")
+    with st.expander("Quy trình Reup Aff (các bước)"):
+        st.markdown(QUY_TRINH_REUP_AFF)
     _loc(S)
     sps = list(kich_ban.SAN_PHAM)
     sp = st.radio("Sản phẩm", sps, horizontal=True, key="ev_sp",

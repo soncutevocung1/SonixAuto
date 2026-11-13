@@ -218,28 +218,3 @@ def theme_for_job(settings, channel, job, root):
         return cover_dir(root) / name
     it = next((x for x in settings.get("items", []) if x["key"] == key), None)
     return match_theme(it, theme_files(root)) if it else None
-
-
-def remove_theme(root, path, settings) -> int:
-    """Bỏ 1 ảnh khỏi thư viện ẢNH BÌA: chuyển vào ẢNH BÌA\\_DA_BO (không xoá hẳn, lấy lại được),
-    bỏ khỏi bìa mặc định theo sản phẩm, video đang dùng ảnh đó quay về bìa AI chọn. Trả về số video đã đổi."""
-    import shutil
-    from . import db
-    from .analyze import ai_cover
-    p = Path(path)
-    trash = cover_dir(root) / "_DA_BO"
-    if p.exists():
-        trash.mkdir(parents=True, exist_ok=True)
-        dst, i = trash / p.name, 1
-        while dst.exists():
-            dst, i = trash / f"{p.stem}_{i}{p.suffix}", i + 1
-        shutil.move(str(p), str(dst))
-    for m in (settings.get("cover_by_product") or {}).values():
-        for k in [k for k, v in m.items() if v == p.name]:
-            m.pop(k)
-    n = 0
-    for j in db.list_jobs(["analyzing", "draft", "pending", "check", "error"]):
-        if theme_name(j.get("cover_path")) == p.stem:
-            db.update_job(j["id"], cover_path=ai_cover(j) or "", cover_by_user=0)
-            n += 1
-    return n

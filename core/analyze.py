@@ -294,7 +294,6 @@ def analyze(job_id, video_path, channel, settings, model, caption_only=False, kn
                 + (f" | ⚠️ Có từ dễ bị bóp: {', '.join(warn)}" if warn else "")}
     cover = work / "cover.jpg"
     export_frame(video_path, frames[res["best"]]["t"], str(cover), width=1080)
-    _keep_ai(cover)
     products, cart = prod.resolve(settings, channel, res["item_key"])
     warn = cap.check_policy(res["caption"])
     note = res["note"] + (f" | ⚠️ Có từ dễ bị bóp: {', '.join(warn)}" if warn else "")
@@ -303,33 +302,10 @@ def analyze(job_id, video_path, channel, settings, model, caption_only=False, kn
             "cover_path": str(cover), "products": products, "cart_name": cart}
 
 
-def _keep_ai(cover):
-    """Lưu riêng ảnh bìa AI chọn (cover_ai.jpg) để bác lỡ đổi bìa vẫn trả về được."""
-    try:
-        import shutil
-        shutil.copyfile(cover, Path(cover).with_name("cover_ai.jpg"))
-    except Exception:
-        pass
-
-
-def ai_cover(job) -> str:
-    """Ảnh bìa AI chọn (khung thấy rõ sản phẩm nhất) của video. '' nếu chưa có."""
-    d = WORK_DIR / str(job["id"])
-    for n in ("cover_ai.jpg", "cover.jpg"):
-        if (d / n).exists():
-            return str(d / n)
-    return ""
-
-
 def set_cover(job, frame_index) -> str:
-    """Người dùng chọn khung khác làm ảnh bìa (lưu file riêng, không đè ảnh AI chọn)."""
+    """Người dùng chọn khung khác làm ảnh bìa."""
     f = job["frames"][frame_index]
-    d = WORK_DIR / str(job["id"])
-    if (d / "cover.jpg").exists() and not (d / "cover_ai.jpg").exists():
-        _keep_ai(d / "cover.jpg")
-    cover = d / f"cover_khung_{frame_index}.jpg"
-    for old in d.glob("cover_khung_*.jpg"):
-        old.unlink(missing_ok=True)
+    cover = WORK_DIR / str(job["id"]) / "cover.jpg"
     export_frame(job["video_path"], f["t"], str(cover), width=1080)
     return str(cover)
 
@@ -423,7 +399,6 @@ def analyze_fb(job_id, video_path, page, settings, model) -> dict:
                "note": note + "Caption mẫu"}
     cover = work / "cover.jpg"
     export_frame(video_path, frames[res["best"]]["t"], str(cover), width=720)
-    _keep_ai(cover)
     warn = cap.check_policy(res["caption"])
     return {"caption": res["caption"], "hashtags": ", ".join(res["hashtags"]), "frames": frames,
             "cover_path": str(cover), "confidence": 0,

@@ -27,12 +27,51 @@ def ensure_structure(root, channels) -> list:
     return created
 
 
+def _ngay(name: str):
+    """Tên thư mục ngày '13.11.2026' -> (2026, 11, 13); không phải ngày -> None."""
+    import re
+    m = re.fullmatch(r"(\d{1,2})\.(\d{1,2})\.(\d{4})", name.strip())
+    return (int(m.group(3)), int(m.group(2)), int(m.group(1))) if m else None
+
+
 def todo_videos(root, name) -> list:
+    """Video chờ đăng: file nằm thẳng trong CHƯA UP (theo giờ sửa) rồi tới các thư mục ngày (vd CHƯA UP\\13.11.2026\\01.mp4,
+    do Sonix Edit Video xuất ra), ngày cũ trước, trong mỗi ngày theo số thứ tự 01, 02, 03..."""
     d = channel_dir(root, name) / FOLDER_TODO
     if not d.is_dir():
         return []
-    return sorted([p for p in d.iterdir() if p.is_file() and p.suffix.lower() in VIDEO_EXTS],
-                  key=lambda p: p.stat().st_mtime)
+    out = sorted([p for p in d.iterdir() if p.is_file() and p.suffix.lower() in VIDEO_EXTS],
+                 key=lambda p: p.stat().st_mtime)
+    for sub in sorted((p for p in d.iterdir() if p.is_dir() and _ngay(p.name)), key=lambda p: _ngay(p.name)):
+        out += sorted([p for p in sub.iterdir() if p.is_file() and p.suffix.lower() in VIDEO_EXTS], key=lambda p: p.name)
+    return out
+
+
+def thu_muc_ngay(root, name, ngay=None) -> Path:
+    """CHƯA UP\\<dd.mm.yyyy> của kênh (tạo nếu chưa có)."""
+    ngay = ngay or datetime.now()
+    d = channel_dir(root, name) / FOLDER_TODO / ngay.strftime("%d.%m.%Y")
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def so_tiep(d: Path) -> str:
+    """Số thứ tự kế tiếp trong thư mục ngày: 01, 02, ... (tính cả video đã đăng / đang xử lý cùng tên)."""
+    import re
+    dem = d / ".sonix_so_thu_tu"  # nhớ số đã dùng (video đăng xong bị chuyển sang ĐÃ UP vẫn không dùng lại số)
+    try:
+        n = int(dem.read_text().strip())
+    except Exception:
+        n = 0
+    for p in d.iterdir():
+        m = re.match(r"(\d+)", p.stem)
+        if m and p.suffix.lower() in VIDEO_EXTS:
+            n = max(n, int(m.group(1)))
+    try:
+        dem.write_text(str(n + 1))
+    except OSError:
+        pass
+    return f"{n + 1:02d}"
 
 
 def music_files(root) -> list:

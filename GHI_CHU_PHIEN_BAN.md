@@ -1,16 +1,12 @@
 # Ghi chú phiên bản Sonix Auto
 
-
-## 2.7.0
-- **Thông báo Telegram** (Cài đặt → Thông báo Telegram): tool nhắn về Telegram khi có **sự cố** (kèm ảnh chụp lỗi + video quay màn hình lúc đăng), khi **làm xong** (đã hẹn giờ / đã đăng, việc Edit Video xong), khi **có bản cập nhật**. Tin có nhãn [Sonix Up Video] / [Sonix Edit Video]. Thêm nhiều người nhận, mỗi người chọn loại tin muốn nhận. Admin gửi **Mã kết nối Sonix** cho người dùng khác để dùng chung bot.
-- **Tab Báo lỗi Admin** (cả trong Sonix Edit Video): ghi mô tả lỗi, chụp cửa sổ app hoặc tải ảnh lên, bấm Gửi → tool gửi ảnh + gói nhật ký về Telegram Admin, tin tên «Sự cố người dùng» (không gửi mật khẩu, token, khoá AI). Có nút **Nhờ AI xem nhanh** gợi ý cách tự xử lý.
-- **Ảnh bìa**: nút **Trả về ảnh bìa AI chọn** (từng video và hàng loạt) khi lỡ đổi / tải ảnh khác; nút **Bỏ khỏi thư viện** cho ảnh lỡ tải lên (cất vào ẢNH BÌA\_DA_BO, không xoá hẳn).
-- **Dừng viết lại caption** ngay lập tức: video đã viết xong giữ caption mới, video chưa viết giữ caption cũ. Nút "Dừng phân tích" không còn xoá nhầm video đang viết lại caption.
-- Sửa lỗi **âm thanh đã đồng bộ không tự gắn sản phẩm**: nhãn bị ghi nhầm thành "bác tự sửa = trống" nên tool bỏ qua. Nay tool tự dò lại theo lời nói đã nghe (không tốn AI), kênh mượn âm thanh (KTNN) cũng có âm thanh để mượn.
-- **Nhẹ máy hơn**: chỉ dựng tab đang mở (trước đây bấm nút nào cũng dựng lại cả 9 tab), ảnh bìa ở tab Duyệt dùng ảnh nhỏ, Nhạc nền chia trang 12 âm thanh, bộ nghe giọng nói dùng ít nhân CPU hơn.
-
-## 2.6.4
-- Sửa lỗi đăng video báo lỗi "không tìm thấy file video" sau khi thư mục VIDEO_TIKTOK được đổi tên thành SONIX_UP_VIDEO: hàng chờ vẫn ghi đường dẫn cũ. Nay tool tự sửa đường dẫn video, nhạc nền, âm thanh trong hàng chờ và dữ liệu (cả máy đã đổi tên từ trước). Video đã lỗi vì chuyện này: vào Hàng chờ, chọn, bấm "Chạy lại".
+## 2.7.0 · Chốt quy trình Reup Aff
+- **Tự xuất video**: chọn **Kênh nhận video** ở bước 4 → tạo dự án xong tool tự mở CapCut, xuất **1080p**, rồi đưa vào `<kênh>\CHƯA UP\<ngày>\01.mp4, 02.mp4...` (mỗi ngày 1 thư mục, số thứ tự không trùng kể cả khi video đã đăng). Lúc xuất tool điều khiển CapCut như người, khoảng 1,5 phút / video: **đừng đụng chuột, bàn phím**. App nhớ kênh đã chọn cho từng sản phẩm.
+- Mục **Xuất dự án có sẵn vào kênh**: chọn các dự án SONIX (vd đã sửa tay trong CapCut) để xuất vào kênh.
+- **Sonix Up Video đọc thêm thư mục ngày** trong CHƯA UP (ngày cũ trước, trong ngày theo 01, 02, 03...).
+- Làm hàng loạt: lưu lời từng video (data\edit\hang_loat) để xem lại; AI soát thêm chính tả tiêu đề.
+- Mục **Quy trình Reup Aff (các bước)** ở đầu Sonix Edit Video: tóm tắt cả quy trình từ chuẩn bị tới đăng.
+- Nhật ký các việc chạy nền tự ẩn sau 1 giờ cho gọn.
 
 ## 2.6.3
 - Sửa lỗi dự án CapCut mất người dẫn ("Media Not Found" ở clip ghép người dẫn): dự án tạo ra giờ tự chứa đủ file người dẫn (liên kết cứng, không tốn thêm ổ), không còn phụ thuộc vào dự án mẫu.

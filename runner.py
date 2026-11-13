@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 os.environ.setdefault("PYTHONUTF8", "1")
 
 from core import channels as chs  # noqa: E402
-from core import db, facebook, fbq, progress, sounds, stats, telegram, tiktok  # noqa: E402
+from core import db, facebook, fbq, progress, sounds, stats, tiktok  # noqa: E402
 from core.caption import build_text  # noqa: E402
 from core.config import (DATA_DIR, FOLDER_DONE, FOLDER_ERR, FOLDER_TODO, HEARTBEAT_FILE, RUNNER_LOG, WORK_DIR,  # noqa: E402
                          ensure_dirs, get_channel, load_settings, save_settings, slug)
@@ -77,50 +77,6 @@ def runner_alive() -> bool:
         return False
 
 
-# ---------- thông báo Telegram ----------
-def tg_su_co(job, title, err, since=None):
-    """Báo sự cố về Telegram: chữ ngắn + ảnh chụp lỗi + video quay màn hình (nếu có)."""
-    try:
-        name = Path(job.get("video_path") or "").name
-        body = (f"Kênh: {job.get('channel')}\nVideo: {name}\n"
-                f"Lỗi: {str(err)[:600]}")
-        telegram.notify("up", "su_co", title, body, photos=[telegram.latest_shot(since or time.time() - 600)],
-                        video=telegram.recorded_video(job.get("id")) if job.get("id") else None)
-    except Exception as e:
-        log(f"  ! Không gửi được Telegram: {telegram._safe(e)[:150]}")
-
-
-def tg_xong(job, note):
-    try:
-        cover = job.get("cover_path") if job.get("cover_path") and Path(job["cover_path"]).exists() else None
-        telegram.notify("up", "xong", f"{job.get('platform', 'tiktok').upper()} · {job.get('channel')}",
-                        f"Video: {Path(job.get('video_path') or '').name}\n{note}\n"
-                        f"Caption: {(job.get('caption') or '')[:180]}", photos=[cover])
-    except Exception:
-        pass
-
-
-_UPD_AT = 0.0
-
-
-def tg_cap_nhat(settings):
-    """6 tiếng hỏi GitHub 1 lần; có bản mới thì báo Telegram (mỗi bản 1 lần)."""
-    global _UPD_AT
-    if time.time() - _UPD_AT < 6 * 3600 or not telegram.ready(settings):
-        return
-    _UPD_AT = time.time()
-    try:
-        from core import updater
-        info = updater.check(settings)
-        if info.get("newer") and telegram.once(f"cap_nhat_{info['latest']}"):
-            notes = "\n".join(str(info.get("notes") or "").splitlines()[:8])
-            for app in ("up", "edit"):
-                telegram.notify(app, "cap_nhat", f"Bản {info['latest']} (máy đang dùng {info['current']})",
-                                notes + "\nMở app → Cài đặt → Cập nhật để cài.")
-    except Exception as e:
-        log(f"  · Kiểm tra bản cập nhật (Telegram) lỗi: {telegram._safe(e)[:120]}")
-
-
 # ---------- xử lý từng loại job ----------
 def due_tiktok(job, now, settings) -> bool:
     if not job["scheduled_at"]:
@@ -165,10 +121,6 @@ def run_tiktok(job, settings):
         tmp.parent.mkdir(parents=True, exist_ok=True)
         strip_audio(job["video_path"], str(tmp))
         job["_upload_path"] = str(tmp)
-    if telegram.want_record(settings):
-        import shutil
-        shutil.rmtree(telegram.rec_dir(job["id"]), ignore_errors=True)
-        job["_rec_dir"] = str(telegram.rec_dir(job["id"]))
     with tiktok.ProfileLock(job["channel"]) as lock:
         status, note = tiktok.post(job, settings, log=log, lock=lock)
     new_path = chs.move_to(job["video_path"], root, job["channel"], FOLDER_DONE)
@@ -178,12 +130,6 @@ def run_tiktok(job, settings):
     log(f"  ✔ {db.STATUS_LABELS.get(status)}: {note} → đã chuyển vào {FOLDER_DONE}")
     if tmp and tmp.exists():
         tmp.unlink()
-    if status == "check":
-        tg_su_co(job, "Đã bấm đăng nhưng chưa thấy TikTok xác nhận", note)
-    else:
-        import shutil
-        shutil.rmtree(telegram.rec_dir(job["id"]), ignore_errors=True)
-        tg_xong(job, f"{db.STATUS_LABELS.get(status)}: {note}")
 
 
 def fail_tiktok(job, settings, err):
@@ -194,7 +140,6 @@ def fail_tiktok(job, settings, err):
     db.update_job(job["id"], status="error", result=msg)
     stats.record("loi", job)
     log(f"  ✖ Lỗi → chuyển vào {FOLDER_ERR}: {msg}")
-    tg_su_co(job, "Đăng TikTok lỗi, video đã chuyển vào " + FOLDER_ERR, msg)
 
 
 def run_facebook(job, settings):
@@ -217,7 +162,6 @@ def run_facebook(job, settings):
     db.update_job(job["id"], status=status, result=note)
     stats.record("hen_gio", job)
     log(f"  ✔ FB {db.STATUS_LABELS.get(status)}: {note}")
-    tg_xong(job, f"{db.STATUS_LABELS.get(status)}: {note}")
 
 
 def fail_facebook(job, settings, err):
@@ -230,7 +174,6 @@ def fail_facebook(job, settings, err):
     db.update_job(job["id"], status="error", result=msg)
     stats.record("loi", job)
     log(f"  ✖ FB lỗi: {msg}")
-    tg_su_co({**job, "platform": "facebook"}, "Đăng Facebook lỗi", msg)
 
 
 _LAST_COVER_CHECK = {}
@@ -382,7 +325,6 @@ def run_once():
             block_channel(job["channel"], str(e))
             blocked[job["channel"]] = str(e)
             log(f"  ⛔ DỪNG KÊNH «{job['channel']}»: {e}")
-            tg_su_co(job, f"Kênh «{job['channel']}» đang dừng, cần bác xử lý", e)
         except tiktok.TikTokError as e:
             if str(e).startswith("Ảnh bìa"):  # bìa không lên -> KHÔNG đăng, giữ ở CHƯA UP, 10 phút sau thử lại
                 n = int(job.get("attempts") or 0) + 1
@@ -390,7 +332,6 @@ def run_once():
                     db.update_job(job["id"], status="check", attempts=n,
                                   result=f"Không gắn được ảnh bìa sau {n} lần → chưa đăng, video vẫn ở CHƯA UP. {e}")
                     log(f"  ✖ Không gắn được ảnh bìa sau {n} lần → chuyển 'Cần kiểm tra', video vẫn ở CHƯA UP")
-                    tg_su_co(job, "Không gắn được ảnh bìa sau 3 lần, video chưa đăng", e)
                 else:
                     t = max(datetime.strptime(job["scheduled_at"], db.TIME_FMT) if job.get("scheduled_at") else now,
                             datetime.now() + timedelta(minutes=10))
@@ -403,7 +344,6 @@ def run_once():
         except Exception as e:
             fail_tiktok(job, settings, e)
         did_tt = True
-    tg_cap_nhat(settings)
     if not did_tt:  # rảnh: kiểm tra ảnh bìa các bài đã hẹn giờ trên TikTok
         try:
             check_covers(settings)
@@ -483,15 +423,12 @@ def main():
     try:  # đường dẫn còn ghi thư mục cũ (trước khi đổi tên SonixDangVideo -> Sonix Auto) -> sửa
         from core import updater as _up
         _up.sua_duong_dan_cu(log=log)
-        from core import sua_duong_dan as _sd
-        _sd.sua_thu_muc_video(load_settings(), log)
     except Exception as e:
         log(f"! Sửa đường dẫn cũ lỗi: {e}")
     from core import desktop as _dk
     _dk.low_priority()  # nhường CPU cho việc khác của bác (Chrome, ffmpeg tool mở cũng nhường theo)
     threading.Thread(target=_beat_forever, name="nhip-tim", daemon=True).start()
     db.reset_stuck()
-    telegram.clean_records()
     stop_flag = DATA_DIR / "stop_runner.flag"
     stop_flag.unlink(missing_ok=True)
     log("=== SonixDangVideo: BỘ ĐĂNG TỰ ĐỘNG ĐÃ BẬT ===")

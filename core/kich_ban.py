@@ -89,7 +89,8 @@ def viet(sp_key: str, tham_khao: list, settings: dict, model: str = "", y_tuong:
                     "trong THÔNG TIN / ƯU ĐÃI ở trên thì sửa cho đúng hoặc bỏ đi (thay bằng ý có trong thông tin). "
                     "ĐƯỢC GIỮ các câu chung về giá của kênh: giảm giá, giá tốt hôm nay, tụt tận đáy, miễn phí ship toàn "
                     "quốc, nhận hàng ưng thì thanh toán. Chỉ sửa những câu sai, còn lại giữ NGUYÊN chữ (câu mở, giọng văn, "
-                    "câu chốt, độ dài). Số đọc viết bằng chữ. Tiêu đề 3 dòng, mỗi dòng tối đa 32 ký tự. "
+                    "câu chốt, độ dài). Sửa lỗi chính tả, dấu tiếng Việt (vd KÍNH HOÀNG -> KINH HOÀNG, CHẤN ĐÔNG -> "
+                    "CHẤN ĐỘNG). Số đọc viết bằng chữ. Tiêu đề 3 dòng, mỗi dòng tối đa 32 ký tự. "
                     "Trả lại tiêu đề và lời đã sửa.",
                     settings, model)
     except Exception:

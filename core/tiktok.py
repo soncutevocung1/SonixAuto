@@ -74,14 +74,11 @@ def is_busy(channel) -> bool:
     return f.exists() and time.time() - f.stat().st_mtime < 30 * 60
 
 
-def launch(p, settings, channel, headless=False, record_dir=None):
+def launch(p, settings, channel, headless=False):
     opts = dict(user_data_dir=str(profile_dir(settings, channel)), headless=headless,
                 viewport={"width": 1440, "height": 900}, locale="vi-VN",
                 args=["--disable-blink-features=AutomationControlled", "--lang=vi-VN"],
                 ignore_default_args=["--enable-automation"], accept_downloads=True)
-    if record_dir:  # quay màn hình lúc đăng (gửi kèm Telegram khi có sự cố)
-        Path(record_dir).mkdir(parents=True, exist_ok=True)
-        opts.update(record_video_dir=str(record_dir), record_video_size={"width": 960, "height": 600})
     errors = []
     for extra in ({"channel": "chrome", "chromium_sandbox": True}, {"channel": "chrome"}, {}):
         try:
@@ -1262,7 +1259,7 @@ def post(job, settings, log=print, lock=None):
         notes.append("video riêng tư nên đăng ngay (TikTok không cho hẹn giờ)")
 
     with sync_playwright() as p:
-        ctx = launch(p, settings, job["channel"], headless, record_dir=job.get("_rec_dir"))
+        ctx = launch(p, settings, job["channel"], headless)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         page.set_default_timeout(30000)
 

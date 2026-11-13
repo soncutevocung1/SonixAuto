@@ -60,23 +60,6 @@ def doc_log(name: str, n: int = 12) -> list:
     return f.read_text(encoding="utf-8", errors="replace").splitlines()[-n:]
 
 
-VIEC = {"quet_canh": "Quét cảnh", "lam_video": "Làm video", "hang_loat": "Làm video hàng loạt",
-        "cai_khuon": "Cài khuôn CapCut", "hoc_mau": "Học mẫu", "loc_sp": "Lọc video theo sản phẩm",
-        "quet_kenh": "Quét kênh tham khảo"}
-
-
-def _tg(kind, name, loai, err):
-    """Báo Telegram [Sonix Edit Video]: việc xong / sự cố (kèm vài dòng nhật ký cuối)."""
-    try:
-        from core import telegram
-        tail = "\n".join(doc_log(name, 6))
-        title = VIEC.get(kind, kind) + (" xong" if loai == "xong" else " bị lỗi")
-        telegram.notify("edit", loai, title, (f"Lỗi: {err[:500]}\n" if err else "") + "Nhật ký:\n" + tail[-700:],
-                        wait=True)  # việc chạy riêng, đợi gửi xong rồi mới thoát
-    except Exception:
-        pass
-
-
 def main(argv):
     kind = argv[0]
     name = kind + "_" + argv[1] if len(argv) > 1 else kind
@@ -102,12 +85,19 @@ def main(argv):
             cfg = json.loads(Path(argv[2]).read_text(encoding="utf-8"))
             if kind == "lam_video":
                 kb = json.loads(Path(cfg["kb"]).read_text(encoding="utf-8"))
-                edit_video.lam_video(cfg["sp"], kb, S, ten=cfg.get("ten", ""), nhac=cfg.get("nhac", ""),
-                                     luoi=cfg.get("luoi", True), log=log)
-                Path(cfg["kb"]).write_text(json.dumps(kb, ensure_ascii=False, indent=1), encoding="utf-8")
+                try:
+                    edit_video.lam_video(cfg["sp"], kb, S, ten=cfg.get("ten", ""), nhac=cfg.get("nhac", ""),
+                                         luoi=cfg.get("luoi", True), log=log, kenh=cfg.get("kenh", ""))
+                finally:
+                    Path(cfg["kb"]).write_text(json.dumps(kb, ensure_ascii=False, indent=1), encoding="utf-8")
             else:
                 edit_video.hang_loat(cfg["sp"], int(cfg["n"]), S, y_tuong=cfg.get("y_tuong", ""),
-                                     nhac=cfg.get("nhac", ""), luoi=cfg.get("luoi", True), log=log)
+                                     nhac=cfg.get("nhac", ""), luoi=cfg.get("luoi", True), log=log,
+                                     kenh=cfg.get("kenh", ""))
+        elif kind == "xuat":
+            from core import edit_video
+            cfg = json.loads(Path(argv[2]).read_text(encoding="utf-8"))
+            edit_video.xuat(cfg["du_an"], S, cfg["kenh"], log=log)
         elif kind == "cai_khuon":
             from core import edit_video, khuon
             log(khuon.cai_dat(edit_video.input_root(S) / edit_video.TAI_NGUYEN, log=log))
@@ -128,12 +118,9 @@ def main(argv):
         else:
             raise ValueError(f"Không biết việc {kind}")
         log("XONG")
-        _tg(kind, name, "xong", "")
     except Exception as e:
         log(f"LỖI: {e}")
         fh.write(traceback.format_exc())
-        fh.flush()
-        _tg(kind, name, "su_co", str(e))
     finally:
         fh.close()
         try:

@@ -381,35 +381,6 @@ def save_cover_default(channel, item_key, wkey):
     save_settings(S)
 
 
-@quiet_cb
-def ai_cover_cb(ids, msg_key=""):
-    """Bỏ ảnh bìa bác đã đổi / tải lên, trả về khung hình AI chọn (thấy rõ sản phẩm nhất)."""
-    ok, miss = 0, 0
-    for i in ids:
-        j = db.get_job(i)
-        a = ana.ai_cover(j) if j else ""
-        if a:
-            db.update_job(i, cover_path=a, cover_by_user=1)  # 1 = giữ bìa AI, không tự đổi sang bìa mặc định sản phẩm
-            ok += 1
-        else:
-            miss += 1
-    if msg_key:
-        st.session_state[msg_key] = (f"Đã trả {ok} video về ảnh bìa AI chọn."
-                                     + (f" {miss} video chưa phân tích nên chưa có bìa AI." if miss else ""))
-
-
-@quiet_cb
-def del_theme_cb(path, msg_key=""):
-    """Bỏ ảnh lỡ tải lên khỏi thư viện ẢNH BÌA (chuyển vào ẢNH BÌA\\_DA_BO, không xoá hẳn)."""
-    if not path or not ROOT:
-        return
-    n = cov.remove_theme(ROOT, path, S)
-    save_settings(S)
-    if msg_key:
-        st.session_state[msg_key] = (f"Đã bỏ «{Path(path).name}» khỏi thư viện (cất trong ẢNH BÌA\\_DA_BO, cần lại thì "
-                                     f"chép ra)." + (f" {n} video đang dùng ảnh này đã về bìa AI chọn." if n else ""))
-
-
 def reset_cover_cb(jid):
     """Video này quay lại dùng bìa mặc định của sản phẩm."""
     db.update_job(jid, cover_by_user=0)
@@ -485,32 +456,19 @@ with st.sidebar:
             st.rerun()
     def _ana_status():
         left = sum(worker.pending_counts().values())
-        redo = sum(worker.redo_counts("tiktok").values())
         prev = st.session_state.get("_ana_left", 0)
         st.session_state["_ana_left"] = left
-        if redo:
-            rc = st.columns([3, 1])
-            rc[0].info(f"**AI đang viết lại caption: còn {redo} video.** Video viết xong dùng caption mới.")
-            if rc[1].button("Dừng viết lại caption", key="redo_stop", type="primary", width="stretch",
-                            help="Dừng ngay. Video đã viết lại giữ caption mới, video chưa viết giữ caption cũ."):
-                n = worker.stop_redo("tiktok")
-                st.session_state["_redo_msg"] = f"Đã dừng. {n} video chưa viết lại giữ nguyên caption cũ."
-                st.rerun(scope="app")
-        if left - redo > 0:
-            st.info(f"**Đang phân tích ngầm: còn {left - redo} video.** Tắt cửa sổ cũng được, mở lại tool sẽ "
+        if left:
+            st.info(f"**Đang phân tích ngầm: còn {left} video.** Tắt cửa sổ cũng được, mở lại tool sẽ "
                     f"phân tích tiếp.")
             with st.popover("Dừng phân tích", width="stretch"):
                 st.write("Bỏ các video chưa phân tích khỏi hàng (file vẫn nằm trong CHƯA UP, quét lại được).")
                 if st.button("Dừng & bỏ khỏi hàng", key="ana_stop", type="primary"):
-                    worker.stop_redo("tiktok")  # video đang viết lại caption: giữ lại, không xoá
                     db.delete_jobs([j["id"] for j in db.list_jobs(["analyzing"], "tiktok")])
                     st.rerun(scope="app")
         elif prev:
             st.rerun(scope="app")  # vừa phân tích xong -> tải lại để hiện video ở tab Duyệt
 
-    _rm = st.session_state.pop("_redo_msg", None)
-    if _rm:
-        st.success(_rm)
     _live = bool(worker.pending_counts())
     st.fragment(run_every=3 if _live else None)(_ana_status)()
     _live = {"draft": [], "pending": []}
@@ -634,29 +592,20 @@ st.markdown("<style>.st-key-sx_muc button{font-size:1.1rem;font-weight:700;paddi
 _muc = st.segmented_control("Mục", [MUC_UP, MUC_EDIT], default=MUC_UP, key="sx_muc",
                             label_visibility="collapsed") or MUC_UP
 if _muc == MUC_EDIT:
-    from core import edit_ui, tg_ui
+    from core import edit_ui
     edit_ui.render(S)
-    with st.expander("Báo lỗi với Admin (Sonix Edit Video)"):
-        tg_ui.render_bao_loi(S, "edit")
     st.stop()
 
 _t = st.tabs(["Đăng video", "Duyệt & xác nhận", "Hàng chờ", "Tổng hợp", "Kênh & sản phẩm", "Nhạc nền", "Cài đặt",
-              "Facebook", "Nhật ký", "Báo lỗi Admin"], key="tab_chinh", on_change="rerun")  # chỉ dựng tab đang mở -> nhẹ máy
-
-
-def _show(tab):
-    """Chỉ chạy nội dung tab bác đang mở (tab khác không dựng lại mỗi lần bấm nút)."""
-    if getattr(tab, "open", True) is not False:
-        with tab:
-            yield
-tabs = [_t[0], _t[1], _t[2], _t[4], _t[5], _t[6], _t[7], _t[8], _t[9]]
+              "Facebook", "Nhật ký"])
+tabs = [_t[0], _t[1], _t[2], _t[4], _t[5], _t[6], _t[7], _t[8]]
 TAB_TONGHOP = _t[3]
 CHANNELS = [c for c in S.get("channels", []) if c.get("enabled", True)]
 ROOT = S.get("root_folder", "")
 READY = bool(ROOT and Path(ROOT).is_dir() and CHANNELS)
 
 # =============================== ĐĂNG VIDEO ===============================
-for _ in _show(tabs[0]):
+with tabs[0]:
     if not READY:
         st.header("Chào bác! Cài đặt ban đầu (làm 1 lần)")
         st.markdown("""
@@ -780,7 +729,7 @@ D:\\SONIX_UP_VIDEO\\
                        "**Duyệt & xác nhận**.")
 
 # =============================== DUYỆT ===============================
-for _ in _show(tabs[1]):
+with tabs[1]:
     drafts = db.list_jobs(["draft"], "tiktok")
     if not drafts:
         st.info("Chưa có video chờ duyệt. Qua tab Đăng video để phân tích.")
@@ -986,23 +935,12 @@ for _ in _show(tabs[1]):
                                "(vd video Kích rễ TC01 → Kích rễ TC01.png)")
             rca[1].caption("Tool so tên ảnh với tên sản phẩm của từng video. Đặt tên ảnh theo tên sản phẩm là được, "
                            "ví dụ «Kích rễ TC01.png», «Đạm cá amino.png».")
-            rai = st.columns([2, 3])
-            rai[0].button("Trả về ảnh bìa AI chọn", key=f"baic_{slug(chname)}", disabled=not sel_ids,
-                          on_click=lambda ids=sel_ids, m=f"thmsg_{slug(chname)}": ai_cover_cb(ids, m),
-                          help="Bỏ ảnh bìa đã đổi / tải lên của các video đang chọn, dùng lại khung hình AI chọn "
-                               "(thấy rõ sản phẩm nhất)")
             rcv = st.columns([2, 1, 2])
             bth = rcv[0].selectbox("Ảnh bìa có sẵn (theme)", themes or [""], key=f"bth_{slug(chname)}",
                                    format_func=lambda x: Path(x).name if x else "(chưa có ảnh, tải lên ở ô bên phải)")
             rcv[1].button("Áp dụng ảnh bìa", key=f"btha_{slug(chname)}", disabled=not (sel_ids and themes),
                           on_click=lambda ids=sel_ids, v=bth, m=f"thmsg_{slug(chname)}": use_theme_cb(ids, v, m),
                           help="Video đang chọn dùng ảnh này làm ảnh bìa (tool tự chỉnh về đúng khung video)")
-            if themes and bth:
-                with rai[1].popover(f"Bỏ ảnh «{Path(bth).name}» khỏi thư viện"):
-                    st.write("Ảnh lỡ tải lên? Tool cất ảnh vào **ẢNH BÌA\\_DA_BO** (không xoá hẳn). Video đang dùng "
-                             "ảnh này về lại bìa AI chọn.")
-                    st.button("Xác nhận bỏ ảnh", key=f"bthd_{slug(chname)}", type="primary",
-                              on_click=lambda v=bth, m=f"thmsg_{slug(chname)}": del_theme_cb(v, m))
             tnk = f"thn_{slug(chname)}"
             twk = f"thup_{slug(chname)}_{st.session_state.get(tnk, 0)}"
             rcv[2].file_uploader("Thêm ảnh theme vào thư viện (jpg, png, webp)", type=["jpg", "jpeg", "png", "webp"],
@@ -1104,10 +1042,7 @@ for _ in _show(tabs[1]):
                 c0.checkbox("chọn", key=k("sel", jid), label_visibility="collapsed")
                 with c1:
                     if j.get("cover_path") and Path(j["cover_path"]).exists():
-                        try:
-                            st.image(cov.thumb(j["cover_path"]), width=170)  # ảnh nhỏ: đỡ nặng giao diện
-                        except Exception:
-                            st.image(j["cover_path"], width=170)
+                        st.image(j["cover_path"], width=170)
                         if cov.theme_name(j["cover_path"]):
                             st.caption(("Bìa theme: " if int(j.get("cover_by_user") or 0) else "Bìa mặc định: ")
                                        + cov.theme_name(j["cover_path"]))
@@ -1115,10 +1050,6 @@ for _ in _show(tabs[1]):
                     if thm_j:
                         st.info(thm_j)
                     with st.popover("Đổi ảnh bìa"):
-                        _ai = ana.ai_cover(j)
-                        if _ai and j.get("cover_path") != _ai:
-                            st.button("Trả về ảnh bìa AI chọn (rõ sản phẩm nhất)", key=f"aic_{jid}", type="primary",
-                                      on_click=ai_cover_cb, args=([jid], f"thmsg_{jid}"))
                         st.caption("Chọn khung thấy rõ sản phẩm nhất / có người cầm sản phẩm")
                         fr = j["frames"]
                         for r0 in range(0, len(fr), 5):
@@ -1133,13 +1064,8 @@ for _ in _show(tabs[1]):
                             tc = st.columns([2, 1])
                             tsel = tc[0].selectbox("Ảnh theme", themes, key=f"th_{jid}", format_func=lambda x: Path(x).name,
                                                    label_visibility="collapsed")
-                            tb = tc[0].columns(2)
-                            tb[0].button("Dùng ảnh này", key=f"thb_{jid}", on_click=use_theme_cb,
+                            tc[0].button("Dùng ảnh này", key=f"thb_{jid}", on_click=use_theme_cb,
                                          args=([jid], tsel, f"thmsg_{jid}"))
-                            tb[1].button("Bỏ khỏi thư viện", key=f"thd_{jid}", on_click=del_theme_cb,
-                                         args=(tsel, f"thmsg_{jid}"),
-                                         help="Ảnh lỡ tải lên: bỏ khỏi thư viện ẢNH BÌA (cất vào ẢNH BÌA\\_DA_BO). "
-                                              "Video đang dùng ảnh này về lại bìa AI chọn.")
                             try:
                                 tc[1].image(cov.thumb(tsel), width=80)
                             except Exception:
@@ -1272,12 +1198,12 @@ for _ in _show(tabs[1]):
                        f"tải lên & hẹn giờ trên TikTok. Theo dõi ở tab Hàng chờ.")
 
 # =============================== HÀNG CHỜ ===============================
-for _ in _show(tabs[2]):
+with tabs[2]:
     from core import queue_ui
     queue_ui.render(S, ROOT)
 
 # =============================== KÊNH & SẢN PHẨM ===============================
-for _ in _show(tabs[3]):
+with tabs[3]:
     st.subheader("Thư mục gốc")
     c1, c2, c3 = st.columns([4, 1, 1])
     root_new = c1.text_input("Thư mục gốc chứa video", ROOT, key="root_in")
@@ -1409,7 +1335,7 @@ for _ in _show(tabs[3]):
                     st.success("Đã lưu ảnh mẫu.")
 
 # =============================== NHẠC NỀN ===============================
-for _ in _show(tabs[4]):
+with tabs[4]:
     st.subheader(f"Nhạc trên máy (thư mục {FOLDER_MUSIC})")
     if ROOT:
         if st.button("Mở thư mục nhạc"):
@@ -1444,16 +1370,12 @@ video sẽ lấy đúng âm thanh của sản phẩm đó và tắt âm gốc. N
         for i_, f_ in enumerate(favs_):
             if (f_.get("id") == fid) if fid else (i_ == idx):  # âm thanh cũ chưa có mã số -> theo thứ tự
                 f_[field] = st.session_state[wkey]
-                if field == "items":  # bác xoá hết sản phẩm = "không nói về sản phẩm nào" (tool không tự gắn lại)
-                    f_["items_by"] = "user" if f_[field] else "none"
+                if field == "items":
+                    f_["items_by"] = "user"
         snd.save_favs(chn, favs_)
 
     for c in S.get("channels", []):
         cn = c["name"]
-        try:
-            snd.quick_label(cn, S)  # âm thanh đã nghe ra chữ mà chưa có sản phẩm -> dò ngay theo chữ
-        except Exception:
-            pass
         favs_c = snd.load_favs(cn)
         n_file = sum(1 for f in favs_c if f.get("file"))
         n_lab = sum(1 for f in favs_c if f.get("items"))
@@ -1477,15 +1399,10 @@ video sẽ lấy đúng âm thanh của sản phẩm đó và tắt âm gốc. N
             if n_old:
                 st.warning(f"{n_old} âm thanh từ lần đồng bộ cũ chưa có mã số nên chưa nghe thử được và lúc đăng dễ chọn "
                            "nhầm bài trùng tên. Bấm **Đồng bộ Yêu thích** để cập nhật.")
-            _shown = [(i_f, f) for i_f, f in enumerate(favs_c)
-                      if not ((flt == "none" and (f.get("items") or []))
-                              or (flt not in ("all", "none") and flt not in (f.get("items") or [])))]
-            _per = 12  # mỗi trang 12 âm thanh: đỡ nặng máy (mỗi âm thanh là 1 trình phát)
-            _np = max(1, (len(_shown) + _per - 1) // _per)
-            _pg = st.pills("Trang", list(range(1, _np + 1)), key=f"fpg_{slug(cn)}_{flt}", default=1) if _np > 1 else 1
-            _pg = _pg or 1
-            for i_f, f in _shown[(_pg - 1) * _per: _pg * _per]:
+            for i_f, f in enumerate(favs_c):
                 its = f.get("items") or []
+                if (flt == "none" and its) or (flt not in ("all", "none") and flt not in its):
+                    continue
                 fid = f.get("id") or ""
                 kid = fid or f"i{i_f}"  # khoá riêng cho từng ô (2 bài trùng tên không bị lỗi)
                 c1, c2, c3 = st.columns([1.3, 1.4, 1.3])
@@ -1500,7 +1417,7 @@ video sẽ lấy đúng âm thanh của sản phẩm đó và tắt âm gốc. N
                     c2.audio(f["file"])
                 else:
                     c2.caption("(chưa tải được file nghe thử, bấm Đồng bộ)")
-                wk = f"fit_{slug(cn)}_{kid}_{'-'.join(its)}"  # nhãn đổi (tool vừa gắn) -> ô chọn hiện đúng, không giữ giá trị cũ
+                wk = f"fit_{slug(cn)}_{kid}"
                 if wk not in st.session_state:
                     st.session_state[wk] = [x for x in its if x in ITEMS]
                 c3.multiselect("Âm thanh này nói về", list(ITEMS), key=wk, format_func=lambda x: ITEMS[x]["name"],
@@ -1517,10 +1434,7 @@ video sẽ lấy đúng âm thanh của sản phẩm đó và tắt âm gốc. N
                                  "này, ghép sẵn vào video và tắt hẳn âm gốc. Chỉ tick âm thanh của mình / được phép.")
 
 # =============================== CÀI ĐẶT ===============================
-for _ in _show(tabs[5]):
-    from core import tg_ui
-    with st.container(border=True):
-        tg_ui.render_settings(S)
+with tabs[5]:
     st.subheader("Giao diện")
     st.caption("Đổi là thấy ngay, không cần bấm Lưu.")
     st.radio("Mở tool bằng", ["app", "chrome"], index=1 if S.get("ui_window") == "chrome" else 0, horizontal=True,
@@ -1753,12 +1667,12 @@ Không dán key vào chat. Key nằm trong thư mục `data` trên máy bác."""
             st.error("Giờ vàng sai định dạng. Ví dụ đúng: 05:45, 11:30, 19:30")
 
 # =============================== FACEBOOK ===============================
-for _ in _show(tabs[6]):
+with tabs[6]:
     from core import fb_ui
     fb_ui.render(S)
 
 # =============================== NHẬT KÝ ===============================
-for _ in _show(tabs[7]):
+with tabs[7]:
     c = st.columns(3)
     if c[0].button("Tải lại"):
         st.rerun()
@@ -1779,7 +1693,7 @@ for _ in _show(tabs[7]):
 
 
 # =============================== TỔNG HỢP ===============================
-for _ in _show(TAB_TONGHOP):
+with TAB_TONGHOP:
     st.header("Tổng hợp theo ngày")
     st.caption("Mỗi ngày tự tính lại từ 0 lúc 0:00, ngày cũ được lưu để bác xem lại. Số liệu những ngày trước khi có "
                "mục này được dựng lại gần đúng từ hàng chờ.")
@@ -1818,8 +1732,3 @@ for _ in _show(TAB_TONGHOP):
         st.bar_chart(pd.DataFrame({"Số video": [n for _x, n in _ser]},
                                   index=[f"{_x[8:10]}/{_x[5:7]}" for _x, _n in _ser]),
                      color="#6d28d9", height=260, x_label="", y_label="")
-
-# =============================== BÁO LỖI ADMIN ===============================
-for _ in _show(tabs[8]):
-    from core import tg_ui
-    tg_ui.render_bao_loi(S, "up")

@@ -39,41 +39,9 @@ def _log(msg):
         pass
 
 
-def _redo_cancelled(jid) -> bool:
-    """Bác đã bấm Dừng viết lại caption -> video này không còn chờ viết lại nữa."""
-    j = db.get_job(jid) or {}
-    return j.get("status") != "analyzing" or not int(j.get("redo_caption") or 0)
-
-
-def stop_redo(platform=None, channel=None) -> int:
-    """Dừng viết lại caption NGAY: video chưa viết xong giữ caption cũ (về Chờ duyệt), video đã viết xong giữ caption mới.
-    Video AI đang viết dở thì kết quả về sau bị bỏ. Trả về số video đã dừng."""
-    n = 0
-    for j in db.list_jobs(["analyzing"], platform, channel):
-        if int(j.get("redo_caption") or 0):
-            db.update_job(j["id"], status="draft", redo_caption=0)
-            n += 1
-    if n:
-        _log(f"Bác bấm dừng viết lại caption: {n} video giữ caption cũ")
-    return n
-
-
-def redo_counts(platform=None) -> dict:
-    """Số video đang chờ viết lại caption theo kênh."""
-    out = {}
-    for j in db.list_jobs(["analyzing"], platform):
-        if int(j.get("redo_caption") or 0):
-            out[j["channel"]] = out.get(j["channel"], 0) + 1
-    return out
-
-
 def analyze_fb_job(jid, video, page, model, settings, redo=False) -> str:
     try:
-        if redo and _redo_cancelled(jid):
-            return ""
         r = ana.analyze_fb(jid, video, page, settings, model)
-        if redo and _redo_cancelled(jid):
-            return ""
         if redo and int((db.get_job(jid) or {}).get("cover_by_user") or 0):
             r.pop("cover_path", None)  # viết lại caption: giữ ảnh bìa bác đã chọn
         db.update_job(jid, status="draft", redo_caption=0, **r)
@@ -91,11 +59,7 @@ def analyze_job(jid, video, channel, model, settings, caption_only=False, item_k
     if platform == "facebook":
         return analyze_fb_job(jid, video, channel, model, settings, redo=caption_only)
     try:
-        if caption_only and _redo_cancelled(jid):
-            return ""
         r = ana.analyze(jid, video, channel, settings, model, caption_only=caption_only, known_item=item_key)
-        if caption_only and _redo_cancelled(jid):  # bác bấm dừng lúc AI đang viết -> giữ caption cũ
-            return ""
         db.update_job(jid, status="draft", redo_caption=0, **r)
         if not caption_only:
             j = db.get_job(jid) or {}
@@ -111,8 +75,6 @@ def analyze_job(jid, video, channel, model, settings, caption_only=False, item_k
         return ""
     except Exception as e:
         if caption_only:  # chỉ viết lại caption hỏng -> giữ nguyên mọi thứ khác
-            if _redo_cancelled(jid):
-                return ""
             db.update_job(jid, status="draft", redo_caption=0, ai_note=f"⚠️ Viết lại caption lỗi: {str(e)[:150]}")
             return f"{Path(video).name}: {e}"
         db.update_job(jid, status="draft", confidence=0, frames=[], cover_path="",
