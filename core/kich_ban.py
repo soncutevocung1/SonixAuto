@@ -48,8 +48,17 @@ def _goi_ai(prompt: str, settings: dict, model: str) -> dict:
     return analyze._claude(content, SCHEMA, settings, model, system=system)
 
 
-def viet(sp_key: str, tham_khao: list, settings: dict, model: str = "", y_tuong: str = "") -> dict:
-    """Trả về {'tieu_de': '3 dòng\\n', 'loi': '...'}."""
+AN_TOAN = ("Công dụng, thành phần, con số: CHỈ lấy từ THÔNG TIN sản phẩm bên dưới, không lấy công dụng của sản phẩm "
+           "trong video mẫu. Ưu đãi (mua X tặng Y, quà tặng, % giảm): CHỈ dùng nếu có trong Ý TƯỞNG / ƯU ĐÃI ĐỢT NÀY, "
+           "không có thì chỉ nói chung chung (giá tốt hôm nay, miễn ship). Không hứa chữa khỏi / tăng năng suất bao nhiêu %. "
+           "Viết số bằng chữ khi đọc dễ nhầm. Không emoji, không hashtag. Tiêu đề: 3 dòng IN HOA không dấu câu, "
+           "mỗi dòng tối đa 32 ký tự, dòng 1 = câu giật + tên sản phẩm.")
+
+
+def viet(sp_key: str, tham_khao: list, settings: dict, model: str = "", y_tuong: str = "",
+         phong_cach: dict = None) -> dict:
+    """Trả về {'tieu_de': '3 dòng\\n', 'loi': '...'}.
+    phong_cach: phong cách mẫu đã học (core/mau.py) -> viết theo phong cách đó thay cho công thức mặc định."""
     sp = SAN_PHAM[sp_key]
     if not (sp.get("thong_tin") or "").strip():
         raise ValueError(f"Chưa có thông tin sản phẩm {sp['ten']}: điền ở mục 'Thông tin sản phẩm' trước khi viết kịch bản")
@@ -57,13 +66,34 @@ def viet(sp_key: str, tham_khao: list, settings: dict, model: str = "", y_tuong:
     if model == NO_AI or model not in MODELS:
         return mau_khong_ai(sp_key)
     mau = "\n\n".join(f"--- Kịch bản tham khảo {i + 1} ---\n{t}" for i, t in enumerate(tham_khao[:6] if tham_khao else []))
-    prompt = (f"{CONG_THUC}\n\nSẢN PHẨM: {sp['ten']} ({sp['quy_cach']})\nTHÔNG TIN: {sp['thong_tin']}\n"
+    if phong_cach and (phong_cach.get("cach_viet") or tham_khao):
+        n = phong_cach.get("chu_tb") or 130
+        cong_thuc = (f"Viết theo PHONG CÁCH MẪU '{phong_cach.get('ten', '')}' (các kịch bản mẫu bên dưới là của "
+                     f"chính phong cách này). Độ dài khoảng {int(n * 0.85)}-{int(n * 1.1)} chữ.\n"
+                     f"Đặc điểm phong cách:\n{phong_cach.get('mo_ta', '')}\nQuy tắc viết lời:\n"
+                     f"{phong_cach.get('cach_viet', '')}\n{AN_TOAN}")
+    else:
+        cong_thuc = CONG_THUC
+    prompt = (f"{cong_thuc}\n\nSẢN PHẨM: {sp['ten']} ({sp['quy_cach']})\nTHÔNG TIN: {sp['thong_tin']}\n"
               + (f"\nÝ TƯỞNG / ƯU ĐÃI ĐỢT NÀY: {y_tuong}\n" if y_tuong else "")
               + ("\nCác kịch bản dưới đây của kênh khác (khác ngành, chép tự động nên có thể sai chính tả). "
                  "Học cách giật tít, nhịp câu, cách dẫn dắt, KHÔNG chép nguyên câu, KHÔNG lấy sản phẩm của họ:\n"
                  + mau if mau else "")
               + "\n\nViết 1 kịch bản mới cho sản phẩm trên.")
     r = _goi_ai(prompt, settings, model)
+    # Soát lại: bỏ công dụng / con số / ưu đãi không có trong thông tin (AI hay chép theo video mẫu)
+    try:
+        r = _goi_ai(f"THÔNG TIN SẢN PHẨM {sp['ten']} ({sp['quy_cach']}): {sp['thong_tin']}\n"
+                    f"ƯU ĐÃI ĐỢT NÀY: {y_tuong or '(không có)'}\n\nKỊCH BẢN:\nTiêu đề: {' / '.join(r.get('tieu_de', []))}\n"
+                    f"Lời: {r['loi']}\n\nSoát kịch bản: câu nào nêu công dụng, thành phần, con số hoặc ưu đãi KHÔNG có "
+                    "trong THÔNG TIN / ƯU ĐÃI ở trên thì sửa cho đúng hoặc bỏ đi (thay bằng ý có trong thông tin). "
+                    "ĐƯỢC GIỮ các câu chung về giá của kênh: giảm giá, giá tốt hôm nay, tụt tận đáy, miễn phí ship toàn "
+                    "quốc, nhận hàng ưng thì thanh toán. Chỉ sửa những câu sai, còn lại giữ NGUYÊN chữ (câu mở, giọng văn, "
+                    "câu chốt, độ dài). Số đọc viết bằng chữ. Tiêu đề 3 dòng, mỗi dòng tối đa 32 ký tự. "
+                    "Trả lại tiêu đề và lời đã sửa.",
+                    settings, model)
+    except Exception:
+        pass
     tieu_de = [ln.strip().upper() for ln in r.get("tieu_de", []) if ln.strip()][:3]
     return {"tieu_de": "\n".join(tieu_de), "loi": r["loi"].strip()}
 

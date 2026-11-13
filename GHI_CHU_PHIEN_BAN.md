@@ -1,5 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
+## 2.6.1
+- **Phong cách mẫu**: thư mục `SONIX_EDIT_VIDEO\MẪU`, mỗi thư mục con là 1 phong cách edit (tự đặt tên, vd `Reup Aff`), bỏ vài video mẫu vào. Trong app chọn **Làm theo phong cách mẫu** → **Học phong cách này**: tool nghe chép lời các video mẫu, đo nhịp cắt cảnh, AI tóm tắt cách làm (mở đầu, giọng, chữ, nhịp, cách chốt). Sau đó AI viết lời theo đúng phong cách đó và dự án CapCut cắt cảnh theo nhịp của mẫu.
+- Máy chưa có thư mục `MẪU` / `CHƯA LỌC` trong `SONIX_EDIT_VIDEO`: tool tự tạo.
+
 ## 2.6.0
 - Máy chưa có thư mục nguồn của Edit Video: tool tự tạo **`SONIX_EDIT_VIDEO`** cùng ổ với `SONIX_UP_VIDEO`, có sẵn thư mục `CHƯA LỌC` (bỏ video lẫn lộn vào để tự lọc) và `TÀI NGUYÊN` (nhạc nền, khung, người dẫn).
 - Sonix Edit Video có **6 sản phẩm**: Đạm cá Amino, Kích rễ TC01, Nano Đồng, Canxi Bo, Siêu bám dính, Bọ trĩ Top One. Mục **Thông tin sản phẩm** để điền thành phần, công dụng, cách pha (AI viết lời dựa vào đây), chữ trên nhãn và từ khoá tên file.

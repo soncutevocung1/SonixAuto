@@ -402,7 +402,7 @@ def chia_cau(loi: str, giay: float) -> list:
     return [(c, giay * len(c) / tong) for c in cau]
 
 
-def chon(sp_key: str, cau_list: list, speed: float = 2.0, seed=None, luoi: bool = True) -> list:
+def chon(sp_key: str, cau_list: list, speed: float = 2.0, seed=None, luoi: bool = True, nhip: float = 0) -> list:
     """cau_list = [(câu, số giây trên timeline)] -> clips [(path, src_start, src_len, y)] đủ thời lượng,
     có thể kèm 1 mục {'luoi': [4 x (path, start, len)]} = khung chia 4 ô người dùng.
     Không lặp lại đoạn, không lấy 2 đoạn liền nhau cùng 1 video."""
@@ -467,7 +467,10 @@ def chon(sp_key: str, cau_list: list, speed: float = 2.0, seed=None, luoi: bool 
             dung.add((k, d["s"]))
             gan.append(k)
             loai_gan.append(ll)
-            lay = min(d["e"] - d["s"], max(DOAN_MIN, con * speed + 0.2))
+            muon = con * speed + 0.2
+            if nhip:  # theo phong cách mẫu: mỗi cảnh ~nhip giây trên timeline
+                muon = min(muon, max(nhip, 0.9) * speed)
+            lay = min(d["e"] - d["s"], max(DOAN_MIN * 0.9, muon))
             out.append((k, d["s"], round(lay, 2), y_doan(d)))
             con -= lay / speed
     return out

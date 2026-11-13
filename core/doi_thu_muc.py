@@ -95,19 +95,31 @@ def chay():
             o = Path(default_root()).anchor
         moi = Path(o) / EDIT_NEW
         try:
-            for sub in ("", "TÀI NGUYÊN", "CHƯA LỌC"):
+            for sub in ("", "TÀI NGUYÊN", "CHƯA LỌC", "MẪU"):
                 (moi / sub).mkdir(parents=True, exist_ok=True)
             (moi / "DOC_TRUOC.txt").write_text(
                 "Thư mục nguồn của Sonix Edit Video.\n"
                 "- CHƯA LỌC: bỏ video lẫn lộn vào đây, rồi vào app > Sonix Edit Video > Tự lọc video theo sản phẩm.\n"
                 "  Tool tạo thư mục theo từng sản phẩm (ĐẠM CÁ ..., KÍCH RỄ ...).\n"
                 "- TÀI NGUYÊN: nhạc nền kịch tính (.mp4/.mp3), ảnh khung, video người dẫn.\n"
+                "- MẪU: mỗi thư mục con là 1 phong cách edit (tự đặt tên, vd 'Reup Aff'), bỏ vài video mẫu vào,\n"
+                "  rồi vào app > Sonix Edit Video > Làm theo phong cách mẫu > Học phong cách này.\n"
                 "Dự án CapCut mẫu tên 'mẫu' phải có sẵn trong CapCut.\n", encoding="utf-8")
             S["edit_input_root"] = str(moi)
             doi = True
             _log(f"Đã tạo {moi}")
         except OSError as e:
             _log(f"Không tạo được {moi}: {e}")
+    # Máy đã có thư mục nguồn (bản trước) nhưng thiếu MẪU / CHƯA LỌC: tạo thêm
+    try:
+        r = edit_video.input_root(S)
+        if r.exists():
+            for sub in ("MẪU", "CHƯA LỌC"):
+                if not (r / sub).exists():
+                    (r / sub).mkdir()
+                    _log(f"Đã tạo {r / sub}")
+    except OSError:
+        pass
     if doi:
         save_settings(S)
     return doi

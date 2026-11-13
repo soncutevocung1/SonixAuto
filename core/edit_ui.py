@@ -184,6 +184,53 @@ def _voice_settings(S):
         st.caption("Giọng miễn phí cần mạng, đôi khi máy chủ Microsoft chậm: tool tự thử lại từng câu.")
 
 
+def _phong_cach(S) -> dict:
+    """Chọn phong cách mẫu (thư mục con trong MẪU). Trả về phong cách đã học hoặc {} (dùng công thức mặc định)."""
+    from . import mau
+    ds = mau.danh_sach(S)
+    goc = mau.thu_muc(S)
+    opts = [""] + list(ds)
+    cur = S.get("edit_phong_cach", "")
+    c = st.columns([2, 1])
+    ten = c[0].selectbox("Làm theo phong cách mẫu", opts, index=opts.index(cur) if cur in opts else 0,
+                         format_func=lambda x: x or "Mặc định (công thức giảm giá kịch tính + kênh tham khảo)",
+                         key="ev_pc", on_change=_set, args=(S, "edit_phong_cach", "ev_pc"),
+                         help=f"Mỗi thư mục con trong {goc} là 1 phong cách. Bỏ vài video mẫu vào, đặt tên thư mục "
+                              "theo phong cách (vd 'Reup Aff', 'Review nhẹ nhàng'), rồi bấm Học phong cách.")
+    if c[1].button("Mở thư mục MẪU"):
+        goc.mkdir(parents=True, exist_ok=True)
+        import os
+        os.startfile(str(goc))  # noqa
+    if not ds:
+        st.caption(f"Chưa có phong cách nào: tạo thư mục con trong `{goc}` rồi bỏ video mẫu vào.")
+    if not ten:
+        return {}
+    pc = mau.doc(ten)
+    vids = ds.get(ten, [])
+    da = len([v for v in vids if v.name in pc.get("videos", {})])
+    name = "hoc_mau_" + "".join(ch for ch in ten if ch.isalnum())[:30]
+    chay = edit_job.dang_chay(name)
+    with st.container(border=True):
+        if pc.get("nhip"):
+            st.markdown(f"**{ten}** · đã học {da}/{len(vids)} video ({pc.get('luc', '')}) · mỗi cảnh ~**{pc['nhip']:.1f} giây** "
+                        f"· video ~{pc.get('giay_tb', 0):.0f} giây, ~{pc.get('chu_tb', 0)} chữ")
+            if pc.get("mo_ta"):
+                with st.expander("Phong cách AI rút ra"):
+                    st.markdown(pc["mo_ta"])
+                    st.markdown("**Cách viết lời:**\n\n" + pc.get("cach_viet", ""))
+        else:
+            st.caption(f"**{ten}**: {len(vids)} video, chưa học.")
+        if st.button("Học phong cách này" if not pc.get("nhip") else "Học lại (có video mới)", disabled=chay or not vids,
+                     key="ev_hoc"):
+            f = edit_job.JOB_DIR / f"{name}.txt"
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_text(ten, encoding="utf-8")
+            edit_job.chay_ngam(name, "hoc_mau", name[8:], str(f), env=_env(), flags=_flags())
+            st.rerun()
+        _job_box(name, "Học phong cách")
+    return pc if pc.get("nhip") or pc.get("cach_viet") else {}
+
+
 def _script(S, sp):
     kb = _load_kb(sp)
     ref = edit_video.kich_ban_tham_khao()
@@ -209,6 +256,7 @@ def _script(S, sp):
         for k in list(ref) + [ten.strip() or "kenh"]:
             _job_box("quet_kenh_" + k, f"Quét kênh {k}")
 
+    pc = _phong_cach(S)
     y = st.text_input("Ý tưởng / ưu đãi đợt này (không bắt buộc)", key=f"ev_idea_{sp}",
                       placeholder="vd: mua 2 tặng 1, chỉ hôm nay")
     c = st.columns([1, 1, 2])
@@ -216,8 +264,12 @@ def _script(S, sp):
                    help=None if co_ai else "Chưa chọn AI trong Cài đặt"):
         with st.spinner("AI đang viết..."):
             try:
-                mau = [x for v in ref.values() for x in v]
-                r = kich_ban.viet(sp, mau, S, y_tuong=y)
+                from . import mau as mau_mod
+                if pc:
+                    mau = mau_mod.loi_mau(pc["ten"])
+                else:
+                    mau = [x for v in ref.values() for x in v]
+                r = kich_ban.viet(sp, mau, S, y_tuong=y, phong_cach=pc or None)
                 kb.update(r, giong="")
                 _save_kb(sp, kb)
                 for k_ in (f"ev_title_{sp}", f"ev_loi_{sp}"):
@@ -308,7 +360,9 @@ def _project(S, sp, kb, n_ok):
     if st.button("Tạo dự án CapCut", type="primary", disabled=bool(mo or thieu)):
         with st.spinner("Đang chọn cảnh và dựng dự án..."):
             try:
-                r = edit_video.tao_du_an(sp, kb, g, S, ten=ten, nhac=nhac, luoi=luoi)
+                from . import mau
+                nhip = mau.doc(S["edit_phong_cach"]).get("nhip", 0) if S.get("edit_phong_cach") else 0
+                r = edit_video.tao_du_an(sp, kb, g, S, ten=ten, nhac=nhac, luoi=luoi, nhip=nhip)
                 st.success(f"Đã tạo **{r['name']}** ({r['duration']:.1f} giây). Mở CapCut, dự án nằm đầu danh sách.")
             except Exception as e:
                 st.error(f"Lỗi: {e}")

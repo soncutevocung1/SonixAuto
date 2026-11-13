@@ -80,6 +80,10 @@ def main(argv):
             log(f"Quét {len(files)} video (đã quét rồi thì bỏ qua)...")
             canh.quet(sp, files, log=log)
             canh.gan_nhan_ai(sp, S, log=log)
+        elif kind == "hoc_mau":
+            from core import mau
+            ten = Path(argv[2]).read_text(encoding="utf-8").strip()
+            mau.hoc(S, ten, log=log)
         elif kind == "loc_sp":
             from core import edit_video, loc_sp
             cfg = json.loads(Path(argv[2]).read_text(encoding="utf-8"))

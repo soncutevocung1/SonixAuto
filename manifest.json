@@ -1,7 +1,7 @@
 {
- "version": "2.6.0",
- "built_at": "2026-11-13T02:25:49Z",
- "notes": "- Máy chưa có thư mục nguồn của Edit Video: tool tự tạo **`SONIX_EDIT_VIDEO`** cùng ổ với `SONIX_UP_VIDEO`, có sẵn thư mục `CHƯA LỌC` (bỏ video lẫn lộn vào để tự lọc) và `TÀI NGUYÊN` (nhạc nền, khung, người dẫn).\n- Sonix Edit Video có **6 sản phẩm**: Đạm cá Amino, Kích rễ TC01, Nano Đồng, Canxi Bo, Siêu bám dính, Bọ trĩ Top One. Mục **Thông tin sản phẩm** để điền thành phần, công dụng, cách pha (AI viết lời dựa vào đây), chữ trên nhãn và từ khoá tên file.\n- **Tự lọc video theo sản phẩm**: chọn thư mục video lẫn lộn, tool nhận ra sản phẩm theo tên file → chữ trên nhãn → AI xem hình, rồi chép (hoặc chuyển) vào thư mục MỚI theo sản phẩm, tên kèm tên đợt (vd `KÍCH RỄ 13-11-2026`); thư mục có sẵn giữ nguyên, trùng tên thì phải đặt tên đợt khác. Không rõ / nhiều sản phẩm → `CẦN XEM`. Edit Video tự dùng cả thư mục cũ và các đợt mới.\n- Lọc cảnh kỹ hơn: bỏ cảnh có sản phẩm khác (vd cảnh Nano Đồng lẫn trong thư mục Đạm cá), bắt cả phụ đề nhỏ; AI xem ảnh to hơn; không lặp 1 video trong 4 cảnh liền, không quá 3 cảnh cùng loại liền nhau.\n- Giọng **ElevenLabs** (dán API Key, chọn giọng trong tài khoản, mẫu Eleven v3 / Flash v2.5, tốc độ).",
+ "version": "2.6.1",
+ "built_at": "2026-11-13T02:40:53Z",
+ "notes": "- **Phong cách mẫu**: thư mục `SONIX_EDIT_VIDEO\\MẪU`, mỗi thư mục con là 1 phong cách edit (tự đặt tên, vd `Reup Aff`), bỏ vài video mẫu vào. Trong app chọn **Làm theo phong cách mẫu** → **Học phong cách này**: tool nghe chép lời các video mẫu, đo nhịp cắt cảnh, AI tóm tắt cách làm (mở đầu, giọng, chữ, nhịp, cách chốt). Sau đó AI viết lời theo đúng phong cách đó và dự án CapCut cắt cảnh theo nhịp của mẫu.\n- Máy chưa có thư mục `MẪU` / `CHƯA LỌC` trong `SONIX_EDIT_VIDEO`: tool tự tạo.",
  "files": [
   {
    "path": ".gitattributes",
@@ -70,8 +70,8 @@
   },
   {
    "path": "core/canh.py",
-   "sha256": "0e334fe8116047ed109b7788a948c3552a7b1511286aff29e65fb32ff1953bff",
-   "size": 22686
+   "sha256": "c74b1e74fba4b66fdf9890577736f702db232bbc7896d644942381d696dabc0c",
+   "size": 22878
   },
   {
    "path": "core/capcut_draft.py",
@@ -115,23 +115,23 @@
   },
   {
    "path": "core/doi_thu_muc.py",
-   "sha256": "19a5472a4dcbbb61d7eabe18ff87da3ac09270f8faf5cc1fc85adb677d14d2fd",
-   "size": 4593
+   "sha256": "40a67e2c4507936c71905ca3f1011cbdbd0f96610ec6c15ea5cec09a8ac87e28",
+   "size": 5236
   },
   {
    "path": "core/edit_job.py",
-   "sha256": "0531136f6940b966024971544b7bb180b3badc3fe3585cc15f196036af17791d",
-   "size": 3417
+   "sha256": "3222b286902fcdc0c66afb7c9002a38f4cfecd73cfe2eb1d45b9acdb7126999f",
+   "size": 3587
   },
   {
    "path": "core/edit_ui.py",
-   "sha256": "b2788ae1672fc82223d2c0a6d835d2594def8d8a30ef246d67e652f1a6f109ab",
-   "size": 20553
+   "sha256": "f81e741f4070bbbe337820862be8d348974b8cc61c96fff06d421a68fcb1bcff",
+   "size": 23518
   },
   {
    "path": "core/edit_video.py",
-   "sha256": "eefaf93fa929c26a3b978e1221d8f15bc02c95463195cfeb4b015a6467585fda",
-   "size": 4841
+   "sha256": "0b2e4970b53046140df2bbba19695def9388da8da7acc4f4a1622c1e7d119341",
+   "size": 4947
   },
   {
    "path": "core/elevenlabs.py",
@@ -160,13 +160,18 @@
   },
   {
    "path": "core/kich_ban.py",
-   "sha256": "12867a44a793aecfb8c477817451122cec7d4d708c319836501cf985d0fb092a",
-   "size": 5484
+   "sha256": "942674cbf0c28f535cf84a4d9ebf85cfd09a52c01f51a4314b81fd518747319a",
+   "size": 8147
   },
   {
    "path": "core/loc_sp.py",
    "sha256": "5275f339fd12e1dc7e4ec6450bcc675ac984e9146835bd85be7b225214159708",
    "size": 6301
+  },
+  {
+   "path": "core/mau.py",
+   "sha256": "6561e0e196d2a6d022b76d55ff56b84fa8b203d5d6eb8b5a0b4ac04d7004fbe2",
+   "size": 6346
   },
   {
    "path": "core/products.py",
@@ -250,8 +255,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "be28e64a3193fc0db9e92bc0bb4974411659b67e46d92cd9a6187a0aab012892",
-   "size": 16335
+   "sha256": "292447d4b20a0c489e7d7886132f2e5eab980b4a26ad57398fe4eb8ce1408e6c",
+   "size": 16945
   },
   {
    "path": "HUONG_DAN.md",
@@ -295,7 +300,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "e33ccf6527ddb87b2dc894b17dd846206c5d18334710d253f7f366f2c4403fe0",
+   "sha256": "e59f33a31675c4523d151c4ffa9fad8cc1f2df9a97a110dd3e3170f24df39b86",
    "size": 5
   }
  ]

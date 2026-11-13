@@ -93,11 +93,12 @@ def ten_an_toan(s: str) -> str:
 
 
 def tao_du_an(sp_key: str, kb: dict, giong_path: str, S: dict, ten: str = "", nhac: str = "", luoi: bool = True,
-              seed=None) -> dict:
-    """Chọn cảnh theo câu thoại rồi tạo dự án CapCut. nhac: đường dẫn file nhạc, '' = ngẫu nhiên, 'none' = không."""
+              seed=None, nhip: float = 0) -> dict:
+    """Chọn cảnh theo câu thoại rồi tạo dự án CapCut. nhac: đường dẫn file nhạc, '' = ngẫu nhiên, 'none' = không.
+    nhip: số giây mỗi cảnh theo phong cách mẫu (0 = mặc định)."""
     from core import canh
     dur = probe(giong_path)["duration"]
-    clips = canh.chon(sp_key, canh.chia_cau(kb["loi"], dur), seed=seed, luoi=luoi)
+    clips = canh.chon(sp_key, canh.chia_cau(kb["loi"], dur), seed=seed, luoi=luoi, nhip=nhip)
     if not clips:
         raise capcut_draft.CapCutError("Chưa có cảnh dùng được. Bấm 'Quét cảnh' cho sản phẩm này trước.")
     if nhac == "none":
