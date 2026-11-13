@@ -279,27 +279,53 @@ def is_admin(settings) -> bool:
     return bool(_token(settings)) and not settings.get("tg_tu_ma")
 
 
-def _builtin():
-    """Bot báo lỗi gắn sẵn trong app (chỉ gửi được về Telegram Admin). Không có thì trả None."""
+REPORT_PREFIX = "SONIXBL-"
+ADMIN_REPORT_FILE = DATA_DIR / "lien_ket_admin.txt"  # máy Admin: bot báo lỗi đã kiểm tra (mã hoá)
+
+
+def _decode(blob):
     try:
-        from .lien_ket_admin import B
-        raw = bytes(x ^ 0x5A for x in base64.b64decode(B)).decode()
-        js = json.loads(raw)
+        js = json.loads(bytes(x ^ 0x5A for x in base64.b64decode(blob.strip())).decode())
         return (js["t"], str(js["a"])) if js.get("t") and js.get("a") else None
     except Exception:
         return None
+
+
+def report_code() -> str:
+    """Mã báo lỗi Admin gửi riêng cho từng người dùng (từ bot báo lỗi đã kiểm tra trên máy Admin)."""
+    try:
+        blob = ADMIN_REPORT_FILE.read_text(encoding="utf-8").strip()
+        return REPORT_PREFIX + blob if _decode(blob) else ""
+    except Exception:
+        return ""
+
+
+def read_report_code(code):
+    """Kiểm tra mã báo lỗi người dùng dán vào. Trả về phần lưu vào Cài đặt."""
+    code = (code or "").strip()
+    if not code.startswith(REPORT_PREFIX) or not _decode(code[len(REPORT_PREFIX):]):
+        raise TgError("Mã báo lỗi không đúng (phải bắt đầu bằng SONIXBL-, chép đủ cả dòng)")
+    return code[len(REPORT_PREFIX):]
 
 
 def admin_target(settings):
     """(mã bot, chat Admin) để gửi Báo lỗi. Người dùng KHÔNG cần có Telegram."""
     if is_admin(settings) and settings.get("tg_admin_chat"):
         return _token(settings), str(settings["tg_admin_chat"])
-    b = _builtin()
+    b = _decode(settings.get("tg_bao_loi") or "")  # mã báo lỗi Admin gửi
     if b:
         return b
-    if _token(settings) and settings.get("tg_admin_chat"):  # máy đã dán mã kết nối Admin gửi
+    if _token(settings) and settings.get("tg_admin_chat"):  # máy đã dán mã nhận thông báo của Admin
         return _token(settings), str(settings["tg_admin_chat"])
     return None
+
+
+def _builtin():
+    """Máy Admin: bot báo lỗi đã kiểm tra (để hiện trạng thái)."""
+    try:
+        return _decode(ADMIN_REPORT_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return None
 
 
 def encode_builtin(token, chat) -> str:

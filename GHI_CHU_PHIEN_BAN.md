@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.7.4
+- **Mã báo lỗi** (bắt đầu bằng SONIXBL-): Admin lấy ở Cài đặt → Nhận thông báo về Telegram → Admin, gửi riêng cho từng người dùng qua Zalo. Người dùng dán 1 lần vào tab **Báo lỗi Admin** là báo lỗi tự về Telegram Admin, **không cần Telegram**. Mã chỉ gửi được báo lỗi (dùng bot báo lỗi riêng), không đụng tới bot thông báo.
+
 ## 2.7.3
 - **Báo lỗi Admin không cần Telegram**: người dùng chỉ ghi mô tả, chụp / tải ảnh lỗi, bấm Gửi. App gửi kèm **ảnh đoạn nhật ký trên app** (đọc được ngay trên điện thoại) và gói nhật ký đầy đủ về Telegram Admin. Có ô xem trước đoạn nhật ký sẽ gửi.
 - Tách riêng **Nhận thông báo về Telegram** (tuỳ chọn, cho ai muốn nhận tin). Mục Admin chỉ hiện trên máy Admin.

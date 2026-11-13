@@ -20,7 +20,7 @@ REPORT_DIR = DATA_DIR / "bao_loi"
 SHOT_DIR = REPORT_DIR / "anh_cho_gui"
 KIND_LABEL = {"su_co": "Sự cố", "xong": "Đã làm xong", "cap_nhat": "Có bản cập nhật"}
 APP_LABEL = {"up": "Sonix Up Video", "edit": "Sonix Edit Video"}
-SECRET = re.compile(r"token|key|pass|secret|cookie|tg_bot|pin", re.I)
+SECRET = re.compile(r"token|key|pass|secret|cookie|tg_bot|tg_bao_loi|pin", re.I)
 
 
 # =============================== CÀI ĐẶT TELEGRAM ===============================
@@ -184,14 +184,15 @@ def _receivers(S):
 def _admin_box(S):
     rs = S.get("tg_nguoi_nhan") or []
     with st.expander("Admin: nơi nhận Báo lỗi + mã nhận thông báo cho người dùng"):
-        b = tg._builtin()
-        if b and str(b[1]) == str(S.get("tg_admin_chat")):
-            st.success("Báo lỗi của mọi máy (không cần Telegram) đang gửi về Telegram Admin này.")
-        elif b:
-            st.warning("Bot báo lỗi gắn trong app đang gửi về 1 Telegram khác với Admin chọn dưới đây.")
+        rc = tg.report_code()
+        if rc:
+            st.markdown("**Mã báo lỗi** · gửi RIÊNG cho từng người dùng qua Zalo. Họ dán 1 lần vào tab **Báo lỗi "
+                        "Admin** là báo lỗi tự về Telegram của bác (họ **không cần Telegram**). Mã chỉ gửi được báo lỗi, "
+                        "không dùng được bot thông báo. Đừng đăng công khai.")
+            if st.toggle("Hiện mã báo lỗi", key="tg_show_rc"):
+                st.code(rc, language=None)
         else:
-            st.info("App chưa gắn sẵn bot báo lỗi: máy người dùng chưa dán mã thì Báo lỗi chỉ tạo gói .zip để "
-                    "gửi Zalo cho Admin.")
+            st.info("Chưa có bot báo lỗi: tạo ở phần **Bot báo lỗi** bên dưới để có mã báo lỗi gửi cho người dùng.")
         if rs:
             opts = [""] + [str(r["chat_id"]) for r in rs]
             names = {str(r["chat_id"]): r.get("name") for r in rs}
@@ -214,8 +215,8 @@ def _admin_box(S):
 
 def _report_bot_box(S):
     """Admin tạo bot thứ 2 chỉ để nhận Báo lỗi; app lưu mã đã mã hoá để gắn vào bản phát hành."""
-    st.markdown("**Bot báo lỗi** (bot thứ 2, chỉ gửi Báo lỗi về Admin, gắn sẵn vào app để máy người dùng "
-                "không cần Telegram)")
+    st.markdown("**Bot báo lỗi** (bot thứ 2, chỉ dùng gửi Báo lỗi về Admin" +
+                (" · đã nối" if tg._builtin() else "") + ")")
     st.caption("1. Tạo thêm 1 bot với BotFather (vd tên `Sonix Bao Loi`, tên đăng nhập `sonix_baoloi_son_bot`).  \n"
                "2. Mở bot mới đó trên Telegram điện thoại, bấm **BẮT ĐẦU / START** (bot chỉ nhắn được cho người đã Start).  \n"
                "3. Dán mã bot mới vào ô dưới, bấm Kiểm tra. Tool gửi thử 1 tin về Telegram Admin.")
@@ -227,8 +228,7 @@ def _report_bot_box(S):
                 f"Bot báo lỗi @{me.get('username')} đã sẵn sàng. Báo lỗi của người dùng sẽ về đây."))
             (DATA_DIR / "lien_ket_admin.txt").write_text(tg.encode_builtin(tok.strip(), S["tg_admin_chat"]),
                                                          encoding="utf-8")
-            st.success(f"Đã gửi thử từ @{me.get('username')}. Bác xem Telegram, rồi báo Claude «đã tạo bot báo lỗi» "
-                       "để gắn vào bản cập nhật cho mọi máy.")
+            st.success(f"Đã gửi thử từ @{me.get('username')}. Mã báo lỗi cho người dùng hiện ở phía trên.")
         except Exception as e:
             st.error(tg._safe(e) + " · Bác đã bấm Start ở bot báo lỗi mới chưa?")
 
@@ -435,6 +435,22 @@ def render_bao_loi(S, app="up"):
         st.code("\n".join(lines[-40:]) or "(trống)", language=None)
     target = tg.admin_target(S)
     ok_tg = bool(target)
+    if not ok_tg:
+        with st.container(border=True):
+            st.markdown("**Nối với Admin (làm 1 lần):** xin Admin **mã báo lỗi** (bắt đầu bằng `SONIXBL-`), dán vào "
+                        "đây. Từ đó bấm Gửi là báo lỗi tự về Admin. **Không cần Telegram.**")
+            mc = st.columns([3, 1])
+            rcode = mc[0].text_input("Mã báo lỗi", key=f"{k}_rcode", type="password", label_visibility="collapsed",
+                                     placeholder="Dán mã báo lỗi SONIXBL-...")
+            if mc[1].button("Lưu mã", key=f"{k}_rcode_ok", disabled=not rcode):
+                try:
+                    S["tg_bao_loi"] = tg.read_report_code(rcode)
+                    save_settings(S)
+                    st.rerun()
+                except Exception as e:
+                    st.error(str(e))
+    else:
+        st.caption("Đã nối với Admin: bấm Gửi là báo lỗi về thẳng Admin.")
     b = st.columns([1, 1, 2])
     send = b[0].button("Gửi báo lỗi cho Admin", key=f"{k}_send", type="primary", disabled=not desc.strip())
     ai = b[1].button("Nhờ AI xem nhanh", key=f"{k}_ai", disabled=not desc.strip(),

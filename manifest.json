@@ -1,7 +1,7 @@
 {
- "version": "2.7.3",
- "built_at": "2026-11-13T07:08:49Z",
- "notes": "- **Báo lỗi Admin không cần Telegram**: người dùng chỉ ghi mô tả, chụp / tải ảnh lỗi, bấm Gửi. App gửi kèm **ảnh đoạn nhật ký trên app** (đọc được ngay trên điện thoại) và gói nhật ký đầy đủ về Telegram Admin. Có ô xem trước đoạn nhật ký sẽ gửi.\n- Tách riêng **Nhận thông báo về Telegram** (tuỳ chọn, cho ai muốn nhận tin). Mục Admin chỉ hiện trên máy Admin.\n- Admin tạo thêm **bot báo lỗi** để gắn sẵn vào app cho mọi máy.",
+ "version": "2.7.4",
+ "built_at": "2026-11-13T07:29:21Z",
+ "notes": "- **Mã báo lỗi** (bắt đầu bằng SONIXBL-): Admin lấy ở Cài đặt → Nhận thông báo về Telegram → Admin, gửi riêng cho từng người dùng qua Zalo. Người dùng dán 1 lần vào tab **Báo lỗi Admin** là báo lỗi tự về Telegram Admin, **không cần Telegram**. Mã chỉ gửi được báo lỗi (dùng bot báo lỗi riêng), không đụng tới bot thông báo.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "fa04826803b437d73e4242432d58b083182c4b6434b922b860187a39586e92d9",
-   "size": 22581
+   "sha256": "7c6aa9a8c6e3c6ec2e2d5e04ce9550a4d12e9bd1e76aa69c9c2b3ae9553c7eb8",
+   "size": 23000
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,7 +65,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "716c9eb23998f9cf2b422dcdff312269afea0da351431c0b728b74fef7506dd6",
+   "sha256": "9885213cc1510f18babb86df504e11d53782f9f25c867a4f72670dd5e5e2785c",
    "size": 6
   },
   {
@@ -250,13 +250,13 @@
   },
   {
    "path": "core/telegram.py",
-   "sha256": "4865f81e16d54e53f63300e88959c86f77c1ccc2be194cd436680372bdc8386a",
-   "size": 12581
+   "sha256": "521dc7c959a63e43201cdc1fb8238b7df7af8af14f4d140510cd363eb422f904",
+   "size": 13584
   },
   {
    "path": "core/tg_ui.py",
-   "sha256": "35bde5518da03b27587bfbe087ec132f610c363d6858c983051c1b4a2bcf17f7",
-   "size": 27075
+   "sha256": "a2f6a478e4711a2483e0f9137366d9464832ae4a77decd53c9733177803657de",
+   "size": 28110
   },
   {
    "path": "core/tham_khao.py",
