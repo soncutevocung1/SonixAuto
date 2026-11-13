@@ -1,7 +1,7 @@
 {
- "version": "2.6.4",
- "built_at": "2026-11-13T05:11:11Z",
- "notes": "- Sửa lỗi đăng video báo lỗi \"không tìm thấy file video\" sau khi thư mục VIDEO_TIKTOK được đổi tên thành SONIX_UP_VIDEO: hàng chờ vẫn ghi đường dẫn cũ. Nay tool tự sửa đường dẫn video, nhạc nền, âm thanh trong hàng chờ và dữ liệu (cả máy đã đổi tên từ trước). Video đã lỗi vì chuyện này: vào Hàng chờ, chọn, bấm \"Chạy lại\".",
+ "version": "2.7.0",
+ "built_at": "2026-11-13T05:23:04Z",
+ "notes": "- **Thông báo Telegram** (Cài đặt → Thông báo Telegram): tool nhắn về Telegram khi có **sự cố** (kèm ảnh chụp lỗi + video quay màn hình lúc đăng), khi **làm xong** (đã hẹn giờ / đã đăng, việc Edit Video xong), khi **có bản cập nhật**. Tin có nhãn [Sonix Up Video] / [Sonix Edit Video]. Thêm nhiều người nhận, mỗi người chọn loại tin muốn nhận. Admin gửi **Mã kết nối Sonix** cho người dùng khác để dùng chung bot.\n- **Tab Báo lỗi Admin** (cả trong Sonix Edit Video): ghi mô tả lỗi, chụp cửa sổ app hoặc tải ảnh lên, bấm Gửi → tool gửi ảnh + gói nhật ký về Telegram Admin, tin tên «Sự cố người dùng» (không gửi mật khẩu, token, khoá AI). Có nút **Nhờ AI xem nhanh** gợi ý cách tự xử lý.\n- **Ảnh bìa**: nút **Trả về ảnh bìa AI chọn** (từng video và hàng loạt) khi lỡ đổi / tải ảnh khác; nút **Bỏ khỏi thư viện** cho ảnh lỡ tải lên (cất vào ẢNH BÌA\\_DA_BO, không xoá hẳn).\n- **Dừng viết lại caption** ngay lập tức: video đã viết xong giữ caption mới, video chưa viết giữ caption cũ. Nút \"Dừng phân tích\" không còn xoá nhầm video đang viết lại caption.\n- Sửa lỗi **âm thanh đã đồng bộ không tự gắn sản phẩm**: nhãn bị ghi nhầm thành \"bác tự sửa = trống\" nên tool bỏ qua. Nay tool tự dò lại theo lời nói đã nghe (không tốn AI), kênh mượn âm thanh (KTNN) cũng có âm thanh để mượn.\n- **Nhẹ máy hơn**: chỉ dựng tab đang mở (trước đây bấm nút nào cũng dựng lại cả 9 tab), ảnh bìa ở tab Duyệt dùng ảnh nhỏ, Nhạc nền chia trang 12 âm thanh, bộ nghe giọng nói dùng ít nhân CPU hơn.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "5d28fb75af9ce413009a07b441a0df924e0f687cb07f47ced8ea4f5b578a7a2f",
-   "size": 18663
+   "sha256": "afff56b4651aed3d349f872fd8614f56ed0c395809556927cba6ebcfee3ac995",
+   "size": 20514
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,13 +65,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "cbe892c63551904b7de297b049a93d839b763278e2a8ecd49e7c99cdecbb565e",
+   "sha256": "362148d7721ad4a1bb64981ff8d604ef7f4d22267ea8845042f54f90940f24fd",
    "size": 6
   },
   {
    "path": "app.py",
-   "sha256": "4e2dd594b6d751faddd7c3e27b56107e7b81a48800db4d41d02e0a7f9b042199",
-   "size": 107236
+   "sha256": "617a04b82b089445717b293da08a1c9694fd6bbe4fb07d43b2a3e70c57ff82af",
+   "size": 113035
   },
   {
    "path": "assets/sonix.ico",
@@ -95,8 +95,8 @@
   },
   {
    "path": "core/analyze.py",
-   "sha256": "340aedadb5fce82e77fda2b00432f2a79385d01a107930dd91b1822012bc9e81",
-   "size": 23013
+   "sha256": "d9d8c0e26ee8d44959e673f69228c7dac774b90bf8275e2b9cf11b38f09eb79a",
+   "size": 23873
   },
   {
    "path": "core/canh.py",
@@ -125,8 +125,8 @@
   },
   {
    "path": "core/covers.py",
-   "sha256": "1ae7db4084d0b124da2126d1f70804c07fb981d162353b729e7f57034e0468ae",
-   "size": 9142
+   "sha256": "99aa4fcf9b2eb8413564f1bce208673f7dbf55a88a58577bba8621748958eb95",
+   "size": 10229
   },
   {
    "path": "core/cua_so.py",
@@ -150,8 +150,8 @@
   },
   {
    "path": "core/edit_job.py",
-   "sha256": "be3f96ed04484b1920abace66b659d0ee0930484e1867170e0cba4251877e4db",
-   "size": 4534
+   "sha256": "4acd8e75bd455655ea7053b361b424b8f6e3455c6ed691991ef7b2ff6451438d",
+   "size": 5458
   },
   {
    "path": "core/edit_ui.py",
@@ -175,8 +175,8 @@
   },
   {
    "path": "core/fb_ui.py",
-   "sha256": "c1ef592e6e47b6e9f56e7bc150be65bb3a6812e9e76ce7386b9e776ce09e5cf5",
-   "size": 31409
+   "sha256": "7925d05841d0e321593ec82ad63372df48938e2935fe4a8c46aa9d9c17d942ed",
+   "size": 32155
   },
   {
    "path": "core/fbq.py",
@@ -235,8 +235,8 @@
   },
   {
    "path": "core/sounds.py",
-   "sha256": "ce0b1cfdb262ef098343dbbdbfc1202d68776088436948043c624b538a7e2a9b",
-   "size": 14991
+   "sha256": "e62a96164592157a413af64ece4bd51abf6f9fbb10f6e092acff85e563faab09",
+   "size": 16316
   },
   {
    "path": "core/stats.py",
@@ -249,14 +249,24 @@
    "size": 3292
   },
   {
+   "path": "core/telegram.py",
+   "sha256": "d14c84033de2bf5e9337c7a8a049363d69d366a721db1ca657fdf4d2b498238a",
+   "size": 11182
+  },
+  {
+   "path": "core/tg_ui.py",
+   "sha256": "129637e90eeb6385aff3e497bcd9d5e464100dc67b2ca37ac6bdeea944ae5e54",
+   "size": 20408
+  },
+  {
    "path": "core/tham_khao.py",
    "sha256": "b817cae1ff6281963a5e4deaaf6e2d6438153578859428f8c063799fc7e939b7",
    "size": 4012
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "5f0b90a662215a1d1c469bc6f4d4a0f35224962b54b0adcac0b68cfd743af6d9",
-   "size": 75576
+   "sha256": "24bdc4fc4c17fd44546241aac005b2dbf8cf6eff645e5579e7bfd454e7763495",
+   "size": 75878
   },
   {
    "path": "core/ui.py",
@@ -285,8 +295,8 @@
   },
   {
    "path": "core/worker.py",
-   "sha256": "6d7a5ff27259e6c3e21565dcd944ebfa4ba2fac3ffe6d6631e9c8dec644bb41f",
-   "size": 7718
+   "sha256": "c98fc8154fdc1404c1d0c1e01f286b0967b21d25aeeae85ab1ecc363dcbf4343",
+   "size": 9279
   },
   {
    "path": "dong_goi.py",
@@ -305,8 +315,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "4213099be17a68c90b338b75ac1ba99ae1631a4237faa9bcc874aca2117af552",
-   "size": 23328
+   "sha256": "4b9953377b76df8eea4f561c92416a197ffd873c00faf65ede3fb8951c1fdf08",
+   "size": 26317
   },
   {
    "path": "tao_manifest.py",

@@ -1,6 +1,14 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.7.0
+- **Thông báo Telegram** (Cài đặt → Thông báo Telegram): tool nhắn về Telegram khi có **sự cố** (kèm ảnh chụp lỗi + video quay màn hình lúc đăng), khi **làm xong** (đã hẹn giờ / đã đăng, việc Edit Video xong), khi **có bản cập nhật**. Tin có nhãn [Sonix Up Video] / [Sonix Edit Video]. Thêm nhiều người nhận, mỗi người chọn loại tin muốn nhận. Admin gửi **Mã kết nối Sonix** cho người dùng khác để dùng chung bot.
+- **Tab Báo lỗi Admin** (cả trong Sonix Edit Video): ghi mô tả lỗi, chụp cửa sổ app hoặc tải ảnh lên, bấm Gửi → tool gửi ảnh + gói nhật ký về Telegram Admin, tin tên «Sự cố người dùng» (không gửi mật khẩu, token, khoá AI). Có nút **Nhờ AI xem nhanh** gợi ý cách tự xử lý.
+- **Ảnh bìa**: nút **Trả về ảnh bìa AI chọn** (từng video và hàng loạt) khi lỡ đổi / tải ảnh khác; nút **Bỏ khỏi thư viện** cho ảnh lỡ tải lên (cất vào ẢNH BÌA\_DA_BO, không xoá hẳn).
+- **Dừng viết lại caption** ngay lập tức: video đã viết xong giữ caption mới, video chưa viết giữ caption cũ. Nút "Dừng phân tích" không còn xoá nhầm video đang viết lại caption.
+- Sửa lỗi **âm thanh đã đồng bộ không tự gắn sản phẩm**: nhãn bị ghi nhầm thành "bác tự sửa = trống" nên tool bỏ qua. Nay tool tự dò lại theo lời nói đã nghe (không tốn AI), kênh mượn âm thanh (KTNN) cũng có âm thanh để mượn.
+- **Nhẹ máy hơn**: chỉ dựng tab đang mở (trước đây bấm nút nào cũng dựng lại cả 9 tab), ảnh bìa ở tab Duyệt dùng ảnh nhỏ, Nhạc nền chia trang 12 âm thanh, bộ nghe giọng nói dùng ít nhân CPU hơn.
+
 ## 2.6.4
 - Sửa lỗi đăng video báo lỗi "không tìm thấy file video" sau khi thư mục VIDEO_TIKTOK được đổi tên thành SONIX_UP_VIDEO: hàng chờ vẫn ghi đường dẫn cũ. Nay tool tự sửa đường dẫn video, nhạc nền, âm thanh trong hàng chờ và dữ liệu (cả máy đã đổi tên từ trước). Video đã lỗi vì chuyện này: vào Hàng chờ, chọn, bấm "Chạy lại".
 
