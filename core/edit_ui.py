@@ -195,15 +195,15 @@ def _phong_cach(S) -> dict:
     opts = [""] + list(ds)
     cur = S.get("edit_phong_cach", "")
     c = st.columns([2, 1])
-    ten = c[0].selectbox("Làm theo phong cách mẫu", opts, index=opts.index(cur) if cur in opts else 0,
+    ten = c[0].selectbox("Phong cách edit", opts, index=opts.index(cur) if cur in opts else 0,
                          format_func=lambda x: x or "Mặc định (công thức giảm giá kịch tính + kênh tham khảo)",
                          key="ev_pc", on_change=_set, args=(S, "edit_phong_cach", "ev_pc"),
                          help=f"Mỗi thư mục con trong {goc} là 1 phong cách. Bỏ vài video mẫu vào, đặt tên thư mục "
                               "theo phong cách (vd 'Reup Aff', 'Review nhẹ nhàng'), rồi bấm Học phong cách.")
-    if c[1].button("Mở thư mục MẪU"):
-        goc.mkdir(parents=True, exist_ok=True)
+    if c[1].button("Mở thư mục nguồn (MẪU, SOURCE THÔ, TÀI NGUYÊN)"):
+        goc.parent.mkdir(parents=True, exist_ok=True)
         import os
-        os.startfile(str(goc))  # noqa
+        os.startfile(str(goc.parent))  # noqa
     if not ds:
         st.caption(f"Chưa có phong cách nào: tạo thư mục con trong `{goc}` rồi bỏ video mẫu vào.")
     if not ten:
@@ -213,18 +213,46 @@ def _phong_cach(S) -> dict:
     da = len([v for v in vids if v.name in pc.get("videos", {})])
     name = "hoc_mau_" + "".join(ch for ch in ten if ch.isalnum())[:30]
     chay = edit_job.dang_chay(name)
+    from . import phong_cach
+    tt = phong_cach.tom_tat(S, ten)
+    b = tt["bo"]
     with st.container(border=True):
+        a1, a2 = st.columns(2)
+        # 1) Mẫu
         if pc.get("nhip"):
-            st.markdown(f"**{ten}** · đã học {da}/{len(vids)} video ({pc.get('luc', '')}) · mỗi cảnh ~**{pc['nhip']:.1f} giây** "
-                        f"· video ~{pc.get('giay_tb', 0):.0f} giây, ~{pc.get('chu_tb', 0)} chữ")
-            if pc.get("mo_ta"):
-                with st.expander("Phong cách AI rút ra"):
-                    st.markdown(pc["mo_ta"])
-                    st.markdown("**Cách viết lời:**\n\n" + pc.get("cach_viet", ""))
+            a1.markdown(f"**Mẫu** · `MẪU\\{ten}` · đã học {da}/{len(vids)} video · mỗi cảnh ~{pc['nhip']:.1f} giây · "
+                        f"video ~{pc.get('giay_tb', 0):.0f} giây, ~{pc.get('chu_tb', 0)} chữ")
         else:
-            st.caption(f"**{ten}**: {len(vids)} video, chưa học.")
-        st.caption("Quy trình dựng: **Reup Aff** (video có sẵn → chọn cảnh → lồng tiếng AI → khuôn CapCut → tự xuất). "
-                   "Các quy trình khác (quay thô tự cắt, không lồng tiếng, hiệu ứng...) sẽ thêm ở bản sau.")
+            a1.markdown(f"**Mẫu** · `MẪU\\{ten}` · {len(vids)} video · **chưa học**")
+        # 2) Source thô đi kèm
+        srcs = phong_cach.ds_source(S)
+        opts = [""] + srcs
+        cur = b["source"] if b["source"] in srcs else ""
+        src = a2.selectbox("**Source thô** đi kèm (thư mục con trong SOURCE THÔ)", opts, index=opts.index(cur),
+                           format_func=lambda x: x or ("— chọn —" if srcs else "— chưa có thư mục nào —"),
+                           key=f"ev_src_{ten}",
+                           help="Video nguyên liệu cho phong cách này, vd SOURCE THÔ\\Video Aff. Tạo thư mục con trong "
+                                "SOURCE THÔ, đặt tên tuỳ ý, bỏ video vào.")
+        if src != b["source"]:
+            phong_cach.luu(ten, source=src)
+            st.rerun()
+        if src:
+            a2.caption(f"`SOURCE THÔ\\{src}` · {tt['source_so']} video · dùng ở mục **Tự lọc video theo sản phẩm**")
+        # 3) Tài nguyên + khuôn
+        b1, b2 = st.columns(2)
+        b1.markdown(f"**Tài nguyên** · `TÀI NGUYÊN` · nhạc: {', '.join(tt['nhac']) or 'chưa có'} · "
+                    f"ảnh: {', '.join(tt['anh']) or 'chưa có'} · khuôn CapCut '{tt['ten_khuon']}': "
+                    + ("có" if tt["khuon"] else "**chưa có**"))
+        # 4) Quy trình
+        qt = list(phong_cach.QUY_TRINH)
+        q = b2.selectbox("**Quy trình dựng**", qt, index=qt.index(b["quy_trinh"]) if b["quy_trinh"] in qt else 0,
+                         format_func=phong_cach.QUY_TRINH.get, key=f"ev_qt_{ten}", help=phong_cach.SAP_CO)
+        if q != b["quy_trinh"]:
+            phong_cach.luu(ten, quy_trinh=q)
+        if pc.get("mo_ta"):
+            with st.expander("Phong cách AI rút ra từ video mẫu"):
+                st.markdown(pc["mo_ta"])
+                st.markdown("**Cách viết lời:**\n\n" + pc.get("cach_viet", ""))
         if st.button("Học phong cách này" if not pc.get("nhip") else "Học lại (có video mới)", disabled=chay or not vids,
                      key="ev_hoc"):
             f = edit_job.JOB_DIR / f"{name}.txt"
@@ -261,7 +289,11 @@ def _script(S, sp):
         for k in list(ref) + [ten.strip() or "kenh"]:
             _job_box("quet_kenh_" + k, f"Quét kênh {k}")
 
-    pc = _phong_cach(S)
+    from . import mau as _mau
+    _p = _mau.doc(S["edit_phong_cach"]) if S.get("edit_phong_cach") else {}
+    pc = _p if _p.get("nhip") or _p.get("cach_viet") else {}
+    st.caption(f"Viết theo phong cách: **{pc.get('ten')}**" if pc else
+               "Viết theo công thức mặc định (chọn / học phong cách ở mục 0 để viết theo mẫu).")
     y = st.text_input("Ý tưởng / ưu đãi đợt này (không bắt buộc)", key=f"ev_idea_{sp}",
                       placeholder="vd: mua 2 tặng 1, chỉ hôm nay")
     c = st.columns([1, 1, 2])
@@ -544,9 +576,12 @@ def _loc(S):
                     "Tool nhận ra sản phẩm theo **tên file → chữ trên nhãn → AI xem hình**, rồi đưa mỗi sản phẩm vào "
                     f"1 thư mục **mới** trong `{root}`, tên kèm tên đợt (vd `KÍCH RỄ 13-11-2026`). Thư mục có sẵn giữ "
                     "nguyên. Không nhận ra hoặc nhiều sản phẩm → thư mục `CẦN XEM`. Edit Video tự dùng cả thư mục cũ và mới.")
+        from . import phong_cach
         c = st.columns([3, 2, 1])
-        nguon = c[0].text_input("Thư mục video cần lọc", value=str(root / "CHƯA LỌC") if (root / "CHƯA LỌC").exists()
-                                else "", key="ev_loc_src", placeholder=r"vd D:\VIDEO MỚI")
+        src = phong_cach.bo(S["edit_phong_cach"])["source"] if S.get("edit_phong_cach") else ""
+        mac_dinh = str(root / phong_cach.SOURCE / src) if src else ""
+        nguon = c[0].text_input("Thư mục video cần lọc (source thô của phong cách đang chọn)", value=mac_dinh,
+                                key=f"ev_loc_src_{src}", placeholder=r"vd D:\SONIX_EDIT_VIDEO\SOURCE THÔ\Video Aff")
         ten_dot = c[1].text_input("Tên đợt (gắn sau tên thư mục)", value=time.strftime("%d-%m-%Y"), key="ev_loc_dot")
         chuyen = c[2].checkbox("Chuyển (không giữ bản gốc)", key="ev_loc_move")
         trung = loc_sp.trung_ten(root, ten_dot.strip()) if ten_dot.strip() else []
@@ -592,7 +627,7 @@ def _thong_tin(S, sp):
 QUY_TRINH_REUP_AFF = """
 **Quy trình Reup Aff** (dùng video có sẵn, cắt ghép + lồng tiếng AI, dựng bằng khuôn CapCut):
 
-0. **Chuẩn bị (1 lần)**: khuôn CapCut + nhạc (nút *Tải và cài khuôn* nếu máy chưa có) · bỏ video lẫn lộn vào `CHƯA LỌC` → **Tự lọc video theo sản phẩm** · mỗi sản phẩm bấm **Quét cảnh** (bỏ cảnh có người, chữ chèn, sản phẩm khác, outro, ảnh tĩnh) · điền **Thông tin sản phẩm** · (tuỳ chọn) **Học phong cách** từ thư mục MẪU.
+0. **Chuẩn bị (1 lần)**: khuôn CapCut + nhạc (nút *Tải và cài khuôn* nếu máy chưa có) · chọn **phong cách** (mục 0: Mẫu `MẪU/<tên>` + Source thô `SOURCE THÔ/<tên>` + Tài nguyên + Quy trình) → **Tự lọc video theo sản phẩm** từ source thô · mỗi sản phẩm bấm **Quét cảnh** (bỏ cảnh có người, chữ chèn, sản phẩm khác, outro, ảnh tĩnh) · điền **Thông tin sản phẩm** · **Học phong cách** từ video mẫu.
 1. **Kịch bản**: chọn sản phẩm → *AI viết kịch bản* (theo phong cách đã học, AI tự soát công dụng / ưu đãi / chính tả) → sửa lời nếu cần.
 2. **Lồng tiếng**: Vbee (Ngọc Huyền 2.0, 1.05x) / ElevenLabs / miễn phí.
 3. **Chọn cảnh**: tool chọn cảnh theo từng câu (sản phẩm / cách dùng / kết quả), mỗi cảnh tự đẩy lên tránh dải xanh, khung 4 ô người dùng; xem trước, **Đổi** cảnh không ưng.
@@ -603,8 +638,13 @@ QUY_TRINH_REUP_AFF = """
 
 def render(S):
     st.subheader("Sonix Edit Video: kịch bản → lồng tiếng → dựng sẵn dự án CapCut")
+    from . import phong_cach
+    phong_cach.chuan_bi(S)  # MẪU / SOURCE THÔ (đổi từ CHƯA LỌC) / TÀI NGUYÊN
     with st.expander("Quy trình Reup Aff (các bước)"):
         st.markdown(QUY_TRINH_REUP_AFF)
+    with st.container(border=True):
+        st.markdown("**0. Phong cách** · mỗi phong cách = Mẫu + Source thô + Tài nguyên + Quy trình dựng")
+        _phong_cach(S)
     _loc(S)
     sps = list(kich_ban.SAN_PHAM)
     sp = st.radio("Sản phẩm", sps, horizontal=True, key="ev_sp",

@@ -12,6 +12,13 @@ from .config import DATA_DIR, load_settings, save_settings
 UP_OLD, UP_NEW = "VIDEO_TIKTOK", "SONIX_UP_VIDEO"
 EDIT_OLD, EDIT_NEW = "VIDEO_INPUT", "SONIX_EDIT_VIDEO"
 LOG = DATA_DIR / "logs" / "doi_thu_muc.log"
+DOC_TRUOC = (
+    "Thư mục nguồn của Sonix Edit Video. Mỗi PHONG CÁCH edit = 1 bộ: Mẫu + Source thô + Tài nguyên + Quy trình.\n"
+    "- MẪU\\<tên phong cách>: vài video mẫu của phong cách đó (vd MẪU\\Reup Aff). App xem và học cách làm.\n"
+    "- SOURCE THÔ\\<tên tự đặt>: video nguyên liệu (vd SOURCE THÔ\\Video Aff = video affiliate có sẵn).\n"
+    "  Trong app chọn phong cách -> chọn thư mục source thô đi kèm -> Tự lọc video theo sản phẩm\n"
+    "  (tool tạo thư mục theo từng sản phẩm: ĐẠM CÁ ..., KÍCH RỄ ...).\n"
+    "- TÀI NGUYÊN: nhạc nền (.mp4/.mp3), ảnh khung, video người dẫn. Khuôn CapCut 'mẫu' cài bằng nút trong app.\n")
 
 
 def _log(m):
@@ -97,29 +104,32 @@ def chay():
             o = Path(default_root()).anchor
         moi = Path(o) / EDIT_NEW
         try:
-            for sub in ("", "TÀI NGUYÊN", "CHƯA LỌC", "MẪU"):
+            for sub in ("", "TÀI NGUYÊN", "SOURCE THÔ", "MẪU"):
                 (moi / sub).mkdir(parents=True, exist_ok=True)
-            (moi / "DOC_TRUOC.txt").write_text(
-                "Thư mục nguồn của Sonix Edit Video.\n"
-                "- CHƯA LỌC: bỏ video lẫn lộn vào đây, rồi vào app > Sonix Edit Video > Tự lọc video theo sản phẩm.\n"
-                "  Tool tạo thư mục theo từng sản phẩm (ĐẠM CÁ ..., KÍCH RỄ ...).\n"
-                "- TÀI NGUYÊN: nhạc nền kịch tính (.mp4/.mp3), ảnh khung, video người dẫn.\n"
-                "- MẪU: mỗi thư mục con là 1 phong cách edit (tự đặt tên, vd 'Reup Aff'), bỏ vài video mẫu vào,\n"
-                "  rồi vào app > Sonix Edit Video > Làm theo phong cách mẫu > Học phong cách này.\n"
-                "Dự án CapCut mẫu tên 'mẫu' phải có sẵn trong CapCut.\n", encoding="utf-8")
+            (moi / "DOC_TRUOC.txt").write_text(DOC_TRUOC, encoding="utf-8")
             S["edit_input_root"] = str(moi)
             doi = True
             _log(f"Đã tạo {moi}")
         except OSError as e:
             _log(f"Không tạo được {moi}: {e}")
-    # Máy đã có thư mục nguồn (bản trước) nhưng thiếu MẪU / CHƯA LỌC: tạo thêm
+    # Bản 2.8: "CHƯA LỌC" đổi tên thành "SOURCE THÔ" (bên trong là các thư mục con người dùng tự đặt tên);
+    # máy đã có thư mục nguồn nhưng thiếu MẪU / SOURCE THÔ: tạo thêm
     try:
         r = edit_video.input_root(S)
         if r.exists():
-            for sub in ("MẪU", "CHƯA LỌC"):
+            cu, moi = r / "CHƯA LỌC", r / "SOURCE THÔ"
+            if cu.is_dir() and not moi.exists():
+                try:
+                    cu.rename(moi)
+                    _log(f"Đã đổi {cu} -> {moi}")
+                except OSError as e:
+                    _log(f"Chưa đổi được {cu}: {e}")
+            for sub in ("MẪU", "SOURCE THÔ"):
                 if not (r / sub).exists():
                     (r / sub).mkdir()
                     _log(f"Đã tạo {r / sub}")
+            if not (r / "DOC_TRUOC.txt").exists() or "CHƯA LỌC" in (r / "DOC_TRUOC.txt").read_text(encoding="utf-8"):
+                (r / "DOC_TRUOC.txt").write_text(DOC_TRUOC, encoding="utf-8")
     except OSError:
         pass
     if doi:

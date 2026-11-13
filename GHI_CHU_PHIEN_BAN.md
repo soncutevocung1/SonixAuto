@@ -1,6 +1,14 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.8.0 · Phong cách = Mẫu + Source thô + Tài nguyên + Quy trình
+- Thư mục **`CHƯA LỌC` đổi tên thành `SOURCE THÔ`** (máy cập nhật tự đổi). Bên trong là các thư mục con bác tự đặt tên, vd `SOURCE THÔ/Video Aff` = video affiliate có sẵn.
+- Sonix Edit Video có mục **0. Phong cách** ở đầu trang: chọn phong cách (thư mục con trong `MẪU`, vd `Reup Aff`), app hiện đủ bộ của phong cách đó để xem qua trước khi edit:
+  - **Mẫu**: `MẪU/<tên>`, số video, đã học chưa, nhịp cắt cảnh, phong cách AI rút ra.
+  - **Source thô** đi kèm: chọn thư mục con trong `SOURCE THÔ` (app nhớ cho từng phong cách); mục Tự lọc tự điền sẵn thư mục này.
+  - **Tài nguyên**: nhạc, ảnh trong `TÀI NGUYÊN`, khuôn CapCut có / chưa.
+  - **Quy trình dựng**: hiện có Reup Aff; các quy trình khác (quay thô tự cắt, không lồng tiếng, hiệu ứng) sẽ thêm sau, phong cách mới chỉ cần đưa video mẫu cho app học.
+
 ## 2.7.5
 - Dán mã bị lặp 2 lần, dính khoảng trắng / xuống dòng: tool tự lấy đúng 1 mã.
 - Dán nhầm **mã báo lỗi** (SONIXBL-) vào ô mã nhận thông báo: tool vẫn lưu đúng chỗ và báo cho bác biết. Dán mã nhận thông báo (SONIX-) vào tab Báo lỗi cũng dùng được.
