@@ -1,5 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
+
+## 2.6.4
+- Sửa lỗi đăng video báo lỗi "không tìm thấy file video" sau khi thư mục VIDEO_TIKTOK được đổi tên thành SONIX_UP_VIDEO: hàng chờ vẫn ghi đường dẫn cũ. Nay tool tự sửa đường dẫn video, nhạc nền, âm thanh trong hàng chờ và dữ liệu (cả máy đã đổi tên từ trước). Video đã lỗi vì chuyện này: vào Hàng chờ, chọn, bấm "Chạy lại".
+
 ## 2.6.3
 - Sửa lỗi dự án CapCut mất người dẫn ("Media Not Found" ở clip ghép người dẫn): dự án tạo ra giờ tự chứa đủ file người dẫn (liên kết cứng, không tốn thêm ổ), không còn phụ thuộc vào dự án mẫu.
 

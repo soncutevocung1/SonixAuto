@@ -423,6 +423,8 @@ def main():
     try:  # đường dẫn còn ghi thư mục cũ (trước khi đổi tên SonixDangVideo -> Sonix Auto) -> sửa
         from core import updater as _up
         _up.sua_duong_dan_cu(log=log)
+        from core import sua_duong_dan as _sd
+        _sd.sua_thu_muc_video(load_settings(), log)
     except Exception as e:
         log(f"! Sửa đường dẫn cũ lỗi: {e}")
     from core import desktop as _dk
