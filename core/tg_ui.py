@@ -77,6 +77,16 @@ def _setup_bot(S):
         st.caption("Xin Admin «mã nhận thông báo» (bắt đầu bằng SONIX-), dán vào đây, rồi quét mã QR để nối Telegram.")
         code = st.text_input("Mã nhận thông báo", key="tg_share_in", type="password")
         if st.button("Nối", key="tg_share_ok", disabled=not code):
+            if "SONIXBL-" in code:  # dán nhầm mã báo lỗi vào đây -> vẫn lưu đúng chỗ
+                try:
+                    S["tg_bao_loi"] = tg.read_report_code(code)
+                    save_settings(S)
+                    st.success("Đây là **mã báo lỗi**, tool đã lưu vào tab Báo lỗi Admin: báo lỗi giờ tự về Admin. "
+                               "Ô này dành cho **mã nhận thông báo** (SONIX-…), chỉ cần khi bác muốn nhận tin qua "
+                               "Telegram.")
+                except Exception as e:
+                    st.error(str(e))
+                return
             try:
                 cfg = tg.read_share_code(code)
                 tg.bot_info(cfg["tg_bot"])
@@ -444,7 +454,10 @@ def render_bao_loi(S, app="up"):
                                      placeholder="Dán mã báo lỗi SONIXBL-...")
             if mc[1].button("Lưu mã", key=f"{k}_rcode_ok", disabled=not rcode):
                 try:
-                    S["tg_bao_loi"] = tg.read_report_code(rcode)
+                    if "SONIXBL-" not in rcode and "SONIX-" in rcode:  # dán mã nhận thông báo: cũng gửi về Admin được
+                        S.update(tg.read_share_code(rcode))
+                    else:
+                        S["tg_bao_loi"] = tg.read_report_code(rcode)
                     save_settings(S)
                     st.rerun()
                 except Exception as e:

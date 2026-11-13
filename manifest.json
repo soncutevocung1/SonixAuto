@@ -1,7 +1,7 @@
 {
- "version": "2.7.4",
- "built_at": "2026-11-13T07:29:21Z",
- "notes": "- **Mã báo lỗi** (bắt đầu bằng SONIXBL-): Admin lấy ở Cài đặt → Nhận thông báo về Telegram → Admin, gửi riêng cho từng người dùng qua Zalo. Người dùng dán 1 lần vào tab **Báo lỗi Admin** là báo lỗi tự về Telegram Admin, **không cần Telegram**. Mã chỉ gửi được báo lỗi (dùng bot báo lỗi riêng), không đụng tới bot thông báo.",
+ "version": "2.7.5",
+ "built_at": "2026-11-13T07:34:37Z",
+ "notes": "- Dán mã bị lặp 2 lần, dính khoảng trắng / xuống dòng: tool tự lấy đúng 1 mã.\n- Dán nhầm **mã báo lỗi** (SONIXBL-) vào ô mã nhận thông báo: tool vẫn lưu đúng chỗ và báo cho bác biết. Dán mã nhận thông báo (SONIX-) vào tab Báo lỗi cũng dùng được.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "7c6aa9a8c6e3c6ec2e2d5e04ce9550a4d12e9bd1e76aa69c9c2b3ae9553c7eb8",
-   "size": 23000
+   "sha256": "d0c0ef1a9f2d60200de50173f4095e5148f0cc30f21bdcbafe524035babb467c",
+   "size": 23321
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,7 +65,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "9885213cc1510f18babb86df504e11d53782f9f25c867a4f72670dd5e5e2785c",
+   "sha256": "4801cb02891c09e301fe5b5d15164da12d14992789d5cd54409048bab9b89ccc",
    "size": 6
   },
   {
@@ -250,13 +250,13 @@
   },
   {
    "path": "core/telegram.py",
-   "sha256": "521dc7c959a63e43201cdc1fb8238b7df7af8af14f4d140510cd363eb422f904",
-   "size": 13584
+   "sha256": "c08e71205cfdd57c05ab41a88ed825330c36803f2df2aabe3865a16c6f1e40c4",
+   "size": 14006
   },
   {
    "path": "core/tg_ui.py",
-   "sha256": "a2f6a478e4711a2483e0f9137366d9464832ae4a77decd53c9733177803657de",
-   "size": 28110
+   "sha256": "8e4ca45072d8d30c93ed1c42ec12b8d2e17841e3bd471240f556d56602cd617e",
+   "size": 28977
   },
   {
    "path": "core/tham_khao.py",

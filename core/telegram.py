@@ -69,7 +69,7 @@ def make_share_code(settings) -> str:
 
 
 def read_share_code(code: str) -> dict:
-    code = (code or "").strip()
+    code = clean_code(code, "SONIX-")
     if not code.startswith("SONIX-"):
         raise TgError("Mã kết nối phải bắt đầu bằng SONIX-")
     b = code[6:]
@@ -300,9 +300,20 @@ def report_code() -> str:
         return ""
 
 
+def clean_code(text, prefix) -> str:
+    """Lấy đúng 1 mã trong chữ dán vào (dán 2 lần liền, có khoảng trắng, xuống dòng... vẫn nhận)."""
+    t = re.sub(r"\s+", "", text or "")
+    i = t.find(prefix)
+    if i < 0:
+        return t
+    rest = t[i + len(prefix):]
+    j = rest.find("SONIX")  # dán lặp: cắt ở mã thứ 2
+    return prefix + (rest[:j] if j >= 0 else rest)
+
+
 def read_report_code(code):
     """Kiểm tra mã báo lỗi người dùng dán vào. Trả về phần lưu vào Cài đặt."""
-    code = (code or "").strip()
+    code = clean_code(code, REPORT_PREFIX)
     if not code.startswith(REPORT_PREFIX) or not _decode(code[len(REPORT_PREFIX):]):
         raise TgError("Mã báo lỗi không đúng (phải bắt đầu bằng SONIXBL-, chép đủ cả dòng)")
     return code[len(REPORT_PREFIX):]

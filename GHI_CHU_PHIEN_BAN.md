@@ -1,6 +1,10 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.7.5
+- Dán mã bị lặp 2 lần, dính khoảng trắng / xuống dòng: tool tự lấy đúng 1 mã.
+- Dán nhầm **mã báo lỗi** (SONIXBL-) vào ô mã nhận thông báo: tool vẫn lưu đúng chỗ và báo cho bác biết. Dán mã nhận thông báo (SONIX-) vào tab Báo lỗi cũng dùng được.
+
 ## 2.7.4
 - **Mã báo lỗi** (bắt đầu bằng SONIXBL-): Admin lấy ở Cài đặt → Nhận thông báo về Telegram → Admin, gửi riêng cho từng người dùng qua Zalo. Người dùng dán 1 lần vào tab **Báo lỗi Admin** là báo lỗi tự về Telegram Admin, **không cần Telegram**. Mã chỉ gửi được báo lỗi (dùng bot báo lỗi riêng), không đụng tới bot thông báo.
 
