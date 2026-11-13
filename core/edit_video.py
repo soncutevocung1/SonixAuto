@@ -26,13 +26,37 @@ def input_root(S: dict = None) -> Path:
 
 def thu_muc_sp(sp_key: str, root: Path = None) -> list:
     """Mọi thư mục của sản phẩm: "KÍCH RỄ", "KÍCH RỄ 13-11-2026" (các đợt tự lọc)... (so không phân biệt dấu)."""
-    from core.san_pham import khong_dau
+    from core.san_pham import khong_dau, theo_ten_file
     root = Path(root or input_root())
     ten = khong_dau(kich_ban.SAN_PHAM[sp_key]["thu_muc"])
     if not root.exists():
         return []
-    return sorted(d for d in root.iterdir() if d.is_dir() and (khong_dau(d.name) == ten
-                                                               or khong_dau(d.name).startswith(ten + " ")))
+    out = [d for d in root.iterdir() if d.is_dir() and (khong_dau(d.name) == ten
+                                                         or khong_dau(d.name).startswith(ten + " "))]
+    # Thư mục sản phẩm bên trong source thô của phong cách đang chọn (vd SOURCE THÔ\Video Aff\Dam_Ca,
+    # TC01_Kich_Re...): nhận theo tên thư mục; thư mục không rõ sản phẩm (Khong_Chac_Chan, Video_AI) bỏ qua
+    for src in _source_dirs(root):
+        for d in src.iterdir():
+            if d.is_dir() and theo_ten_file(d.name.replace("_", " ")) == [sp_key]:
+                out.append(d)
+    return sorted(set(out))
+
+
+def _source_dirs(root: Path) -> list:
+    """Thư mục source thô gắn với phong cách đang chọn (không chọn phong cách: mọi thư mục trong SOURCE THÔ)."""
+    from core import phong_cach
+    from core.config import load_settings
+    goc = root / phong_cach.SOURCE
+    if not goc.is_dir():
+        return []
+    try:
+        S = load_settings()
+        src = phong_cach.bo(S["edit_phong_cach"])["source"] if S.get("edit_phong_cach") else ""
+    except Exception:
+        src = ""
+    if src:
+        return [goc / src] if (goc / src).is_dir() else []
+    return [d for d in goc.iterdir() if d.is_dir()]
 
 
 def thu_muc_clip(sp_key: str, root: Path = None) -> list:

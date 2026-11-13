@@ -1,7 +1,7 @@
 {
- "version": "2.8.0",
- "built_at": "2026-11-13T14:58:34Z",
- "notes": "- Thư mục **`CHƯA LỌC` đổi tên thành `SOURCE THÔ`** (máy cập nhật tự đổi). Bên trong là các thư mục con bác tự đặt tên, vd `SOURCE THÔ/Video Aff` = video affiliate có sẵn.\n- Sonix Edit Video có mục **0. Phong cách** ở đầu trang: chọn phong cách (thư mục con trong `MẪU`, vd `Reup Aff`), app hiện đủ bộ của phong cách đó để xem qua trước khi edit:\n  - **Mẫu**: `MẪU/<tên>`, số video, đã học chưa, nhịp cắt cảnh, phong cách AI rút ra.\n  - **Source thô** đi kèm: chọn thư mục con trong `SOURCE THÔ` (app nhớ cho từng phong cách); mục Tự lọc tự điền sẵn thư mục này.\n  - **Tài nguyên**: nhạc, ảnh trong `TÀI NGUYÊN`, khuôn CapCut có / chưa.\n  - **Quy trình dựng**: hiện có Reup Aff; các quy trình khác (quay thô tự cắt, không lồng tiếng, hiệu ứng) sẽ thêm sau, phong cách mới chỉ cần đưa video mẫu cho app học.",
+ "version": "2.8.1",
+ "built_at": "2026-11-13T15:00:22Z",
+ "notes": "- Edit Video tự nhận **thư mục sản phẩm bên trong source thô** của phong cách đang chọn theo tên thư mục (vd `SOURCE THÔ/Video Aff/Dam_Ca`, `TC01_Kich_Re`, `Bo_Tri_Top_One`, `Canxi_Bo`, `ĐẠM CÁ`, `KÍCH RỄ`...). Thư mục không rõ sản phẩm (vd `Khong_Chac_Chan`, `Video_AI`) bỏ qua. Bấm **Quét cảnh** để dùng video mới.",
  "files": [
   {
    "path": ".gitattributes",
@@ -37,36 +37,6 @@
    "path": "4_TAO_BIEU_TUONG_APP.bat",
    "sha256": "39312738cb0cd3902679f8125bd0e1b14648373187f47f529b37ab482aeb75c8",
    "size": 415
-  },
-  {
-   "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "66a5400ab263ebf522a31ac54fd24458d557dba34dd1410525fdf02174e554cc",
-   "size": 25338
-  },
-  {
-   "path": "HUONG_DAN.md",
-   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
-   "size": 16971
-  },
-  {
-   "path": "KE_HOACH_EDIT_VIDEO.md",
-   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
-   "size": 9720
-  },
-  {
-   "path": "Sonix Auto.exe",
-   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
-   "size": 224256
-  },
-  {
-   "path": "SonixDangVideo.pyw",
-   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
-   "size": 3327
-  },
-  {
-   "path": "VERSION",
-   "sha256": "dceb827995520dae388b7283c5bc7847ef58a16e8013318c3bb436feeb5dc51e",
-   "size": 6
   },
   {
    "path": "app.py",
@@ -160,8 +130,8 @@
   },
   {
    "path": "core/edit_video.py",
-   "sha256": "81ef897b18be6afdb4cd1919616a87e67eb3cca245f784b1140e5533d1ca59d4",
-   "size": 9456
+   "sha256": "cf2dc84848a8d10bfbba2f68b21a00ccbef30a79847b313ef4bbe394589facb9",
+   "size": 10531
   },
   {
    "path": "core/elevenlabs.py",
@@ -319,6 +289,21 @@
    "size": 879
   },
   {
+   "path": "GHI_CHU_PHIEN_BAN.md",
+   "sha256": "9b18450527089bb7f7088ec88e97a4dc7e859ec9bd2c37145c3000207f53ccc8",
+   "size": 25946
+  },
+  {
+   "path": "HUONG_DAN.md",
+   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
+   "size": 16971
+  },
+  {
+   "path": "KE_HOACH_EDIT_VIDEO.md",
+   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
+   "size": 9720
+  },
+  {
    "path": "mo_tool_mac.sh",
    "sha256": "cca941d7dc0f9085e074de3fcedfa45b19a14debc919921b1854e0643f89f93e",
    "size": 248
@@ -334,9 +319,24 @@
    "size": 27696
   },
   {
+   "path": "Sonix Auto.exe",
+   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
+   "size": 224256
+  },
+  {
+   "path": "SonixDangVideo.pyw",
+   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
+   "size": 3327
+  },
+  {
    "path": "tao_manifest.py",
    "sha256": "6dcb33c88afa4b4cf0d916e2406cba216f992dc783c3a3f31b05b598c3e01365",
    "size": 1803
+  },
+  {
+   "path": "VERSION",
+   "sha256": "6040ca42ee4cca4715a67d0fad9b4d6f5b2ff157aadbacf7906fff0f2f267d4d",
+   "size": 5
   }
  ]
 }

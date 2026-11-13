@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.8.1
+- Edit Video tự nhận **thư mục sản phẩm bên trong source thô** của phong cách đang chọn theo tên thư mục (vd `SOURCE THÔ/Video Aff/Dam_Ca`, `TC01_Kich_Re`, `Bo_Tri_Top_One`, `Canxi_Bo`, `ĐẠM CÁ`, `KÍCH RỄ`...). Thư mục không rõ sản phẩm (vd `Khong_Chac_Chan`, `Video_AI`) bỏ qua. Bấm **Quét cảnh** để dùng video mới.
+
 ## 2.8.0 · Phong cách = Mẫu + Source thô + Tài nguyên + Quy trình
 - Thư mục **`CHƯA LỌC` đổi tên thành `SOURCE THÔ`** (máy cập nhật tự đổi). Bên trong là các thư mục con bác tự đặt tên, vd `SOURCE THÔ/Video Aff` = video affiliate có sẵn.
 - Sonix Edit Video có mục **0. Phong cách** ở đầu trang: chọn phong cách (thư mục con trong `MẪU`, vd `Reup Aff`), app hiện đủ bộ của phong cách đó để xem qua trước khi edit:
