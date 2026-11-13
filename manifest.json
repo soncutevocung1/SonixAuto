@@ -1,7 +1,7 @@
 {
- "version": "2.6.2",
- "built_at": "2026-11-13T03:03:56Z",
- "notes": "- **Chạy được trên máy khác**: máy chưa có dự án mẫu trong CapCut hoặc chưa có nhạc nền thì Edit Video hiện nút **Tải và cài khuôn Reup Aff** (khoảng 210 MB, gồm khung, người dẫn, nền theme, 2 nhạc kịch tính). Tool tự cài vào CapCut, tự sửa đường dẫn, không cần chép tay.\n- **Xem trước cảnh**: bấm **Chọn cảnh** để xem ảnh từng cảnh theo từng câu (loại cảnh, câu số mấy); cảnh nào không ưng bấm **Đổi** (đổi sang cảnh khác cùng loại), khung 4 ô có **Đổi 4 người**. Tạo dự án sẽ dùng đúng các cảnh đã duyệt.\n- **Bấm 1 nút ra video**: nút **Lồng tiếng + chọn cảnh + tạo dự án** chạy nền, hiện tiến độ; CapCut đang mở thì tool chờ bác tắt rồi mới ghi.\n- **Làm hàng loạt**: chọn số video (1-10), AI viết lời mới cho từng video (không trùng câu mở), lồng tiếng, chọn cảnh, tạo dự án CapCut liền.",
+ "version": "2.6.3",
+ "built_at": "2026-11-13T03:11:30Z",
+ "notes": "- Sửa lỗi dự án CapCut mất người dẫn (\"Media Not Found\" ở clip ghép người dẫn): dự án tạo ra giờ tự chứa đủ file người dẫn (liên kết cứng, không tốn thêm ổ), không còn phụ thuộc vào dự án mẫu.",
  "files": [
   {
    "path": ".gitattributes",
@@ -75,8 +75,8 @@
   },
   {
    "path": "core/capcut_draft.py",
-   "sha256": "337ed37d5e55d7d4a5e3786092ce1ed96c8fa6718342335211f015a1a0b9bd46",
-   "size": 20474
+   "sha256": "dd30796ac8629b97f6c1b4f5392bea8824d38629c693d4f1561c0d8401b06751",
+   "size": 22111
   },
   {
    "path": "core/caption.py",
@@ -260,8 +260,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "7e8be47be3985cc44b4b726f0c4b4a7c5416c305a733f5f7f0dfc3872d89dcfc",
-   "size": 17967
+   "sha256": "01a8e034f17ad3b031c33f815ae24dc9b6940e8e30e659585f2a422f5fc54fe9",
+   "size": 18234
   },
   {
    "path": "HUONG_DAN.md",
@@ -305,7 +305,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "bc546dece8f63b83b982fd05d12cd592f7edaebf47227e4971e5953f58ad40ab",
+   "sha256": "f015fb0f0418d9b4c24d391122cccea8cf0ae8a234ddf3ce38122279a0dd7709",
    "size": 5
   }
  ]

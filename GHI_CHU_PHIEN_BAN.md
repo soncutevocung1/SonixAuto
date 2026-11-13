@@ -1,5 +1,8 @@
 # Ghi chú phiên bản Sonix Auto
 
+## 2.6.3
+- Sửa lỗi dự án CapCut mất người dẫn ("Media Not Found" ở clip ghép người dẫn): dự án tạo ra giờ tự chứa đủ file người dẫn (liên kết cứng, không tốn thêm ổ), không còn phụ thuộc vào dự án mẫu.
+
 ## 2.6.2
 - **Chạy được trên máy khác**: máy chưa có dự án mẫu trong CapCut hoặc chưa có nhạc nền thì Edit Video hiện nút **Tải và cài khuôn Reup Aff** (khoảng 210 MB, gồm khung, người dẫn, nền theme, 2 nhạc kịch tính). Tool tự cài vào CapCut, tự sửa đường dẫn, không cần chép tay.
 - **Xem trước cảnh**: bấm **Chọn cảnh** để xem ảnh từng cảnh theo từng câu (loại cảnh, câu số mấy); cảnh nào không ưng bấm **Đổi** (đổi sang cảnh khác cùng loại), khung 4 ô có **Đổi 4 người**. Tạo dự án sẽ dùng đúng các cảnh đã duyệt.

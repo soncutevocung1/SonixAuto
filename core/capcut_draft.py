@@ -11,6 +11,7 @@ Sau đó đăng ký dự án vào danh sách của CapCut (root_meta_info.json).
 import copy
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -423,6 +424,36 @@ def _needed_media(d: dict) -> set:
     return out
 
 
+def _tu_du(dst: Path, khuon: Path = None):
+    """Cho dự án tự đủ file: media mà clip ghép (vd người dẫn) trỏ tới thư mục dự án KHÁC (khuôn) -> hard link vào
+    materials của chính dự án và sửa đường dẫn. File trỏ về chính dự án mà thiếu -> tìm trong khuôn để link.
+    (CapCut có lúc tự đổi đường dẫn clip ghép về thư mục dự án mà không chép file -> báo 'Media Not Found'.)"""
+    goc = _fwd(CAPCUT_DRAFTS) + "/"
+    moi = _fwd(dst) + "/"
+    tim = [p for p in ([khuon] if khuon else []) + [CAPCUT_DRAFTS / "mẫu"] if p]
+    for f in Path(_LP + str(dst)).rglob("draft_content.json"):
+        t = f.read_text(encoding="utf-8")
+        t2 = t
+        for m in set(re.findall(re.escape(goc) + r'([^/"]+)/((?:materials|matting)/[^"]+)', t)):
+            ten, rel = m
+            rel_os = rel.replace("/", os.sep)
+            dich = Path(_LP + str(dst / rel_os))
+            if not dich.exists():
+                nguon = [CAPCUT_DRAFTS / ten / rel_os] + [p / rel_os for p in tim]
+                for s in nguon:
+                    if os.path.exists(_LP + str(s)):
+                        dich.parent.mkdir(parents=True, exist_ok=True)
+                        try:
+                            os.link(_LP + str(s), dich)
+                        except OSError:
+                            shutil.copy2(_LP + str(s), dich)
+                        break
+            if ten != dst.name:
+                t2 = t2.replace(goc + ten + "/" + rel, moi + rel)
+        if t2 != t:
+            f.write_text(t2, encoding="utf-8")
+
+
 def tao_du_an(template: str, name: str, clips: list, voice: str, music: str = "", title_parts=None,
               music_volume: float = None, video_y: float = VIDEO_Y) -> dict:
     """Tạo dự án CapCut mới. Trả về {'name', 'path', 'duration'}."""
@@ -442,6 +473,7 @@ def tao_du_an(template: str, name: str, clips: list, voice: str, music: str = ""
 
     _copy_tree(src, dst, _needed_media(d))
     try:
+        _tu_du(dst, src)
         targets = [dst / "draft_content.json"]
         tl = dst / "Timelines"
         if tl.exists():
