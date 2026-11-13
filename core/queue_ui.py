@@ -13,7 +13,7 @@ from .config import FOLDER_ERR, FOLDER_TODO
 FMT = db.TIME_FMT
 WD = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"]
 GROUPS = {
-    "sap": ("Sắp đăng", ["pending", "running", "paused"]),
+    "sap": ("Sắp đăng", ["pending", "running", "paused", "lo_gio"]),
     "hen": ("Đã hẹn giờ", ["scheduled", "scheduled_fb"]),
     "da": ("Đã đăng", ["scheduled", "scheduled_fb", "done"]),
     "loi": ("Lỗi / cần kiểm tra", ["error", "check"]),
@@ -22,6 +22,7 @@ BADGE = {  # nhãn + màu
     "pending": ("Chờ đăng", "#6d28d9"), "running": ("Đang đăng", "#0e7490"), "paused": ("Tạm dừng", "#64748b"),
     "scheduled": ("Đã hẹn giờ", "#1d4ed8"), "scheduled_fb": ("Đã hẹn giờ", "#1d4ed8"), "done": ("Đã đăng", "#047857"),
     "posted": ("Đã đăng", "#047857"), "error": ("Lỗi", "#be123c"), "check": ("Cần kiểm tra", "#b45309"),
+    "lo_gio": ("Lỡ giờ", "#c2410c"),
 }
 CSS = """<style>
 .qx-day{font-family:Montserrat,sans-serif;font-weight:800;font-size:17px;margin:18px 0 6px}

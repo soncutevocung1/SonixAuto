@@ -33,7 +33,7 @@ import threading  # noqa: E402
 from core import worker  # noqa: E402
 from core import sounds as snd  # noqa: E402
 from core import covers as cov  # noqa: E402
-from core import stats, ui  # noqa: E402
+from core import lich, stats, ui  # noqa: E402
 from core import updater as upd  # noqa: E402
 from collections import Counter  # noqa: E402
 from datetime import date  # noqa: E402
@@ -640,6 +640,37 @@ if _muc == MUC_EDIT:
         tg_ui.render_bao_loi(S, "edit")
     st.stop()
 
+# ---------- video lỡ giờ đăng: hỏi bác cách đăng ----------
+_late = db.list_jobs(["lo_gio"], "tiktok")
+if _late:
+    with st.container(border=True):
+        st.warning(f"**{len(_late)} video lỡ giờ đăng** (máy tắt hoặc bộ đăng dừng nên chưa đăng kịp). "
+                   "Tool đang giữ lại, chờ bác chọn cách đăng:")
+        _lc = Counter(_j["channel"] for _j in _late)
+        st.caption(" · ".join(f"{c}: {n} video" for c, n in _lc.items()) + " · sớm nhất "
+                   + min(_j["scheduled_at"] for _j in _late))
+        _lm = st.radio("Cách đăng", ["doi", "bu"], horizontal=True, key="late_mode",
+                       format_func={"doi": "Dời sang khung giờ trống tiếp theo (giữ đúng số video/ngày)",
+                                    "bu": "Đăng bù ngay, dồn nhiều video 1 lần"}.get)
+        if _lm == "bu":
+            _lb = st.columns(2)
+            _per = _lb[0].select_slider("Mỗi lần đăng", [1, 2, 3, 4], value=3, key="late_per",
+                                        format_func=lambda x: f"{x} video")
+            _gap = _lb[1].select_slider("Các lần cách nhau", [10, 20, 30, 45, 60], value=30, key="late_gap",
+                                        format_func=lambda x: f"{x} phút")
+        if st.button("Xác nhận", key="late_ok_btn", type="primary"):
+            _ids = [_j["id"] for _j in _late]
+            if _lm == "doi":
+                _n = lich.doi_khung_sau(S, _ids)
+                st.session_state["_late_msg"] = f"Đã dời {_n} video sang các khung giờ trống tiếp theo."
+            else:
+                _n = lich.dang_bu(_ids, st.session_state.get("late_per", 3), st.session_state.get("late_gap", 30))
+                st.session_state["_late_msg"] = (f"Đã xếp đăng bù {_n} video, đợt đầu đăng ngay. Bộ đăng sẽ đăng "
+                                                 "lần lượt, xem tiến độ ở tab Hàng chờ.")
+            st.rerun()
+_lmsg = st.session_state.pop("_late_msg", None)
+if _lmsg:
+    st.success(_lmsg)
 _t = st.tabs(["Đăng video", "Duyệt & xác nhận", "Hàng chờ", "Tổng hợp", "Kênh & sản phẩm", "Nhạc nền", "Cài đặt",
               "Facebook", "Nhật ký", "Báo lỗi Admin"], key="tab_chinh", on_change="rerun")  # chỉ dựng tab đang mở -> nhẹ máy
 
@@ -855,6 +886,22 @@ for _ in _show(tabs[1]):
             S.setdefault("plan_by_channel", {}).setdefault(chname, {})["order"] = _po_new
             save_settings(S)
             st.rerun()
+        if not _pn:
+            _dc = lich.day_counts(chname)
+            _thieu = [(d, c, p) for d, c, p in _dc[1:] if c < p]  # bỏ hôm nay (giờ đã qua không xếp thêm được)
+            with st.expander("Số video từng ngày" + (f" · {len(_thieu)} ngày còn thiếu" if _thieu else " · đủ"),
+                             expanded=False):
+                st.markdown(" ".join(
+                    f'<span style="display:inline-block;margin:3px;padding:4px 10px;border-radius:10px;'
+                    f'background:{"rgba(190,18,60,.18)" if c < p and i else "rgba(4,120,87,.18)"}">'
+                    f'{d:%d/%m} <b>{c}/{p}</b></span>' for i, (d, c, p) in enumerate(_dc)), unsafe_allow_html=True)
+                st.caption("Video mới thêm vào tự xếp vào ngày còn thiếu trước. Video lỗi / bị bỏ để lại chỗ trống thì "
+                           "bộ đăng tự kéo video ở cuối lịch (chưa lên TikTok) về lấp, 30 phút kiểm 1 lần.")
+                if _thieu and st.button("Lấp ngày thiếu ngay", key=f"lap_{slug(chname)}"):
+                    _n = lich.lap_ngay_thieu(S, chname)
+                    st.toast(f"Đã dời {_n} video về lấp ngày thiếu." if _n else
+                             "Không còn video ở cuối lịch để dời (thêm video mới vào CHƯA UP rồi phân tích).")
+                    st.rerun()
         if _pn:
             st.info("Kênh này **đăng ngay khi xác nhận**: giờ ghi ở từng video không dùng tới. Bấm Xác nhận video nào "
                     "là video đó vào hàng đăng ngay (mỗi video cách nhau vài chục giây).")

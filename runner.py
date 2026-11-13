@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 os.environ.setdefault("PYTHONUTF8", "1")
 
 from core import channels as chs  # noqa: E402
-from core import db, facebook, fbq, progress, sounds, stats, telegram, tiktok  # noqa: E402
+from core import db, facebook, fbq, lich, progress, sounds, stats, telegram, tiktok  # noqa: E402
 from core.caption import build_text  # noqa: E402
 from core.config import (DATA_DIR, FOLDER_DONE, FOLDER_ERR, FOLDER_TODO, HEARTBEAT_FILE, RUNNER_LOG, WORK_DIR,  # noqa: E402
                          ensure_dirs, get_channel, load_settings, save_settings, slug)
@@ -98,6 +98,21 @@ def tg_xong(job, note):
                         f"Caption: {(job.get('caption') or '')[:180]}", photos=[cover])
     except Exception:
         pass
+
+
+_LAP_AT = 0.0
+
+
+def lap_dinh_ky(settings):
+    """30 phút 1 lần: lấp ngày còn thiếu video (video lỗi / bị bỏ để lại chỗ trống)."""
+    global _LAP_AT
+    if time.time() - _LAP_AT < 1800:
+        return
+    _LAP_AT = time.time()
+    try:
+        lich.lap_tat_ca(settings, log)
+    except Exception as e:
+        log(f"  ! Lấp ngày thiếu lỗi: {str(e)[:150]}")
 
 
 _UPD_AT = 0.0
@@ -341,6 +356,7 @@ def run_once():
         run_fb_stories(settings, now)
     except Exception as e:
         log(f"  ✖ FB Tin: {facebook.safe(e)}")
+    late = []
     for job in db.list_jobs(["pending"]):
         heartbeat()
         if (DATA_DIR / "stop_runner.flag").exists():  # có lệnh dừng (tắt tool / cập nhật): dừng sau video đang đăng
@@ -356,6 +372,11 @@ def run_once():
                 fail_facebook(db.get_job(job["id"]), settings, e)
             continue
 
+        if lich.is_late(job, now):  # quá giờ hẹn (máy tắt / bộ đăng dừng) -> không tự đăng, hỏi bác
+            db.update_job(job["id"], status="lo_gio",
+                          result=f"Lỡ giờ đăng {job['scheduled_at']} → chờ bác chọn dời giờ hoặc đăng bù")
+            late.append(job)
+            continue
         if job["channel"] in blocked or not due_tiktok(job, now, settings) \
                 or _RETRY_AFTER.get(job["id"], 0) > time.time():
             continue
@@ -403,7 +424,17 @@ def run_once():
         except Exception as e:
             fail_tiktok(job, settings, e)
         did_tt = True
+    if late:
+        log(f"  ! {len(late)} video lỡ giờ đăng → chờ bác chọn trong app (dời sang khung sau / đăng bù)")
+        try:
+            names = ", ".join(sorted({j["channel"] for j in late}))
+            telegram.notify("up", "su_co", f"{len(late)} video lỡ giờ đăng ({names})",
+                            "Máy tắt hoặc bộ đăng dừng nên chưa đăng kịp. Bác mở app, chọn: dời sang khung giờ "
+                            "trống tiếp theo, hoặc đăng bù dồn 2-4 video/lần.")
+        except Exception:
+            pass
     tg_cap_nhat(settings)
+    lap_dinh_ky(settings)
     if not did_tt:  # rảnh: kiểm tra ảnh bìa các bài đã hẹn giờ trên TikTok
         try:
             check_covers(settings)

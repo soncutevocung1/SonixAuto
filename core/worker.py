@@ -137,6 +137,11 @@ def plan_new(channel, ids, settings):
                      taken=db.taken_times(channel) | others)
     for j, t in zip(jobs, times):
         db.update_job(j["id"], scheduled_at=t.strftime(FMT))
+    try:  # video mới vào trước, rồi kéo video cuối lịch về lấp ngày còn thiếu
+        from . import lich
+        lich.lap_ngay_thieu(settings, channel, _log)
+    except Exception as e:
+        _log(f"Lấp ngày thiếu lỗi: {e}")
     return len(times)
 
 

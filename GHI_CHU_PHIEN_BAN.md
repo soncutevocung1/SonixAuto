@@ -9,6 +9,10 @@
   - **Tài nguyên**: nhạc, ảnh trong `TÀI NGUYÊN`, khuôn CapCut có / chưa.
   - **Quy trình dựng**: hiện có Reup Aff; các quy trình khác (quay thô tự cắt, không lồng tiếng, hiệu ứng) sẽ thêm sau, phong cách mới chỉ cần đưa video mẫu cho app học.
 
+## 2.8.0
+- **Tự lấp ngày thiếu video**: đặt 10 video/ngày mà có ngày mới 5 video (hết video, video lỗi, video bị bỏ) thì khi bác thêm video mới vào CHƯA UP, tool xếp video mới vào ngày còn thiếu trước cho đủ 10, rồi mới sang ngày sau. Video lỗi / bị bỏ để lại chỗ trống thì bộ đăng tự kéo video ở cuối lịch (chưa lên TikTok) về lấp, 30 phút kiểm 1 lần. Tab Duyệt có mục **Số video từng ngày** (ngày thiếu tô đỏ) và nút **Lấp ngày thiếu ngay**.
+- **Video lỡ giờ đăng** (máy tắt, bộ đăng dừng quá 20 phút so với giờ hẹn): tool KHÔNG tự đăng dồn nữa mà giữ lại, hiện thông báo trên đầu app (và nhắn Telegram) để bác chọn: **dời sang khung giờ trống tiếp theo** (giữ đúng số video/ngày) hoặc **đăng bù ngay, dồn 1-4 video mỗi lần**, các lần cách nhau 10-60 phút.
+
 ## 2.7.5
 - Dán mã bị lặp 2 lần, dính khoảng trắng / xuống dòng: tool tự lấy đúng 1 mã.
 - Dán nhầm **mã báo lỗi** (SONIXBL-) vào ô mã nhận thông báo: tool vẫn lưu đúng chỗ và báo cho bác biết. Dán mã nhận thông báo (SONIX-) vào tab Báo lỗi cũng dùng được.
