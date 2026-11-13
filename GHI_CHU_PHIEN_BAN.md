@@ -1,6 +1,11 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.7.3
+- **Báo lỗi Admin không cần Telegram**: người dùng chỉ ghi mô tả, chụp / tải ảnh lỗi, bấm Gửi. App gửi kèm **ảnh đoạn nhật ký trên app** (đọc được ngay trên điện thoại) và gói nhật ký đầy đủ về Telegram Admin. Có ô xem trước đoạn nhật ký sẽ gửi.
+- Tách riêng **Nhận thông báo về Telegram** (tuỳ chọn, cho ai muốn nhận tin). Mục Admin chỉ hiện trên máy Admin.
+- Admin tạo thêm **bot báo lỗi** để gắn sẵn vào app cho mọi máy.
+
 ## 2.7.2
 - Nối Telegram bằng **điện thoại** dễ hơn: app hiện **mã QR**, quét bằng camera / Zalo, bấm Start trong Telegram là app **tự nhận** (không cần bấm "Đã bấm Start"). Người nhận đầu tiên tự thành Admin (nhận Báo lỗi).
 - Hướng dẫn tạo bot với BotFather từng bước trên điện thoại, cách chuyển mã bot sang máy tính qua Zalo Cloud của tôi.

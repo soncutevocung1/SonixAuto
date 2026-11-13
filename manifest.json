@@ -1,7 +1,7 @@
 {
- "version": "2.7.2",
- "built_at": "2026-11-13T06:50:25Z",
- "notes": "- Nối Telegram bằng **điện thoại** dễ hơn: app hiện **mã QR**, quét bằng camera / Zalo, bấm Start trong Telegram là app **tự nhận** (không cần bấm \"Đã bấm Start\"). Người nhận đầu tiên tự thành Admin (nhận Báo lỗi).\n- Hướng dẫn tạo bot với BotFather từng bước trên điện thoại, cách chuyển mã bot sang máy tính qua Zalo Cloud của tôi.",
+ "version": "2.7.3",
+ "built_at": "2026-11-13T07:08:49Z",
+ "notes": "- **Báo lỗi Admin không cần Telegram**: người dùng chỉ ghi mô tả, chụp / tải ảnh lỗi, bấm Gửi. App gửi kèm **ảnh đoạn nhật ký trên app** (đọc được ngay trên điện thoại) và gói nhật ký đầy đủ về Telegram Admin. Có ô xem trước đoạn nhật ký sẽ gửi.\n- Tách riêng **Nhận thông báo về Telegram** (tuỳ chọn, cho ai muốn nhận tin). Mục Admin chỉ hiện trên máy Admin.\n- Admin tạo thêm **bot báo lỗi** để gắn sẵn vào app cho mọi máy.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "fab4bd68a49a0d569d06364cfca703173e1b5e538b99e53ccf90e1875371d11f",
-   "size": 22026
+   "sha256": "fa04826803b437d73e4242432d58b083182c4b6434b922b860187a39586e92d9",
+   "size": 22581
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,7 +65,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "e6a1eb883b99b3cc3741f764ebdc3b434bb8f52f84e43bb1c6cab7fac66cdbc1",
+   "sha256": "716c9eb23998f9cf2b422dcdff312269afea0da351431c0b728b74fef7506dd6",
    "size": 6
   },
   {
@@ -250,13 +250,13 @@
   },
   {
    "path": "core/telegram.py",
-   "sha256": "d14c84033de2bf5e9337c7a8a049363d69d366a721db1ca657fdf4d2b498238a",
-   "size": 11182
+   "sha256": "4865f81e16d54e53f63300e88959c86f77c1ccc2be194cd436680372bdc8386a",
+   "size": 12581
   },
   {
    "path": "core/tg_ui.py",
-   "sha256": "dd261af6affd753265cdc3941598031c659a2314c2a0790334de1bd21fa957f6",
-   "size": 22345
+   "sha256": "35bde5518da03b27587bfbe087ec132f610c363d6858c983051c1b4a2bcf17f7",
+   "size": 27075
   },
   {
    "path": "core/tham_khao.py",

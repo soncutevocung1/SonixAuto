@@ -79,7 +79,7 @@ def read_share_code(code: str) -> dict:
         raise TgError("Mã kết nối không đúng (chép thiếu?)")
     if not js.get("t"):
         raise TgError("Mã kết nối thiếu mã bot")
-    return {"tg_bot": js["t"], "tg_admin_chat": js.get("a", "")}
+    return {"tg_bot": js["t"], "tg_admin_chat": js.get("a", ""), "tg_tu_ma": True}
 
 
 # ------------------------------- liên kết Telegram người nhận -------------------------------
@@ -271,3 +271,37 @@ def clean_records(max_age_h=24):
                 shutil.rmtree(d, ignore_errors=True)
         except Exception:
             pass
+
+
+# ------------------------------- đường gửi Báo lỗi về Admin -------------------------------
+def is_admin(settings) -> bool:
+    """Máy Admin: tự tạo bot (không phải nhận mã kết nối từ người khác)."""
+    return bool(_token(settings)) and not settings.get("tg_tu_ma")
+
+
+def _builtin():
+    """Bot báo lỗi gắn sẵn trong app (chỉ gửi được về Telegram Admin). Không có thì trả None."""
+    try:
+        from .lien_ket_admin import B
+        raw = bytes(x ^ 0x5A for x in base64.b64decode(B)).decode()
+        js = json.loads(raw)
+        return (js["t"], str(js["a"])) if js.get("t") and js.get("a") else None
+    except Exception:
+        return None
+
+
+def admin_target(settings):
+    """(mã bot, chat Admin) để gửi Báo lỗi. Người dùng KHÔNG cần có Telegram."""
+    if is_admin(settings) and settings.get("tg_admin_chat"):
+        return _token(settings), str(settings["tg_admin_chat"])
+    b = _builtin()
+    if b:
+        return b
+    if _token(settings) and settings.get("tg_admin_chat"):  # máy đã dán mã kết nối Admin gửi
+        return _token(settings), str(settings["tg_admin_chat"])
+    return None
+
+
+def encode_builtin(token, chat) -> str:
+    raw = json.dumps({"t": token, "a": str(chat)}, separators=(",", ":")).encode()
+    return base64.b64encode(bytes(x ^ 0x5A for x in raw)).decode()

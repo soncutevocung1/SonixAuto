@@ -25,15 +25,16 @@ SECRET = re.compile(r"token|key|pass|secret|cookie|tg_bot|pin", re.I)
 
 # =============================== CÀI ĐẶT TELEGRAM ===============================
 def render_settings(S):
-    st.subheader("Thông báo Telegram")
-    st.caption("Tool nhắn về Telegram khi: có **sự cố** (kèm ảnh chụp lỗi + video quay màn hình), **làm xong** việc, "
-               "**có bản cập nhật**. Tin có nhãn riêng [Sonix Up Video] / [Sonix Edit Video] để dễ phân biệt.")
+    st.subheader("Nhận thông báo về Telegram (tuỳ chọn)")
+    st.caption("Ai muốn thì nối Telegram để nhận tin: có **sự cố** (kèm ảnh chụp lỗi + video quay màn hình), **làm xong** "
+               "việc, **có bản cập nhật**. Tin có nhãn [Sonix Up Video] / [Sonix Edit Video]. Không nối cũng được: "
+               "**Báo lỗi Admin không cần Telegram.**")
     if not tg.ready(S):
         _setup_bot(S)
         return
     try:
         me = _bot_cached(S["tg_bot"])
-        st.success(f"Đã nối bot **@{me.get('username')}**.")
+        st.success(f"Đã nối bot **@{me.get('username')}**." + (" Máy này là **Admin**." if tg.is_admin(S) else ""))
     except Exception as e:
         st.error(f"Bot không dùng được: {tg._safe(e)}")
     with st.popover("Đổi / gỡ bot"):
@@ -49,7 +50,8 @@ def render_settings(S):
     if q != bool(S.get("tg_quay", True)):
         S["tg_quay"] = q
         save_settings(S)
-    _admin_box(S)
+    if tg.is_admin(S):
+        _admin_box(S)
 
 
 def _qr(text):
@@ -68,11 +70,12 @@ def _bot_cached(token):
 
 
 def _setup_bot(S):
-    st.info("Chưa nối bot Telegram. Chọn 1 trong 2 cách:")
+    st.info("Chưa nối Telegram. Chọn 1 trong 2 cách:")
     a, b = st.columns(2)
     with a.container(border=True):
-        st.markdown("**Cách 1 · Admin gửi mã kết nối** (người dùng thường)")
-        code = st.text_input("Dán mã kết nối Sonix (bắt đầu bằng SONIX-)", key="tg_share_in", type="password")
+        st.markdown("**Cách 1 · Dùng bot chung của Admin** (người dùng)")
+        st.caption("Xin Admin «mã nhận thông báo» (bắt đầu bằng SONIX-), dán vào đây, rồi quét mã QR để nối Telegram.")
+        code = st.text_input("Mã nhận thông báo", key="tg_share_in", type="password")
         if st.button("Nối", key="tg_share_ok", disabled=not code):
             try:
                 cfg = tg.read_share_code(code)
@@ -83,7 +86,7 @@ def _setup_bot(S):
             except Exception as e:
                 st.error(tg._safe(e))
     with b.container(border=True):
-        st.markdown("**Cách 2 · Tự tạo bot** (Admin)")
+        st.markdown("**Cách 2 · Tự tạo bot riêng** (Admin, hoặc ai muốn bot riêng)")
         st.markdown("Làm trên **Telegram điện thoại**:  \n"
                     "1. Ô tìm kiếm gõ **BotFather** → chọn tài khoản có **dấu tick xanh** → bấm **BẮT ĐẦU / START**.  \n"
                     "2. Gõ `/newbot` gửi đi.  \n"
@@ -98,6 +101,7 @@ def _setup_bot(S):
             try:
                 me = tg.bot_info(tok.strip())
                 S["tg_bot"] = tok.strip()
+                S.pop("tg_tu_ma", None)
                 save_settings(S)
                 st.success(f"Đã nối bot @{me.get('username')}")
                 st.rerun()
@@ -179,7 +183,15 @@ def _receivers(S):
 
 def _admin_box(S):
     rs = S.get("tg_nguoi_nhan") or []
-    with st.expander("Admin: nhận Báo lỗi + mã kết nối cho người dùng khác"):
+    with st.expander("Admin: nơi nhận Báo lỗi + mã nhận thông báo cho người dùng"):
+        b = tg._builtin()
+        if b and str(b[1]) == str(S.get("tg_admin_chat")):
+            st.success("Báo lỗi của mọi máy (không cần Telegram) đang gửi về Telegram Admin này.")
+        elif b:
+            st.warning("Bot báo lỗi gắn trong app đang gửi về 1 Telegram khác với Admin chọn dưới đây.")
+        else:
+            st.info("App chưa gắn sẵn bot báo lỗi: máy người dùng chưa dán mã thì Báo lỗi chỉ tạo gói .zip để "
+                    "gửi Zalo cho Admin.")
         if rs:
             opts = [""] + [str(r["chat_id"]) for r in rs]
             names = {str(r["chat_id"]): r.get("name") for r in rs}
@@ -191,13 +203,34 @@ def _admin_box(S):
                 S["tg_admin_chat"] = sel
                 save_settings(S)
         if S.get("tg_admin_chat"):
-            st.markdown("**Mã kết nối Sonix** · gửi RIÊNG cho người dùng khác (Zalo/Telegram). Họ dán vào Cài đặt → "
-                        "Thông báo Telegram là dùng chung bot, và Báo lỗi của họ gửi thẳng về Telegram Admin. "
-                        "**Đừng đăng mã này công khai** (ai có mã cũng nhắn được qua bot).")
+            _report_bot_box(S)
+            st.markdown("**Mã nhận thông báo** · gửi RIÊNG cho người dùng muốn nhận tin qua Telegram (Zalo). Họ dán vào "
+                        "Cài đặt → Nhận thông báo về Telegram → Cách 1, rồi quét QR. **Đừng đăng mã này công khai.**")
             if st.toggle("Hiện mã", key="tg_show_share"):
                 st.code(tg.make_share_code(S), language=None)
         else:
             st.caption("Chọn Telegram Admin ở trên trước (thêm người nhận rồi chọn).")
+
+
+def _report_bot_box(S):
+    """Admin tạo bot thứ 2 chỉ để nhận Báo lỗi; app lưu mã đã mã hoá để gắn vào bản phát hành."""
+    st.markdown("**Bot báo lỗi** (bot thứ 2, chỉ gửi Báo lỗi về Admin, gắn sẵn vào app để máy người dùng "
+                "không cần Telegram)")
+    st.caption("1. Tạo thêm 1 bot với BotFather (vd tên `Sonix Bao Loi`, tên đăng nhập `sonix_baoloi_son_bot`).  \n"
+               "2. Mở bot mới đó trên Telegram điện thoại, bấm **BẮT ĐẦU / START** (bot chỉ nhắn được cho người đã Start).  \n"
+               "3. Dán mã bot mới vào ô dưới, bấm Kiểm tra. Tool gửi thử 1 tin về Telegram Admin.")
+    tok = st.text_input("Mã bot báo lỗi", key="tg_rb_in", type="password")
+    if st.button("Kiểm tra bot báo lỗi", key="tg_rb_ok", disabled=not tok):
+        try:
+            me = tg.bot_info(tok.strip())
+            tg.send_to(tok.strip(), S["tg_admin_chat"], "up", "bao_loi", "", raw_caption=(
+                f"Bot báo lỗi @{me.get('username')} đã sẵn sàng. Báo lỗi của người dùng sẽ về đây."))
+            (DATA_DIR / "lien_ket_admin.txt").write_text(tg.encode_builtin(tok.strip(), S["tg_admin_chat"]),
+                                                         encoding="utf-8")
+            st.success(f"Đã gửi thử từ @{me.get('username')}. Bác xem Telegram, rồi báo Claude «đã tạo bot báo lỗi» "
+                       "để gắn vào bản cập nhật cho mọi máy.")
+        except Exception as e:
+            st.error(tg._safe(e) + " · Bác đã bấm Start ở bot báo lỗi mới chưa?")
 
 
 # =============================== BÁO LỖI ADMIN ===============================
@@ -319,10 +352,54 @@ def _ai_quick(S, desc, bundle_text):
     return fn(content, schema, S, m, system)
 
 
+def _log_lines(app, n=40) -> list:
+    """Các dòng nhật ký gần nhất trên app (Up: bộ đăng + phân tích; Edit: việc edit mới nhất)."""
+    if app == "edit":
+        d = DATA_DIR / "edit" / "viec"
+        logs = sorted(d.glob("*.log"), key=lambda p: p.stat().st_mtime)[-2:] if d.is_dir() else []
+        out = []
+        for f in logs:
+            out += [f"[{f.stem}] {x}" for x in _tail(f, n).splitlines()]
+        return out[-n:]
+    return (_tail(RUNNER_LOG, n).splitlines() + ["--- phân tích ---"] + _tail(LOG_DIR / "phan_tich.log", 8).splitlines())
+
+
+def _log_image(lines, title) -> str:
+    """Vẽ đoạn nhật ký thành ảnh để Admin đọc ngay trên điện thoại."""
+    from PIL import Image, ImageDraw, ImageFont
+    font = None
+    for f in ("C:/Windows/Fonts/consola.ttf", "C:/Windows/Fonts/arial.ttf",
+              "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"):
+        try:
+            font = ImageFont.truetype(f, 17)
+            break
+        except Exception:
+            pass
+    font = font or ImageFont.load_default()
+    wrapped = []
+    for ln in [title, ""] + list(lines):
+        ln = ln.replace("\t", "  ")
+        while len(ln) > 110:
+            wrapped.append(ln[:110])
+            ln = "    " + ln[110:]
+        wrapped.append(ln)
+    wrapped = wrapped[-70:]
+    img = Image.new("RGB", (1180, 30 + 22 * len(wrapped)), (24, 26, 32))
+    d = ImageDraw.Draw(img)
+    for i, ln in enumerate(wrapped):
+        col = (255, 120, 120) if re.search(r"✖|⛔|Lỗi|LỖI|lỗi|Error|Traceback", ln) else \
+              (140, 220, 140) if ln.lstrip().startswith("✔") else (225, 225, 225)
+        d.text((14, 14 + 22 * i), ln, fill=col if i else (255, 210, 90), font=font)
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    out = REPORT_DIR / f"nhat_ky_{datetime.now():%H%M%S}.png"
+    img.save(out)
+    return str(out)
+
+
 def render_bao_loi(S, app="up"):
     st.subheader("Báo lỗi với Admin")
-    st.caption("Gặp lỗi khi dùng app? Chụp màn hình lỗi, ghi rõ tình trạng, bấm Gửi. Tool gửi kèm nhật ký sử dụng về "
-               "Telegram của Admin (tin «Sự cố người dùng»). Gói nhật ký **không** có mật khẩu, token, khoá AI.")
+    st.caption("Gặp lỗi khi dùng app? Ghi rõ tình trạng, chụp màn hình lỗi, bấm Gửi. **Không cần Telegram**: app tự gửi "
+               "mô tả + ảnh + nhật ký sử dụng về cho Admin. Gói nhật ký **không** có mật khẩu, token, khoá AI.")
     k = f"bl_{app}"
     who = st.text_input("Tên bác / tên kênh (để Admin biết ai báo)", value=S.get("bl_ten", ""), key=f"{k}_ten")
     loai = st.selectbox("Lỗi xảy ra ở đâu", ["Đăng video TikTok", "Đăng Facebook", "Duyệt / phân tích video",
@@ -353,14 +430,18 @@ def render_bao_loi(S, app="up"):
                     p.unlink(missing_ok=True)
                     st.rerun()
     st.button("Tải lại để xem ảnh vừa chụp", key=f"{k}_reload")
-    ok_tg = tg.ready(S) and S.get("tg_admin_chat")
+    lines = _log_lines(app)
+    with st.expander("Nhật ký trên app sẽ gửi kèm (đoạn gần nhất)"):
+        st.code("\n".join(lines[-40:]) or "(trống)", language=None)
+    target = tg.admin_target(S)
+    ok_tg = bool(target)
     b = st.columns([1, 1, 2])
     send = b[0].button("Gửi báo lỗi cho Admin", key=f"{k}_send", type="primary", disabled=not desc.strip())
     ai = b[1].button("Nhờ AI xem nhanh", key=f"{k}_ai", disabled=not desc.strip(),
                      help="AI (Mức AI mặc định ở Cài đặt) đọc mô tả + nhật ký và gợi ý cách tự xử lý. Chỉ gửi chữ, rất rẻ.")
     if not ok_tg:
-        b[2].caption("Chưa nối Telegram Admin (Cài đặt → Thông báo Telegram → dán mã kết nối Admin gửi). "
-                     "Vẫn bấm Gửi được: tool tạo gói nhật ký để bác tải về gửi Zalo cho Admin.")
+        b[2].caption("App chưa có đường gửi về Admin. Vẫn bấm Gửi được: tool tạo gói báo lỗi (.zip) để bác tải về "
+                     "gửi Zalo cho Admin.")
     if ai:
         with st.spinner("AI đang đọc nhật ký..."):
             try:
@@ -383,6 +464,10 @@ def render_bao_loi(S, app="up"):
             tmp.append(p)
         imgs = [str(p) for p in shots[-8:]] + [str(p) for p in tmp]
         rid = datetime.now().strftime("%m%d%H%M%S")
+        try:
+            imgs = imgs[:4] + [_log_image(lines, f"Nhật ký app · Sự cố người dùng #{rid} · {APP_LABEL.get(app)}")]
+        except Exception:
+            pass
         bundle = build_bundle(S, app, {"ma_bao_loi": rid, "nguoi_bao": who, "loai": loai, "mo_ta": desc}, imgs)
         st.session_state[f"{k}_last"] = str(bundle)
         if ok_tg:
@@ -394,8 +479,8 @@ def render_bao_loi(S, app="up"):
                    f"(mở link, gõ «Sự cố người dùng #{rid}» và kéo tệp zip này vào)")
             try:
                 with st.spinner("Đang gửi về Telegram Admin..."):
-                    tg.send_to(S["tg_bot"], S["tg_admin_chat"], app, "bao_loi", "", photos=imgs, raw_caption=cap[:1020])
-                    tg.send_to(S["tg_bot"], S["tg_admin_chat"], app, "bao_loi", "", document=str(bundle),
+                    tg.send_to(target[0], target[1], app, "bao_loi", "", photos=imgs, raw_caption=cap[:1020])
+                    tg.send_to(target[0], target[1], app, "bao_loi", "", document=str(bundle),
                                raw_caption=f"Gói nhật ký · Sự cố người dùng #{rid}")
                 st.success(f"Đã gửi báo lỗi #{rid} cho Admin. Admin sẽ xem và xử lý.")
                 for p in shots:
