@@ -1,6 +1,11 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.8.2 · Phong cách mới: Xoay + minh hoạ
+- Phong cách **Xoay minh họa** (quy trình mới, chọn ở mục 0): video tự quay xoay sản phẩm trong `SOURCE THÔ/Xoay` được chèn thêm 4-5 đoạn x 2 giây cắt từ video aff **cùng sản phẩm** (tua nhanh 2x, tắt tiếng), khoảng 2/3 che hết khung, 1/3 hiện khung nhỏ góc trên. Giữ tiếng gốc (Sonix Up Video tự thêm âm thanh yêu thích khi đăng).
+- Tool tự nhận sản phẩm của từng video xoay (tên file → chữ trên nhãn → AI), dựng thẳng mp4 1080p bằng ffmpeg (khoảng 15 giây / video, không cần mở CapCut), rồi đưa vào `<kênh>\CHƯA UP\<ngày>.mp4...`. Nhớ video nào đã làm; có tuỳ chọn làm lại ra bản mới với cảnh chèn khác.
+- Đọc được cả video .MP4 (DJI) và .MOV (iPhone 4K).
+
 ## 2.8.1
 - Edit Video tự nhận **thư mục sản phẩm bên trong source thô** của phong cách đang chọn theo tên thư mục (vd `SOURCE THÔ/Video Aff/Dam_Ca`, `TC01_Kich_Re`, `Bo_Tri_Top_One`, `Canxi_Bo`, `ĐẠM CÁ`, `KÍCH RỄ`...). Thư mục không rõ sản phẩm (vd `Khong_Chac_Chan`, `Video_AI`) bỏ qua. Bấm **Quét cảnh** để dùng video mới.
 

@@ -62,7 +62,7 @@ def doc_log(name: str, n: int = 12) -> list:
 
 VIEC = {"quet_canh": "Quét cảnh", "lam_video": "Làm video", "hang_loat": "Làm video hàng loạt",
         "cai_khuon": "Cài khuôn CapCut", "hoc_mau": "Học mẫu", "loc_sp": "Lọc video theo sản phẩm",
-        "quet_kenh": "Quét kênh tham khảo", "xuat": "Xuất video vào kênh"}
+        "quet_kenh": "Quét kênh tham khảo", "xuat": "Xuất video vào kênh", "xoay": "Làm video Xoay + minh hoạ"}
 
 
 def _tg(kind, name, loai, err):
@@ -111,6 +111,10 @@ def main(argv):
                 edit_video.hang_loat(cfg["sp"], int(cfg["n"]), S, y_tuong=cfg.get("y_tuong", ""),
                                      nhac=cfg.get("nhac", ""), luoi=cfg.get("luoi", True), log=log,
                                      kenh=cfg.get("kenh", ""))
+        elif kind == "xoay":
+            from core import xoay
+            cfg = json.loads(Path(argv[2]).read_text(encoding="utf-8"))
+            xoay.lam(S, cfg["files"], cfg["kenh"], so_chen=int(cfg.get("so_chen") or 0), log=log)
         elif kind == "xuat":
             from core import edit_video
             cfg = json.loads(Path(argv[2]).read_text(encoding="utf-8"))

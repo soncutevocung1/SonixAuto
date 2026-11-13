@@ -14,8 +14,10 @@ FILE = DATA_DIR / "edit" / "phong_cach.json"
 MAU, SOURCE, TAI_NGUYEN = "MẪU", "SOURCE THÔ", "TÀI NGUYÊN"
 QUY_TRINH = {
     "reup_aff": "Reup Aff · video có sẵn → chọn cảnh → lồng tiếng AI → khuôn CapCut → tự xuất 1080p",
+    "xoay_minh_hoa": "Xoay + minh hoạ · video tự quay xoay sản phẩm + chèn cảnh aff cùng sản phẩm (2x, tắt tiếng) "
+                     "→ giữ tiếng gốc → xuất thẳng mp4 1080p",
 }
-SAP_CO = "Quay thô tự cắt phần thừa · không lồng tiếng · hiệu ứng (sắp có)"
+SAP_CO = "Quay thô tự cắt phần thừa · hiệu ứng (sắp có)"
 
 
 def goc(S) -> Path:
