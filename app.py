@@ -43,6 +43,18 @@ st.set_page_config(page_title=ui.APP_TITLE, layout="wide",
 db.init_db()
 stats.init()
 worker.start()  # luồng phân tích ngầm
+
+
+@st.cache_resource(show_spinner=False)
+def _sua_duong_dan_1_lan():
+    """Bản 2.5.0 đổi tên thư mục SonixDangVideo -> Sonix Auto nhưng chưa sửa đường dẫn trong hàng chờ: sửa 1 lần."""
+    try:
+        return upd.sua_duong_dan_cu()
+    except Exception:
+        return 0
+
+
+_sua_duong_dan_1_lan()
 S = load_settings()
 if not S.get("_mig_headless"):  # bản 2.4: đăng chạy ẩn mặc định (bật hiện trình duyệt ở tab Hàng chờ khi cần)
     S["tt_headless"], S["_mig_headless"] = True, 1

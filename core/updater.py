@@ -335,6 +335,52 @@ def doi_ten_thu_muc(say=print):
     say(f"Đổi tên thư mục -> {new} (nhật ký: {log})")
 
 
+def sua_duong_dan_cu(old: str = "", log=print) -> int:
+    """Đổi đường dẫn thư mục cũ (vd D:\\SonixDangVideo) sang thư mục đang dùng trong hàng chờ (sonix.db) và mọi file
+    dữ liệu .json (âm thanh Yêu thích, Trưng bày, cài đặt, kịch bản). Trả về số chỗ đã sửa. Chạy lại nhiều lần không sao."""
+    import sqlite3
+    old = old or str(BASE_DIR.parent / OLD_DIR_NAME)
+    if Path(old).resolve() == BASE_DIR.resolve() or Path(old).exists():
+        return 0  # vẫn đang ở thư mục cũ / thư mục cũ còn đó -> không đụng
+    pairs = [(old, str(BASE_DIR)), (old.replace("\\", "/"), str(BASE_DIR).replace("\\", "/")),
+             (old.replace("\\", "\\\\"), str(BASE_DIR).replace("\\", "\\\\"))]
+
+    def fix(t):
+        for o, n in pairs:
+            t = t.replace(o, n)
+        return t
+    n = 0
+    db_file = DATA_DIR / "sonix.db"
+    if db_file.exists():
+        con = sqlite3.connect(db_file)
+        try:
+            cols = [r[1] for r in con.execute("PRAGMA table_info(jobs)") if r[2].upper().startswith("TEXT")]
+            for (rid, *vals) in con.execute(f"SELECT id, {', '.join(cols)} FROM jobs").fetchall():
+                upd = {c: fix(v) for c, v in zip(cols, vals) if isinstance(v, str) and old.split(":")[-1][1:] in v
+                       and fix(v) != v}
+                if upd:
+                    con.execute(f"UPDATE jobs SET {', '.join(c + '=?' for c in upd)} WHERE id=?", [*upd.values(), rid])
+                    n += len(upd)
+            con.commit()
+        finally:
+            con.close()
+    files = list(DATA_DIR.glob("*.json"))  # KHÔNG quét hồ sơ trình duyệt (data/profiles) của các kênh
+    for sub in ("sounds", "showcase", "edit", "capnhat", "ref"):
+        files += list((DATA_DIR / sub).rglob("*.json"))
+    for f in files:
+        try:
+            t = f.read_text(encoding="utf-8")
+            t2 = fix(t)
+            if t2 != t:
+                f.write_text(t2, encoding="utf-8")
+                n += 1
+        except Exception:
+            pass
+    if n:
+        log(f"Đã sửa {n} chỗ còn ghi thư mục cũ {old} -> {BASE_DIR}")
+    return n
+
+
 def sau_doi_ten(old: str):
     """Chạy ở thư mục mới: làm lại biểu tượng, sửa đường dẫn cũ trong dữ liệu."""
     from . import desktop
@@ -342,6 +388,10 @@ def sau_doi_ten(old: str):
         desktop.create_shortcuts()
         if desktop.is_autostart():
             desktop.set_autostart(True)
+    except Exception:
+        pass
+    try:
+        sua_duong_dan_cu(old)  # hàng chờ + dữ liệu .json (ảnh bìa, khung hình, âm thanh...)
     except Exception:
         pass
     olds = {old, old.replace("\\", "/")}

@@ -1,7 +1,7 @@
 {
- "version": "2.5.1",
- "built_at": "2026-11-12T17:58:55Z",
- "notes": "- Sửa lỗi cửa sổ app hiện \"Internal Server Error\", không vào được app sau một lúc chạy (máy chủ giao diện mất dấu vòng sự kiện). Nay tool tự sửa ngay khi gặp, không cần tắt mở lại.",
+ "version": "2.5.2",
+ "built_at": "2026-11-13T01:08:22Z",
+ "notes": "- Sửa lỗi mất ảnh bìa trong Hàng chờ / Duyệt sau khi lên bản 2.5: bản 2.5.0 đổi tên thư mục SonixDangVideo -> Sonix Auto nhưng hàng chờ vẫn ghi đường dẫn thư mục cũ. Tool tự sửa đường dẫn cũ trong hàng chờ và dữ liệu (ảnh bìa, khung hình, âm thanh Yêu thích, âm thanh mượn) khi mở tool / bật bộ đăng.",
  "files": [
   {
    "path": ".gitattributes",
@@ -39,9 +39,39 @@
    "size": 415
   },
   {
+   "path": "GHI_CHU_PHIEN_BAN.md",
+   "sha256": "09ffc5eddfac9297c5074295d2d33d71a5f76fef93efcf473f263e02a11e2d04",
+   "size": 14248
+  },
+  {
+   "path": "HUONG_DAN.md",
+   "sha256": "8f399740c39ed6f45b02cbbda7ccb68b015f30715413c31beab74bc3ac4ff0a3",
+   "size": 16967
+  },
+  {
+   "path": "KE_HOACH_EDIT_VIDEO.md",
+   "sha256": "ab4d9ab75e2bb37105c59ccae883f7958c8c6ebe3833a6f986c714a5f65b175d",
+   "size": 9700
+  },
+  {
+   "path": "Sonix Auto.exe",
+   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
+   "size": 224256
+  },
+  {
+   "path": "SonixDangVideo.pyw",
+   "sha256": "8ec3356e5eabf1afb3779e9fc7673460c7981e7f3c588a889d3db62473783277",
+   "size": 3057
+  },
+  {
+   "path": "VERSION",
+   "sha256": "8d093f990bc0fd8fc1299c6ddf1bd203e5ea75d208a6d38f8733a9c9b6f48c6a",
+   "size": 6
+  },
+  {
    "path": "app.py",
-   "sha256": "466d950297ef6bfc521df4826309cd73b166ac56f89ace65996423e91d1a2785",
-   "size": 106909
+   "sha256": "a926aaeaa9982feeb8b90955e6a921276aac7605611fc8fe1cec8a9b94b7974e",
+   "size": 107232
   },
   {
    "path": "assets/sonix.ico",
@@ -200,8 +230,8 @@
   },
   {
    "path": "core/updater.py",
-   "sha256": "648416d96b578869081206692fcf12a19263c4b8b28f906c6af8328c8ecfaeb8",
-   "size": 17222
+   "sha256": "eee898c643da237048dd4d9f6cab06d0d43bcc000e4d0660b0ba758feb2e29d0",
+   "size": 19553
   },
   {
    "path": "core/va_loi.py",
@@ -229,21 +259,6 @@
    "size": 879
   },
   {
-   "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "b93279255d19294884795820ced3adaae4619ea42011f53090865e656005a446",
-   "size": 13856
-  },
-  {
-   "path": "HUONG_DAN.md",
-   "sha256": "8f399740c39ed6f45b02cbbda7ccb68b015f30715413c31beab74bc3ac4ff0a3",
-   "size": 16967
-  },
-  {
-   "path": "KE_HOACH_EDIT_VIDEO.md",
-   "sha256": "ab4d9ab75e2bb37105c59ccae883f7958c8c6ebe3833a6f986c714a5f65b175d",
-   "size": 9700
-  },
-  {
    "path": "mo_tool_mac.sh",
    "sha256": "cca941d7dc0f9085e074de3fcedfa45b19a14debc919921b1854e0643f89f93e",
    "size": 248
@@ -255,28 +270,13 @@
   },
   {
    "path": "runner.py",
-   "sha256": "be78fe52b907b6b12892fffef9f675249d874881e0c2493b960a74edce6c43f6",
-   "size": 22953
-  },
-  {
-   "path": "Sonix Auto.exe",
-   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
-   "size": 224256
-  },
-  {
-   "path": "SonixDangVideo.pyw",
-   "sha256": "8ec3356e5eabf1afb3779e9fc7673460c7981e7f3c588a889d3db62473783277",
-   "size": 3057
+   "sha256": "eb4a62c6562d8bceeed8492d2280b89cb0e84783d5895191fda52fe78ddccbcc",
+   "size": 23230
   },
   {
    "path": "tao_manifest.py",
    "sha256": "6dcb33c88afa4b4cf0d916e2406cba216f992dc783c3a3f31b05b598c3e01365",
    "size": 1803
-  },
-  {
-   "path": "VERSION",
-   "sha256": "43711a46b6e95c7e543f95f906afc1b49fbc4010a449d705ed8c7fd17fa470a3",
-   "size": 5
   }
  ]
 }

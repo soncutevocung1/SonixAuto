@@ -1,5 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
+
+## 2.5.2
+- Sửa lỗi mất ảnh bìa trong Hàng chờ / Duyệt sau khi lên bản 2.5: bản 2.5.0 đổi tên thư mục SonixDangVideo -> Sonix Auto nhưng hàng chờ vẫn ghi đường dẫn thư mục cũ. Tool tự sửa đường dẫn cũ trong hàng chờ và dữ liệu (ảnh bìa, khung hình, âm thanh Yêu thích, âm thanh mượn) khi mở tool / bật bộ đăng.
+
 ## 2.5.1
 - Sửa lỗi cửa sổ app hiện "Internal Server Error", không vào được app sau một lúc chạy (máy chủ giao diện mất dấu vòng sự kiện). Nay tool tự sửa ngay khi gặp, không cần tắt mở lại.
 

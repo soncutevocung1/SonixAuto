@@ -420,6 +420,11 @@ def main():
         time.sleep(10)
         return
     _ALIVE.set()
+    try:  # đường dẫn còn ghi thư mục cũ (trước khi đổi tên SonixDangVideo -> Sonix Auto) -> sửa
+        from core import updater as _up
+        _up.sua_duong_dan_cu(log=log)
+    except Exception as e:
+        log(f"! Sửa đường dẫn cũ lỗi: {e}")
     from core import desktop as _dk
     _dk.low_priority()  # nhường CPU cho việc khác của bác (Chrome, ffmpeg tool mở cũng nhường theo)
     threading.Thread(target=_beat_forever, name="nhip-tim", daemon=True).start()
