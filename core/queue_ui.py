@@ -29,6 +29,7 @@ CSS = """<style>
 .qx-day i{font-family:inherit;font-weight:400;font-style:italic;font-size:13px;opacity:.7;margin-left:8px}
 .qx-b{display:inline-block;padding:2px 10px;border-radius:999px;color:#fff;font-size:12px;font-weight:700}
 .qx-t{font-family:Montserrat,sans-serif;font-weight:800;font-size:17px;margin:4px 0 0}
+.qx-r{font-size:12px;line-height:1.35;color:#fca5a5;margin-top:4px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .qx-d{font-size:12px;font-weight:600;opacity:.6}
 .qx-m{font-size:11.5px;opacity:.75;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .qx-f{font-size:11.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -94,7 +95,11 @@ def _card(j, now, k):
                     f'<div class="qx-f" title="{html.escape(Path(j["video_path"]).name)}">'
                     f'{html.escape(Path(j["video_path"]).name)}</div>'
                     f'<div class="qx-c">{html.escape(cap) or "<i>(chưa có caption)</i>"}</div>'
-                    + (f'<div class="qx-p">{html.escape(prod)}</div>' if prod else ""), unsafe_allow_html=True)
+                    + (f'<div class="qx-p">{html.escape(prod)}</div>' if prod else "")
+                    + (f'<div class="qx-r" title="{html.escape(str(j.get("result") or ""))}">'
+                       f'{html.escape(str(j.get("result") or "")[:130])}</div>'
+                       if j["status"] in ("check", "error", "lo_gio") and j.get("result") else ""),
+                    unsafe_allow_html=True)
         a, b = st.columns([1, 1])
         a.checkbox("Chọn", key=f"qsel_{j['id']}")
         with b.popover("⋯", width="stretch", help="Xem đủ caption, hashtag, nhạc, kết quả"):

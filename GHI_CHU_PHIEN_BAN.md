@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.8.7
+- Tab Hàng chờ: thẻ video **Cần kiểm tra / Lỗi / Lỡ giờ** hiện luôn **lý do** (chữ đỏ) ngay trên thẻ, không phải bấm ⋯ mới thấy.
+
 ## 2.8.6
 - **Lấp ngày thiếu chỉ bằng video mới**: ngày cuối của lịch còn thiếu (vd 15/11 mới 4/6) thì lần sau bác thêm video vào CHƯA UP, tool xếp video mới vào ngày đó trước cho đủ, rồi mới sang ngày sau. Bỏ việc tự kéo video có sẵn trong lịch và nút "Lấp ngày thiếu ngay".
 - **Âm thanh Yêu thích gộp vào 1 chỗ**: chọn «Tự động: âm thanh Yêu thích đúng sản phẩm» ở ô Nhạc nền rồi bấm **Áp dụng nhạc** (bỏ nút riêng bị trùng). Kênh mình không có âm thanh đúng sản phẩm thì **mượn âm thanh của kênh khác** (tắt hẳn âm gốc). Sửa lỗi mượn không được vì kênh cho mượn chưa gắn sản phẩm cho âm thanh: nay tool tự gắn trước khi mượn. Video nào không gán được thì ghi rõ lý do.

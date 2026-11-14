@@ -1,7 +1,7 @@
 {
- "version": "2.8.6",
- "built_at": "2026-11-14T06:37:19Z",
- "notes": "- **Lấp ngày thiếu chỉ bằng video mới**: ngày cuối của lịch còn thiếu (vd 15/11 mới 4/6) thì lần sau bác thêm video vào CHƯA UP, tool xếp video mới vào ngày đó trước cho đủ, rồi mới sang ngày sau. Bỏ việc tự kéo video có sẵn trong lịch và nút \"Lấp ngày thiếu ngay\".\n- **Âm thanh Yêu thích gộp vào 1 chỗ**: chọn «Tự động: âm thanh Yêu thích đúng sản phẩm» ở ô Nhạc nền rồi bấm **Áp dụng nhạc** (bỏ nút riêng bị trùng). Kênh mình không có âm thanh đúng sản phẩm thì **mượn âm thanh của kênh khác** (tắt hẳn âm gốc). Sửa lỗi mượn không được vì kênh cho mượn chưa gắn sản phẩm cho âm thanh: nay tool tự gắn trước khi mượn. Video nào không gán được thì ghi rõ lý do.\n- **Telegram báo cáo theo phiên**: mỗi phiên đăng gửi 1 tin tổng hợp (bao nhiêu video, thành công theo kênh, video có vấn đề kèm lý do, ảnh lỗi, video quay màn hình, video lỡ giờ). Không còn báo từng video.",
+ "version": "2.8.7",
+ "built_at": "2026-11-14T06:47:12Z",
+ "notes": "- Tab Hàng chờ: thẻ video **Cần kiểm tra / Lỗi / Lỡ giờ** hiện luôn **lý do** (chữ đỏ) ngay trên thẻ, không phải bấm ⋯ mới thấy.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "680259e789bc00a4e2276307ad70cacef82e5b68fb6de7d934c6ff72aa0843ab",
-   "size": 29160
+   "sha256": "8914645866b30c2bd852c9be16b8dfc5afcc4d43f42ae63cbc0a97fb3656e52f",
+   "size": 29337
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,7 +65,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "fdda59a9689048afd4a1885e7df48f5bd1eda96e6e8f4daba9bdafb0433d8bce",
+   "sha256": "f48da3d32b75f2a1f076aeb96afbffb54ee311bb42e7ff5952e818b275a60368",
    "size": 6
   },
   {
@@ -235,8 +235,8 @@
   },
   {
    "path": "core/queue_ui.py",
-   "sha256": "f14060502fa79471493658fb39d11d7a5db0f5259eac314a2d02c2efbf74795e",
-   "size": 14018
+   "sha256": "b940affd78819dd970172748d6f2c7948d1b1d35a21293204507907cd078d857",
+   "size": 14465
   },
   {
    "path": "core/san_pham.py",
