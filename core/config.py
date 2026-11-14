@@ -73,6 +73,7 @@ DEFAULTS = {
     "channel_products": {},
     "anthropic_api_key": "",
     "gemini_api_key": "",                 # Gemini API key (aistudio.google.com) — gói miễn phí
+    "veo_api_key": "",                    # key tạo video AI (Veo) cho cảnh mô phỏng phong cách Sơn 01 (dùng sau)
     "ai_model": "claude-haiku-5-5",   # rẻ nhất (~50đ/video), đọc nhãn sản phẩm tốt
     "default_hashtags": "nongnghiep, phanbon",
     "caption_guide": "",                  # hướng dẫn AI viết caption (chung mọi kênh)

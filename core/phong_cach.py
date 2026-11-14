@@ -16,12 +16,15 @@ QUY_TRINH = {
     "reup_aff": "Reup Aff · video có sẵn → chọn cảnh → lồng tiếng AI → khuôn CapCut → tự xuất 1080p",
     "xoay_minh_hoa": "Xoay + minh hoạ · video tự quay xoay sản phẩm + chèn cảnh aff cùng sản phẩm (2x, tắt tiếng) "
                      "→ giữ tiếng gốc → xuất thẳng mp4 1080p",
+    "son01": "Sơn 01 · video tự quay nói tự do → tự cắt (bỏ lặng, ờ à, nói lại) → zoom lò xo, phụ đề từ khoá vàng, "
+             "cảnh minh hoạ khung viền sáng, SFX khớp nhịp cắt → dự án CapCut + AI tự chấm ≥ 8/10",
 }
 SAP_CO = "Quay thô tự cắt phần thừa · hiệu ứng (sắp có)"
 # Phong cách có sẵn trên mọi máy: tự tạo MẪU\<tên> + SOURCE THÔ\<source> khi mở Edit Video
 MAC_DINH = {
     "Reup Aff": {"source": "Video Aff", "quy_trinh": "reup_aff"},
     "Xoay minh họa": {"source": "Xoay", "quy_trinh": "xoay_minh_hoa"},
+    "Sơn 01": {"source": "Quay Sơn 01", "quy_trinh": "son01"},
 }
 
 

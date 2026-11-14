@@ -1,0 +1,69 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; background: transparent; overflow: hidden; font-family: 'Montserrat', 'Be Vietnam Pro', Arial, sans-serif; }
+  #khung { position: absolute; left: 50%; top: 50%; border-radius: 40px; overflow: hidden; background: #111;
+    box-shadow: 0 0 6px 2px rgba(255,255,255,.95), 0 0 26px 8px rgba(255,255,255,.5), 0 0 60px 16px rgba(255,255,255,.2); }
+  .anh { position: absolute; inset: 0; }
+  .anh img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #sau { clip-path: inset(0 0 0 50%); }
+  #gat { position: absolute; top: 0; bottom: 0; width: 8px; margin-left: -4px; background: #fff;
+    box-shadow: 0 0 18px 4px rgba(255,255,255,.8); }
+  #num { position: absolute; top: 50%; width: 76px; height: 76px; margin: -38px 0 0 -38px; border-radius: 50%;
+    background: #fff; box-shadow: 0 6px 18px rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center;
+    font-size: 34px; color: #1b7a3a; font-weight: 900; }
+  .nhan { position: absolute; top: 34px; padding: 12px 30px; border-radius: 999px; font-weight: 900; font-size: 58px;
+    letter-spacing: 1px; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.35); transform-origin: 50% 50%; }
+  #n1 { left: 30px; background: #c62828; }
+  #n2 { right: 30px; background: #1b9e4b; }
+  #khung::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 28%; pointer-events: none;
+    background: linear-gradient(to top, rgba(0,0,0,.62), rgba(0,0,0,0)); }
+  #chu { position: absolute; left: 0; right: 0; bottom: 40px; z-index: 2; text-align: center; font-size: 64px; font-weight: 900; color: #F4C70F;
+    text-shadow: 0 3px 0 rgba(0,0,0,.6), 0 0 16px rgba(0,0,0,.6); }
+</style>
+<script src="../engine/lib/runtime.js"></script>
+</head><body>
+<div id="khung">
+  <div class="anh" id="truoc"><img id="i1"></div>
+  <div class="anh" id="sau"><img id="i2"></div>
+  <div id="gat"></div><div id="num">⇆</div>
+  <div class="nhan" id="n1">TRƯỚC</div><div class="nhan" id="n2">SAU</div>
+  <div id="chu"></div>
+</div>
+<script>
+  // props: { media: {truoc:{path..}, sau:{path..}}, at, dur, chu ("Rễ bung trắng sau 7 ngày"), widthPct, y, nhan1, nhan2 }
+  const P = SX.props, W = window.__SX_W__ || 1080, H = window.__SX_H__ || 1920;
+  const at = P.at ?? 0.1, dur = P.dur ?? 3.2;
+  window.SX_META = { duration: P.duration ?? at + dur + 0.1 };
+  const k = document.getElementById('khung'), sau = document.getElementById('sau'), gat = document.getElementById('gat'),
+        num = document.getElementById('num'), n1 = document.getElementById('n1'), n2 = document.getElementById('n2'), chu = document.getElementById('chu');
+  const kw = Math.round(W * (P.widthPct ?? 0.86)), kh = Math.round(kw * (P.aspect ?? 1.25));
+  k.style.width = kw + 'px'; k.style.height = kh + 'px';
+  n1.textContent = P.nhan1 || 'TRƯỚC'; n2.textContent = P.nhan2 || 'SAU'; chu.textContent = P.chu || '';
+  const i1 = document.getElementById('i1'), i2 = document.getElementById('i2');
+  const VAO = { stiffness: 230, damping: 26 }, GAT = { stiffness: 90, damping: 14 }, NAY = { stiffness: 420, damping: 13, mass: 0.7 };
+
+  window.renderFrame = async (f) => {
+    const fps = SX.fps, t = f / fps;
+    if (t < at || t > at + dur) { k.style.opacity = 0; return; }
+    // 1) khung truot vao tu duoi (lo xo)
+    const s = SX.spring({ frame: f, fps, delay: at, config: VAO });
+    const ra = SX.interpolate(t, [at + dur - 0.2, at + dur], [1, 0]);
+    k.style.opacity = Math.min(1, s * 3) * ra;
+    k.style.transform = `translate(-50%,-50%) translate(0, ${(1 - s) * H * 0.5 + ((P.y ?? 0.5) - 0.5) * H}px) scale(${0.94 + 0.06 * s})`;
+    // 2) thanh gat: dau tien che het "sau" (100%) -> lo xo ve 50% (vot qua mot chut)
+    const g = SX.spring({ frame: f, fps, delay: at + 0.45, config: GAT });
+    const pos = 1 - 0.5 * g;           // 1 -> 0.5 (ti le chieu ngang)
+    sau.style.clipPath = `inset(0 0 0 ${pos * 100}%)`;
+    gat.style.left = num.style.left = (pos * 100) + '%';
+    // 3) nhan TRUOC / SAU bat len
+    const a1 = SX.spring({ frame: f, fps, delay: at + 0.25, config: NAY });
+    const a2 = SX.spring({ frame: f, fps, delay: at + 0.95, config: NAY });
+    n1.style.transform = `scale(${a1})`; n1.style.opacity = Math.min(1, a1 * 2);
+    n2.style.transform = `scale(${a2})`; n2.style.opacity = Math.min(1, a2 * 2);
+    const a3 = SX.spring({ frame: f, fps, delay: at + 1.3, config: VAO });
+    chu.style.opacity = Math.min(1, a3 * 2); chu.style.transform = `translateY(${(1 - a3) * 30}px)`;
+    await Promise.all([SX.setImg(i1, SX.mediaFrame('truoc', t - at)), SX.setImg(i2, SX.mediaFrame('sau', t - at))]);
+  };
+</script>
+</body></html>

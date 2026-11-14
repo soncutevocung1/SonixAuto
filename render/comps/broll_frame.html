@@ -1,0 +1,52 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; background: transparent; overflow: hidden; }
+  #wrap { position: absolute; left: 50%; top: 50%; will-change: transform, opacity; }
+  /* Tam trang bo goc + phat sang (thay cho: anh trang -> mat na bo goc -> clip ghep -> "Phat sang 2") */
+  #card {
+    position: relative; border-radius: var(--r); background: #fff;
+    box-shadow: 0 0 6px 2px rgba(255,255,255,.95), 0 0 26px 8px rgba(255,255,255,.55), 0 0 70px 18px rgba(255,255,255,.22);
+  }
+  #media { position: absolute; inset: var(--bd); border-radius: calc(var(--r) - var(--bd)); overflow: hidden; background: #111; }
+  #media > * { width: 100%; height: 100%; object-fit: cover; display: block; }
+</style>
+<script src="../engine/lib/runtime.js"></script>
+</head><body><div id="wrap"><div id="card"><div id="media"></div></div></div>
+<script>
+  // props: { src, type:'video'|'image', srcStart, rate, at (giay xuat hien), dur, from:'up'|'down'|'left'|'right',
+  //          widthPct (0.66), aspect (9/16), y (0.5 = giua), radius, border, duration }
+  const P = SX.props;
+  const W = window.__SX_W__ || 1080, H = window.__SX_H__ || 1920;
+  const at = P.at ?? 0.2, dur = P.dur ?? 2.6;
+  window.SX_META = { duration: P.duration ?? (at + dur + 0.2) };
+  const cw = Math.round(W * (P.widthPct ?? 0.66));
+  const ch = Math.round(cw / (P.aspect ?? (9 / 16)) );
+  const wrap = document.getElementById('wrap'), card = document.getElementById('card'), media = document.getElementById('media');
+  card.style.width = cw + 'px'; card.style.height = ch + 'px';
+  card.style.setProperty('--r', (P.radius ?? 46) + 'px');
+  card.style.setProperty('--bd', (P.border ?? 10) + 'px');
+
+  // props.media.broll = { path, start, rate(2), dur } -> render.mjs tach san thanh anh
+  const img = document.createElement('img');
+  media.appendChild(img);
+
+  const IN = { stiffness: 230, damping: 26, mass: 1 };
+  const dir = { up: [0, 1], down: [0, -1], left: [1, 0], right: [-1, 0] }[P.from || 'up'];
+
+  window.renderFrame = async (f) => {
+    const fps = SX.fps, t = f / fps;
+    if (t < at - 1 / fps || t > at + dur) { wrap.style.opacity = 0; return; }
+    const s = SX.spring({ frame: f, fps, delay: at - 1 / fps, config: IN });
+    // ra: thu nho + mo nhanh 0.18s cuoi
+    const o = SX.interpolate(t, [at + dur - 0.18, at + dur], [1, 0], { easing: SX.ease.in });
+    const dist = 0.55 * (dir[1] ? H : W);
+    const tx = dir[0] * (1 - s) * dist, ty = dir[1] * (1 - s) * dist;
+    const y = ((P.y ?? 0.5) - 0.5) * H;
+    const sc = 0.92 + 0.08 * s - (1 - o) * 0.06;
+    wrap.style.opacity = Math.min(1, s * 3) * o;
+    wrap.style.transform = `translate(-50%, -50%) translate(${tx}px, ${ty + y}px) scale(${sc})`;
+    await SX.setImg(img, SX.mediaFrame('broll', Math.max(0, t - at)));
+  };
+</script>
+</body></html>

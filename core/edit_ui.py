@@ -224,6 +224,9 @@ def _phong_cach(S) -> dict:
                         f"mẫu) · mỗi cảnh ~{pc['nhip']:.1f} giây · video ~{pc.get('giay_tb', 0):.0f} giây")
         elif b["quy_trinh"] == "xoay_minh_hoa":
             a1.markdown(f"**Mẫu** · `MẪU\\{ten}` · phong cách này không cần học mẫu (không lồng tiếng)")
+        elif b["quy_trinh"] == "son01":
+            a1.markdown(f"**Mẫu** · phong cách anh Sơn tạo, học sẵn từ dự án CapCut mẫu (gói phong cách Sơn 01), "
+                        "không cần học mẫu")
         elif pc.get("nhip"):
             a1.markdown(f"**Mẫu** · `MẪU\\{ten}` · đã học {da}/{len(vids)} video · mỗi cảnh ~{pc['nhip']:.1f} giây · "
                         f"video ~{pc.get('giay_tb', 0):.0f} giây, ~{pc.get('chu_tb', 0)} chữ")
@@ -716,6 +719,10 @@ def render(S):
     ten_pc = S.get("edit_phong_cach") or ""
     if ten_pc and phong_cach.bo(ten_pc)["quy_trinh"] == "xoay_minh_hoa":
         _xoay_ui(S, ten_pc)
+        return
+    if ten_pc and phong_cach.bo(ten_pc)["quy_trinh"] == "son01":
+        from . import son01_ui
+        son01_ui.render(S, ten_pc)
         return
     _loc(S)
     sps = list(kich_ban.SAN_PHAM)

@@ -1,0 +1,106 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
+  .lop { position: absolute; left: 50%; top: 50%; }
+  #main { position: absolute; inset: 0; overflow: hidden; }
+  #main img { position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 50%; }
+  #card { border-radius: 46px; background: #fff;
+    box-shadow: 0 0 6px 2px rgba(255,255,255,.95), 0 0 26px 8px rgba(255,255,255,.55), 0 0 70px 18px rgba(255,255,255,.22); }
+  #broll { border-radius: 38px; overflow: hidden; background: #111; }
+  #broll img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .chu { position: absolute; left: 50%; text-align: center; white-space: pre-line; line-height: 1.15;
+    transform-origin: 50% 50%; font-weight: 700; color: #fff;
+    text-shadow: 0 3px 0 rgba(0,0,0,.55), 0 0 16px rgba(0,0,0,.6), 0 0 3px rgba(0,0,0,.95); }
+  .chu span { display: inline; }
+</style>
+<script src="../engine/lib/runtime.js"></script>
+</head><body>
+<div id="main"><img id="mimg"></div>
+<div id="card" class="lop"></div>
+<div id="broll" class="lop"><img id="bimg"></div>
+<div id="chu"></div>
+<script>
+  // props: { tl (timeline tu xuat_tl.py), fontDir, media: {m0.., b0..} }
+  const P = SX.props, TL = P.tl;
+  const W = window.__SX_W__ || 1080, H = window.__SX_H__ || 1920;
+  window.SX_META = { duration: TL.dai };
+  const FONT_FAM = { 'UTM Avo.ttf': 'UTM Avo', 'UTM AvoBold_Italic.ttf': 'UTM AvoBold_Italic', 'DTPhudu-Black.otf': 'DTPhudu',
+                     'Montserrat-Bold.otf': 'Montserrat', 'Manis_副本.otf': 'Manis' };
+  const PX = 7.4; // co chu CapCut (size 15 * scale) -> px tren khung 1080 (do theo ban anh Son xuat)
+  const mimg = document.getElementById('mimg'), bimg = document.getElementById('bimg');
+  const card = document.getElementById('card'), broll = document.getElementById('broll'), chuBox = document.getElementById('chu');
+  const els = [];
+
+  window.setup = async () => {
+    if (P.fontDir) for (const [file, fam] of Object.entries(FONT_FAM)) {
+      try { const f = new FontFace(fam, `url("${P.fontDir}/${encodeURIComponent(file)}")`); await f.load(); document.fonts.add(f); } catch (e) {}
+    }
+    for (const c of TL.chu) {
+      const d = document.createElement('div');
+      d.className = 'chu';
+      const st0 = c.styles[0] || { font: 'UTM Avo.ttf', size: 15 };
+      d.style.fontSize = (st0.size * c.scale * PX) + 'px';
+      d.style.top = ((0.5 - c.y / 2) * 100) + '%';
+      d.style.maxWidth = '92%';
+      for (const st of c.styles) {
+        const sp = document.createElement('span');
+        sp.textContent = c.text.slice(st.a, st.b);
+        sp.style.fontFamily = `'${FONT_FAM[st.font] || 'UTM Avo'}', sans-serif`;
+        const [r, g, b] = st.color.map((v) => Math.round(v * 255));
+        sp.style.color = `rgb(${r},${g},${b})`;
+        if (st.bold) sp.style.fontWeight = 900;
+        d.appendChild(sp);
+      }
+      chuBox.appendChild(d);
+      els.push({ d, c });
+    }
+  };
+
+  function kfScale(seg, local) {
+    const k = seg.kf_scale || [];
+    if (!k.length) return seg.scale;
+    if (local <= k[0][0]) return k[0][1];
+    for (let i = 1; i < k.length; i++) if (local <= k[i][0]) {
+      const [t0, v0] = k[i - 1], [t1, v1] = k[i];
+      return v0 + (v1 - v0) * (local - t0) / (t1 - t0);
+    }
+    return k[k.length - 1][1];
+  }
+  const IN = { stiffness: 230, damping: 26, mass: 1 }, TXT = { stiffness: 260, damping: 17, mass: 0.9 };
+
+  window.renderFrame = async (f) => {
+    const fps = SX.fps, t = f / fps, jobs = [];
+    // video chinh
+    const mi = TL.main.findIndex((s) => t >= s.t0 && t < s.t0 + s.dur);
+    if (mi >= 0) {
+      const s = TL.main[mi], local = t - s.t0;
+      jobs.push(SX.setImg(mimg, SX.mediaFrame('m' + mi, local)));
+      const blur = TL.mo.some((b) => t >= b.t0 && t < b.t0 + b.dur) ? SX.interpolate(t - TL.mo.find((b) => t >= b.t0).t0, [0, 0.5], [0, 14]) : 0;
+      mimg.style.filter = blur ? `blur(${blur}px)` : 'none';
+      mimg.style.transform = `translate(-50%,-50%) translate(${s.x * W / 2}px, ${-s.y * H / 2}px) scale(${kfScale(s, local)})`;
+    }
+    // video minh hoa + khung sang
+    const bi = TL.broll.findIndex((s) => t >= s.t0 && t < s.t0 + s.dur);
+    if (bi >= 0) {
+      const s = TL.broll[bi], local = t - s.t0;
+      const sp = SX.spring({ frame: f, fps, delay: s.t0, config: IN });
+      const bw = W * s.scale, bh = bw * 16 / 9, cw = W * 0.66, ch = cw * 16 / 9;
+      const dy = (1 - sp) * H * 0.55, oy = -s.y * H / 2;
+      for (const [el, w, h] of [[broll, bw, bh], [card, cw, ch]]) {
+        el.style.width = w + 'px'; el.style.height = h + 'px'; el.style.opacity = Math.min(1, sp * 3);
+        el.style.transform = `translate(-50%,-50%) translate(0, ${oy + dy}px)`;
+      }
+      jobs.push(SX.setImg(bimg, SX.mediaFrame('b' + bi, local)));
+    } else { broll.style.opacity = 0; card.style.opacity = 0; }
+    // chu
+    for (const { d, c } of els) {
+      if (t < c.t0 || t >= c.t0 + c.dur) { d.style.opacity = 0; continue; }
+      const sp = SX.spring({ frame: f, fps, delay: c.t0 - 1 / fps, config: TXT });
+      d.style.opacity = Math.min(1, sp * 1.6);
+      d.style.transform = `translate(-50%, -50%) translate(${c.x * W / 2}px, ${(1 - sp) * 24}px) scale(${0.85 + 0.15 * sp})`;
+    }
+    await Promise.all(jobs);
+  };
+</script>
+</body></html>

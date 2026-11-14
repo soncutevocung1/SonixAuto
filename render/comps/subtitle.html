@@ -1,0 +1,79 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  :root { --vang: #F4C70F; --trang: #ffffff; }
+  html, body { margin: 0; width: 100%; height: 100%; background: transparent; overflow: hidden; }
+  #stage { position: absolute; inset: 0; }
+  .cum {
+    position: absolute; left: 50%; transform-origin: 50% 60%;
+    text-align: center; white-space: pre-line; line-height: 1.12;
+    font-family: 'UTM Avo', 'Be Vietnam Pro', 'Arial', sans-serif; font-weight: 700;
+    color: var(--trang); letter-spacing: 0.5px;
+    -webkit-text-stroke: 0; paint-order: stroke fill;
+    text-shadow: 0 3px 0 rgba(0,0,0,.55), 0 0 18px rgba(0,0,0,.55), 0 0 4px rgba(0,0,0,.9);
+    will-change: transform, opacity;
+  }
+  .kw { color: var(--vang); font-family: 'UTM AvoBold_Italic', 'UTM Avo', 'Be Vietnam Pro', sans-serif; font-style: italic; font-weight: 900; display: inline-block; transform-origin: 0% 70%; margin: 0 0.06em; }
+</style>
+<script src="../engine/lib/runtime.js"></script>
+</head><body><div id="stage"></div>
+<script>
+  // props: { fontDir, size, lines: [{ t0, t1, text, keywords:["..."], y (0..1 tu tren xuong) }] }
+  const P = SX.props;
+  const FPS = () => SX.fps;
+  const size = P.size || 64;
+  const stage = document.getElementById('stage');
+  const els = [];
+
+  window.setup = async () => {
+    if (P.fontDir) {
+      const faces = [['UTM Avo', 'UTM Avo.ttf'], ['UTM AvoBold_Italic', 'UTM AvoBold_Italic.ttf']];
+      for (const [fam, file] of faces) {
+        try { const f = new FontFace(fam, `url("${P.fontDir}/${file}")`); await f.load(); document.fonts.add(f); } catch (e) {}
+      }
+    }
+    for (const ln of P.lines || []) {
+      const d = document.createElement('div');
+      d.className = 'cum';
+      d.style.fontSize = (ln.size || size) + 'px';
+      d.style.top = ((ln.y ?? 0.72) * 100) + '%';
+      let html = escapeHtml(ln.text);
+      for (const k of ln.keywords || []) {
+        html = html.replace(new RegExp(escapeRe(escapeHtml(k)), 'i'), (m) => `<span class="kw">${m}</span>`);
+      }
+      if (ln.allKeyword) html = `<span class="kw">${html}</span>`;
+      d.innerHTML = html;
+      stage.appendChild(d);
+      els.push({ el: d, ln, kws: [...d.querySelectorAll('.kw')] });
+    }
+  };
+  function escapeHtml(s) { return s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
+  function escapeRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+  const last = Math.max(1, ...(P.lines || []).map((l) => l.t1));
+  window.SX_META = { duration: P.duration || last };
+
+  // Lo xo: vao nhanh, nay nhe (giong "Loai xem truoc" nhung mem hon)
+  const IN = { stiffness: 260, damping: 17, mass: 0.9 };
+  const KW = { stiffness: 420, damping: 14, mass: 0.7 };
+
+  window.renderFrame = (f) => {
+    const t = f / FPS();
+    for (const { el, ln, kws } of els) {
+      // chay som 1 khung de khung dau tien da thay chu (khop giong)
+      const pre = 1 / FPS();
+      if (t < ln.t0 || t >= ln.t1) { el.style.opacity = 0; continue; }
+      const s = SX.spring({ frame: f, fps: FPS(), delay: ln.t0 - pre, config: IN });
+      const out = SX.interpolate(t, [ln.t1 - 0.08, ln.t1], [1, 0]);
+      el.style.opacity = Math.min(1, s * 1.6) * out;
+      el.style.transform = `translate(-50%, -50%) translateY(${(1 - s) * 28}px) scale(${0.82 + 0.18 * s})`;
+      // tu khoa bat len tre hon 1 nhip (60ms) va nay manh hon
+      kws.forEach((k, i) => {
+        const ks = SX.spring({ frame: f, fps: FPS(), delay: ln.t0 + 0.03 + i * 0.04, config: KW });
+        k.style.opacity = Math.min(1, ks * 2);
+        k.style.transform = `translateY(${(1 - ks) * 18}px) scale(${0.86 + 0.14 * ks})`;
+      });
+    }
+  };
+</script>
+</body></html>

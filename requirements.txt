@@ -14,4 +14,5 @@ curl_cffi>=0.10,<0.14  # yt-dlp vào được TikTok
 scenedetect>=0.6  # tách cảnh quay
 rapidocr-onnxruntime>=1.3  # dò chữ chèn / nhãn sản phẩm
 mediapipe>=0.10  # dò mặt người
+soundfile>=0.12  # đọc âm thanh cho Whisper (phong cách Sơn 01)
 uiautomation>=2.0; sys_platform == "win32"  # tự bấm Xuất trong CapCut

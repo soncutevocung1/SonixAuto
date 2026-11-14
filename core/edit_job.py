@@ -62,7 +62,8 @@ def doc_log(name: str, n: int = 12) -> list:
 
 VIEC = {"quet_canh": "Quét cảnh", "lam_video": "Làm video", "hang_loat": "Làm video hàng loạt",
         "cai_khuon": "Cài khuôn CapCut", "hoc_mau": "Học mẫu", "loc_sp": "Lọc video theo sản phẩm",
-        "quet_kenh": "Quét kênh tham khảo", "xuat": "Xuất video vào kênh", "xoay": "Làm video Xoay + minh hoạ"}
+        "quet_kenh": "Quét kênh tham khảo", "xuat": "Xuất video vào kênh", "xoay": "Làm video Xoay + minh hoạ",
+        "son01": "Dựng video Sơn 01", "son01_tv": "Lập thư viện cảnh Sơn 01", "son01_goi": "Gói phong cách Sơn 01"}
 
 
 def _tg(kind, name, loai, err):
@@ -115,6 +116,22 @@ def main(argv):
             from core import xoay
             cfg = json.loads(Path(argv[2]).read_text(encoding="utf-8"))
             xoay.lam(S, cfg["files"], cfg["kenh"], so_chen=int(cfg.get("so_chen") or 0), log=log)
+        elif kind == "son01":
+            from core import son01
+            cfg = json.loads(Path(argv[2]).read_text(encoding="utf-8"))
+            kq = son01.dung(cfg["video"], cfg["sp"], S, ten=cfg.get("ten", ""), vong=cfg.get("vong", 3),
+                            dat=cfg.get("dat", 8), dai=cfg.get("dai", 36), log=log)
+            log(f"Điểm {kq.get('diem')}/10 · dự án CapCut: {kq.get('du_an')}")
+        elif kind == "son01_tv":
+            from core import son01
+            son01.lap_thu_vien(Path(argv[2]).read_text(encoding="utf-8").strip(), S, log=log)
+        elif kind == "son01_goi":
+            from core.son01 import goi
+            cfg = json.loads(Path(argv[2]).read_text(encoding="utf-8"))
+            if cfg.get("viec") == "dong_goi":
+                goi.dong_goi(cfg["khuon"], cfg["timeline"], cfg["ra"], cfg.get("fonts"), log=log)
+            else:
+                log(goi.cai_dat(cfg.get("zip") or None, log=log))
         elif kind == "xuat":
             from core import edit_video
             cfg = json.loads(Path(argv[2]).read_text(encoding="utf-8"))

@@ -1,0 +1,73 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; background: transparent; overflow: hidden; font-family: 'Montserrat', 'Be Vietnam Pro', Arial, sans-serif; }
+  svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .nhan { position: absolute; padding: 14px 28px; border-radius: 18px; background: rgba(10,30,15,.82); color: #fff;
+    border: 3px solid #F4C70F; font-weight: 900; font-size: 50px; white-space: nowrap; transform-origin: 0 50%;
+    box-shadow: 0 0 22px rgba(244,199,15,.45); }
+  .nhan small { display: block; font-size: 32px; font-weight: 700; color: #F4C70F; margin-top: 2px; }
+</style>
+<script src="../engine/lib/runtime.js"></script>
+</head><body><svg id="svg"></svg><div id="box"></div>
+<script>
+  // props: { duration, nhan: [{ at, dur, x, y (diem chi, 0-1), lx, ly (vi tri nhan, 0-1), chu, phu }] }
+  const P = SX.props, W = window.__SX_W__ || 1080, H = window.__SX_H__ || 1920;
+  const L = P.nhan || [];
+  window.SX_META = { duration: P.duration ?? Math.max(1, ...L.map((n) => n.at + n.dur)) };
+  const svg = document.getElementById('svg'), box = document.getElementById('box');
+  const NS = 'http://www.w3.org/2000/svg';
+  const LE = 40; // vung an toan 2 ben (px)
+  let items = [];
+  window.setup = async () => { items = L.map(tao); };
+  function tao(n) {
+    const g = document.createElementNS(NS, 'g');
+    const ring = document.createElementNS(NS, 'circle'), dot = document.createElementNS(NS, 'circle'), line = document.createElementNS(NS, 'path');
+    const lb = document.createElement('div');
+    lb.className = 'nhan'; lb.innerHTML = n.chu + (n.phu ? `<small>${n.phu}</small>` : '');
+    lb.style.visibility = 'hidden'; box.appendChild(lb);
+    const bw = lb.offsetWidth;                  // do be rong that (font da nap)
+    const trai = n.lx < n.x;                    // nhan ben trai diem chi
+    const px = n.x * W, py = n.y * H, ly = n.ly * H;
+    // mep nhan gan diem chi; kep de ca nhan nam trong [LE, W-LE]
+    let lx = n.lx * W;
+    if (trai) lx = Math.min(Math.max(lx, LE + bw), px - 60); else lx = Math.max(Math.min(lx, W - LE - bw), px + 60);
+    lb.style.top = ly + 'px';
+    if (trai) { lb.style.left = (lx - bw) + 'px'; lb.style.transformOrigin = '100% 50%'; } else lb.style.left = lx + 'px';
+    lb.style.visibility = 'visible';
+    const mx = lx + (trai ? 40 : -40);   // khuyu duong ke ngang truoc khi vao nhan
+    line.setAttribute('d', `M${px},${py} L${mx},${ly} L${lx},${ly}`);
+    line.setAttribute('fill', 'none'); line.setAttribute('stroke', '#F4C70F'); line.setAttribute('stroke-width', '6');
+    line.setAttribute('stroke-linecap', 'round'); line.style.filter = 'drop-shadow(0 0 6px rgba(244,199,15,.9))';
+    const len = Math.hypot(mx - px, ly - py) + Math.abs(lx - mx);
+    line.style.strokeDasharray = len;
+    for (const [c, r, fill] of [[ring, 30, 'none'], [dot, 13, '#F4C70F']]) {
+      c.setAttribute('cx', px); c.setAttribute('cy', py); c.setAttribute('r', r); c.setAttribute('fill', fill);
+      if (fill === 'none') { c.setAttribute('stroke', '#F4C70F'); c.setAttribute('stroke-width', '5'); }
+    }
+    g.append(line, ring, dot); svg.appendChild(g);
+    return { n, g, ring, dot, line, len, lb };
+  }
+  const POP = { stiffness: 380, damping: 15, mass: 0.8 }, VE = { stiffness: 120, damping: 20 };
+
+  window.renderFrame = (f) => {
+    const fps = SX.fps, t = f / fps;
+    for (const it of items) {
+      const { n } = it;
+      const on = t >= n.at && t < n.at + n.dur;
+      const ra = SX.interpolate(t, [n.at + n.dur - 0.2, n.at + n.dur], [1, 0]);
+      it.g.style.opacity = on ? ra : 0; it.lb.style.opacity = 0;
+      if (!on) continue;
+      const d = SX.spring({ frame: f, fps, delay: n.at, config: POP });
+      it.dot.setAttribute('r', 13 * d);
+      const nhip = (t - n.at) % 1.2 / 1.2;                // vong song lan toa, lap moi 1.2s
+      it.ring.setAttribute('r', 16 + 40 * nhip); it.ring.style.opacity = (1 - nhip) * d;
+      const v = SX.spring({ frame: f, fps, delay: n.at + 0.15, config: VE });
+      it.line.style.strokeDashoffset = it.len * (1 - v);
+      const b = SX.spring({ frame: f, fps, delay: n.at + 0.45, config: POP });
+      it.lb.style.opacity = Math.min(1, b * 2) * ra;
+      it.lb.style.transform = `translateY(-50%) scale(${b})`;
+    }
+  };
+</script>
+</body></html>
