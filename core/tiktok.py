@@ -1368,12 +1368,25 @@ def post(job, settings, log=print, lock=None):
             click_button(page, r"^(Đăng ngay|Post now|Tiếp tục|Continue|Tiếp tục đăng|Lên lịch|Schedule)$", timeout=6)
             ok_text = page.get_by_text(_rx(r"(đã được (tải lên|đăng|lên lịch)|Đã lên lịch|Quản lý bài đăng|"
                                            r"uploaded|scheduled|Manage (your )?posts)"))
-            end = time.time() + 120
+            t0 = time.time()
+            end, reclick = t0 + 150, [t0 + 25, t0 + 70]  # TikTok không nhận cú bấm -> bấm lại tối đa 2 lần
             while time.time() < end:
                 if "/tiktokstudio/upload" not in page.url or _visible(ok_text):
                     st = "scheduled" if use_schedule else "done"
                     msg = (f"Đã hẹn giờ trên TikTok lúc {when:%d/%m %H:%M}" if use_schedule else "Đăng thành công")
                     return st, msg + (f" ({'; '.join(notes)})" if notes else "")
+                if reclick and time.time() > reclick[0]:
+                    reclick.pop(0)
+                    try:
+                        clear_popups(page)
+                        b2 = post_button(page)
+                        if b2 and _ready(b2) and "/tiktokstudio/upload" in page.url:
+                            log("  · TikTok chưa nhận cú bấm, bấm lại " + ("Lên lịch" if use_schedule else "Đăng") + "...")
+                            b2.scroll_into_view_if_needed()
+                            b2.click()
+                            click_button(page, r"^(Đăng ngay|Post now|Tiếp tục|Continue|Tiếp tục đăng)$", timeout=4)
+                    except Exception:
+                        pass
                 time.sleep(2)
             shot = dump_debug(page, "xac_nhan")
             return "check", f"Đã bấm đăng nhưng chưa thấy TikTok xác nhận. Ảnh: {Path(shot).name}"

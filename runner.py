@@ -263,6 +263,9 @@ _LAST_COVER_CHECK = {}
 _RETRY_AFTER = {}  # job id -> lúc được thử lại (ảnh bìa chưa lên)
 
 
+UNCONFIRMED = "Đã bấm đăng nhưng chưa thấy TikTok xác nhận"
+
+
 def check_covers(settings):
     """Lúc rảnh: vào TikTok Studio kiểm tra ảnh bìa các video đã hẹn giờ.
     - Thiếu bìa: đưa video về CHƯA UP, báo bác xoá bài trong app TikTok (web không cho xoá bài có giỏ hàng).
@@ -273,6 +276,10 @@ def check_covers(settings):
     soon, old = (now + timedelta(minutes=5)).strftime(db.TIME_FMT), (now - timedelta(minutes=3)).strftime(db.TIME_FMT)
     todo = {}
     for j in db.list_jobs(["scheduled", "check"], "tiktok"):
+        unconfirmed = j["status"] == "check" and str(j.get("result") or "").startswith(UNCONFIRMED)
+        if unconfirmed and j.get("scheduled_at", "") > soon and (j.get("updated_at") or "") <= old:
+            todo.setdefault(j["channel"], []).append(j)  # bấm đăng mà chưa thấy xác nhận -> xem bài có trên TikTok chưa
+            continue
         if (int(j.get("cover_checked") or 0) in (0, 2) and j.get("cover_path") and j.get("scheduled_at", "") > soon
                 and (j.get("updated_at") or "") <= old and (j["status"] == "scheduled" or int(j.get("cover_checked") or 0) == 2)):
             todo.setdefault(j["channel"], []).append(j)
@@ -302,6 +309,11 @@ def check_covers(settings):
                 if r_[2]:
                     db.update_job(j["id"], scheduled_at=r_[2])
                     j["scheduled_at"] = r_[2]
+            if j["status"] == "check" and str(j.get("result") or "").startswith(UNCONFIRMED) and kind in ("ok", "thieu_bia"):
+                db.update_job(j["id"], status="scheduled", result=f"Đã hẹn giờ trên TikTok lúc {j['scheduled_at']} "
+                                                                  "(tool kiểm lại trên TikTok Studio)")
+                log(f"  ✔ {name}: đã có trên TikTok (hẹn {j['scheduled_at']}) → chuyển 'Đã hẹn giờ'")
+                j["status"] = "scheduled"
             if kind == "ok":
                 db.update_job(j["id"], cover_checked=1)
             elif kind == "thieu_bia" and int(j.get("cover_checked") or 0) == 0:

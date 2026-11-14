@@ -1,6 +1,10 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.8.8
+- Sửa lỗi video báo **"Đã bấm đăng nhưng chưa thấy TikTok xác nhận"** (gặp ở kênh KTNN 14/11, cứ 1 video được 1 video lỗi): TikTok đôi khi không nhận cú bấm Lên lịch, trước đây tool chờ 2 phút rồi bỏ. Nay tool **bấm lại** tối đa 2 lần.
+- Video đã lỡ rơi vào trạng thái này: lúc rảnh tool **tự vào TikTok Studio kiểm tra**. Có bài trên TikTok thì chuyển "Đã hẹn giờ"; không có thì đưa video về CHƯA UP và **tự đăng lại**. Bác không cần làm gì.
+
 ## 2.8.7
 - Tab Hàng chờ: thẻ video **Cần kiểm tra / Lỗi / Lỡ giờ** hiện luôn **lý do** (chữ đỏ) ngay trên thẻ, không phải bấm ⋯ mới thấy.
 

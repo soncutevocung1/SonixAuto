@@ -1,7 +1,7 @@
 {
- "version": "2.8.7",
- "built_at": "2026-11-14T06:47:12Z",
- "notes": "- Tab Hàng chờ: thẻ video **Cần kiểm tra / Lỗi / Lỡ giờ** hiện luôn **lý do** (chữ đỏ) ngay trên thẻ, không phải bấm ⋯ mới thấy.",
+ "version": "2.8.8",
+ "built_at": "2026-11-14T06:51:29Z",
+ "notes": "- Sửa lỗi video báo **\"Đã bấm đăng nhưng chưa thấy TikTok xác nhận\"** (gặp ở kênh KTNN 14/11, cứ 1 video được 1 video lỗi): TikTok đôi khi không nhận cú bấm Lên lịch, trước đây tool chờ 2 phút rồi bỏ. Nay tool **bấm lại** tối đa 2 lần.\n- Video đã lỡ rơi vào trạng thái này: lúc rảnh tool **tự vào TikTok Studio kiểm tra**. Có bài trên TikTok thì chuyển \"Đã hẹn giờ\"; không có thì đưa video về CHƯA UP và **tự đăng lại**. Bác không cần làm gì.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "8914645866b30c2bd852c9be16b8dfc5afcc4d43f42ae63cbc0a97fb3656e52f",
-   "size": 29337
+   "sha256": "e8ed52a26f1cda670519e6deccc5e3b664fc84692737f1299043592ab07c16ae",
+   "size": 29904
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,7 +65,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "f48da3d32b75f2a1f076aeb96afbffb54ee311bb42e7ff5952e818b275a60368",
+   "sha256": "910dddb9d3a817481b7522554ec2cfd5fa0b45133cd8222911fa6d9afba54e6b",
    "size": 6
   },
   {
@@ -280,8 +280,8 @@
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "24bdc4fc4c17fd44546241aac005b2dbf8cf6eff645e5579e7bfd454e7763495",
-   "size": 75878
+   "sha256": "9534122bfa152f5defb273d035120808fcecf00c3aa75c3ab4fae468fb5f8f57",
+   "size": 76721
   },
   {
    "path": "core/ui.py",
@@ -340,8 +340,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "20a2f4130e31c98f74b64565d16c0490327ff2d5091771fe7608f8e6d50fa884",
-   "size": 28391
+   "sha256": "1690ac7045e30772713f9537284365a125e4cc150e059b6ffa9527b11bb2b65e",
+   "size": 29345
   },
   {
    "path": "tao_manifest.py",
