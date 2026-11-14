@@ -97,9 +97,11 @@ def _get_retry(urls, token, tries=4) -> bytes:
                 TimeoutError) as e:
             last = f"mạng bị đứt khi đang tải ({type(e).__name__})"
         except UpdateError as e:
-            if "kết nối" not in str(e) and "tạm chặn" not in str(e):
+            if "raw.githubusercontent" not in url and "kết nối" not in str(e) and "tạm chặn" not in str(e):
                 raise
-            last = str(e)
+            if "tạm chặn" in str(e) and len(urls) == 1:
+                raise  # bị giới hạn lượt: chờ cũng vô ích, để chỗ gọi đổi đường khác ngay
+            last = str(e)  # đường raw lỗi (vd vừa đẩy bản mới chưa kịp có) -> thử đường còn lại
         time.sleep(2 + 3 * k)
     raise UpdateError(f"Tải không được sau {tries} lần: {last}. Mạng yếu, bấm cập nhật lại (file đã tải được "
                       f"giữ lại, lần sau tải tiếp phần còn thiếu).")
@@ -112,16 +114,26 @@ def fetch(rel: str, settings, raw_ok=True) -> bytes:
     repo = settings.get("update_repo") or DEFAULT_REPO
     ref = settings.get("update_channel") or "main"
     q = urllib.parse.quote(rel)
-    urls = [f"https://api.github.com/repos/{repo}/contents/{q}?ref={urllib.parse.quote(ref)}",
-            f"https://raw.githubusercontent.com/{repo}/{urllib.parse.quote(ref)}/{q}"]
-    return _get_retry(urls if raw_ok else urls[:1], (settings.get("github_token") or "").strip())
+    api = f"https://api.github.com/repos/{repo}/contents/{q}?ref={urllib.parse.quote(ref)}"
+    raw = f"https://raw.githubusercontent.com/{repo}/{urllib.parse.quote(ref)}/{q}"
+    token = (settings.get("github_token") or "").strip()
+    # Đường tải file thường (raw) không bị GitHub giới hạn 60 lần/giờ như đường API -> dùng trước.
+    # Có mã đọc GitHub thì API được 5000 lần/giờ nên dùng API trước. raw_ok=False: chỉ dùng API (bản mới nhất ngay).
+    if not raw_ok:
+        urls = [api]
+    else:
+        urls = [api, raw] if token else [raw, api]
+    return _get_retry(urls, token)
 
 
 # ------------------------------- kiểm tra / tải / thay -------------------------------
 def check(settings) -> dict:
     """Hỏi GitHub bản mới nhất. Trả về {current, latest, notes, newer, changed:[...], removed:[...], manifest}."""
     try:
-        man = json.loads(fetch("manifest.json", settings).decode("utf-8"))
+        try:  # danh sách file lấy đường API (luôn mới nhất), bị giới hạn lượt thì lấy đường raw
+            man = json.loads(fetch("manifest.json", settings, raw_ok=False).decode("utf-8"))
+        except UpdateError:
+            man = json.loads(fetch("manifest.json", settings).decode("utf-8"))
     except UpdateError:
         raise
     except Exception as e:

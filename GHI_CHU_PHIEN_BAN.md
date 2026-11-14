@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.8.4
+- Sửa lỗi cập nhật báo **"GitHub tạm chặn"**: GitHub chỉ cho mỗi máy (không có mã đọc) hỏi 60 lần/giờ, bản cập nhật nhiều file là vượt. Nay tool tải file qua đường không bị giới hạn này, đường cũ chỉ dùng dự phòng.
+
 ## 2.8.3
 - Sửa lỗi **cập nhật không được khi mạng chập chờn** (báo IncompleteRead): bộ cập nhật tự tải lại từng file tối đa 4 lần, đổi sang đường tải dự phòng; mạng đứt hẳn thì giữ file đã tải được, bấm cập nhật lại sẽ tải tiếp phần còn thiếu. Lỗi mạng hiện thông báo dễ hiểu thay vì bảng lỗi đỏ.
 - Ảnh logo nhẹ hơn (508 KB → 145 KB) cho máy mạng yếu cập nhật dễ hơn.

@@ -1,7 +1,7 @@
 {
- "version": "2.8.3",
- "built_at": "2026-11-14T01:41:25Z",
- "notes": "- Sửa lỗi **cập nhật không được khi mạng chập chờn** (báo IncompleteRead): bộ cập nhật tự tải lại từng file tối đa 4 lần, đổi sang đường tải dự phòng; mạng đứt hẳn thì giữ file đã tải được, bấm cập nhật lại sẽ tải tiếp phần còn thiếu. Lỗi mạng hiện thông báo dễ hiểu thay vì bảng lỗi đỏ.\n- Ảnh logo nhẹ hơn (508 KB → 145 KB) cho máy mạng yếu cập nhật dễ hơn.",
+ "version": "2.8.4",
+ "built_at": "2026-11-14T01:44:37Z",
+ "notes": "- Sửa lỗi cập nhật báo **\"GitHub tạm chặn\"**: GitHub chỉ cho mỗi máy (không có mã đọc) hỏi 60 lần/giờ, bản cập nhật nhiều file là vượt. Nay tool tải file qua đường không bị giới hạn này, đường cũ chỉ dùng dự phòng.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "cc3c8879fabb7d7a1e1e5b4597b4d2da79c229b7b570bd467177d805e13dfb10",
-   "size": 27066
+   "sha256": "f88321b6139d2e9911d8283ebe804cf53497c171279c0ab68398799340d97e63",
+   "size": 27358
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,7 +65,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "e3fdbc5ab5230a7343de5d2ee3c2df4892f7f30e5fdef2f9654e4a3ac29cd987",
+   "sha256": "4b27eec369475e0403454478c25a1777503a969827259a25f597a903e91bd8d4",
    "size": 6
   },
   {
@@ -285,8 +285,8 @@
   },
   {
    "path": "core/updater.py",
-   "sha256": "142a1273bb75dd58b394d1ed595821460f00d8cbb4a80279f24b4ffe8d9f0697",
-   "size": 21076
+   "sha256": "14a5ce54aaa6f3d63f2837efb577a95518be19fac5047a58c92837d3a445f412",
+   "size": 22006
   },
   {
    "path": "core/va_loi.py",
