@@ -1,6 +1,11 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.8.6
+- **Lấp ngày thiếu chỉ bằng video mới**: ngày cuối của lịch còn thiếu (vd 15/11 mới 4/6) thì lần sau bác thêm video vào CHƯA UP, tool xếp video mới vào ngày đó trước cho đủ, rồi mới sang ngày sau. Bỏ việc tự kéo video có sẵn trong lịch và nút "Lấp ngày thiếu ngay".
+- **Âm thanh Yêu thích gộp vào 1 chỗ**: chọn «Tự động: âm thanh Yêu thích đúng sản phẩm» ở ô Nhạc nền rồi bấm **Áp dụng nhạc** (bỏ nút riêng bị trùng). Kênh mình không có âm thanh đúng sản phẩm thì **mượn âm thanh của kênh khác** (tắt hẳn âm gốc). Sửa lỗi mượn không được vì kênh cho mượn chưa gắn sản phẩm cho âm thanh: nay tool tự gắn trước khi mượn. Video nào không gán được thì ghi rõ lý do.
+- **Telegram báo cáo theo phiên**: mỗi phiên đăng gửi 1 tin tổng hợp (bao nhiêu video, thành công theo kênh, video có vấn đề kèm lý do, ảnh lỗi, video quay màn hình, video lỡ giờ). Không còn báo từng video.
+
 ## 2.8.5 · 2 phong cách có sẵn trên mọi máy
 - Máy nào cập nhật cũng có sẵn 2 phong cách **Reup Aff** và **Xoay minh họa** ở mục 0 (tự tạo `MẪU/Reup Aff`, `MẪU/Xoay minh họa`, `SOURCE THÔ/Video Aff`, `SOURCE THÔ/Xoay`), đã gắn đúng source thô + quy trình dựng.
 - Reup Aff dùng luôn phần đã học từ 7 video mẫu (nhịp ~1.8 giây/cảnh, ~35 giây, cách viết lời) đi kèm app, không cần bỏ video mẫu và bấm Học. Bỏ video mẫu riêng vào rồi bấm Học thì app dùng bản bác tự học.

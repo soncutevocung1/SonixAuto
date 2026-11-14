@@ -895,13 +895,12 @@ for _ in _show(tabs[1]):
                     f'<span style="display:inline-block;margin:3px;padding:4px 10px;border-radius:10px;'
                     f'background:{"rgba(190,18,60,.18)" if c < p and i else "rgba(4,120,87,.18)"}">'
                     f'{d:%d/%m} <b>{c}/{p}</b></span>' for i, (d, c, p) in enumerate(_dc)), unsafe_allow_html=True)
-                st.caption("Video mới thêm vào tự xếp vào ngày còn thiếu trước. Video lỗi / bị bỏ để lại chỗ trống thì "
-                           "bộ đăng tự kéo video ở cuối lịch (chưa lên TikTok) về lấp, 30 phút kiểm 1 lần.")
-                if _thieu and st.button("Lấp ngày thiếu ngay", key=f"lap_{slug(chname)}"):
-                    _n = lich.lap_ngay_thieu(S, chname)
-                    st.toast(f"Đã dời {_n} video về lấp ngày thiếu." if _n else
-                             "Không còn video ở cuối lịch để dời (thêm video mới vào CHƯA UP rồi phân tích).")
-                    st.rerun()
+                if _thieu:
+                    st.caption("Ngày tô đỏ còn thiếu: " + ", ".join(f"{d:%d/%m} thiếu {p - c}" for d, c, p in _thieu)
+                               + ". Lần sau bác thêm video vào CHƯA UP, tool tự xếp video mới vào các ngày này trước "
+                               "cho đủ số video/ngày, rồi mới sang ngày tiếp theo. Video đã có lịch giữ nguyên giờ.")
+                else:
+                    st.caption("Các ngày đã đủ số video. Video mới thêm vào sẽ xếp tiếp sau ngày cuối.")
         if _pn:
             st.info("Kênh này **đăng ngay khi xác nhận**: giờ ghi ở từng video không dùng tới. Bấm Xác nhận video nào "
                     "là video đó vào hàng đăng ngay (mỗi video cách nhau vài chục giây).")
@@ -977,6 +976,21 @@ for _ in _show(tabs[1]):
                 db.update_job(i, **f)
                 forget(i)
 
+        def _bulk_fav(ids, chn=chname):
+            """Mỗi video lấy 1 âm thanh Yêu thích đúng sản phẩm (kênh mình trước, thiếu thì mượn kênh khác)."""
+            used, used_b, ok, borrowed, why = {}, {}, 0, 0, []
+            for i in ids:
+                jj = db.get_job(i) or {}
+                upd_, reason = snd.fav_for(chn, jj.get("item_key") or "", S, used, used_b)
+                if upd_:
+                    db.update_job(i, music_by_user=1, **upd_)
+                    ok += 1
+                    borrowed += upd_["music_mode"] == "local"
+                else:
+                    why.append(f"{Path(jj.get('video_path') or '').name}: {reason}")
+                forget(i)
+            st.session_state[f"favmsg_{slug(chn)}"] = (ok, len(why), borrowed, why)
+
         def _bulk_item(ids, key, chn=chname):
             products, cart = prod.resolve(S, chn, key)
             _bulk(ids, item_key=key, products=products, cart_name=cart, reviewed=1)
@@ -1019,9 +1033,10 @@ for _ in _show(tabs[1]):
                          on_click=_bulk_keep, args=(sel_ids, "all"))
             r3 = st.columns([2, 1, 2, 1])
             bm = r3[0].selectbox("Nhạc nền", mus_opts, key=f"bm_{slug(chname)}", format_func=lambda x: mus_fmt.get(x, x))
-            r3[1].button("Áp dụng nhạc", key=f"bma_{slug(chname)}", disabled=not sel_ids, on_click=lambda ids=sel_ids, v=bm: _bulk(
-                ids, music_mode=v.partition("::")[0] if v != "none" else "none", music_ref=v.partition("::")[2],
-                music_by_user=1))
+            r3[1].button("Áp dụng nhạc", key=f"bma_{slug(chname)}", disabled=not sel_ids, on_click=lambda ids=sel_ids, v=bm: (
+                _bulk_fav(ids) if v == "auto::favitem" else _bulk(
+                    ids, music_mode=v.partition("::")[0] if v != "none" else "none", music_ref=v.partition("::")[2],
+                    music_by_user=1)))
             bv = r3[2].selectbox("Người xem", list(VIS), key=f"bv_{slug(chname)}", format_func=VIS.get)
             r3[3].button("Áp dụng người xem", key=f"bva_{slug(chname)}", disabled=not sel_ids,
                          on_click=lambda ids=sel_ids, v=bv: _bulk(ids, visibility=v))
@@ -1085,31 +1100,17 @@ for _ in _show(tabs[1]):
                 st.caption("Đặt xong là các video của sản phẩm đó (bác chưa tự chọn bìa) tự đổi sang ảnh này; đổi sản phẩm "
                            "thì bìa đổi theo. Video bác đã tự chọn bìa thì giữ nguyên, muốn dùng lại bìa mặc định thì bấm "
                            "trong Đổi ảnh bìa của video đó. Lưu riêng cho từng kênh.")
-            def _bulk_fav(ids, chn=chname):
-                used, ok, miss = {}, 0, 0
-                for i in ids:
-                    jj = db.get_job(i)
-                    f = snd.pick_for(chn, (jj or {}).get("item_key") or "", used)
-                    if f:
-                        db.update_job(i, music_mode="tiktok", music_ref=snd.ref_of(f), keep_audio=0, music_by_user=0)
-                        ok += 1
-                    else:
-                        miss += 1
-                    forget(i)
-                st.session_state[f"favmsg_{slug(chn)}"] = (ok, miss)
-
-            rf = st.columns([2, 3])
-            rf[0].button("Gán âm thanh Yêu thích đúng sản phẩm", key=f"favb_{slug(chname)}", disabled=not sel_ids,
-                         on_click=_bulk_fav, args=(sel_ids,),
-                         help="Mỗi video lấy 1 âm thanh Yêu thích đã gắn đúng sản phẩm (xoay vòng, không trùng) và TẮT "
-                              "âm gốc. Nghe thử ở từng video bên dưới rồi mới Xác nhận đăng.")
             fm = st.session_state.pop(f"favmsg_{slug(chname)}", None)
             if fm:
-                rf[1].success(f"Đã gán {fm[0]} video." + (f" {fm[1]} video chưa có âm thanh Yêu thích đúng sản phẩm "
-                                                         f"(gắn thêm ở tab Nhạc nền)." if fm[1] else ""))
+                (st.success if not fm[1] else st.warning)(
+                    f"Âm thanh Yêu thích: đã gán {fm[0]} video"
+                    + (f" (trong đó {fm[2]} video mượn âm thanh kênh khác, tắt hẳn âm gốc)" if fm[2] else "") + "."
+                    + (f" {fm[1]} video chưa gán được: " + "; ".join(fm[3][:4]) if fm[1] else ""))
             else:
                 n_lab = sum(1 for f in favs if f.get("items"))
-                rf[1].caption(f"Kênh này có {len(favs)} âm thanh Yêu thích, {n_lab} cái đã gắn sản phẩm (tab Nhạc nền).")
+                st.caption(f"Âm thanh Yêu thích: chọn «Tự động: âm thanh Yêu thích đúng sản phẩm» ở ô Nhạc nền rồi bấm "
+                           f"Áp dụng nhạc. Kênh này có {len(favs)} âm thanh, {n_lab} cái đã gắn sản phẩm; thiếu thì tool "
+                           f"mượn âm thanh đúng sản phẩm của kênh khác (tab Nhạc nền, ô «Cho phép kênh khác dùng»).")
             r5 = st.columns([1, 1, 3])
             r5[0].button("Tắt âm gốc", key=f"mute_{slug(chname)}", disabled=not sel_ids,
                          on_click=lambda ids=sel_ids: _bulk(ids, keep_audio=0),

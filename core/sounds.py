@@ -244,6 +244,10 @@ def shared_pool(channel, settings) -> list:
     for c in settings.get("channels", []):
         if c["name"] == channel:
             continue
+        try:
+            quick_label(c["name"], settings)  # kênh cho mượn chưa mở lần nào -> gắn sản phẩm theo lời nói trước
+        except Exception:
+            pass
         for f in load_favs(c["name"]):
             if f.get("items") and f.get("file") and Path(f["file"]).exists() and not f.get("skip") \
                     and is_shared(f, settings):
@@ -272,6 +276,23 @@ def borrow_for(channel, item_key, settings, used=None):
     if not f:
         return None
     return {"music_mode": "local", "music_ref": f["file"], "keep_audio": 0}
+
+
+def fav_for(channel, item_key, settings, used=None, used_b=None):
+    """Âm thanh Yêu thích cho 1 video: của kênh mình trước, không có thì mượn kênh khác (đúng sản phẩm).
+    Trả về (dict cập nhật video, '' | lý do không có)."""
+    used = used if used is not None else {}
+    used_b = used_b if used_b is not None else {}
+    if not item_key:
+        return None, "video chưa nhận ra sản phẩm"
+    f = pick_for(channel, item_key, used)
+    if f:
+        return {"music_mode": "tiktok", "music_ref": ref_of(f), "keep_audio": 0}, ""
+    if settings.get("borrow_sounds", True):
+        b = pick_shared(channel, item_key, settings, used_b)
+        if b:
+            return {"music_mode": "local", "music_ref": b["file"], "keep_audio": 0}, ""
+    return None, "chưa có âm thanh đúng sản phẩm (cả kênh mình và kênh cho mượn)"
 
 
 def auto_assign(channel, settings, jobs) -> list:

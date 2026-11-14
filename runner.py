@@ -77,42 +77,53 @@ def runner_alive() -> bool:
         return False
 
 
-# ---------- thông báo Telegram ----------
+# ---------- thông báo Telegram: 1 báo cáo / phiên đăng (không báo từng video) ----------
+_PHIEN = {"ok": [], "loi": [], "start": 0.0}
+
+
 def tg_su_co(job, title, err, since=None):
-    """Báo sự cố về Telegram: chữ ngắn + ảnh chụp lỗi + video quay màn hình (nếu có)."""
+    """Ghi lại sự cố của video này vào báo cáo phiên (kèm ảnh chụp lỗi, video quay màn hình)."""
     try:
-        name = Path(job.get("video_path") or "").name
-        body = (f"Kênh: {job.get('channel')}\nVideo: {name}\n"
-                f"Lỗi: {str(err)[:600]}")
-        telegram.notify("up", "su_co", title, body, photos=[telegram.latest_shot(since or time.time() - 600)],
-                        video=telegram.recorded_video(job.get("id")) if job.get("id") else None)
-    except Exception as e:
-        log(f"  ! Không gửi được Telegram: {telegram._safe(e)[:150]}")
-
-
-def tg_xong(job, note):
-    try:
-        cover = job.get("cover_path") if job.get("cover_path") and Path(job["cover_path"]).exists() else None
-        telegram.notify("up", "xong", f"{job.get('platform', 'tiktok').upper()} · {job.get('channel')}",
-                        f"Video: {Path(job.get('video_path') or '').name}\n{note}\n"
-                        f"Caption: {(job.get('caption') or '')[:180]}", photos=[cover])
+        _PHIEN["loi"].append({"kenh": job.get("channel"), "file": Path(job.get("video_path") or "").name,
+                              "loai": title, "loi": str(err)[:300],
+                              "anh": telegram.latest_shot(since or time.time() - 600),
+                              "video": telegram.recorded_video(job.get("id")) if job.get("id") else None})
     except Exception:
         pass
 
 
-_LAP_AT = 0.0
+def tg_xong(job, note):
+    _PHIEN["ok"].append({"kenh": job.get("channel"), "nen": (job.get("platform") or "tiktok").upper()})
 
 
-def lap_dinh_ky(settings):
-    """30 phút 1 lần: lấp ngày còn thiếu video (video lỗi / bị bỏ để lại chỗ trống)."""
-    global _LAP_AT
-    if time.time() - _LAP_AT < 1800:
+def tg_bao_cao_phien(late=()):
+    """Cuối mỗi phiên đăng: gửi 1 tin tổng hợp. Có lỗi -> loại 'sự cố' (kèm ảnh + video); êm -> loại 'đã xong'."""
+    ok, loi = _PHIEN["ok"], _PHIEN["loi"]
+    if not ok and not loi and not late:
         return
-    _LAP_AT = time.time()
     try:
-        lich.lap_tat_ca(settings, log)
+        from collections import Counter
+        n = len(ok) + len(loi)
+        lines = [f"Phiên {datetime.fromtimestamp(_PHIEN['start']):%H:%M}–{datetime.now():%H:%M}: {n} video"]
+        if ok:
+            by = Counter(f"{x['kenh']} ({x['nen']})" for x in ok)
+            lines.append(f"✔ Thành công {len(ok)}: " + ", ".join(f"{k} {v}" for k, v in by.items()))
+        if loi:
+            lines.append(f"✖ Có vấn đề {len(loi)}:")
+            lines += [f"- {x['kenh']} · {x['file']}: {x['loai']}. {x['loi'][:140]}" for x in loi[:8]]
+            if len(loi) > 8:
+                lines.append(f"... và {len(loi) - 8} video khác (xem tab Hàng chờ)")
+        if late:
+            lines.append(f"⏰ {len(late)} video lỡ giờ đăng, chờ bác chọn trong app (dời khung sau / đăng bù)")
+        bad = bool(loi or late)
+        title = "Báo cáo phiên đăng" + (": cần bác xem lại" if bad else ": tất cả ổn")
+        telegram.notify("up", "su_co" if bad else "xong", title, "\n".join(lines),
+                        photos=[x["anh"] for x in loi if x.get("anh")][:3],
+                        video=next((x["video"] for x in loi if x.get("video")), None))
     except Exception as e:
-        log(f"  ! Lấp ngày thiếu lỗi: {str(e)[:150]}")
+        log(f"  ! Không gửi được báo cáo Telegram: {telegram._safe(e)[:150]}")
+    finally:
+        _PHIEN.update(ok=[], loi=[])
 
 
 _UPD_AT = 0.0
@@ -348,6 +359,18 @@ def run_fb_stories(settings, now):
 
 
 def run_once():
+    _PHIEN.update(ok=[], loi=[], start=time.time())
+    try:
+        _run_once()
+    finally:
+        tg_bao_cao_phien(_LATE)
+        _LATE.clear()
+
+
+_LATE = []
+
+
+def _run_once():
     settings = load_settings()
     now = datetime.now()
     blocked = blocked_channels()
@@ -426,15 +449,8 @@ def run_once():
         did_tt = True
     if late:
         log(f"  ! {len(late)} video lỡ giờ đăng → chờ bác chọn trong app (dời sang khung sau / đăng bù)")
-        try:
-            names = ", ".join(sorted({j["channel"] for j in late}))
-            telegram.notify("up", "su_co", f"{len(late)} video lỡ giờ đăng ({names})",
-                            "Máy tắt hoặc bộ đăng dừng nên chưa đăng kịp. Bác mở app, chọn: dời sang khung giờ "
-                            "trống tiếp theo, hoặc đăng bù dồn 2-4 video/lần.")
-        except Exception:
-            pass
+        _LATE.extend(late)
     tg_cap_nhat(settings)
-    lap_dinh_ky(settings)
     if not did_tt:  # rảnh: kiểm tra ảnh bìa các bài đã hẹn giờ trên TikTok
         try:
             check_covers(settings)
