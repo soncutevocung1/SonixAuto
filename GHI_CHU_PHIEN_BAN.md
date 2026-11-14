@@ -1,6 +1,11 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.8.5 · 2 phong cách có sẵn trên mọi máy
+- Máy nào cập nhật cũng có sẵn 2 phong cách **Reup Aff** và **Xoay minh họa** ở mục 0 (tự tạo `MẪU/Reup Aff`, `MẪU/Xoay minh họa`, `SOURCE THÔ/Video Aff`, `SOURCE THÔ/Xoay`), đã gắn đúng source thô + quy trình dựng.
+- Reup Aff dùng luôn phần đã học từ 7 video mẫu (nhịp ~1.8 giây/cảnh, ~35 giây, cách viết lời) đi kèm app, không cần bỏ video mẫu và bấm Học. Bỏ video mẫu riêng vào rồi bấm Học thì app dùng bản bác tự học.
+- Bác chỉ cần bỏ video vào `SOURCE THÔ/Video Aff` (chia thư mục theo sản phẩm) và `SOURCE THÔ/Xoay`.
+
 ## 2.8.4
 - Sửa lỗi cập nhật báo **"GitHub tạm chặn"**: GitHub chỉ cho mỗi máy (không có mã đọc) hỏi 60 lần/giờ, bản cập nhật nhiều file là vượt. Nay tool tải file qua đường không bị giới hạn này, đường cũ chỉ dùng dự phòng.
 

@@ -219,7 +219,12 @@ def _phong_cach(S) -> dict:
     with st.container(border=True):
         a1, a2 = st.columns(2)
         # 1) Mẫu
-        if pc.get("nhip"):
+        if pc.get("mac_dinh") and not vids and b["quy_trinh"] == "reup_aff":
+            a1.markdown(f"**Mẫu** · `MẪU\\{ten}` · dùng sẵn phần đã học đi kèm app ({len(pc.get('videos', {}))} video "
+                        f"mẫu) · mỗi cảnh ~{pc['nhip']:.1f} giây · video ~{pc.get('giay_tb', 0):.0f} giây")
+        elif b["quy_trinh"] == "xoay_minh_hoa":
+            a1.markdown(f"**Mẫu** · `MẪU\\{ten}` · phong cách này không cần học mẫu (không lồng tiếng)")
+        elif pc.get("nhip"):
             a1.markdown(f"**Mẫu** · `MẪU\\{ten}` · đã học {da}/{len(vids)} video · mỗi cảnh ~{pc['nhip']:.1f} giây · "
                         f"video ~{pc.get('giay_tb', 0):.0f} giây, ~{pc.get('chu_tb', 0)} chữ")
         else:

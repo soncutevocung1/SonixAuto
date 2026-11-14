@@ -51,13 +51,16 @@ def danh_sach(S) -> dict:
     return out
 
 
+MAC_DINH = Path(__file__).resolve().parent / "mac_dinh"  # phần đã học đi kèm app (phong cách mặc định)
+
+
 def doc(ten: str) -> dict:
-    f = _ten_file(ten)
-    if f.exists():
-        try:
-            return json.loads(f.read_text(encoding="utf-8"))
-        except Exception:
-            pass
+    for f in (_ten_file(ten), MAC_DINH / _ten_file(ten).name):
+        if f.exists():
+            try:
+                return json.loads(f.read_text(encoding="utf-8"))
+            except Exception:
+                pass
     return {}
 
 

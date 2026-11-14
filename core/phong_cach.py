@@ -18,6 +18,11 @@ QUY_TRINH = {
                      "→ giữ tiếng gốc → xuất thẳng mp4 1080p",
 }
 SAP_CO = "Quay thô tự cắt phần thừa · hiệu ứng (sắp có)"
+# Phong cách có sẵn trên mọi máy: tự tạo MẪU\<tên> + SOURCE THÔ\<source> khi mở Edit Video
+MAC_DINH = {
+    "Reup Aff": {"source": "Video Aff", "quy_trinh": "reup_aff"},
+    "Xoay minh họa": {"source": "Xoay", "quy_trinh": "xoay_minh_hoa"},
+}
 
 
 def goc(S) -> Path:
@@ -36,6 +41,9 @@ def chuan_bi(S):
             cu.rename(moi)
         for sub in (MAU, SOURCE, TAI_NGUYEN):
             (r / sub).mkdir(exist_ok=True)
+        for ten, b in MAC_DINH.items():
+            (r / MAU / ten).mkdir(exist_ok=True)
+            (r / SOURCE / b["source"]).mkdir(exist_ok=True)
     except OSError:
         pass
 
@@ -64,6 +72,7 @@ def doc_tat_ca() -> dict:
 def bo(ten: str) -> dict:
     """Bộ của phong cách `ten` (mặc định quy trình Reup Aff)."""
     b = {"mau": ten, "source": "", "quy_trinh": "reup_aff"}
+    b.update(MAC_DINH.get(ten, {}))
     b.update(doc_tat_ca().get(ten, {}))
     return b
 

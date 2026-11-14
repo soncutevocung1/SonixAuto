@@ -1,7 +1,7 @@
 {
- "version": "2.8.4",
- "built_at": "2026-11-14T01:44:37Z",
- "notes": "- Sửa lỗi cập nhật báo **\"GitHub tạm chặn\"**: GitHub chỉ cho mỗi máy (không có mã đọc) hỏi 60 lần/giờ, bản cập nhật nhiều file là vượt. Nay tool tải file qua đường không bị giới hạn này, đường cũ chỉ dùng dự phòng.",
+ "version": "2.8.5",
+ "built_at": "2026-11-14T05:51:59Z",
+ "notes": "- Máy nào cập nhật cũng có sẵn 2 phong cách **Reup Aff** và **Xoay minh họa** ở mục 0 (tự tạo `MẪU/Reup Aff`, `MẪU/Xoay minh họa`, `SOURCE THÔ/Video Aff`, `SOURCE THÔ/Xoay`), đã gắn đúng source thô + quy trình dựng.\n- Reup Aff dùng luôn phần đã học từ 7 video mẫu (nhịp ~1.8 giây/cảnh, ~35 giây, cách viết lời) đi kèm app, không cần bỏ video mẫu và bấm Học. Bỏ video mẫu riêng vào rồi bấm Học thì app dùng bản bác tự học.\n- Bác chỉ cần bỏ video vào `SOURCE THÔ/Video Aff` (chia thư mục theo sản phẩm) và `SOURCE THÔ/Xoay`.",
  "files": [
   {
    "path": ".gitattributes",
@@ -37,36 +37,6 @@
    "path": "4_TAO_BIEU_TUONG_APP.bat",
    "sha256": "39312738cb0cd3902679f8125bd0e1b14648373187f47f529b37ab482aeb75c8",
    "size": 415
-  },
-  {
-   "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "f88321b6139d2e9911d8283ebe804cf53497c171279c0ab68398799340d97e63",
-   "size": 27358
-  },
-  {
-   "path": "HUONG_DAN.md",
-   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
-   "size": 16971
-  },
-  {
-   "path": "KE_HOACH_EDIT_VIDEO.md",
-   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
-   "size": 9720
-  },
-  {
-   "path": "Sonix Auto.exe",
-   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
-   "size": 224256
-  },
-  {
-   "path": "SonixDangVideo.pyw",
-   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
-   "size": 3327
-  },
-  {
-   "path": "VERSION",
-   "sha256": "4b27eec369475e0403454478c25a1777503a969827259a25f597a903e91bd8d4",
-   "size": 6
   },
   {
    "path": "app.py",
@@ -155,8 +125,8 @@
   },
   {
    "path": "core/edit_ui.py",
-   "sha256": "e708043cb8e13c3748e09332df0aafa2890e12dbf94d33cb44a664e7b07e6360",
-   "size": 40663
+   "sha256": "2bca6938f34aa403475250780cf82e64e0fa34d842a4a7b27d8eecdb2f306030",
+   "size": 41175
   },
   {
    "path": "core/edit_video.py",
@@ -209,14 +179,19 @@
    "size": 6301
   },
   {
+   "path": "core/mac_dinh/Reup Aff.json",
+   "sha256": "4f13e5dd092ef66a50df64cc3865f2d697df76ba0b4aea9435115f80c4b04402",
+   "size": 10778
+  },
+  {
    "path": "core/mau.py",
-   "sha256": "6561e0e196d2a6d022b76d55ff56b84fa8b203d5d6eb8b5a0b4ac04d7004fbe2",
-   "size": 6346
+   "sha256": "dc61036a32b8ee263b41a123b44e47967c474356e167e667a0a9a6c8477e72b4",
+   "size": 6526
   },
   {
    "path": "core/phong_cach.py",
-   "sha256": "42aa22f96c2cc7d300e708fa8e786b02af9a8b5ad66f77d110bf37017a2c8e42",
-   "size": 3822
+   "sha256": "c1c1521cc5ff59b89d97531fe49acbc1dfdf76862e6d9772238849f22f1193c4",
+   "size": 4270
   },
   {
    "path": "core/products.py",
@@ -324,6 +299,21 @@
    "size": 879
   },
   {
+   "path": "GHI_CHU_PHIEN_BAN.md",
+   "sha256": "0fe469a3a17797ced545ddcdafd2821ab3f00503c0fac39385852928a1d13ac1",
+   "size": 28296
+  },
+  {
+   "path": "HUONG_DAN.md",
+   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
+   "size": 16971
+  },
+  {
+   "path": "KE_HOACH_EDIT_VIDEO.md",
+   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
+   "size": 9720
+  },
+  {
    "path": "mo_tool_mac.sh",
    "sha256": "cca941d7dc0f9085e074de3fcedfa45b19a14debc919921b1854e0643f89f93e",
    "size": 248
@@ -339,9 +329,24 @@
    "size": 27696
   },
   {
+   "path": "Sonix Auto.exe",
+   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
+   "size": 224256
+  },
+  {
+   "path": "SonixDangVideo.pyw",
+   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
+   "size": 3327
+  },
+  {
    "path": "tao_manifest.py",
    "sha256": "6dcb33c88afa4b4cf0d916e2406cba216f992dc783c3a3f31b05b598c3e01365",
    "size": 1803
+  },
+  {
+   "path": "VERSION",
+   "sha256": "df1848d4e64f7bf7bd7152564493394949f7115de17ff677725d3eac8e2329b5",
+   "size": 7
   }
  ]
 }
