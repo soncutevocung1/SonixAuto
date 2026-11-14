@@ -1,6 +1,10 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.8.3
+- Sửa lỗi **cập nhật không được khi mạng chập chờn** (báo IncompleteRead): bộ cập nhật tự tải lại từng file tối đa 4 lần, đổi sang đường tải dự phòng; mạng đứt hẳn thì giữ file đã tải được, bấm cập nhật lại sẽ tải tiếp phần còn thiếu. Lỗi mạng hiện thông báo dễ hiểu thay vì bảng lỗi đỏ.
+- Ảnh logo nhẹ hơn (508 KB → 145 KB) cho máy mạng yếu cập nhật dễ hơn.
+
 ## 2.8.2 · Phong cách mới: Xoay + minh hoạ
 - Phong cách **Xoay minh họa** (quy trình mới, chọn ở mục 0): video tự quay xoay sản phẩm trong `SOURCE THÔ/Xoay` được chèn thêm 4-5 đoạn x 2 giây cắt từ video aff **cùng sản phẩm** (tua nhanh 2x, tắt tiếng), khoảng 2/3 che hết khung, 1/3 hiện khung nhỏ góc trên. Giữ tiếng gốc (Sonix Up Video tự thêm âm thanh yêu thích khi đăng).
 - Tool tự nhận sản phẩm của từng video xoay (tên file → chữ trên nhãn → AI), dựng thẳng mp4 1080p bằng ffmpeg (khoảng 15 giây / video, không cần mở CapCut), rồi đưa vào `<kênh>\CHƯA UP\<ngày>.mp4...`. Nhớ video nào đã làm; có tuỳ chọn làm lại ra bản mới với cảnh chèn khác.

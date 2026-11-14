@@ -1,7 +1,7 @@
 {
- "version": "2.8.2",
- "built_at": "2026-11-13T16:04:37Z",
- "notes": "- Phong cách **Xoay minh họa** (quy trình mới, chọn ở mục 0): video tự quay xoay sản phẩm trong `SOURCE THÔ/Xoay` được chèn thêm 4-5 đoạn x 2 giây cắt từ video aff **cùng sản phẩm** (tua nhanh 2x, tắt tiếng), khoảng 2/3 che hết khung, 1/3 hiện khung nhỏ góc trên. Giữ tiếng gốc (Sonix Up Video tự thêm âm thanh yêu thích khi đăng).\n- Tool tự nhận sản phẩm của từng video xoay (tên file → chữ trên nhãn → AI), dựng thẳng mp4 1080p bằng ffmpeg (khoảng 15 giây / video, không cần mở CapCut), rồi đưa vào `<kênh>\\CHƯA UP\\<ngày>\u0001.mp4...`. Nhớ video nào đã làm; có tuỳ chọn làm lại ra bản mới với cảnh chèn khác.\n- Đọc được cả video .MP4 (DJI) và .MOV (iPhone 4K).",
+ "version": "2.8.3",
+ "built_at": "2026-11-14T01:41:25Z",
+ "notes": "- Sửa lỗi **cập nhật không được khi mạng chập chờn** (báo IncompleteRead): bộ cập nhật tự tải lại từng file tối đa 4 lần, đổi sang đường tải dự phòng; mạng đứt hẳn thì giữ file đã tải được, bấm cập nhật lại sẽ tải tiếp phần còn thiếu. Lỗi mạng hiện thông báo dễ hiểu thay vì bảng lỗi đỏ.\n- Ảnh logo nhẹ hơn (508 KB → 145 KB) cho máy mạng yếu cập nhật dễ hơn.",
  "files": [
   {
    "path": ".gitattributes",
@@ -39,9 +39,39 @@
    "size": 415
   },
   {
+   "path": "GHI_CHU_PHIEN_BAN.md",
+   "sha256": "cc3c8879fabb7d7a1e1e5b4597b4d2da79c229b7b570bd467177d805e13dfb10",
+   "size": 27066
+  },
+  {
+   "path": "HUONG_DAN.md",
+   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
+   "size": 16971
+  },
+  {
+   "path": "KE_HOACH_EDIT_VIDEO.md",
+   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
+   "size": 9720
+  },
+  {
+   "path": "Sonix Auto.exe",
+   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
+   "size": 224256
+  },
+  {
+   "path": "SonixDangVideo.pyw",
+   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
+   "size": 3327
+  },
+  {
+   "path": "VERSION",
+   "sha256": "e3fdbc5ab5230a7343de5d2ee3c2df4892f7f30e5fdef2f9654e4a3ac29cd987",
+   "size": 6
+  },
+  {
    "path": "app.py",
-   "sha256": "026283d741bbf14651ceb337d4f538bab588d7663f4448a5152328ce2f12a7cd",
-   "size": 116552
+   "sha256": "cd19dfba7b9b2e62e28c8ed74565b97ac1fe71eb725eebf734fc95ffc928b3ca",
+   "size": 116949
   },
   {
    "path": "assets/sonix.ico",
@@ -50,8 +80,8 @@
   },
   {
    "path": "assets/sonix.png",
-   "sha256": "ad5138acf5dc5948d9f33ef538352bf6e1fe0c71dbdbdc640a5dfdeb61e80810",
-   "size": 520241
+   "sha256": "553cf6569ae6310e5dbf785a76957f242b23bbb75d34d22432843a3fbe58baf2",
+   "size": 148948
   },
   {
    "path": "cai_dat_mac.sh",
@@ -255,8 +285,8 @@
   },
   {
    "path": "core/updater.py",
-   "sha256": "eee898c643da237048dd4d9f6cab06d0d43bcc000e4d0660b0ba758feb2e29d0",
-   "size": 19553
+   "sha256": "142a1273bb75dd58b394d1ed595821460f00d8cbb4a80279f24b4ffe8d9f0697",
+   "size": 21076
   },
   {
    "path": "core/va_loi.py",
@@ -294,21 +324,6 @@
    "size": 879
   },
   {
-   "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "b6c9fe6e3c46babf1b0f65a9f3c46407c83d7c2a0fafcaaacb36476dcff414c4",
-   "size": 26803
-  },
-  {
-   "path": "HUONG_DAN.md",
-   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
-   "size": 16971
-  },
-  {
-   "path": "KE_HOACH_EDIT_VIDEO.md",
-   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
-   "size": 9720
-  },
-  {
    "path": "mo_tool_mac.sh",
    "sha256": "cca941d7dc0f9085e074de3fcedfa45b19a14debc919921b1854e0643f89f93e",
    "size": 248
@@ -324,24 +339,9 @@
    "size": 27696
   },
   {
-   "path": "Sonix Auto.exe",
-   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
-   "size": 224256
-  },
-  {
-   "path": "SonixDangVideo.pyw",
-   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
-   "size": 3327
-  },
-  {
    "path": "tao_manifest.py",
    "sha256": "6dcb33c88afa4b4cf0d916e2406cba216f992dc783c3a3f31b05b598c3e01365",
    "size": 1803
-  },
-  {
-   "path": "VERSION",
-   "sha256": "f5db3363072095a4f8ca61a6ec08b71f800d0ec1e05703f38369a714ba44a60e",
-   "size": 5
   }
  ]
 }

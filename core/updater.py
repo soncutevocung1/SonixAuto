@@ -84,14 +84,37 @@ def _get(url: str, token: str, timeout=60) -> bytes:
         raise UpdateError(f"Không kết nối được GitHub (mạng?): {e.reason}")
 
 
-def fetch(rel: str, settings) -> bytes:
+def _get_retry(urls, token, tries=4) -> bytes:
+    """Mạng chập chờn (đứt giữa chừng, hết giờ): tự tải lại tối đa `tries` lần, đổi qua đường tải dự phòng."""
+    import http.client
+    import socket
+    last = None
+    for k in range(tries):
+        url = urls[k % len(urls)]
+        try:
+            return _get(url, token if "api.github.com" in url else "", timeout=90)
+        except (http.client.IncompleteRead, http.client.HTTPException, ConnectionError, socket.timeout,
+                TimeoutError) as e:
+            last = f"mạng bị đứt khi đang tải ({type(e).__name__})"
+        except UpdateError as e:
+            if "kết nối" not in str(e) and "tạm chặn" not in str(e):
+                raise
+            last = str(e)
+        time.sleep(2 + 3 * k)
+    raise UpdateError(f"Tải không được sau {tries} lần: {last}. Mạng yếu, bấm cập nhật lại (file đã tải được "
+                      f"giữ lại, lần sau tải tiếp phần còn thiếu).")
+
+
+def fetch(rel: str, settings, raw_ok=True) -> bytes:
     src = settings.get("update_source")  # chỉ dùng khi thử nghiệm: thư mục chứa bản mới
     if src:
         return (Path(src) / rel).read_bytes()
     repo = settings.get("update_repo") or DEFAULT_REPO
     ref = settings.get("update_channel") or "main"
-    url = f"https://api.github.com/repos/{repo}/contents/{urllib.parse.quote(rel)}?ref={urllib.parse.quote(ref)}"
-    return _get(url, (settings.get("github_token") or "").strip())
+    q = urllib.parse.quote(rel)
+    urls = [f"https://api.github.com/repos/{repo}/contents/{q}?ref={urllib.parse.quote(ref)}",
+            f"https://raw.githubusercontent.com/{repo}/{urllib.parse.quote(ref)}/{q}"]
+    return _get_retry(urls if raw_ok else urls[:1], (settings.get("github_token") or "").strip())
 
 
 # ------------------------------- kiểm tra / tải / thay -------------------------------
@@ -123,16 +146,19 @@ def check(settings) -> dict:
 
 def download(info, settings, progress=lambda i, n, name: None) -> Path:
     """Tải các file khác vào thư mục tạm, kiểm tra mã từng file. Sai 1 file là dừng, không thay gì."""
-    stage = STAGE / info["latest"]
-    shutil.rmtree(stage, ignore_errors=True)
+    stage = STAGE / info["latest"]  # giữ file đã tải đúng của lần trước (mạng đứt thì lần sau tải tiếp)
     n = len(info["changed"])
     for i, f in enumerate(info["changed"], 1):
         progress(i, n, f["path"])
         _safe(f["path"])
+        dst = stage / f["path"]
+        if dst.exists() and digest(dst.read_bytes()) == f["sha256"]:
+            continue
         data = fetch(f["path"], settings)
+        if digest(data) != f["sha256"]:  # đường dự phòng có thể còn bản cũ vài phút -> tải lại đường chính
+            data = fetch(f["path"], settings, raw_ok=False)
         if digest(data) != f["sha256"]:
             raise UpdateError(f"File {f['path']} tải về bị sai mã kiểm tra, đã dừng (chưa thay gì).")
-        dst = stage / f["path"]
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_bytes(data)
     return stage

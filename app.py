@@ -1653,6 +1653,9 @@ for _ in _show(tabs[5]):
                                "cửa sổ này tự kết nối lại sau khoảng 30 giây.")
                 except upd.UpdateError as e:
                     st.error(str(e))
+                except Exception as e:  # lỗi lạ (mạng đứt...) -> báo dễ hiểu, không hiện bảng lỗi đỏ
+                    st.error(f"Cập nhật chưa xong ({type(e).__name__}: {str(e)[:150]}). Chưa thay file nào, tool vẫn "
+                             "dùng bình thường. Bấm cập nhật lại; file đã tải được giữ lại, lần sau tải tiếp.")
         else:
             st.info(f"Đang dùng bản mới nhất ({_inf['current']}).")
     if upd.last_backup():
