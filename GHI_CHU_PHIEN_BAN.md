@@ -1,6 +1,10 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.9.3 · Nhãn chữ tuỳ chỉnh + tự xuất chắc hơn
+- Ô **Nhãn chữ nhỏ nền vàng** (dưới ô Tiêu đề, Edit Video): khuôn đang ghi "phân bón chính hãng". Xoá trống để **bỏ hẳn nhãn**, hoặc gõ chữ khác. Chọn áp dụng cho **mọi video mới về sau** (cả làm hàng loạt) hoặc **chỉ video này** (AI viết kịch bản mới thì quay về mặc định).
+- Tự xuất CapCut: tool **chờ bác rời chuột / bàn phím 20 giây** rồi mới bắt đầu xuất từng video (đang dùng máy thì tool bấm nhầm cửa sổ), và ép cửa sổ CapCut lên trên cùng trước mỗi lần chụp / bấm.
+
 ## 2.9.2
 - Sửa lỗi **không đồng bộ được Trưng bày sản phẩm / âm thanh / đăng video ở tài khoản mới** (kênh Mai Vàng Farm): sau khi tải video, TikTok hiện hộp "Bật kiểm tra nội dung tự động?" che hết các nút. Nay tool tự bấm **Bật** hộp này rồi làm tiếp.
 

@@ -150,6 +150,13 @@ def ten_an_toan(s: str) -> str:
 NHIP_MAC_DINH = 1.2  # giây mỗi cảnh trên timeline (mẫu Reup Aff ~1.8 giây; anh Sơn muốn nhiều cảnh hơn)
 
 
+def nhan_cua(kb: dict, S: dict):
+    """Nhãn chữ nhỏ nền vàng của video: riêng video này (kb['nhan']) > mặc định mọi video (Cài đặt) > như khuôn."""
+    if kb.get("nhan") is not None:
+        return kb["nhan"]
+    return S.get("edit_nhan")
+
+
 def nhip_phong_cach(S: dict) -> float:
     """Giây mỗi cảnh: theo thanh 'Độ dài mỗi cảnh' ở Edit Video (mặc định 1,2 giây)."""
     try:
@@ -183,7 +190,8 @@ def tao_du_an(sp_key: str, kb: dict, giong_path: str, S: dict, ten: str = "", nh
         src = nhac or (str(random.choice(musics)) if musics else "")
         music = capcut_draft.tach_nhac(src, EDIT_DIR / "nhac") if src else ""
     ten = ten_an_toan(ten or f"SONIX {kich_ban.SAN_PHAM[sp_key]['ten']} {time.strftime('%d-%m %H%M')}")
-    return capcut_draft.tao_du_an(S.get("edit_template") or TEMPLATE, ten, clips, giong_path, music, kb["tieu_de"])
+    return capcut_draft.tao_du_an(S.get("edit_template") or TEMPLATE, ten, clips, giong_path, music, kb["tieu_de"],
+                                  nhan=nhan_cua(kb, S))
 
 
 def cho_capcut_tat(log=print, phut: int = 30):

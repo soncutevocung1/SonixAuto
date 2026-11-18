@@ -51,10 +51,53 @@ def _cua_so():
     return None
 
 
+def ranh_giay() -> float:
+    """Số giây từ lần cuối người dùng đụng chuột / bàn phím."""
+    import ctypes
+
+    class _L(ctypes.Structure):
+        _fields_ = [("cbSize", ctypes.c_uint), ("dwTime", ctypes.c_uint)]
+    li = _L()
+    li.cbSize = ctypes.sizeof(_L)
+    ctypes.windll.user32.GetLastInputInfo(ctypes.byref(li))
+    return (ctypes.windll.kernel32.GetTickCount() - li.dwTime) / 1000
+
+
+def cho_ranh(log=print, giay=20, toi_da=3600):
+    """Chờ bác thôi dùng chuột / bàn phím `giay` giây rồi mới điều khiển CapCut (đang dùng máy thì tool bấm nhầm)."""
+    if ranh_giay() >= giay:
+        return
+    log(f"   chờ bác rời chuột / bàn phím {giay} giây rồi mới xuất (đang dùng máy thì tool bấm nhầm)...")
+    end = time.time() + toi_da
+    while ranh_giay() < giay and time.time() < end:
+        time.sleep(2)
+
+
+def _len_truoc(w):
+    """Ép cửa sổ CapCut lên trên cùng (Windows chặn đổi cửa sổ khi người khác đang gõ -> nhấn Alt giả trước)."""
+    import ctypes
+    u = ctypes.windll.user32
+    h = w.NativeWindowHandle
+    try:
+        if u.GetForegroundWindow() == h:
+            return True
+        if u.IsIconic(h):
+            u.ShowWindow(h, 9)
+        u.keybd_event(0x12, 0, 0, 0)
+        u.keybd_event(0x12, 0, 2, 0)
+        u.BringWindowToTop(h)
+        u.SetForegroundWindow(h)
+        time.sleep(0.3)
+        return u.GetForegroundWindow() == h
+    except Exception:
+        return False
+
+
 def _doc(w, luu: str = ""):
     """Chụp cửa sổ CapCut, đọc chữ -> [(x, y, chữ)] theo toạ độ màn hình."""
     import numpy as np
     from PIL import ImageGrab
+    _len_truoc(w)
     r = w.BoundingRectangle
     bb = (r.left, r.top, r.right, r.bottom)
     img = ImageGrab.grab(bbox=bb, all_screens=True)
@@ -76,10 +119,11 @@ def _tim(items, *chu, chua=False):
 def _bam(w, x, y):
     """Đưa CapCut lên trước rồi mới bấm (người dùng có thể vừa bấm sang cửa sổ khác)."""
     import uiautomation as auto
-    try:
-        w.SetActive()
-    except Exception:
-        pass
+    if not _len_truoc(w):
+        try:
+            w.SetActive()
+        except Exception:
+            pass
     time.sleep(0.2)
     auto.Click(int(x), int(y))
 
@@ -163,7 +207,7 @@ def xuat_mot(ten: str, log=print, anh_dir: Path = None) -> Path:
     time.sleep(6)
     anh = (lambda n: str(anh_dir / f"{n}.png")) if anh_dir else (lambda n: "")
     try:
-        w.SetActive()
+        _len_truoc(w) or w.SetActive()
         auto.SendKeys("{Esc}")  # tắt thông báo / quảng cáo nếu có
         time.sleep(1)
         DU_AN = ("du an", "dy an", "du án", "dv an", "projects")
@@ -208,10 +252,10 @@ def xuat_mot(ten: str, log=print, anh_dir: Path = None) -> Path:
         w = r[0]
         time.sleep(3)
         for _ in range(2):  # hộp "Liên kết tệp phương tiện" (file cũ của khuôn) -> bỏ qua
-            w.SetActive()
+            _len_truoc(w) or w.SetActive()
             auto.SendKeys("{Esc}")
             time.sleep(1)
-        w.SetActive()
+        _len_truoc(w) or w.SetActive()
         auto.SendKeys("{Ctrl}e")
         it = _cho(lambda: (lambda x: x if _tim(x, "xuat sang", "export to", chua=True) else None)(_doc(w, anh("2_xuat"))),
                   20, 1.5)
@@ -315,6 +359,7 @@ def xuat_va_dua(ten_du_an: list, S: dict, kenh: str, log=print) -> list:
         log(f"[{i}/{len(ten_du_an)}] Xuất {ten}")
         for lan in (1, 2):
             try:
+                cho_ranh(log)
                 f = xuat_mot(ten, log=log, anh_dir=anh_dir)
                 dst = dua_vao_kenh(f, root, kenh)
                 log(f"   -> {dst}")

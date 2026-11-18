@@ -1,7 +1,7 @@
 {
- "version": "2.9.2",
- "built_at": "2026-11-18T09:44:55Z",
- "notes": "- Sửa lỗi **không đồng bộ được Trưng bày sản phẩm / âm thanh / đăng video ở tài khoản mới** (kênh Mai Vàng Farm): sau khi tải video, TikTok hiện hộp \"Bật kiểm tra nội dung tự động?\" che hết các nút. Nay tool tự bấm **Bật** hộp này rồi làm tiếp.",
+ "version": "2.9.3",
+ "built_at": "2026-11-18T09:46:37Z",
+ "notes": "- Ô **Nhãn chữ nhỏ nền vàng** (dưới ô Tiêu đề, Edit Video): khuôn đang ghi \"phân bón chính hãng\". Xoá trống để **bỏ hẳn nhãn**, hoặc gõ chữ khác. Chọn áp dụng cho **mọi video mới về sau** (cả làm hàng loạt) hoặc **chỉ video này** (AI viết kịch bản mới thì quay về mặc định).\n- Tự xuất CapCut: tool **chờ bác rời chuột / bàn phím 20 giây** rồi mới bắt đầu xuất từng video (đang dùng máy thì tool bấm nhầm cửa sổ), và ép cửa sổ CapCut lên trên cùng trước mỗi lần chụp / bấm.",
  "files": [
   {
    "path": ".gitattributes",
@@ -37,36 +37,6 @@
    "path": "4_TAO_BIEU_TUONG_APP.bat",
    "sha256": "39312738cb0cd3902679f8125bd0e1b14648373187f47f529b37ab482aeb75c8",
    "size": 415
-  },
-  {
-   "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "f8023484c8557b11c720aa2eee59bf5ec5085671c29c33133d7e916ffdc89b19",
-   "size": 33441
-  },
-  {
-   "path": "HUONG_DAN.md",
-   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
-   "size": 16971
-  },
-  {
-   "path": "KE_HOACH_EDIT_VIDEO.md",
-   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
-   "size": 9720
-  },
-  {
-   "path": "Sonix Auto.exe",
-   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
-   "size": 224256
-  },
-  {
-   "path": "SonixDangVideo.pyw",
-   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
-   "size": 3327
-  },
-  {
-   "path": "VERSION",
-   "sha256": "39d6e6e5077b3674cd6052b7bd41f3b13ce443fe248af29c55957eb960f60bad",
-   "size": 6
   },
   {
    "path": "app.py",
@@ -105,8 +75,8 @@
   },
   {
    "path": "core/capcut_draft.py",
-   "sha256": "dd30796ac8629b97f6c1b4f5392bea8824d38629c693d4f1561c0d8401b06751",
-   "size": 22111
+   "sha256": "52db5e0d3cf7747758778255a6d780455fc47796dddcb62951b927a205cfe05c",
+   "size": 23760
   },
   {
    "path": "core/caption.py",
@@ -165,13 +135,13 @@
   },
   {
    "path": "core/edit_ui.py",
-   "sha256": "4fdb1b65309a9608dd3317a525817d1d633d780e355b06decbf29ac1e428988e",
-   "size": 44179
+   "sha256": "8bbe16abe5a9e3f897ae87e97d7dfbde1eb2e006b3f5d42ceda9d51e852a86bc",
+   "size": 45914
   },
   {
    "path": "core/edit_video.py",
-   "sha256": "12e551f0de3ad9169cfd84d063719d6244df29ca23d123bbe38dddd6a49dce9a",
-   "size": 12501
+   "sha256": "304f743610e93047139ff1c7a73d35527ae8cac4f0c76ec7d5ed9d8a013278b8",
+   "size": 13097
   },
   {
    "path": "core/elevenlabs.py",
@@ -330,13 +300,28 @@
   },
   {
    "path": "core/xuat_capcut.py",
-   "sha256": "1b45ca47855a55bc51046afbf410baa74f258833c79a0f66b4e75a3f8f696da6",
-   "size": 13288
+   "sha256": "cef198cd277f7b7677cebb3d10f2b3820f8c188dd56020abe349fa869fc2b469",
+   "size": 14608
   },
   {
    "path": "dong_goi.py",
    "sha256": "7296cfebf3555942fe570fa240d33d119584d2bfffc1bd66ff153167383c5846",
    "size": 879
+  },
+  {
+   "path": "GHI_CHU_PHIEN_BAN.md",
+   "sha256": "8cacfb2decd812aec87252b9c338d6d1e3a8dacfe881d935a6df555b69f25a2f",
+   "size": 34395
+  },
+  {
+   "path": "HUONG_DAN.md",
+   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
+   "size": 16971
+  },
+  {
+   "path": "KE_HOACH_EDIT_VIDEO.md",
+   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
+   "size": 9720
   },
   {
    "path": "mo_tool_mac.sh",
@@ -354,9 +339,24 @@
    "size": 29638
   },
   {
+   "path": "Sonix Auto.exe",
+   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
+   "size": 224256
+  },
+  {
+   "path": "SonixDangVideo.pyw",
+   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
+   "size": 3327
+  },
+  {
    "path": "tao_manifest.py",
    "sha256": "6dcb33c88afa4b4cf0d916e2406cba216f992dc783c3a3f31b05b598c3e01365",
    "size": 1803
+  },
+  {
+   "path": "VERSION",
+   "sha256": "9a01d9f6f8cc52966858dd108f387e869880f8280bf8a5a45d161deeb3f4782c",
+   "size": 7
   }
  ]
 }

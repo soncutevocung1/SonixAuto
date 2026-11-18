@@ -352,6 +352,7 @@ def _script(S, sp):
                 r = kich_ban.viet(sp, mau, S, y_tuong=y, phong_cach=pc or None,
                                   them=edit_video.goi_y_viet(S, bool(pc)))
                 kb.update(r, giong="")
+                kb.pop("nhan", None)  # kịch bản mới: bỏ nhãn riêng của video cũ
                 _save_kb(sp, kb)
                 for k_ in (f"ev_title_{sp}", f"ev_loi_{sp}"):
                     st.session_state.pop(k_, None)
@@ -360,6 +361,7 @@ def _script(S, sp):
                 st.error(f"AI lỗi: {e}")
     if c[1].button("Viết theo công thức (không AI)"):
         kb.update(kich_ban.mau_khong_ai(sp), giong="")
+        kb.pop("nhan", None)
         _save_kb(sp, kb)
         for k_ in (f"ev_title_{sp}", f"ev_loi_{sp}"):
             st.session_state.pop(k_, None)
@@ -375,7 +377,37 @@ def _script(S, sp):
             kb["giong"] = ""  # lời đổi thì phải lồng tiếng lại
         kb.update(tieu_de=title, loi=loi)
         _save_kb(sp, kb)
+    _nhan(S, sp, kb)
     return kb
+
+
+def _nhan(S, sp, kb):
+    """Nhãn chữ nhỏ nền vàng trên khung (khuôn mẫu: 'phân bón chính hãng'): đổi chữ hoặc bỏ."""
+    rieng = kb.get("nhan") is not None
+    mac = S.get("edit_nhan")
+    hien = kb["nhan"] if rieng else ("phân bón chính hãng" if mac is None else mac)
+    c = st.columns([2, 2, 1])
+    chu = c[0].text_input("Nhãn chữ nhỏ nền vàng (để trống = bỏ nhãn)", value=hien, key=f"ev_nhan_{sp}",
+                          help="Khuôn mẫu đang ghi 'phân bón chính hãng'. Xoá trống để bỏ hẳn nhãn, hoặc gõ chữ khác.")
+    pham_vi = c[1].radio("Áp dụng cho", ["Mọi video mới về sau", "Chỉ video này"], index=1 if rieng else 0,
+                         key=f"ev_nhan_pv_{sp}", horizontal=True,
+                         help="Mọi video mới: lưu làm mặc định (cả làm hàng loạt). Chỉ video này: chỉ kịch bản đang "
+                              "mở, AI viết kịch bản mới thì quay về mặc định.")
+    c[2].caption("Hiện tại: " + ("riêng video này" if rieng else "mặc định") + " · "
+                 + (f"**{hien}**" if hien.strip() else "**không có nhãn**"))
+    if pham_vi == "Chỉ video này":
+        if kb.get("nhan") != chu:
+            kb["nhan"] = chu
+            _save_kb(sp, kb)
+    else:
+        doi = False
+        if rieng:
+            kb.pop("nhan", None)
+            _save_kb(sp, kb)
+            doi = True
+        if chu != hien or doi:
+            S["edit_nhan"] = chu
+            save_settings(S)
 
 
 def _voice(S, sp, kb):

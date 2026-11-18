@@ -216,6 +216,30 @@ def set_title(d: dict, parts):
     t["content"] = json.dumps(c, ensure_ascii=False)
 
 
+def set_nhan(d: dict, chu: str):
+    """Nhãn chữ nhỏ nền vàng (khuôn mẫu: 'phân bón chính hãng'). chu = '' -> bỏ hẳn nhãn; khác -> thay chữ."""
+    tt = _title_text(d)
+    nhan = [t for t in d["materials"]["texts"] if not tt or t is not tt[0]]
+    if not nhan:
+        return
+    ids = {t["id"] for t in nhan}
+    chu = _nfc(chu or "").strip()
+    if not chu:
+        for tr in d["tracks"]:
+            if tr["type"] == "text":
+                tr["segments"] = [s for s in tr["segments"] if s.get("material_id") not in ids]
+        d["tracks"] = [tr for tr in d["tracks"] if tr["type"] != "text" or tr["segments"]]
+        return
+    for t in nhan:
+        c = json.loads(t["content"])
+        st = copy.deepcopy(c["styles"][0]) if c.get("styles") else None
+        c["text"] = chu
+        if st:
+            st["range"] = [0, len(chu)]
+            c["styles"] = [st]
+        t["content"] = json.dumps(c, ensure_ascii=False)
+
+
 VIDEO_Y = 0.53     # đẩy video lên (anh Sơn chỉnh tay: 0.53) để dải xanh không che sản phẩm
 VIDEO_Y_MAX = 0.82  # quá mức này mép dưới video cao hơn dải xanh (theme.png: dải xanh từ ~58.5%)
 LUOI_DAY = 0.66     # khung 4 ô phủ từ đỉnh tới 66% chiều cao (lấn xuống phần dải xanh mờ, không hở)
@@ -455,8 +479,9 @@ def _tu_du(dst: Path, khuon: Path = None):
 
 
 def tao_du_an(template: str, name: str, clips: list, voice: str, music: str = "", title_parts=None,
-              music_volume: float = None, video_y: float = VIDEO_Y) -> dict:
-    """Tạo dự án CapCut mới. Trả về {'name', 'path', 'duration'}."""
+              music_volume: float = None, video_y: float = VIDEO_Y, nhan: str = None) -> dict:
+    """Tạo dự án CapCut mới. Trả về {'name', 'path', 'duration'}.
+    nhan: chữ nhãn nhỏ nền vàng (None = giữ như khuôn, '' = bỏ nhãn)."""
     if capcut_dang_mo():
         raise CapCutError("CapCut đang mở. Bác tắt CapCut rồi bấm lại.")
     src = CAPCUT_DRAFTS / template
@@ -469,6 +494,8 @@ def tao_du_an(template: str, name: str, clips: list, voice: str, music: str = ""
 
     d = json.loads((src / "draft_content.json").read_text(encoding="utf-8"))
     total = build_content(d, clips, voice, music, title_parts, music_volume, video_y)
+    if nhan is not None:
+        set_nhan(d, nhan)
     content = json.dumps(d, ensure_ascii=False)
 
     _copy_tree(src, dst, _needed_media(d))
