@@ -720,7 +720,9 @@ QUY_TRINH_REUP_AFF = """
 
 
 def _xoay_ui(S, ten_pc):
-    """Quy trình Xoay + minh hoạ: chọn video xoay, kênh -> tool dựng + đưa vào CHƯA UP."""
+    """Quy trình Xoay + minh hoạ: chọn SẢN PHẨM -> lấy video xoay chưa làm trong thư mục của sản phẩm đó -> dựng +
+    đưa vào CHƯA UP. Video xoay chia sẵn theo thư mục sản phẩm trong SOURCE THÔ\\Xoay."""
+    import os
     from . import phong_cach, xoay
     from . import canh as canh_mod
     b = phong_cach.bo(ten_pc)
@@ -728,58 +730,83 @@ def _xoay_ui(S, ten_pc):
         st.warning("Chọn **Source thô** (thư mục video xoay) ở mục 0 trước.")
         return
     d = edit_video.input_root(S) / phong_cach.SOURCE / b["source"]
-    vids = xoay.ds_video(d)
+    xoay.tao_thu_muc_sp(d)
+    nhom = xoay.theo_san_pham(d)
     xong = xoay.da_lam()
-    sp_da = xoay._doc().get("sp", {})
-    chua = [v for v in vids if str(v) not in xong]
+    sps = list(kich_ban.SAN_PHAM)
+
+    def chua_lam(sp):
+        return [v for v in nhom.get(sp, []) if str(v) not in xong]
+
     with st.container(border=True):
-        st.markdown(f"**1. Video xoay** · `SOURCE THÔ\\{b['source']}` · {len(vids)} video · đã làm {len(vids) - len(chua)} · "
-                    f"chưa làm **{len(chua)}**")
-        st.caption("Mỗi video: giữ tiếng gốc, chèn 4-5 đoạn x 2 giây cắt từ video aff **cùng sản phẩm** (tua 2x, tắt tiếng), "
-                   "khoảng 2/3 che hết khung, 1/3 khung nhỏ góc trên. Sản phẩm của video xoay tự nhận (tên file → chữ trên "
-                   "nhãn → AI). Cảnh chèn lấy từ cảnh đã quét của sản phẩm (mục Cảnh quay của phong cách Reup Aff).")
-        dem = {}
-        for v in vids:
-            sp = sp_da.get(str(v))
-            if sp:
-                dem[sp] = dem.get(sp, 0) + 1
-        if dem:
-            st.caption("Đã nhận sản phẩm: " + ", ".join(f"{kich_ban.SAN_PHAM[k]['ten']} {n}" for k, n in dem.items()
-                                                        if k in kich_ban.SAN_PHAM))
-        thieu = [kich_ban.SAN_PHAM[k]["ten"] for k in dem if k in kich_ban.SAN_PHAM and
-                 sum(canh_mod.dung_duoc(x) for v in canh_mod.doc_index(k).values() for x in v["doan"]) < 10]
-        if thieu:
-            st.warning("Chưa đủ cảnh đã quét để chèn: " + ", ".join(thieu) + " (quét cảnh ở phong cách Reup Aff).")
+        st.markdown(f"**1. Chọn sản phẩm** · video xoay chia theo thư mục trong `SOURCE THÔ\\{b['source']}`")
+        nho = S.get("edit_xoay_sp") or ""
+        sp = st.radio("Sản phẩm muốn làm", sps, horizontal=True, key="ev_x_sp",
+                      index=sps.index(nho) if nho in sps else 0,
+                      format_func=lambda k: f"{kich_ban.SAN_PHAM[k]['ten']} ({len(chua_lam(k))}/{len(nhom.get(k, []))})")
+        if sp != nho:
+            S["edit_xoay_sp"] = sp
+            save_settings(S)
+        st.caption("Số trong ngoặc = video gốc **chưa làm / tổng**. Mỗi video gốc làm 1 lần; hết thì quay thêm rồi bỏ vào "
+                   "đúng thư mục sản phẩm.")
+        ten_tm = next((p.name for p in d.iterdir() if p.is_dir() and xoay.sp_thu_muc(p.name) == sp),
+                      kich_ban.SAN_PHAM[sp]["thu_muc"]) if d.is_dir() else kich_ban.SAN_PHAM[sp]["thu_muc"]
+        tm = d / ten_tm
+        vids, chua = nhom.get(sp, []), chua_lam(sp)
+        c = st.columns([3, 1])
+        c[0].markdown(f"Thư mục: `SOURCE THÔ\\{b['source']}\\{ten_tm}` · {len(vids)} video · đã làm "
+                      f"{len(vids) - len(chua)} · còn **{len(chua)}** video gốc")
+        if c[1].button("Mở thư mục này", key="ev_x_mo"):
+            tm.mkdir(parents=True, exist_ok=True)
+            os.startfile(str(tm))  # noqa
+        if not vids:
+            st.info(f"Chưa có video xoay nào của **{kich_ban.SAN_PHAM[sp]['ten']}**. Quay video tay xoay sản phẩm rồi bỏ "
+                    f"vào thư mục `{ten_tm}` (bấm Mở thư mục này).")
+        elif not chua:
+            st.warning(f"**Hết video gốc {kich_ban.SAN_PHAM[sp]['ten']}**: cả {len(vids)} video đã làm rồi. Quay thêm "
+                       f"video xoay và bỏ vào thư mục `{ten_tm}`, hoặc tick *Làm lại video đã làm* bên dưới.")
+        ngoai = nhom.get("", [])
+        if ngoai:
+            st.warning(f"Có **{len(ngoai)} video** để ngoài / trong thư mục không rõ sản phẩm (vd "
+                       f"{', '.join(v.name for v in ngoai[:3])}...). Bác kéo vào đúng thư mục sản phẩm thì mới dùng được.")
+        n_canh = sum(canh_mod.dung_duoc(x) for v in canh_mod.doc_index(sp).values() for x in v["doan"])
+        if n_canh < 10:
+            st.warning(f"{kich_ban.SAN_PHAM[sp]['ten']} mới có {n_canh} cảnh aff đã quét để chèn minh hoạ: quét cảnh "
+                       "sản phẩm này ở phong cách Reup Aff trước.")
+        st.caption("Mỗi video: giữ tiếng gốc, chèn 4-5 đoạn x 2 giây cắt từ video aff **cùng sản phẩm** (tua 2x, tắt "
+                   "tiếng), khoảng 2/3 che hết khung, 1/3 khung nhỏ góc trên.")
     with st.container(border=True):
         st.markdown("**2. Làm video và đưa vào kênh**")
         kenhs = [c["name"] for c in S.get("channels", []) if c.get("enabled", True)]
-        nho = (S.get("edit_kenh") or {}).get("xoay", "")
+        nho_k = (S.get("edit_kenh") or {}).get("xoay", "")
         c = st.columns([2, 1, 1])
-        kenh = c[0].selectbox("Kênh nhận video", [""] + kenhs, index=([""] + kenhs).index(nho) if nho in kenhs else 0,
+        kenh = c[0].selectbox("Kênh nhận video", [""] + kenhs,
+                              index=([""] + kenhs).index(nho_k) if nho_k in kenhs else 0,
                               format_func=lambda x: x or "— chọn kênh —", key="ev_x_kenh")
-        if kenh != nho:
+        if kenh != nho_k:
             S.setdefault("edit_kenh", {})["xoay"] = kenh
             save_settings(S)
-        n = c[1].number_input("Số video lần này", 1, max(1, len(chua) or len(vids)), min(5, max(1, len(chua))),
-                              key="ev_x_n")
+        lam_lai = st.checkbox("Làm lại video đã làm (ra bản mới, cảnh chèn khác)", key="ev_x_lai")
+        nguon = vids if lam_lai else chua
+        n = c[1].number_input("Số video lần này", 1, max(1, len(nguon)), min(5, max(1, len(nguon))),
+                              key=f"ev_x_n_{sp}")
         so = c[2].selectbox("Số đoạn chèn", [0, 3, 4, 5, 6], format_func=lambda x: "Tự động (4-5)" if x == 0 else str(x),
                             key="ev_x_so")
-        lam_lai = st.checkbox("Làm cả video đã làm rồi (ra bản mới, cảnh chèn khác)", key="ev_x_lai")
-        ds = (vids if lam_lai else chua)[:int(n)]
-        if kenh:
-            st.caption(f"Video ra: `{kenh}\\CHƯA UP\\{time.strftime('%d.%m.%Y')}\\01.mp4, 02.mp4...` · khoảng 15 giây / "
-                       "video, không cần mở CapCut, dùng máy bình thường được.")
+        ds = nguon[:int(n)]
+        if kenh and ds:
+            st.caption(f"Làm {len(ds)} video **{kich_ban.SAN_PHAM[sp]['ten']}** → `{kenh}\\CHƯA UP\\"
+                       f"{time.strftime('%d.%m.%Y')}\\01.mp4, 02.mp4...` · khoảng 15 giây / video, không cần mở CapCut.")
         name = "xoay_lam"
         chay = edit_job.dang_chay(name)
-        if st.button(f"Làm {len(ds)} video", type="primary", disabled=chay or not kenh or not ds):
+        if st.button(f"Làm {len(ds)} video {kich_ban.SAN_PHAM[sp]['ten']}", type="primary",
+                     disabled=chay or not kenh or not ds or n_canh < 2):
             cfg = edit_job.JOB_DIR / f"{name}.json"
             cfg.parent.mkdir(parents=True, exist_ok=True)
-            cfg.write_text(json.dumps({"files": [str(v) for v in ds], "kenh": kenh, "so_chen": int(so)},
+            cfg.write_text(json.dumps({"files": [str(v) for v in ds], "kenh": kenh, "so_chen": int(so), "sp": sp},
                                       ensure_ascii=False), encoding="utf-8")
             edit_job.chay_ngam(name, "xoay", "lam", str(cfg), env=_env(), flags=_flags())
             st.rerun()
         _job_box(name, "Làm video Xoay + minh hoạ")
-
 
 def render(S):
     st.subheader("Sonix Edit Video: kịch bản → lồng tiếng → dựng sẵn dự án CapCut")

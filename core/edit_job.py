@@ -114,7 +114,8 @@ def main(argv):
         elif kind == "xoay":
             from core import xoay
             cfg = json.loads(Path(argv[2]).read_text(encoding="utf-8"))
-            xoay.lam(S, cfg["files"], cfg["kenh"], so_chen=int(cfg.get("so_chen") or 0), log=log)
+            xoay.lam(S, cfg["files"], cfg["kenh"], so_chen=int(cfg.get("so_chen") or 0), log=log,
+                     sp_chon=cfg.get("sp", ""))
         elif kind == "xuat":
             from core import edit_video
             cfg = json.loads(Path(argv[2]).read_text(encoding="utf-8"))

@@ -40,6 +40,48 @@ def ds_video(thu_muc: Path) -> list:
     return sorted(p for p in Path(thu_muc).rglob("*") if p.is_file() and p.suffix.lower() in VIDEO_EXTS)
 
 
+def sp_thu_muc(ten: str) -> str:
+    """Thư mục con của SOURCE THÔ\\Xoay -> mã sản phẩm ('' nếu không rõ). 'ĐẠM CÁ', 'Dam_Ca', 'KÍCH RỄ 2'..."""
+    from .kich_ban import SAN_PHAM
+    from .san_pham import khong_dau, theo_ten_file
+    k = khong_dau(ten)
+    for sp, v in SAN_PHAM.items():
+        t = khong_dau(v["thu_muc"])
+        if k == t or k.startswith(t + " "):
+            return sp
+    r = theo_ten_file(ten.replace("_", " "))
+    return r[0] if len(r) == 1 else ""
+
+
+def tao_thu_muc_sp(goc: Path):
+    """Tạo sẵn 1 thư mục cho mỗi sản phẩm trong SOURCE THÔ\\Xoay (người dùng bỏ video xoay vào đúng thư mục)."""
+    from .kich_ban import SAN_PHAM
+    goc = Path(goc)
+    if not goc.is_dir():
+        return
+    co = {sp_thu_muc(d.name) for d in goc.iterdir() if d.is_dir()}
+    for sp, v in SAN_PHAM.items():
+        if sp not in co:
+            try:
+                (goc / v["thu_muc"]).mkdir(exist_ok=True)
+            except OSError:
+                pass
+
+
+def theo_san_pham(goc: Path) -> dict:
+    """{mã sản phẩm: [video...]} theo thư mục con; video để ngoài / thư mục lạ -> khoá ''."""
+    goc = Path(goc)
+    out = {}
+    if not goc.is_dir():
+        return out
+    for p in goc.iterdir():
+        if p.is_dir():
+            out.setdefault(sp_thu_muc(p.name), []).extend(ds_video(p))
+        elif p.suffix.lower() in VIDEO_EXTS:
+            out.setdefault("", []).append(p)
+    return out
+
+
 def san_pham_cua(f: Path, S: dict, log=print) -> str:
     """Mã sản phẩm của video xoay ('' nếu không nhận ra)."""
     from . import loc_sp
@@ -130,8 +172,9 @@ def dung_video(src: Path, chen: list, out: Path, seed=None) -> Path:
     return out
 
 
-def lam(S: dict, files: list, kenh: str, so_chen: int = 0, log=print) -> list:
-    """Dựng lần lượt các video xoay, đưa vào CHƯA UP\\<ngày>\\NN.mp4 của kênh. Trả về danh sách file đã đưa vào."""
+def lam(S: dict, files: list, kenh: str, so_chen: int = 0, log=print, sp_chon: str = "") -> list:
+    """Dựng lần lượt các video xoay, đưa vào CHƯA UP\\<ngày>\\NN.mp4 của kênh. Trả về danh sách file đã đưa vào.
+    sp_chon: sản phẩm người dùng chọn (video lấy từ thư mục của sản phẩm đó) -> không cần tự nhận sản phẩm."""
     from .xuat_capcut import dua_vao_kenh
     root = S.get("root_folder") or ""
     if not root or not kenh:
@@ -143,7 +186,7 @@ def lam(S: dict, files: list, kenh: str, so_chen: int = 0, log=print) -> list:
         f = Path(f)
         log(f"[{i}/{len(files)}] {f.name}")
         try:
-            sp = san_pham_cua(f, S, log)
+            sp = sp_chon or sp_thu_muc(f.parent.name) or san_pham_cua(f, S, log)
             if not sp:
                 log("   bỏ qua: không nhận ra sản phẩm")
                 continue

@@ -1,7 +1,7 @@
 {
- "version": "2.10.1",
- "built_at": "2026-11-18T10:26:25Z",
- "notes": "- Sửa hẳn lỗi **tự xuất từ CapCut không ra video trong CHƯA UP** (đã chạy thử trọn vẹn: mở dự án, xuất 1080p, đưa vào `CHƯA UP\\<ngày>\\01.mp4`):\n  - Chữ \"Xuất\" trên nút xanh của hộp Xuất không đọc được, tool bấm nhầm nút \"Xuất\" ở thanh trên cùng nên CapCut không xuất. Nay bấm đúng nút trong hộp.\n  - CapCut hiện thêm thông báo nhỏ (\"Chức năng chỉnh sửa đang chậm...\") cùng tên cửa sổ, tool từng lấy nhầm thông báo đó làm cửa sổ chính. Nay luôn lấy cửa sổ chính.\n  - Tìm file vừa xuất theo đúng ô \"Xuất sang\" của CapCut (kể cả khi chữ đọc được bị mất dấu, sai vài ký tự hoặc bị cắt \"...\").",
+ "version": "2.10.2",
+ "built_at": "2026-11-18T10:56:50Z",
+ "notes": "- Phong cách **Xoay minh họa** làm video **theo sản phẩm bác chọn**, không làm lần lượt theo thứ tự nữa (tránh ra toàn video Đạm cá hoặc toàn Kích rễ).\n- Trong `SOURCE THÔ\\Xoay` tool tạo sẵn 1 thư mục cho mỗi sản phẩm (ĐẠM CÁ, KÍCH RỄ, NANO ĐỒNG, CANXI BO, SIÊU BÁM DÍNH, BỌ TRĨ TOP ONE). Bác bỏ video xoay vào đúng thư mục sản phẩm; tên thư mục kiểu `Dam_Ca`, `Kich_Re` cũng nhận được.\n- Chọn sản phẩm sẽ thấy số video gốc **chưa làm / tổng**. Hết video gốc thì app báo **quay thêm và bỏ vào thư mục** của sản phẩm đó (có nút Mở thư mục này), hoặc tick *Làm lại video đã làm*.\n- Video để ngoài, chưa vào thư mục sản phẩm nào: app báo để bác kéo vào đúng thư mục.",
  "files": [
   {
    "path": ".gitattributes",
@@ -135,13 +135,13 @@
   },
   {
    "path": "core/edit_job.py",
-   "sha256": "9d3d654da6e25007b0ce245171efcfefcd1f6a6990755fdde02df0700f089267",
-   "size": 7067
+   "sha256": "687c0bb7444d75f87c2f0968e0961fe99bb2e9a9359bb1018c4aeb1ac692d56d",
+   "size": 7115
   },
   {
    "path": "core/edit_ui.py",
-   "sha256": "8bbe16abe5a9e3f897ae87e97d7dfbde1eb2e006b3f5d42ceda9d51e852a86bc",
-   "size": 45914
+   "sha256": "ad6e9383a2e923b4ceaa7fc4dd6a018a43c859d1a572eb7333b5a9aa5fb43737",
+   "size": 47764
   },
   {
    "path": "core/edit_video.py",
@@ -300,8 +300,8 @@
   },
   {
    "path": "core/xoay.py",
-   "sha256": "26727d01e7ef100569e53e113c9971d140acee2e02a16b1e1a6f8ee1803791fe",
-   "size": 7890
+   "sha256": "b32b33d180815c423cf6304593b057aaf19a8b722e2ac93eb1250cc6ac8c6837",
+   "size": 9609
   },
   {
    "path": "core/xuat_capcut.py",
@@ -315,8 +315,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "6325ac543693f9f5d6a1084bc992202e8fff42314e2c417ac69264e8ff9527d4",
-   "size": 35940
+   "sha256": "1b3ee300620743ddc73dcb082341ccc01a09efe21a6195e4f618fc0bf85114a6",
+   "size": 36838
   },
   {
    "path": "HUONG_DAN.md",
@@ -360,7 +360,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "d12baae7db73730500abbed9720ecff513f402e94b63f39118b14f2dd4b12df3",
+   "sha256": "84f27c707b57cc7e76deafc6b146d42a740d60aaff92934a40c23307ecac8ab2",
    "size": 8
   }
  ]

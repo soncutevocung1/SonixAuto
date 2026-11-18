@@ -1,6 +1,12 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.10.2 · Xoay minh họa: làm theo sản phẩm
+- Phong cách **Xoay minh họa** làm video **theo sản phẩm bác chọn**, không làm lần lượt theo thứ tự nữa (tránh ra toàn video Đạm cá hoặc toàn Kích rễ).
+- Trong `SOURCE THÔ\Xoay` tool tạo sẵn 1 thư mục cho mỗi sản phẩm (ĐẠM CÁ, KÍCH RỄ, NANO ĐỒNG, CANXI BO, SIÊU BÁM DÍNH, BỌ TRĨ TOP ONE). Bác bỏ video xoay vào đúng thư mục sản phẩm; tên thư mục kiểu `Dam_Ca`, `Kich_Re` cũng nhận được.
+- Chọn sản phẩm sẽ thấy số video gốc **chưa làm / tổng**. Hết video gốc thì app báo **quay thêm và bỏ vào thư mục** của sản phẩm đó (có nút Mở thư mục này), hoặc tick *Làm lại video đã làm*.
+- Video để ngoài, chưa vào thư mục sản phẩm nào: app báo để bác kéo vào đúng thư mục.
+
 ## 2.10.1 · Tự xuất video vào CHƯA UP chạy được lại
 - Sửa hẳn lỗi **tự xuất từ CapCut không ra video trong CHƯA UP** (đã chạy thử trọn vẹn: mở dự án, xuất 1080p, đưa vào `CHƯA UP\<ngày>\01.mp4`):
   - Chữ "Xuất" trên nút xanh của hộp Xuất không đọc được, tool bấm nhầm nút "Xuất" ở thanh trên cùng nên CapCut không xuất. Nay bấm đúng nút trong hộp.
