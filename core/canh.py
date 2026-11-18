@@ -512,9 +512,11 @@ def chon(sp_key: str, cau_list: list, speed: float = 2.0, seed=None, luoi: bool 
             gan.append(k)
             loai_gan.append(ll)
             muon = con * speed + 0.2
-            if nhip:  # theo phong cách mẫu: mỗi cảnh ~nhip giây trên timeline
-                muon = min(muon, max(nhip, 0.9) * speed)
-            lay = min(d["e"] - d["s"], max(DOAN_MIN * 0.9, muon))
+            san = DOAN_MIN * 0.9
+            if nhip:  # mỗi cảnh ~nhip giây trên timeline (cài ở Edit Video)
+                muon = min(muon, max(nhip, 0.6) * speed)
+                san = min(san, max(nhip, 0.6) * speed)
+            lay = min(d["e"] - d["s"], max(san, muon))
             out.append((k, d["s"], round(lay, 2), y_doan(d), ll, ci))  # thêm loại cảnh + số câu (để xem trước / đổi)
             con -= lay / speed
     return out

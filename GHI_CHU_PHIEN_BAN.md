@@ -1,6 +1,12 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.9.1 · Sửa tự xuất video + tham khảo content kênh khác
+- Sửa lỗi **không tự xuất video vào CHƯA UP**: CapCut bản mới làm tool đọc sai chữ nút "Thùng rác" nên không tìm được ô tìm dự án. Nay tool tìm theo chữ "Dự án" + vị trí cố định. Tool cũng tìm file vừa xuất trong cả thư mục con (ô "Xuất sang" của CapCut hay bị cắt "..."), tự bấm lại nút Xuất nếu chưa thấy bắt đầu, và luôn đưa CapCut lên trước khi bấm.
+- Mục **Tham khảo content kênh khác** (ở bước viết kịch bản): dán link kênh TikTok hoặc link từng video. App tải tiếng, chép lời rồi cho AI **phân tích dạng content** (cách giật tít, dẫn dắt, chốt, kiểu tiêu đề). Tick kênh nào thì AI học theo kênh đó khi viết (cả làm hàng loạt), có nút Phân tích lại và xem kết quả phân tích.
+- Ô **Tiêu đề mẫu**: gõ vài tiêu đề bác thích, AI đặt tiêu đề theo kiểu đó (vẫn 3 dòng, dòng 1 tô vàng).
+- Reup Aff **ghép nhiều cảnh hơn**: thêm thanh **Độ dài mỗi cảnh** (mặc định 1,2 giây thay cho 1,8 giây, video ~35 giây từ ~27 lên ~34 cảnh; kéo xuống 0,8 giây được ~49 cảnh).
+
 ## 2.9.0
 - Sửa lỗi **ảnh bìa và âm thanh sai sản phẩm** (báo lỗi #1116095332): đổi giỏ hàng của video (vd sang Kích rễ TC01) trước đây không đổi "sản phẩm của video", nên ảnh bìa theme và âm thanh Yêu thích vẫn theo sản phẩm cũ (Bọ trĩ). Nay đổi giỏ là sản phẩm đổi theo; tab Duyệt và bộ đăng (ngay trước khi đăng) tự kiểm: ảnh bìa theme của sản phẩm khác → đổi sang ảnh đúng sản phẩm (không có thì về bìa AI chọn); âm thanh Yêu thích của sản phẩm khác → đổi âm thanh đúng sản phẩm (không có thì nhạc mặc định). Video đang chờ đăng cũng được sửa trước khi lên TikTok.
 - Sửa lỗi **đồng bộ Trưng bày / tải video báo TimeoutError "input[type=file]"**: tool tìm ô chọn video cả trong khung con, tự tắt hộp thông báo và bấm nút Chọn video; vẫn không được thì báo rõ lý do (chưa đăng nhập, TikTok đòi xác minh...) kèm chữ trên trang, thay vì lỗi kỹ thuật.

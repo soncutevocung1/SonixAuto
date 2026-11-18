@@ -1,7 +1,7 @@
 {
- "version": "2.9.0",
- "built_at": "2026-11-18T09:35:00Z",
- "notes": "- Sửa lỗi **ảnh bìa và âm thanh sai sản phẩm** (báo lỗi #1116095332): đổi giỏ hàng của video (vd sang Kích rễ TC01) trước đây không đổi \"sản phẩm của video\", nên ảnh bìa theme và âm thanh Yêu thích vẫn theo sản phẩm cũ (Bọ trĩ). Nay đổi giỏ là sản phẩm đổi theo; tab Duyệt và bộ đăng (ngay trước khi đăng) tự kiểm: ảnh bìa theme của sản phẩm khác → đổi sang ảnh đúng sản phẩm (không có thì về bìa AI chọn); âm thanh Yêu thích của sản phẩm khác → đổi âm thanh đúng sản phẩm (không có thì nhạc mặc định). Video đang chờ đăng cũng được sửa trước khi lên TikTok.\n- Sửa lỗi **đồng bộ Trưng bày / tải video báo TimeoutError \"input[type=file]\"**: tool tìm ô chọn video cả trong khung con, tự tắt hộp thông báo và bấm nút Chọn video; vẫn không được thì báo rõ lý do (chưa đăng nhập, TikTok đòi xác minh...) kèm chữ trên trang, thay vì lỗi kỹ thuật.\n- Gói báo lỗi không còn che nhầm mã sản phẩm và từ khoá (chỉ che token, khoá AI, mật khẩu).",
+ "version": "2.9.1",
+ "built_at": "2026-11-18T09:39:47Z",
+ "notes": "- Sửa lỗi **không tự xuất video vào CHƯA UP**: CapCut bản mới làm tool đọc sai chữ nút \"Thùng rác\" nên không tìm được ô tìm dự án. Nay tool tìm theo chữ \"Dự án\" + vị trí cố định. Tool cũng tìm file vừa xuất trong cả thư mục con (ô \"Xuất sang\" của CapCut hay bị cắt \"...\"), tự bấm lại nút Xuất nếu chưa thấy bắt đầu, và luôn đưa CapCut lên trước khi bấm.\n- Mục **Tham khảo content kênh khác** (ở bước viết kịch bản): dán link kênh TikTok hoặc link từng video. App tải tiếng, chép lời rồi cho AI **phân tích dạng content** (cách giật tít, dẫn dắt, chốt, kiểu tiêu đề). Tick kênh nào thì AI học theo kênh đó khi viết (cả làm hàng loạt), có nút Phân tích lại và xem kết quả phân tích.\n- Ô **Tiêu đề mẫu**: gõ vài tiêu đề bác thích, AI đặt tiêu đề theo kiểu đó (vẫn 3 dòng, dòng 1 tô vàng).\n- Reup Aff **ghép nhiều cảnh hơn**: thêm thanh **Độ dài mỗi cảnh** (mặc định 1,2 giây thay cho 1,8 giây, video ~35 giây từ ~27 lên ~34 cảnh; kéo xuống 0,8 giây được ~49 cảnh).",
  "files": [
   {
    "path": ".gitattributes",
@@ -39,36 +39,6 @@
    "size": 415
   },
   {
-   "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "83c681baf94b6f2ed82fd3c3bb170fb420d5f17699cb85d951b5f292e72bb607",
-   "size": 31836
-  },
-  {
-   "path": "HUONG_DAN.md",
-   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
-   "size": 16971
-  },
-  {
-   "path": "KE_HOACH_EDIT_VIDEO.md",
-   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
-   "size": 9720
-  },
-  {
-   "path": "Sonix Auto.exe",
-   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
-   "size": 224256
-  },
-  {
-   "path": "SonixDangVideo.pyw",
-   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
-   "size": 3327
-  },
-  {
-   "path": "VERSION",
-   "sha256": "8113ce620372292c25fda221ad5e8adf77dbe71c92c2042f8ca1ec3dfe9c50a1",
-   "size": 6
-  },
-  {
    "path": "app.py",
    "sha256": "aad2f828499198efa5e3338334102086bd53a0c0a0cc303393d7434861a302e8",
    "size": 118838
@@ -100,8 +70,8 @@
   },
   {
    "path": "core/canh.py",
-   "sha256": "fccd92076c45d9abf749ac171a0c693ad66d9554d9201dab4da303c9c9708da9",
-   "size": 24680
+   "sha256": "8f09f21d32fd5984873ec581f6d66a5bfd34b7decc276cdfa8daf9d50b731001",
+   "size": 24755
   },
   {
    "path": "core/capcut_draft.py",
@@ -112,6 +82,11 @@
    "path": "core/caption.py",
    "sha256": "ec5056168dcebe7629a4e578b4cd260488805762b8d3bea74dc67adec1db188f",
    "size": 5289
+  },
+  {
+   "path": "core/cat_tho.py",
+   "sha256": "96cf1ad2ee31e0d825979e7bf948e9b5b23a068c4589718c99b87e446be1793c",
+   "size": 27018
   },
   {
    "path": "core/channels.py",
@@ -155,18 +130,18 @@
   },
   {
    "path": "core/edit_job.py",
-   "sha256": "0a717bd8fec8de570a49a5ef5bb83c00ea5bf95595e2dcd30df3e631cd684b88",
-   "size": 6121
+   "sha256": "9d3d654da6e25007b0ce245171efcfefcd1f6a6990755fdde02df0700f089267",
+   "size": 7067
   },
   {
    "path": "core/edit_ui.py",
-   "sha256": "2bca6938f34aa403475250780cf82e64e0fa34d842a4a7b27d8eecdb2f306030",
-   "size": 41175
+   "sha256": "4fdb1b65309a9608dd3317a525817d1d633d780e355b06decbf29ac1e428988e",
+   "size": 44179
   },
   {
    "path": "core/edit_video.py",
-   "sha256": "cf2dc84848a8d10bfbba2f68b21a00ccbef30a79847b313ef4bbe394589facb9",
-   "size": 10531
+   "sha256": "12e551f0de3ad9169cfd84d063719d6244df29ca23d123bbe38dddd6a49dce9a",
+   "size": 12501
   },
   {
    "path": "core/elevenlabs.py",
@@ -200,8 +175,8 @@
   },
   {
    "path": "core/kich_ban.py",
-   "sha256": "39fa38bf174c22d5da81dd9eecbfcf2f111eb06e6c39b70503590f953802c4c3",
-   "size": 8283
+   "sha256": "be3185c4d29c95320f9fd9999e0d5aa66cd326ccd48d708a9f02dda7352826d6",
+   "size": 8328
   },
   {
    "path": "core/lich.py",
@@ -280,8 +255,8 @@
   },
   {
    "path": "core/tham_khao.py",
-   "sha256": "b817cae1ff6281963a5e4deaaf6e2d6438153578859428f8c063799fc7e939b7",
-   "size": 4012
+   "sha256": "ec38d00e94a0d21d54b2b69269adfb5de8a2ab97607b0ce0373a975954f537f3",
+   "size": 6919
   },
   {
    "path": "core/tiktok.py",
@@ -325,13 +300,28 @@
   },
   {
    "path": "core/xuat_capcut.py",
-   "sha256": "1136894571c3a8c147274b0218cc5c21bf68e8fc64094a3c7e14bba52f9fa4ee",
-   "size": 10830
+   "sha256": "1b45ca47855a55bc51046afbf410baa74f258833c79a0f66b4e75a3f8f696da6",
+   "size": 13288
   },
   {
    "path": "dong_goi.py",
    "sha256": "7296cfebf3555942fe570fa240d33d119584d2bfffc1bd66ff153167383c5846",
    "size": 879
+  },
+  {
+   "path": "GHI_CHU_PHIEN_BAN.md",
+   "sha256": "5d21a638da6c5f1eaff1f8971029335925ddae2ae8b28cbf1ea585f44299087d",
+   "size": 33391
+  },
+  {
+   "path": "HUONG_DAN.md",
+   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
+   "size": 16971
+  },
+  {
+   "path": "KE_HOACH_EDIT_VIDEO.md",
+   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
+   "size": 9720
   },
   {
    "path": "mo_tool_mac.sh",
@@ -349,9 +339,24 @@
    "size": 29638
   },
   {
+   "path": "Sonix Auto.exe",
+   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
+   "size": 224256
+  },
+  {
+   "path": "SonixDangVideo.pyw",
+   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
+   "size": 3327
+  },
+  {
    "path": "tao_manifest.py",
    "sha256": "6dcb33c88afa4b4cf0d916e2406cba216f992dc783c3a3f31b05b598c3e01365",
    "size": 1803
+  },
+  {
+   "path": "VERSION",
+   "sha256": "5ba2db80e8ed2521570b58d5f1acba3a6b83978e500931fc9768dd85355489a8",
+   "size": 7
   }
  ]
 }

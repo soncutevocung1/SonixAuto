@@ -276,24 +276,61 @@ def _script(S, sp):
     model = S.get("ai_model") or NO_AI
     co_ai = model != NO_AI and model in MODELS
 
-    with st.expander(f"Kênh tham khảo ({sum(len(v) for v in ref.values())} kịch bản đã quét)"):
-        st.markdown("AI học **cách giật tít, nhịp câu, cách dẫn** từ kênh TikTok cùng kiểu (khác sản phẩm cũng được), "
-                    "rồi viết lại cho sản phẩm của mình. Mở kênh trên trình duyệt, chép **link từng video** "
-                    "(nên lấy các video nhiều lượt xem) dán vào ô dưới, mỗi dòng 1 link.")
-        for k, v in ref.items():
-            st.caption(f"- {k}: {len(v)} kịch bản")
-        ten = st.text_input("Tên kênh (đặt tuỳ ý)", key="ev_ref_name")
-        links = st.text_area("Link video", key="ev_ref_links", height=120)
-        chay = edit_job.dang_chay("quet_kenh_" + (ten.strip() or "kenh"))
-        if st.button("Quét lời (tải tiếng + chép lời trên máy)", disabled=chay or not links.strip()):
-            tn = ten.strip() or "kenh"
+    from . import tham_khao as _tk
+    dung = edit_video.kenh_dung(S)
+    td_mau = (S.get("edit_tieu_de_mau") or "").strip()
+    with st.expander(f"Tham khảo content kênh khác · {len(dung)}/{len(ref)} kênh đang dùng"
+                     + (f" · {len([x for x in td_mau.splitlines() if x.strip()])} dòng tiêu đề mẫu" if td_mau else "")):
+        st.markdown("Dán **link kênh** (vd `https://www.tiktok.com/@tenkenh`) hoặc **link từng video** (nên lấy video "
+                    "nhiều lượt xem), mỗi dòng 1 link. App tải tiếng, chép lời trên máy rồi cho AI **phân tích dạng "
+                    "content** của kênh (cách giật tít, dẫn dắt, chốt, kiểu tiêu đề). Khi viết kịch bản (cả làm hàng "
+                    "loạt), AI học theo các kênh được tick, không chép câu và không lấy sản phẩm của họ.")
+        c1, c2 = st.columns([1, 2])
+        ten = c1.text_input("Tên kênh (đặt tuỳ ý)", key="ev_ref_name")
+        links = c2.text_area("Link kênh / link video", key="ev_ref_links", height=100)
+        tn = edit_video.ten_an_toan(ten.strip()) if ten.strip() else "kenh"
+        chay = edit_job.dang_chay("quet_kenh_" + tn)
+        if st.button("Quét + phân tích kênh", disabled=chay or not links.strip(), key="ev_ref_quet"):
             f = edit_job.JOB_DIR / f"links_{tn}.txt"
             f.parent.mkdir(parents=True, exist_ok=True)
             f.write_text(links, encoding="utf-8")
             edit_job.chay_ngam("quet_kenh_" + tn, "quet_kenh", tn, str(f), env=_env(), flags=_flags())
             st.rerun()
-        for k in list(ref) + [ten.strip() or "kenh"]:
+        for k in dict.fromkeys(list(ref) + [tn]):
             _job_box("quet_kenh_" + k, f"Quét kênh {k}")
+        if ref:
+            st.markdown("**Kênh đã quét** (tick = AI học khi viết)")
+        moi = []
+        for k, v in ref.items():
+            pt = _tk.doc_phan_tich(edit_video.THAM_KHAO_DIR / k)
+            r = st.columns([3, 1])
+            if r[0].checkbox(f"{k} · {len(v)} kịch bản" + (f" · phân tích {pt.get('luc', '')}" if pt else
+                                                             " · **chưa phân tích**"),
+                             value=k in dung, key=f"ev_tk_{k}"):
+                moi.append(k)
+            if r[1].button("Phân tích lại" if pt else "Phân tích", key=f"ev_tkpt_{k}", disabled=not co_ai):
+                with st.spinner(f"AI đang phân tích kênh {k}..."):
+                    try:
+                        _tk.phan_tich(edit_video.THAM_KHAO_DIR / k, S, log=lambda m: None)
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Phân tích lỗi: {e}")
+            if pt:
+                with st.popover(f"Xem dạng content {k}"):
+                    st.markdown(pt.get("mo_ta", ""))
+                    st.markdown("**Cách viết:**\n\n" + pt.get("cach_viet", ""))
+                    st.markdown("**Kiểu tiêu đề:**\n\n" + pt.get("tieu_de", ""))
+        if ref and moi != dung:
+            S["edit_kenh_tk"] = moi
+            save_settings(S)
+        st.markdown("**Tiêu đề mẫu** · gõ vài tiêu đề bác thích (mỗi dòng 1 tiêu đề hoặc 1 dòng của tiêu đề 3 dòng), "
+                    "AI đặt tiêu đề theo kiểu này")
+        td = st.text_area("Tiêu đề mẫu", value=S.get("edit_tieu_de_mau", ""), height=110, key="ev_td_mau",
+                          label_visibility="collapsed",
+                          placeholder="vd:\nCHẤN ĐỘNG GIÁ ĐẠM CÁ\nNÔNG DÂN ĐỔ XÔ ĐI MUA\nTỤT TẬN ĐÁY HÔM NAY")
+        if td != S.get("edit_tieu_de_mau", ""):
+            S["edit_tieu_de_mau"] = td
+            save_settings(S)
 
     from . import mau as _mau
     _p = _mau.doc(S["edit_phong_cach"]) if S.get("edit_phong_cach") else {}
@@ -311,8 +348,9 @@ def _script(S, sp):
                 if pc:
                     mau = mau_mod.loi_mau(pc["ten"])
                 else:
-                    mau = [x for v in ref.values() for x in v]
-                r = kich_ban.viet(sp, mau, S, y_tuong=y, phong_cach=pc or None)
+                    mau = [x for k in edit_video.kenh_dung(S) for x in ref.get(k, [])]
+                r = kich_ban.viet(sp, mau, S, y_tuong=y, phong_cach=pc or None,
+                                  them=edit_video.goi_y_viet(S, bool(pc)))
                 kb.update(r, giong="")
                 _save_kb(sp, kb)
                 for k_ in (f"ev_title_{sp}", f"ev_loi_{sp}"):
@@ -374,6 +412,13 @@ def _scenes(S, sp):
                 f"{nguoi} đoạn có người cho khung 4 ô")
     st.caption("Tool tự bỏ: cảnh có người, chữ/sticker chèn, outro cuối video, ảnh tĩnh / ghép ảnh giật, sản phẩm khác hãng. "
                "Video mới thêm vào thư mục: bấm quét lại, video đã quét sẽ bỏ qua.")
+    cur = edit_video.nhip_phong_cach(S)
+    v = st.slider("Độ dài mỗi cảnh (giây). Nhỏ hơn = ghép nhiều cảnh hơn", 0.6, 2.5, float(cur), 0.1, key="ev_nhip",
+                  help="Video ~35 giây: 1,8 giây ≈ 27 cảnh, 1,2 giây ≈ 34 cảnh, 0,8 giây ≈ 49 cảnh. Áp dụng cho "
+                       "chọn cảnh, làm 1 nút và làm hàng loạt.")
+    if abs(v - cur) > 0.01:
+        S["edit_nhip"] = round(v, 1)
+        save_settings(S)
     name = "quet_canh_" + sp
     chay = edit_job.dang_chay(name)
     if st.button("Quét cảnh" if da < len(files) else "Quét lại video mới", disabled=chay):

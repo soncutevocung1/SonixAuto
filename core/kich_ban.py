@@ -56,7 +56,7 @@ AN_TOAN = ("Công dụng, thành phần, con số: CHỈ lấy từ THÔNG TIN s
 
 
 def viet(sp_key: str, tham_khao: list, settings: dict, model: str = "", y_tuong: str = "",
-         phong_cach: dict = None) -> dict:
+         phong_cach: dict = None, them: str = "") -> dict:
     """Trả về {'tieu_de': '3 dòng\\n', 'loi': '...'}.
     phong_cach: phong cách mẫu đã học (core/mau.py) -> viết theo phong cách đó thay cho công thức mặc định."""
     sp = SAN_PHAM[sp_key]
@@ -79,6 +79,7 @@ def viet(sp_key: str, tham_khao: list, settings: dict, model: str = "", y_tuong:
               + ("\nCác kịch bản dưới đây của kênh khác (khác ngành, chép tự động nên có thể sai chính tả). "
                  "Học cách giật tít, nhịp câu, cách dẫn dắt, KHÔNG chép nguyên câu, KHÔNG lấy sản phẩm của họ:\n"
                  + mau if mau else "")
+              + (them or "")
               + "\n\nViết 1 kịch bản mới cho sản phẩm trên.")
     r = _goi_ai(prompt, settings, model)
     # Soát lại: bỏ công dụng / con số / ưu đãi không có trong thông tin (AI hay chép theo video mẫu)

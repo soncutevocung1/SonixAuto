@@ -86,6 +86,37 @@ def kich_ban_tham_khao() -> dict:
     return out
 
 
+def kenh_dung(S: dict) -> list:
+    """Các kênh tham khảo đang bật để AI học khi viết (mặc định: tất cả)."""
+    co = sorted(kich_ban_tham_khao())
+    chon = S.get("edit_kenh_tk")
+    return co if chon is None else [k for k in chon if k in co]
+
+
+def goi_y_viet(S: dict, co_phong_cach: bool) -> str:
+    """Phần thêm vào lời nhắc AI khi viết: dạng content kênh tham khảo đã phân tích + tiêu đề mẫu người dùng nhập.
+    co_phong_cach: đang viết theo phong cách mẫu -> thêm vài kịch bản của kênh tham khảo (không thì chúng đã là mẫu)."""
+    from core import tham_khao
+    ref = kich_ban_tham_khao()
+    phan = []
+    for k in kenh_dung(S):
+        pt = tham_khao.doc_phan_tich(THAM_KHAO_DIR / k)
+        if pt:
+            phan.append(f"* Kênh {k}:\n{pt.get('mo_ta', '')}\nCách viết: {pt.get('cach_viet', '')}\n"
+                        f"Kiểu tiêu đề: {pt.get('tieu_de', '')}")
+        if co_phong_cach and ref.get(k):
+            phan.append(f"Vài kịch bản của kênh {k}:\n" + "\n---\n".join(ref[k][:2]))
+    out = ""
+    if phan:
+        out += ("\nDẠNG CONTENT KÊNH THAM KHẢO (học cách giật tít, dẫn dắt, chốt; KHÔNG chép câu, KHÔNG lấy sản phẩm "
+                "hay công dụng của họ):\n" + "\n\n".join(phan) + "\n")
+    td = (S.get("edit_tieu_de_mau") or "").strip()
+    if td:
+        out += ("\nTIÊU ĐỀ MẪU bác chủ kênh thích (đặt tiêu đề theo kiểu này, thay đúng tên sản phẩm, vẫn giữ quy tắc "
+                f"3 dòng IN HOA, mỗi dòng tối đa 32 ký tự):\n{td}\n")
+    return out
+
+
 def tao_giong(loi: str, out: Path, S: dict, log=print) -> dict:
     """Theo Cài đặt: edit_voice_engine = 'vbee' | 'mien_phi'."""
     out = Path(out)
@@ -116,9 +147,15 @@ def ten_an_toan(s: str) -> str:
     return re.sub(r'[<>:"/\\|?*]', " ", s).strip()[:80] or "SONIX"
 
 
+NHIP_MAC_DINH = 1.2  # giây mỗi cảnh trên timeline (mẫu Reup Aff ~1.8 giây; anh Sơn muốn nhiều cảnh hơn)
+
+
 def nhip_phong_cach(S: dict) -> float:
-    from core import mau
-    return mau.doc(S["edit_phong_cach"]).get("nhip", 0) if S.get("edit_phong_cach") else 0
+    """Giây mỗi cảnh: theo thanh 'Độ dài mỗi cảnh' ở Edit Video (mặc định 1,2 giây)."""
+    try:
+        return float(S.get("edit_nhip") or NHIP_MAC_DINH)
+    except (TypeError, ValueError):
+        return NHIP_MAC_DINH
 
 
 def chon_canh(sp_key: str, kb: dict, giong_path: str, S: dict, luoi: bool = True, seed=None) -> list:
@@ -199,7 +236,8 @@ def hang_loat(sp_key: str, n: int, S: dict, y_tuong: str = "", nhac: str = "", l
     """Làm n video liền: mỗi video AI viết lời mới (khác các bản trước) -> lồng tiếng -> chọn cảnh -> dự án CapCut."""
     from core import mau
     pc = mau.doc(S["edit_phong_cach"]) if S.get("edit_phong_cach") else {}
-    mau_loi = mau.loi_mau(pc["ten"]) if pc else [x for v in kich_ban_tham_khao().values() for x in v]
+    ref = kich_ban_tham_khao()
+    mau_loi = mau.loi_mau(pc["ten"]) if pc else [x for k in kenh_dung(S) for x in ref.get(k, [])]
     da, out = [], []
     stamp = time.strftime("%d-%m %H%M")
     for i in range(1, n + 1):
@@ -207,7 +245,7 @@ def hang_loat(sp_key: str, n: int, S: dict, y_tuong: str = "", nhac: str = "", l
         y = y_tuong + (("\nĐÃ VIẾT CÁC BẢN SAU, bản này phải khác câu mở và cách dẫn: " + " | ".join(da[-4:]))
                        if da else "")
         try:
-            kb = kich_ban.viet(sp_key, mau_loi, S, y_tuong=y, phong_cach=pc or None)
+            kb = kich_ban.viet(sp_key, mau_loi, S, y_tuong=y, phong_cach=pc or None, them=goi_y_viet(S, bool(pc)))
         except Exception as e:
             log(f"Viết lời lỗi: {e}")
             continue

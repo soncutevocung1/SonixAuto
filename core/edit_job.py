@@ -135,7 +135,24 @@ def main(argv):
             from core import tham_khao
             ten, f = argv[1], argv[2]
             links = [ln.strip() for ln in Path(f).read_text(encoding="utf-8").splitlines() if ln.strip()]
+            mo = []
+            for ln in links:  # link kênh (@ten, không có /video/) -> lấy ~12 video mới nhất của kênh
+                if "/video/" not in ln and "@" in ln:
+                    try:
+                        ds = tham_khao.danh_sach_video(ln, 12)
+                        log(f"Kênh {ln}: lấy {len(ds)} video")
+                        mo += [v["url"] for v in ds]
+                    except Exception as e:
+                        log(f"Không lấy được danh sách video của kênh {ln} ({e}). Dán link từng video thay thế.")
+                else:
+                    mo.append(ln)
+            links = list(dict.fromkeys(mo))
             tham_khao.quet_kenh(links, DATA_DIR / "edit" / "tham_khao" / ten, n=len(links), log=log)
+            try:
+                from core.config import load_settings
+                tham_khao.phan_tich(DATA_DIR / "edit" / "tham_khao" / ten, load_settings(), log=log)
+            except Exception as e:
+                log(f"Chưa phân tích được dạng content: {e}")
         else:
             raise ValueError(f"Không biết việc {kind}")
         log("XONG")

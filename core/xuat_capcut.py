@@ -23,6 +23,7 @@ from .capcut_draft import CAPCUT_DRAFTS, _fwd, capcut_dang_mo
 
 CAPCUT_EXE = Path(os.path.expandvars(r"%LOCALAPPDATA%\CapCut\Apps\CapCut.exe"))
 _OCR = None
+GOC_KENH = ""  # thư mục Sonix Up Video (đặt trong xuat_va_dua) để tìm file vừa xuất
 
 
 class XuatError(Exception):
@@ -70,6 +71,17 @@ def _tim(items, *chu, chua=False):
             if (c in tt) if chua else (tt == c):
                 return x, y
     return None
+
+
+def _bam(w, x, y):
+    """Đưa CapCut lên trước rồi mới bấm (người dùng có thể vừa bấm sang cửa sổ khác)."""
+    import uiautomation as auto
+    try:
+        w.SetActive()
+    except Exception:
+        pass
+    time.sleep(0.2)
+    auto.Click(int(x), int(y))
 
 
 def _cho(dk, giay, buoc=1.0):
@@ -120,12 +132,18 @@ def tat_capcut(giay=20):
 
 def _thu_muc_tim(ocr_path: str) -> list:
     """Nơi có thể chứa file vừa xuất."""
+    """Nơi có thể chứa file vừa xuất: [(thư mục, tìm cả thư mục con?)]."""
     home = Path.home()
     out = []
     if ocr_path and ":" in ocr_path:
-        out.append(Path(ocr_path[:ocr_path.rfind("/") + 1] or ocr_path))
-    out += [Path(f"{d}:\\") for d in "CDEFGH" if os.path.exists(f"{d}:\\")]
-    out += [home / "Videos", home / "Videos" / "CapCut", home / "Desktop", home / "Documents"]
+        p = ocr_path.split("...")[0].split("…")[0]
+        p = p[:p.rfind("/") + 1] or p
+        if os.path.isdir(p):
+            out.append((Path(p), True))
+    if GOC_KENH and os.path.isdir(GOC_KENH):
+        out.append((Path(GOC_KENH), True))
+    out += [(Path(f"{d}:\\"), False) for d in "CDEFGH" if os.path.exists(f"{d}:\\")]
+    out += [(home / "Videos", True), (home / "Desktop", False), (home / "Documents", False)]
     return out
 
 
@@ -149,13 +167,25 @@ def xuat_mot(ten: str, log=print, anh_dir: Path = None) -> Path:
         auto.SendKeys("{Esc}")  # tắt thông báo / quảng cáo nếu có
         time.sleep(1)
         DU_AN = ("du an", "dy an", "du án", "dv an", "projects")
-        it = _cho(lambda: (lambda x: x if _tim(x, *DU_AN) and _tim(x, "thung rac", "trash", chua=True) else None)(
-            _doc(w, anh("1_trangchu"))), 30, 2)
-        if not it:
+        # Hàng "Dự án": [Dự án] ........ [kính lúp] [lưới] [Thùng rác] [Đồng bộ dự án]. Chữ nhỏ trên nút hay bị
+        # OCR đọc sai ("Thùng rác" -> "gu buqu"), nên chỉ cần thấy chữ "Dự án" ở nửa trái; kính lúp tính theo nút
+        # đọc được, không có thì theo mép phải cửa sổ (luôn cách mép phải ~339 px).
+        r0 = w.BoundingRectangle
+
+        def trang_chu():
+            x = _doc(w, anh("1_trangchu"))
+            for xx, yy, t in x:
+                if _kd(t) in DU_AN and xx < r0.left + (r0.right - r0.left) / 2:
+                    return x, (xx, yy)
+            return None
+        kq = _cho(trang_chu, 40, 2)
+        if not kq:
             raise XuatError("Không thấy mục Dự án ở trang chủ CapCut")
-        hx, hy = _tim(it, *DU_AN)
-        tx, ty = _tim(it, "thung rac", "trash", chua=True)
-        auto.Click(tx - 115, ty)  # kính lúp tìm dự án (bên trái nút Thùng rác)
+        it, (hx, hy) = kq
+        tr = _tim([q for q in it if abs(q[1] - hy) < 15], "thung rac", "trash", chua=True)
+        db = _tim([q for q in it if abs(q[1] - hy) < 15], "dong b", "sync", chua=True)
+        kx = tr[0] - 115 if tr else db[0] - 223 if db else w.BoundingRectangle.right - 339
+        _bam(w, kx, hy)  # kính lúp tìm dự án
         time.sleep(1)
         auto.SendKeys("{Ctrl}a")
         auto.SendKeys(ten)
@@ -164,7 +194,7 @@ def xuat_mot(ten: str, log=print, anh_dir: Path = None) -> Path:
         so_khop = [t for x, y, t in it if y > hy + 60 and _kd(ten)[-6:].replace(" ", "") in _kd(t).replace(" ", "")]
         if not so_khop:
             log("   (không đọc được tên dưới thẻ, vẫn mở thẻ đầu tiên của kết quả tìm)")
-        auto.Click(hx + 48, hy + 90)  # thẻ dự án đầu tiên trong kết quả tìm
+        _bam(w, hx + 48, hy + 90)  # thẻ dự án đầu tiên trong kết quả tìm
         # chờ vào màn hình chỉnh sửa (có chữ "Tệp phương tiện" / "Media")
         def vao():
             ww = _cua_so()
@@ -191,13 +221,13 @@ def xuat_mot(ten: str, log=print, anh_dir: Path = None) -> Path:
         lab = _tim(it, "phan gia", "resolution", chua=True)
         cur = [t for x, y, t in it if lab and abs(y - lab[1]) < 12 and x > lab[0] + 40]
         if lab and not any("1080" in t for t in cur):
-            auto.Click(lab[0] + 180, lab[1])
+            _bam(w, lab[0] + 180, lab[1])
             time.sleep(1.5)
             it2 = _doc(w)
             o = _tim(it2, "1080p")
             if not o:
                 raise XuatError("Không chọn được 1080P")
-            auto.Click(*o)
+            _bam(w, *o)
             time.sleep(1)
             log("Chọn độ phân giải 1080P")
         # tên file tạm
@@ -205,7 +235,7 @@ def xuat_mot(ten: str, log=print, anh_dir: Path = None) -> Path:
         tl = _tim(it, "ten", "name")
         if not tl:
             raise XuatError("Không thấy ô Tên trong hộp Xuất")
-        auto.Click(tl[0] + 230, tl[1])
+        _bam(w, tl[0] + 230, tl[1])
         time.sleep(0.4)
         auto.SendKeys("{Ctrl}a")
         auto.SendKeys(token)
@@ -218,18 +248,30 @@ def xuat_mot(ten: str, log=print, anh_dir: Path = None) -> Path:
         p = max(nut, key=lambda q: q[1]) if nut else ((xs[0] + 202, kt[1]) if xs and kt else None)
         if not p:
             raise XuatError("Không thấy nút Xuất")
-        auto.Click(*p)
-        t0 = time.time()
-        log("Đang xuất...")
         noi = _thu_muc_tim(duong)
 
         def thay():
-            for d in noi:
-                h = glob.glob(str(d / f"{token}*.mp4"))
+            for d, sau in noi:
+                h = glob.glob(os.path.join(glob.escape(str(d)), f"{token}*.mp4"))
+                if not h and sau:  # ô "Xuất sang" bị cắt "...": tìm cả thư mục con
+                    h = glob.glob(os.path.join(glob.escape(str(d)), "**", f"{token}*.mp4"), recursive=True)
                 if h:
                     return h[0]
             return None
-        f = _cho(thay, 300, 2)
+
+        def dang_xuat():  # hộp Xuất đã chuyển sang thanh tiến độ / xong
+            x = _doc(w)
+            return thay() or ("%" in "".join(t for _, _, t in x)) or _tim(x, "dong", "close", "done") \
+                or _tim(x, "dang xuat", "exporting", chua=True)
+        for lan in (1, 2, 3):
+            _bam(w, *p)
+            if _cho(dang_xuat, 12, 2):
+                break
+            log(f"   chưa thấy bắt đầu xuất, bấm lại nút Xuất (lần {lan + 1})")
+        _doc(w, anh("3b_dang_xuat"))
+        t0 = time.time()
+        log("Đang xuất...")
+        f = _cho(thay, 300, 3)
         if not f:
             raise XuatError("Không thấy file xuất ra (quá 5 phút)")
         last, same = -1, 0
@@ -242,7 +284,7 @@ def xuat_mot(ten: str, log=print, anh_dir: Path = None) -> Path:
         it = _doc(w, anh("4_xong"))
         d = _tim(it, "dong", "close", "done")
         if d:
-            auto.Click(*d)
+            _bam(w, *d)
         return Path(f)
     finally:
         time.sleep(1)
@@ -264,6 +306,8 @@ def xuat_va_dua(ten_du_an: list, S: dict, kenh: str, log=print) -> list:
     if not root or not kenh:
         raise XuatError("Chưa chọn kênh / thư mục Sonix Up Video")
     from .config import DATA_DIR
+    global GOC_KENH
+    GOC_KENH = root
     anh_dir = DATA_DIR / "edit" / "xuat_anh"
     anh_dir.mkdir(parents=True, exist_ok=True)
     out = []
