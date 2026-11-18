@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.10.5
+- **Chrome của kênh chạy ẩn khi đăng**: tới lượt đăng mà cửa sổ Chrome của kênh chưa mở, tool mở Chrome **chạy ẩn** (không hiện lên màn hình, không giành chuột/bàn phím), đăng xong vẫn để chạy ẩn cho lần sau nhanh. Bấm **Mở Chrome của kênh** hoặc **Đăng nhập TikTok** thì tool tắt bản ẩn và mở cửa sổ hiện lên để bác thao tác. Muốn xem tool đăng thì bật **Hiện trình duyệt khi đăng** ở tab Hàng chờ. Cửa sổ bác đang mở sẵn thì tool vẫn dùng cửa sổ đó.
+
 ## 2.10.4
 - Sửa lỗi **đăng bằng Chrome của kênh báo "Locator.set_input_files: Timeout"**: video lớn bị gửi cả nội dung qua đường điều khiển nên treo. Nay Chrome tự đọc file video / ảnh bìa thẳng từ ổ đĩa (200 MB chưa tới 1 giây). Video đã lỗi vì chuyện này: vào Hàng chờ → Lỗi, chọn rồi bấm Chạy lại.
 

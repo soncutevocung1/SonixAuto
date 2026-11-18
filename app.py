@@ -1415,7 +1415,8 @@ for _ in _show(tabs[3]):
                          f"trưng bày  ·  {len(favs)} âm thanh yêu thích" + ("  ·  đang bận" if is_busy(n) else "")):
             st.caption(f"Hồ sơ trình duyệt: `{pdir}`")
             if _ckon:
-                _o = _ck.is_open(n)
+                _an = _ck.is_hidden(n)
+                _o = _ck.is_open(n) and not _an  # đang có cửa sổ hiện trên màn hình
                 cc_ = st.columns([1.3, 3])
                 if cc_[0].button("Mở Chrome của kênh" if not _o else "Chrome của kênh đang mở", key=f"ck_{slug(n)}",
                                  type="primary" if not _o else "secondary", disabled=_o or is_busy(n)):
@@ -1427,8 +1428,11 @@ for _ in _show(tabs[3]):
                     else:
                         st.error("Chưa mở được. Nếu đang có cửa sổ Chrome của kênh này mở bằng biểu tượng cũ, bác tắt "
                                  "cửa sổ đó rồi bấm lại.")
-                cc_[1].caption("Đang mở: tool đăng bằng cửa sổ này." if _o else
-                               "Chưa mở: tool tự mở khi tới lượt đăng, hoặc bấm nút để mở ngay.")
+                cc_[1].caption("Đang mở cửa sổ: tool đăng bằng cửa sổ này (mở tab, xong đóng tab)." if _o else
+                               "Đang chạy ẩn để đăng (không hiện trên màn hình). Bấm nút để mở cửa sổ xem / đăng nhập."
+                               if _an else
+                               "Chưa mở: tới lượt đăng tool tự mở chạy ẩn (bật «Hiện trình duyệt khi đăng» ở Hàng chờ "
+                               "nếu muốn xem). Bấm nút để mở cửa sổ ngay.")
             b = st.columns(5)
             if b[0].button("Đăng nhập TikTok", key=f"lg_{slug(n)}"):
                 spawn(["--login", n])

@@ -40,12 +40,22 @@ def port_for(channel) -> int:
     return int(m[key])
 
 
-def is_open(channel) -> bool:
+def info(channel) -> dict:
     try:
         with urllib.request.urlopen(f"http://127.0.0.1:{port_for(channel)}/json/version", timeout=2) as r:
-            return r.status == 200
+            return json.loads(r.read().decode("utf-8"))
     except Exception:
-        return False
+        return {}
+
+
+def is_open(channel) -> bool:
+    return bool(info(channel))
+
+
+def is_hidden(channel) -> bool:
+    """Chrome của kênh đang chạy ẩn (tool mở để đăng, không có cửa sổ)."""
+    i = info(channel)
+    return "Headless" in (i.get("Browser", "") + i.get("User-Agent", ""))
 
 
 def args(settings, channel, url=URL_START) -> list:
@@ -53,14 +63,38 @@ def args(settings, channel, url=URL_START) -> list:
             "--no-first-run", "--no-default-browser-check", "--lang=vi-VN", url]
 
 
-def open_chrome(settings, channel, chrome, url=URL_START, wait=20) -> bool:
-    """Mở cửa sổ Chrome của kênh (nếu chưa mở). True khi cổng điều khiển đã sẵn sàng."""
-    if is_open(channel):
+def close_chrome(channel, wait=10) -> bool:
+    """Tắt Chrome của kênh (dùng khi cần đổi từ chạy ẩn sang có cửa sổ)."""
+    if not is_open(channel):
         return True
+    code = ("from playwright.sync_api import sync_playwright\n"
+            "with sync_playwright() as p:\n"
+            f"    b = p.chromium.connect_over_cdp('http://127.0.0.1:{port_for(channel)}', timeout=15000)\n"
+            "    b.new_browser_cdp_session().send('Browser.close')\n")
+    try:
+        subprocess.run([sys.executable, "-c", code], timeout=40, capture_output=True,
+                       creationflags=0x08000000 if sys.platform == "win32" else 0)
+    except Exception:
+        pass
+    end = time.time() + wait
+    while time.time() < end and is_open(channel):
+        time.sleep(0.5)
+    time.sleep(1.5)  # đợi Chrome nhả hồ sơ
+    return not is_open(channel)
+
+
+def open_chrome(settings, channel, chrome, url=URL_START, wait=20, hidden=False) -> bool:
+    """Mở Chrome của kênh (nếu chưa mở). hidden: chạy ẩn, không hiện cửa sổ. True khi đã sẵn sàng.
+    Đang chạy ẩn mà cần cửa sổ (đăng nhập, bác bấm Mở) -> tắt bản ẩn rồi mở lại có cửa sổ."""
+    if is_open(channel):
+        if hidden or not is_hidden(channel):
+            return True
+        close_chrome(channel)
     if not chrome:
         return False
     flags = 0x00000008 | 0x00000200 if sys.platform == "win32" else 0  # chạy riêng, tắt tool không tắt Chrome
-    subprocess.Popen([chrome] + args(settings, channel, url), creationflags=flags,
+    extra = ["--headless=new", "--window-size=1440,900"] if hidden else []
+    subprocess.Popen([chrome] + extra + args(settings, channel, url), creationflags=flags,
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, close_fds=True)
     end = time.time() + wait
     while time.time() < end:
@@ -103,11 +137,11 @@ class CdpCtx:
         return getattr(self._c, name)
 
 
-def connect(p, settings, channel, chrome):
-    """Gắn vào Chrome của kênh (tự mở nếu chưa mở). Trả về CdpCtx hoặc None (dùng cách cũ)."""
+def connect(p, settings, channel, chrome, hidden=False):
+    """Gắn vào Chrome của kênh (tự mở nếu chưa mở; hidden = chạy ẩn khi phải tự mở). CdpCtx hoặc None (cách cũ)."""
     if not enabled(settings) or not chrome:
         return None
-    if not open_chrome(settings, channel, chrome):
+    if not open_chrome(settings, channel, chrome, hidden=hidden):
         return None
     try:
         return CdpCtx(p.chromium.connect_over_cdp(f"http://127.0.0.1:{port_for(channel)}", timeout=20000))

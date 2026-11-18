@@ -76,7 +76,7 @@ def is_busy(channel) -> bool:
 
 def launch(p, settings, channel, headless=False, record_dir=None):
     from . import chrome_kenh
-    cdp = chrome_kenh.connect(p, settings, channel, chrome_exe())  # Chrome của kênh đang mở sẵn -> mở tab trong đó
+    cdp = chrome_kenh.connect(p, settings, channel, chrome_exe(), hidden=headless)  # Chrome của kênh -> mở tab trong đó
     if cdp is not None:
         try:
             cdp.add_init_script(HIDE_TOURS_JS)
