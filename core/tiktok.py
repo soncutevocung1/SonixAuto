@@ -1359,6 +1359,32 @@ def post(job, settings, log=print, lock=None):
                 ask_user(page, "👀 Bác xem lại mô tả, ảnh bìa, giỏ hàng, nhạc, giờ hẹn. Ổn thì bấm nút vàng, tool sẽ bấm "
                                + ("LÊN LỊCH." if use_schedule else "ĐĂNG."), "🚀 ĐĂNG LUÔN", lock=lock)
             clear_popups(page)
+            seen = []  # câu TikTok báo sau khi bấm (thông báo nhanh + phản hồi máy chủ) -> ghi vào kết quả
+
+            def _on_resp(r):
+                try:
+                    if r.request.method != "POST" or "tiktok" not in r.url:
+                        return
+                    js = r.json()
+                    code = js.get("status_code", js.get("code", 0))
+                    if code not in (0, "0", None):
+                        msg = js.get("status_msg") or js.get("message") or js.get("msg") or ""
+                        path = r.url.split("?")[0].split("tiktok.com")[-1]
+                        seen.append(f"máy chủ TikTok: {code} {msg} ({path})"[:220])
+                except Exception:
+                    pass
+            page.on("response", _on_resp)
+
+            def _toasts():
+                try:
+                    for el in page.locator('[role="alert"], [class*="toast" i], [class*="Toast"], '
+                                           '[class*="notice" i], [class*="snackbar" i]').all()[:8]:
+                        if el.is_visible():
+                            t_ = (el.inner_text(timeout=500) or "").strip().replace("\n", " ")
+                            if t_ and len(t_) < 300 and t_ not in seen:
+                                seen.append(t_)
+                except Exception:
+                    pass
             btn = post_button(page)
             if btn and _ready(btn):
                 log("  - Bấm " + ("Lên lịch" if use_schedule else "Đăng") + "...")
@@ -1375,6 +1401,7 @@ def post(job, settings, log=print, lock=None):
                     st = "scheduled" if use_schedule else "done"
                     msg = (f"Đã hẹn giờ trên TikTok lúc {when:%d/%m %H:%M}" if use_schedule else "Đăng thành công")
                     return st, msg + (f" ({'; '.join(notes)})" if notes else "")
+                _toasts()
                 if reclick and time.time() > reclick[0]:
                     reclick.pop(0)
                     try:
@@ -1389,7 +1416,11 @@ def post(job, settings, log=print, lock=None):
                         pass
                 time.sleep(2)
             shot = dump_debug(page, "xac_nhan")
-            return "check", f"Đã bấm đăng nhưng chưa thấy TikTok xác nhận. Ảnh: {Path(shot).name}"
+            why = " | ".join(dict.fromkeys(seen))[:400]
+            if why:
+                log(f"  ! TikTok báo: {why}")
+            return "check", (f"Đã bấm đăng nhưng chưa thấy TikTok xác nhận. Ảnh: {Path(shot).name}"
+                             + (f". TikTok báo: {why}" if why else ". TikTok không hiện thông báo gì"))
         except Exception:
             dump_debug(page, f"loi_job{job.get('id')}")
             raise

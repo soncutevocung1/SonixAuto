@@ -1,7 +1,7 @@
 {
- "version": "2.8.8",
- "built_at": "2026-11-14T06:51:29Z",
- "notes": "- Sửa lỗi video báo **\"Đã bấm đăng nhưng chưa thấy TikTok xác nhận\"** (gặp ở kênh KTNN 14/11, cứ 1 video được 1 video lỗi): TikTok đôi khi không nhận cú bấm Lên lịch, trước đây tool chờ 2 phút rồi bỏ. Nay tool **bấm lại** tối đa 2 lần.\n- Video đã lỡ rơi vào trạng thái này: lúc rảnh tool **tự vào TikTok Studio kiểm tra**. Có bài trên TikTok thì chuyển \"Đã hẹn giờ\"; không có thì đưa video về CHƯA UP và **tự đăng lại**. Bác không cần làm gì.",
+ "version": "2.8.9",
+ "built_at": "2026-11-18T09:15:32Z",
+ "notes": "- **Dời video trễ lịch về hôm nay**: video TikTok chưa đăng mà giờ hẹn đã qua (tạm dừng, chờ đăng, chờ duyệt) hiện khung cảnh báo trên đầu app, bấm **Dời về lịch từ hôm nay** để xếp lại vào khung giờ trống từ bây giờ (giữ đúng số video/ngày). Tab Hàng chờ cũng có nút này cho video đang chọn. Video tạm dừng vẫn tạm dừng, bấm Chạy lại khi muốn đăng.\n- Lỗi \"Đã bấm đăng nhưng chưa thấy TikTok xác nhận\": tool ghi lại **đúng câu TikTok báo** (thông báo nhanh trên màn hình + phản hồi máy chủ) vào kết quả video và nhật ký, để biết chính xác vì sao TikTok không nhận.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "e8ed52a26f1cda670519e6deccc5e3b664fc84692737f1299043592ab07c16ae",
-   "size": 29904
+   "sha256": "1561e0ed4e8b338db16d3d9b064b6f9b406b3c1bba2c20cc6c758cdd30540bcc",
+   "size": 30637
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,13 +65,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "910dddb9d3a817481b7522554ec2cfd5fa0b45133cd8222911fa6d9afba54e6b",
+   "sha256": "f1c6abe4a1ddf1dcb049f2a03936c1666b5690d090b923f267927341d7734986",
    "size": 6
   },
   {
    "path": "app.py",
-   "sha256": "058b265812e4f43bad52141adefdc8e6079164a543697e00cebd964140bccdc6",
-   "size": 117064
+   "sha256": "108c7ab7e8792b152d40b31701d4979f088e05cd6a6b3e6011a5286b9248edea",
+   "size": 118323
   },
   {
    "path": "assets/sonix.ico",
@@ -200,8 +200,8 @@
   },
   {
    "path": "core/lich.py",
-   "sha256": "acf198c7b86ac26962a84c3266d5f512c78ce7cb9e6c392ecc4eecee493a5da6",
-   "size": 5422
+   "sha256": "2e28f61598218b69c42ee5938879e961b865ef1c006748a6eb3c92c21c6c1091",
+   "size": 6160
   },
   {
    "path": "core/loc_sp.py",
@@ -235,8 +235,8 @@
   },
   {
    "path": "core/queue_ui.py",
-   "sha256": "b940affd78819dd970172748d6f2c7948d1b1d35a21293204507907cd078d857",
-   "size": 14465
+   "sha256": "355ed659da338f46dacb2fedacd7fd6527abc482bc140a5f04ddbbd4ade11c99",
+   "size": 15448
   },
   {
    "path": "core/san_pham.py",
@@ -280,8 +280,8 @@
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "9534122bfa152f5defb273d035120808fcecf00c3aa75c3ab4fae468fb5f8f57",
-   "size": 76721
+   "sha256": "77dfde154034aaf07d97fd94417b0f07c758fe8129d45a988a7cc14aca6b0de2",
+   "size": 78344
   },
   {
    "path": "core/ui.py",

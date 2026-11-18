@@ -668,6 +668,21 @@ if _late:
                 st.session_state["_late_msg"] = (f"Đã xếp đăng bù {_n} video, đợt đầu đăng ngay. Bộ đăng sẽ đăng "
                                                  "lần lượt, xem tiến độ ở tab Hàng chờ.")
             st.rerun()
+_tre = [_j for _j in lich.tre_lich() if _j["status"] != "lo_gio"]
+if _tre:
+    with st.container(border=True):
+        _tc = Counter(db.STATUS_LABELS.get(_j["status"], _j["status"]) for _j in _tre)
+        st.warning(f"**{len(_tre)} video TikTok đã trễ lịch** (giờ hẹn đã qua mà chưa đăng: "
+                   + ", ".join(f"{n} {k.lower()}" for k, n in _tc.items()) + "). Sớm nhất "
+                   + min(_j["scheduled_at"] for _j in _tre) + ".")
+        _t1, _t2 = st.columns([1.4, 3])
+        if _t1.button("Dời về lịch từ hôm nay", key="tre_today", type="primary",
+                      help="Xếp lại vào các khung giờ trống từ bây giờ, giữ đúng số video/ngày. Video đang tạm dừng "
+                           "vẫn tạm dừng (bấm Chạy lại ở tab Hàng chờ khi muốn đăng), video chờ duyệt vẫn ở tab Duyệt."):
+            _n = lich.doi_khung_sau(S, [_j["id"] for _j in _tre], giu_tam_dung=True)
+            st.session_state["_late_msg"] = f"Đã dời {_n} video về lịch từ hôm nay. Xem giờ mới ở tab Hàng chờ."
+            st.rerun()
+        _t2.caption("Hoặc vào tab Hàng chờ, tick chọn video rồi bấm «Dời về lịch từ hôm nay».")
 _lmsg = st.session_state.pop("_late_msg", None)
 if _lmsg:
     st.success(_lmsg)

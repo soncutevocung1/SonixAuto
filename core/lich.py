@@ -87,8 +87,16 @@ def is_late(job, now=None) -> bool:
     return bool(t) and not int(job.get("late_ok") or 0) and (now or datetime.now()) - t > timedelta(minutes=LATE_MIN)
 
 
-def doi_khung_sau(settings, ids) -> int:
-    """Dời các video lỡ giờ sang khung giờ trống tiếp theo (vẫn giữ đủ số video/ngày đã đặt)."""
+def tre_lich(platform="tiktok") -> list:
+    """Video chưa đăng mà giờ hẹn đã qua (tạm dừng, chờ đăng, lỡ giờ, cần kiểm tra chưa lên TikTok)."""
+    now = datetime.now().strftime(FMT)
+    return [j for j in db.list_jobs(["paused", "pending", "lo_gio", "draft"], platform)
+            if j.get("scheduled_at") and j["scheduled_at"] < now and not int(j.get("late_ok") or 0)]
+
+
+def doi_khung_sau(settings, ids, giu_tam_dung=False) -> int:
+    """Dời các video sang khung giờ trống từ bây giờ (vẫn giữ đủ số video/ngày đã đặt).
+    giu_tam_dung: video đang tạm dừng thì chỉ đổi giờ, vẫn tạm dừng (bác bấm Chạy lại khi sẵn sàng)."""
     jobs = sorted([j for j in (db.get_job(i) for i in ids) if j], key=lambda j: j.get("scheduled_at") or "")
     by_ch = {}
     for j in jobs:
@@ -96,11 +104,14 @@ def doi_khung_sau(settings, ids) -> int:
     n = 0
     for ch, js in by_ch.items():
         p = channel_plan(settings, ch)
-        taken = {j["scheduled_at"] for j in _jobs(ch, ("draft", "pending", "running", "scheduled", "done", "paused"))}
+        moving = {j["id"] for j in js}
+        taken = {j["scheduled_at"] for j in _jobs(ch, ("draft", "pending", "running", "scheduled", "done", "paused"))
+                 if j["id"] not in moving}
         times = sch.plan(len(js), datetime.now() + timedelta(minutes=30), settings["golden_hours"], p["per_day"],
                          p["gap_min"], p["start"], p["end"], p["golden_first"], p["golden_per_slot"], taken=taken)
         for j, t in zip(js, times):
-            db.update_job(j["id"], status="pending", scheduled_at=t.strftime(FMT), late_ok=0)
+            stt = j["status"] if (giu_tam_dung and j["status"] == "paused") or j["status"] == "draft" else "pending"
+            db.update_job(j["id"], status=stt, scheduled_at=t.strftime(FMT), late_ok=0)
             n += 1
     return n
 

@@ -147,6 +147,20 @@ def _actions(sel, ROOT, label=""):
     if a[4].button("Xoá", disabled=not sel, key="qa_del"):
         db.delete_jobs(sel)
         st.rerun()
+    b = st.columns([1.6, 3])
+    if b[0].button("Dời về lịch từ hôm nay", disabled=not sel, key="qa_today",
+                   help="Video TikTok đang chọn (chưa lên TikTok) được xếp lại vào các khung giờ trống từ bây giờ, giữ đúng "
+                        "số video/ngày. Video đang tạm dừng vẫn tạm dừng, bấm Chạy lại khi muốn đăng."):
+        from .config import load_settings
+        from . import lich
+        ids = [i for i in sel if (db.get_job(i) or {}).get("platform") == "tiktok"
+               and db.get_job(i)["status"] in ("paused", "pending", "lo_gio", "draft", "check", "error")]
+        n = lich.doi_khung_sau(load_settings(), ids, giu_tam_dung=True)
+        st.session_state["qa_msg"] = f"Đã dời {n} video về lịch từ hôm nay." if n else "Không có video TikTok chưa đăng nào để dời."
+        st.rerun()
+    m = st.session_state.pop("qa_msg", None)
+    if m:
+        b[1].success(m)
 
 
 def _live_panel(S):

@@ -1,6 +1,10 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.8.9
+- **Dời video trễ lịch về hôm nay**: video TikTok chưa đăng mà giờ hẹn đã qua (tạm dừng, chờ đăng, chờ duyệt) hiện khung cảnh báo trên đầu app, bấm **Dời về lịch từ hôm nay** để xếp lại vào khung giờ trống từ bây giờ (giữ đúng số video/ngày). Tab Hàng chờ cũng có nút này cho video đang chọn. Video tạm dừng vẫn tạm dừng, bấm Chạy lại khi muốn đăng.
+- Lỗi "Đã bấm đăng nhưng chưa thấy TikTok xác nhận": tool ghi lại **đúng câu TikTok báo** (thông báo nhanh trên màn hình + phản hồi máy chủ) vào kết quả video và nhật ký, để biết chính xác vì sao TikTok không nhận.
+
 ## 2.8.8
 - Sửa lỗi video báo **"Đã bấm đăng nhưng chưa thấy TikTok xác nhận"** (gặp ở kênh KTNN 14/11, cứ 1 video được 1 video lỗi): TikTok đôi khi không nhận cú bấm Lên lịch, trước đây tool chờ 2 phút rồi bỏ. Nay tool **bấm lại** tối đa 2 lần.
 - Video đã lỡ rơi vào trạng thái này: lúc rảnh tool **tự vào TikTok Studio kiểm tra**. Có bài trên TikTok thì chuyển "Đã hẹn giờ"; không có thì đưa video về CHƯA UP và **tự đăng lại**. Bác không cần làm gì.
