@@ -45,9 +45,14 @@ def _ocr():
 
 def _cua_so():
     import uiautomation as auto
-    for w in auto.GetRootControl().GetChildren():
-        if (w.Name or "") == "CapCut" and "QMLTYPE" in (w.ClassName or ""):
-            return w
+    ws = [w for w in auto.GetRootControl().GetChildren()
+          if (w.Name or "") == "CapCut" and "QMLTYPE" in (w.ClassName or "")]
+    # CapCut có thêm cửa sổ thông báo nhỏ cùng tên (vd "Chức năng chỉnh sửa đang chậm..."): lấy cửa sổ chính
+    chinh = [w for w in ws if "MainWindow" in (w.ClassName or "")]
+    if chinh:
+        return chinh[0]
+    if ws:
+        return max(ws, key=lambda w: w.BoundingRectangle.width() * w.BoundingRectangle.height())
     return None
 
 
@@ -174,16 +179,53 @@ def tat_capcut(giay=20):
         _cho(lambda: not capcut_dang_mo(), 10)
 
 
+def _gon(s: str) -> str:
+    """Chỉ giữ chữ + số, không dấu, chữ thường (để so tên thư mục với chữ OCR)."""
+    return "".join(c for c in _kd(s) if c.isalnum())
+
+
+def _duong_that(ocr_path: str):
+    """Đường dẫn đọc từ màn hình (mất dấu, bị cắt '...') -> thư mục thật sâu nhất khớp được.
+    vd 'D:/SONIX_UP_VIDEO/Mai Vang Farm/...' -> D:\\SONIX_UP_VIDEO\\Mai Vàng Farm."""
+    s = ocr_path.replace("\\", "/").split("..")[0].split("…")[0]
+    i = s.find(":")
+    if i < 1:
+        return None
+    cur = Path(s[i - 1] + ":\\")
+    if not cur.exists():
+        return None
+    phan = [x for x in s[i + 1:].split("/") if x.strip()]
+    for k, x in enumerate(phan):
+        cuoi = k == len(phan) - 1 and not s.rstrip().endswith("/")  # phần cuối có thể bị cắt dở
+        try:
+            con = [d for d in cur.iterdir() if d.is_dir()]
+        except OSError:
+            break
+        kx = _gon(x)
+        if not kx:
+            break
+        hop = [d for d in con if _gon(d.name) == kx] or \
+              ([d for d in con if _gon(d.name).startswith(kx)] if cuoi else [])
+        if len(hop) != 1:  # OCR đọc sai vài chữ (vd SONIX_UP -> SONIXLUP): lấy thư mục giống nhất
+            import difflib
+            diem = sorted(((difflib.SequenceMatcher(None, kx, _gon(d.name)).ratio(), d) for d in con),
+                          key=lambda q: -q[0])
+            if not diem or diem[0][0] < 0.8 or (len(diem) > 1 and diem[1][0] > diem[0][0] - 0.05):
+                break
+            hop = [diem[0][1]]
+        cur = hop[0]
+    return cur if cur.parent != cur else None
+
+
 def _thu_muc_tim(ocr_path: str) -> list:
     """Nơi có thể chứa file vừa xuất."""
     """Nơi có thể chứa file vừa xuất: [(thư mục, tìm cả thư mục con?)]."""
     home = Path.home()
     out = []
     if ocr_path and ":" in ocr_path:
-        p = ocr_path.split("...")[0].split("…")[0]
-        p = p[:p.rfind("/") + 1] or p
-        if os.path.isdir(p):
-            out.append((Path(p), True))
+        p = _duong_that(ocr_path)
+        if p:
+            out.append((p, True))
     if GOC_KENH and os.path.isdir(GOC_KENH):
         out.append((Path(GOC_KENH), True))
     out += [(Path(f"{d}:\\"), False) for d in "CDEFGH" if os.path.exists(f"{d}:\\")]
@@ -285,11 +327,17 @@ def xuat_mot(ten: str, log=print, anh_dir: Path = None) -> Path:
         auto.SendKeys(token)
         time.sleep(0.8)
         it = _doc(w, anh("3_ten"))
-        duong = next((t for x, y, t in it if token.lower() in t.lower()), "")
+        xs0 = _tim(it, "xuat sang", "export to", chua=True)
+        # ô "Xuất sang" (thư mục CapCut lưu file, nhớ từ lần xuất trước) nằm cùng hàng, bên phải nhãn
+        duong = next((t for x, y, t in it if xs0 and abs(y - xs0[1]) < 14 and x > xs0[0] + 40 and ":" in t), "")
+        if duong:
+            log(f"   CapCut lưu vào: {duong}")
         xs = _tim(it, "xuat sang", "export to", chua=True)
         kt = _tim(it, "khoang thoi gian", "kich thuoc", "duration", "size", chua=True)
-        nut = [(x, y) for x, y, t in it if _kd(t) in ("xuat", "export")]
-        p = max(nut, key=lambda q: q[1]) if nut else ((xs[0] + 202, kt[1]) if xs and kt else None)
+        # Nút Xuất xanh của hộp (chữ trắng nền xanh, OCR hay không đọc được) nằm cùng hàng "Khoảng thời gian",
+        # thẳng cột với ô "Xuất sang" + 202 px. KHÔNG lấy chữ "Xuất" ở thanh trên cùng cửa sổ (mở lại hộp Xuất).
+        nut = [(x, y) for x, y, t in it if _kd(t) in ("xuat", "export") and kt and abs(y - kt[1]) < 25]
+        p = nut[0] if nut else ((xs[0] + 202, kt[1]) if xs and kt else None)
         if not p:
             raise XuatError("Không thấy nút Xuất")
         noi = _thu_muc_tim(duong)

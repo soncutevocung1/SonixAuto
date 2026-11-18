@@ -1,7 +1,7 @@
 {
- "version": "2.10.0",
- "built_at": "2026-11-18T10:06:42Z",
- "notes": "- **Đăng bằng Chrome của kênh**: mỗi kênh 1 cửa sổ **Chrome thật** (hồ sơ riêng của kênh, đã có sẵn đăng nhập), mở 1 lần rồi để đó. Bộ đăng gắn vào cửa sổ đang mở, mỗi video mở 1 tab rồi đóng tab, **không mở/tắt trình duyệt mới liên tục** nữa. Bác đăng nhập, xác minh, xem bài ngay trong cửa sổ đó. Cửa sổ chưa mở thì tool tự mở. Tab **Kênh & sản phẩm** có công tắc bật/tắt (tắt = cách cũ) và nút **Mở Chrome của kênh** cho từng kênh. Bấm **Tạo biểu tượng** lại 1 lần để biểu tượng ngoài màn hình mở đúng cửa sổ tool gắn vào được.",
+ "version": "2.10.1",
+ "built_at": "2026-11-18T10:26:25Z",
+ "notes": "- Sửa hẳn lỗi **tự xuất từ CapCut không ra video trong CHƯA UP** (đã chạy thử trọn vẹn: mở dự án, xuất 1080p, đưa vào `CHƯA UP\\<ngày>\\01.mp4`):\n  - Chữ \"Xuất\" trên nút xanh của hộp Xuất không đọc được, tool bấm nhầm nút \"Xuất\" ở thanh trên cùng nên CapCut không xuất. Nay bấm đúng nút trong hộp.\n  - CapCut hiện thêm thông báo nhỏ (\"Chức năng chỉnh sửa đang chậm...\") cùng tên cửa sổ, tool từng lấy nhầm thông báo đó làm cửa sổ chính. Nay luôn lấy cửa sổ chính.\n  - Tìm file vừa xuất theo đúng ô \"Xuất sang\" của CapCut (kể cả khi chữ đọc được bị mất dấu, sai vài ký tự hoặc bị cắt \"...\").",
  "files": [
   {
    "path": ".gitattributes",
@@ -37,36 +37,6 @@
    "path": "4_TAO_BIEU_TUONG_APP.bat",
    "sha256": "39312738cb0cd3902679f8125bd0e1b14648373187f47f529b37ab482aeb75c8",
    "size": 415
-  },
-  {
-   "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "5393795a602fd5f3b7645a781bc12f86b6e57c26def2eb868c4a2da6f5fedd05",
-   "size": 34829
-  },
-  {
-   "path": "HUONG_DAN.md",
-   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
-   "size": 16971
-  },
-  {
-   "path": "KE_HOACH_EDIT_VIDEO.md",
-   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
-   "size": 9720
-  },
-  {
-   "path": "Sonix Auto.exe",
-   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
-   "size": 224256
-  },
-  {
-   "path": "SonixDangVideo.pyw",
-   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
-   "size": 3327
-  },
-  {
-   "path": "VERSION",
-   "sha256": "d2dbab0fd36c72f378865aeea0bb1d7b27e3e1637a4f3b0de0a108ecba8b48e1",
-   "size": 7
   },
   {
    "path": "app.py",
@@ -335,13 +305,28 @@
   },
   {
    "path": "core/xuat_capcut.py",
-   "sha256": "cef198cd277f7b7677cebb3d10f2b3820f8c188dd56020abe349fa869fc2b469",
-   "size": 14608
+   "sha256": "459a5dffa0d64b85e8942b81247faa3069aaa208ccc4964e0869518c823e8872",
+   "size": 17532
   },
   {
    "path": "dong_goi.py",
    "sha256": "7296cfebf3555942fe570fa240d33d119584d2bfffc1bd66ff153167383c5846",
    "size": 879
+  },
+  {
+   "path": "GHI_CHU_PHIEN_BAN.md",
+   "sha256": "6325ac543693f9f5d6a1084bc992202e8fff42314e2c417ac69264e8ff9527d4",
+   "size": 35940
+  },
+  {
+   "path": "HUONG_DAN.md",
+   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
+   "size": 16971
+  },
+  {
+   "path": "KE_HOACH_EDIT_VIDEO.md",
+   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
+   "size": 9720
   },
   {
    "path": "mo_tool_mac.sh",
@@ -359,9 +344,24 @@
    "size": 29638
   },
   {
+   "path": "Sonix Auto.exe",
+   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
+   "size": 224256
+  },
+  {
+   "path": "SonixDangVideo.pyw",
+   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
+   "size": 3327
+  },
+  {
    "path": "tao_manifest.py",
    "sha256": "6dcb33c88afa4b4cf0d916e2406cba216f992dc783c3a3f31b05b598c3e01365",
    "size": 1803
+  },
+  {
+   "path": "VERSION",
+   "sha256": "d12baae7db73730500abbed9720ecff513f402e94b63f39118b14f2dd4b12df3",
+   "size": 8
   }
  ]
 }

@@ -1,6 +1,12 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.10.1 · Tự xuất video vào CHƯA UP chạy được lại
+- Sửa hẳn lỗi **tự xuất từ CapCut không ra video trong CHƯA UP** (đã chạy thử trọn vẹn: mở dự án, xuất 1080p, đưa vào `CHƯA UP\<ngày>\01.mp4`):
+  - Chữ "Xuất" trên nút xanh của hộp Xuất không đọc được, tool bấm nhầm nút "Xuất" ở thanh trên cùng nên CapCut không xuất. Nay bấm đúng nút trong hộp.
+  - CapCut hiện thêm thông báo nhỏ ("Chức năng chỉnh sửa đang chậm...") cùng tên cửa sổ, tool từng lấy nhầm thông báo đó làm cửa sổ chính. Nay luôn lấy cửa sổ chính.
+  - Tìm file vừa xuất theo đúng ô "Xuất sang" của CapCut (kể cả khi chữ đọc được bị mất dấu, sai vài ký tự hoặc bị cắt "...").
+
 ## 2.10.0
 - **Đăng bằng Chrome của kênh**: mỗi kênh 1 cửa sổ **Chrome thật** (hồ sơ riêng của kênh, đã có sẵn đăng nhập), mở 1 lần rồi để đó. Bộ đăng gắn vào cửa sổ đang mở, mỗi video mở 1 tab rồi đóng tab, **không mở/tắt trình duyệt mới liên tục** nữa. Bác đăng nhập, xác minh, xem bài ngay trong cửa sổ đó. Cửa sổ chưa mở thì tool tự mở. Tab **Kênh & sản phẩm** có công tắc bật/tắt (tắt = cách cũ) và nút **Mở Chrome của kênh** cho từng kênh. Bấm **Tạo biểu tượng** lại 1 lần để biểu tượng ngoài màn hình mở đúng cửa sổ tool gắn vào được.
 
