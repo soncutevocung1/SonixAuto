@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.10.0
+- **Đăng bằng Chrome của kênh**: mỗi kênh 1 cửa sổ **Chrome thật** (hồ sơ riêng của kênh, đã có sẵn đăng nhập), mở 1 lần rồi để đó. Bộ đăng gắn vào cửa sổ đang mở, mỗi video mở 1 tab rồi đóng tab, **không mở/tắt trình duyệt mới liên tục** nữa. Bác đăng nhập, xác minh, xem bài ngay trong cửa sổ đó. Cửa sổ chưa mở thì tool tự mở. Tab **Kênh & sản phẩm** có công tắc bật/tắt (tắt = cách cũ) và nút **Mở Chrome của kênh** cho từng kênh. Bấm **Tạo biểu tượng** lại 1 lần để biểu tượng ngoài màn hình mở đúng cửa sổ tool gắn vào được.
+
 ## 2.9.3 · Nhãn chữ tuỳ chỉnh + tự xuất chắc hơn
 - Ô **Nhãn chữ nhỏ nền vàng** (dưới ô Tiêu đề, Edit Video): khuôn đang ghi "phân bón chính hãng". Xoá trống để **bỏ hẳn nhãn**, hoặc gõ chữ khác. Chọn áp dụng cho **mọi video mới về sau** (cả làm hàng loạt) hoặc **chỉ video này** (AI viết kịch bản mới thì quay về mặc định).
 - Tự xuất CapCut: tool **chờ bác rời chuột / bàn phím 20 giây** rồi mới bắt đầu xuất từng video (đang dùng máy thì tool bấm nhầm cửa sổ), và ép cửa sổ CapCut lên trên cùng trước mỗi lần chụp / bấm.

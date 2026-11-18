@@ -116,11 +116,13 @@ def special_folder(name: str) -> Path:
 
 
 def channel_shortcut(channel: str, pdir, chrome: str):
-    """Biểu tượng mở trình duyệt riêng của 1 kênh (để vào TikTok/Gmail bằng tay)."""
+    """Biểu tượng mở Chrome của 1 kênh (tool gắn vào được cửa sổ mở từ biểu tượng này để đăng bài)."""
     if sys.platform != "win32" or not chrome:
         return False, "Chỉ tạo được trên Windows có cài Google Chrome."
+    from .chrome_kenh import port_for
     link = special_folder("Desktop") / f"{APP_NAME} - {channel}.lnk"
-    return _make_lnk(link, chrome, f'--user-data-dir="{pdir}" https://www.tiktok.com/tiktokstudio', "", f"{chrome},0")
+    return _make_lnk(link, chrome, f'--remote-debugging-port={port_for(channel)} --user-data-dir="{pdir}" '
+                                   f'--no-first-run https://www.tiktok.com/tiktokstudio', "", f"{chrome},0")
 
 
 def create_shortcuts():

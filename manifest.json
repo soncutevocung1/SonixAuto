@@ -1,7 +1,7 @@
 {
- "version": "2.9.3",
- "built_at": "2026-11-18T09:46:37Z",
- "notes": "- Ô **Nhãn chữ nhỏ nền vàng** (dưới ô Tiêu đề, Edit Video): khuôn đang ghi \"phân bón chính hãng\". Xoá trống để **bỏ hẳn nhãn**, hoặc gõ chữ khác. Chọn áp dụng cho **mọi video mới về sau** (cả làm hàng loạt) hoặc **chỉ video này** (AI viết kịch bản mới thì quay về mặc định).\n- Tự xuất CapCut: tool **chờ bác rời chuột / bàn phím 20 giây** rồi mới bắt đầu xuất từng video (đang dùng máy thì tool bấm nhầm cửa sổ), và ép cửa sổ CapCut lên trên cùng trước mỗi lần chụp / bấm.",
+ "version": "2.10.0",
+ "built_at": "2026-11-18T10:06:42Z",
+ "notes": "- **Đăng bằng Chrome của kênh**: mỗi kênh 1 cửa sổ **Chrome thật** (hồ sơ riêng của kênh, đã có sẵn đăng nhập), mở 1 lần rồi để đó. Bộ đăng gắn vào cửa sổ đang mở, mỗi video mở 1 tab rồi đóng tab, **không mở/tắt trình duyệt mới liên tục** nữa. Bác đăng nhập, xác minh, xem bài ngay trong cửa sổ đó. Cửa sổ chưa mở thì tool tự mở. Tab **Kênh & sản phẩm** có công tắc bật/tắt (tắt = cách cũ) và nút **Mở Chrome của kênh** cho từng kênh. Bấm **Tạo biểu tượng** lại 1 lần để biểu tượng ngoài màn hình mở đúng cửa sổ tool gắn vào được.",
  "files": [
   {
    "path": ".gitattributes",
@@ -39,9 +39,39 @@
    "size": 415
   },
   {
+   "path": "GHI_CHU_PHIEN_BAN.md",
+   "sha256": "5393795a602fd5f3b7645a781bc12f86b6e57c26def2eb868c4a2da6f5fedd05",
+   "size": 34829
+  },
+  {
+   "path": "HUONG_DAN.md",
+   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
+   "size": 16971
+  },
+  {
+   "path": "KE_HOACH_EDIT_VIDEO.md",
+   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
+   "size": 9720
+  },
+  {
+   "path": "Sonix Auto.exe",
+   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
+   "size": 224256
+  },
+  {
+   "path": "SonixDangVideo.pyw",
+   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
+   "size": 3327
+  },
+  {
+   "path": "VERSION",
+   "sha256": "d2dbab0fd36c72f378865aeea0bb1d7b27e3e1637a4f3b0de0a108ecba8b48e1",
+   "size": 7
+  },
+  {
    "path": "app.py",
-   "sha256": "aad2f828499198efa5e3338334102086bd53a0c0a0cc303393d7434861a302e8",
-   "size": 118838
+   "sha256": "46a7f6350ac3493ff4a344449f6a65f9778905de32a3aa3036f5257cbc4e7317",
+   "size": 121110
   },
   {
    "path": "assets/sonix.ico",
@@ -94,6 +124,11 @@
    "size": 5324
   },
   {
+   "path": "core/chrome_kenh.py",
+   "sha256": "1a4d7b396be2579a881647d7badf6681ff606bd6c2d7be30765a6478564a40d0",
+   "size": 4066
+  },
+  {
    "path": "core/config.py",
    "sha256": "49487b06ba0d0df22c0de40e21a4daa8021a8f940bcd742a9ddd4db8943b5706",
    "size": 8998
@@ -115,8 +150,8 @@
   },
   {
    "path": "core/desktop.py",
-   "sha256": "b519efe865d64afc3f05148d8fc0085ab1798451cebb9e119c532658b657bb93",
-   "size": 7746
+   "sha256": "ab51235cd1ca75c5e224b8ecd7d99e47e045d490517ef4cdda04acc024b02016",
+   "size": 7917
   },
   {
    "path": "core/doi_thu_muc.py",
@@ -260,8 +295,8 @@
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "72b3ad8e18c6a34c71066ddcac0048567d5b40a29cfbf899c6d5c4147dde1bdd",
-   "size": 81431
+   "sha256": "737d763f65c91da87f11d7fe719f9cbf72fd3f6e1567f6c477b01ed0eebe2cc4",
+   "size": 81945
   },
   {
    "path": "core/ui.py",
@@ -309,21 +344,6 @@
    "size": 879
   },
   {
-   "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "8cacfb2decd812aec87252b9c338d6d1e3a8dacfe881d935a6df555b69f25a2f",
-   "size": 34395
-  },
-  {
-   "path": "HUONG_DAN.md",
-   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
-   "size": 16971
-  },
-  {
-   "path": "KE_HOACH_EDIT_VIDEO.md",
-   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
-   "size": 9720
-  },
-  {
    "path": "mo_tool_mac.sh",
    "sha256": "cca941d7dc0f9085e074de3fcedfa45b19a14debc919921b1854e0643f89f93e",
    "size": 248
@@ -339,24 +359,9 @@
    "size": 29638
   },
   {
-   "path": "Sonix Auto.exe",
-   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
-   "size": 224256
-  },
-  {
-   "path": "SonixDangVideo.pyw",
-   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
-   "size": 3327
-  },
-  {
    "path": "tao_manifest.py",
    "sha256": "6dcb33c88afa4b4cf0d916e2406cba216f992dc783c3a3f31b05b598c3e01365",
    "size": 1803
-  },
-  {
-   "path": "VERSION",
-   "sha256": "9a01d9f6f8cc52966858dd108f387e869880f8280bf8a5a45d161deeb3f4782c",
-   "size": 7
   }
  ]
 }

@@ -75,6 +75,15 @@ def is_busy(channel) -> bool:
 
 
 def launch(p, settings, channel, headless=False, record_dir=None):
+    from . import chrome_kenh
+    cdp = chrome_kenh.connect(p, settings, channel, chrome_exe())  # Chrome của kênh đang mở sẵn -> mở tab trong đó
+    if cdp is not None:
+        try:
+            cdp.add_init_script(HIDE_TOURS_JS)
+        except Exception:
+            pass
+        cdp.on("page", lambda pg: pg.on("dialog", lambda d: d.accept()))
+        return cdp
     opts = dict(user_data_dir=str(profile_dir(settings, channel)), headless=headless,
                 viewport={"width": 1440, "height": 900}, locale="vi-VN",
                 args=["--disable-blink-features=AutomationControlled", "--lang=vi-VN"],
@@ -95,8 +104,9 @@ def launch(p, settings, channel, headless=False, record_dir=None):
             errors.append(str(e))
     msg = " | ".join(errors)
     raise BrowserBusy(
-        f"Không mở được trình duyệt của kênh «{channel}». Thường là do bác ĐANG MỞ trình duyệt kênh này "
-        f"(biểu tượng ngoài màn hình). Tắt cửa sổ đó rồi bấm 'Chạy tiếp'. Chi tiết: {msg[:300]}")
+        f"Không mở được trình duyệt của kênh «{channel}». Thường là do bác ĐANG MỞ cửa sổ Chrome kênh này bằng "
+        f"biểu tượng cũ (không cho tool gắn vào). Tắt cửa sổ đó rồi bấm 'Chạy tiếp'; lần sau mở bằng nút "
+        f"'Mở Chrome của kênh' trong tool (hoặc tạo lại biểu tượng). Chi tiết: {msg[:300]}")
 
 
 SPEED = 1.0  # 0.5 = đăng nhanh (chờ ngắn hơn giữa các bước), 1 = bình thường

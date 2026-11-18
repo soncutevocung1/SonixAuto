@@ -1388,9 +1388,23 @@ for _ in _show(tabs[3]):
         st.success(f"Đã lưu. Tạo mới {len(made)} thư mục.")
         st.rerun()
 
-    st.info("Mỗi kênh dùng **1 trình duyệt riêng** (hồ sơ Chrome riêng). Đăng nhập 1 lần, tool nhớ mãi. "
-            "Bấm **Tạo biểu tượng** để có biểu tượng mở trình duyệt kênh đó ngoài màn hình. "
-            "Khi tool đang đăng cho kênh nào thì KHÔNG mở biểu tượng của kênh đó.")
+    from core import chrome_kenh as _ck
+    _ckon = st.toggle("Đăng bằng **Chrome của kênh** (cửa sổ Chrome mở sẵn, tool mở tab trong đó, đăng xong để nguyên)",
+                      value=_ck.enabled(S), key="ck_on",
+                      help="Bật: mỗi kênh 1 cửa sổ Chrome thật, mở 1 lần rồi để đó; tool không mở/tắt trình duyệt mới "
+                           "cho từng video. Tắt: cách cũ (tool tự mở trình duyệt riêng rồi tắt sau mỗi việc).")
+    if _ckon != _ck.enabled(S):
+        S["chrome_kenh"] = bool(_ckon)
+        save_settings(S)
+        st.rerun()
+    if _ckon:
+        st.info("Mỗi kênh có **1 cửa sổ Chrome riêng** (hồ sơ riêng của kênh, đã có sẵn đăng nhập). Bấm **Mở Chrome của "
+                "kênh** 1 lần rồi cứ để cửa sổ đó (thu nhỏ cũng được). Tool mở tab trong đó để đăng, xong tự đóng tab. "
+                "Bác vào TikTok Studio, đăng nhập, xem bài ngay trong cửa sổ này. Tắt cửa sổ thì lần đăng sau tool tự "
+                "mở lại. Biểu tượng ngoài màn hình (bấm **Tạo biểu tượng** lại 1 lần) cũng mở đúng cửa sổ này.")
+    else:
+        st.info("Mỗi kênh dùng **1 trình duyệt riêng** (hồ sơ Chrome riêng). Đăng nhập 1 lần, tool nhớ mãi. "
+                "Khi tool đang đăng cho kênh nào thì KHÔNG mở biểu tượng của kênh đó.")
     for c in S.get("channels", []):
         n = c["name"]
         pdir = profile_dir(S, n)
@@ -1400,6 +1414,21 @@ for _ in _show(tabs[3]):
         with st.expander(f"{'' if logged else ''} {n}  ·  @{c.get('handle') or '?'}  ·  {len(sc['products'])} sản phẩm "
                          f"trưng bày  ·  {len(favs)} âm thanh yêu thích" + ("  ·  đang bận" if is_busy(n) else "")):
             st.caption(f"Hồ sơ trình duyệt: `{pdir}`")
+            if _ckon:
+                _o = _ck.is_open(n)
+                cc_ = st.columns([1.3, 3])
+                if cc_[0].button("Mở Chrome của kênh" if not _o else "Chrome của kênh đang mở", key=f"ck_{slug(n)}",
+                                 type="primary" if not _o else "secondary", disabled=_o or is_busy(n)):
+                    from core.tiktok import chrome_exe as _cx
+                    if not _cx():
+                        st.error("Máy chưa cài Google Chrome. Cài Chrome rồi bấm lại.")
+                    elif _ck.open_chrome(S, n, _cx()):
+                        st.toast(f"Đã mở Chrome của kênh {n}.")
+                    else:
+                        st.error("Chưa mở được. Nếu đang có cửa sổ Chrome của kênh này mở bằng biểu tượng cũ, bác tắt "
+                                 "cửa sổ đó rồi bấm lại.")
+                cc_[1].caption("Đang mở: tool đăng bằng cửa sổ này." if _o else
+                               "Chưa mở: tool tự mở khi tới lượt đăng, hoặc bấm nút để mở ngay.")
             b = st.columns(5)
             if b[0].button("Đăng nhập TikTok", key=f"lg_{slug(n)}"):
                 spawn(["--login", n])
