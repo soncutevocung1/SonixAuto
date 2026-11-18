@@ -359,6 +359,30 @@ def _file_input(page, timeout_ms):
     return None
 
 
+def set_files(page, inp, path):
+    """Đưa file vào ô chọn file. Chrome tự đọc file từ ổ đĩa (lệnh DOM.setFileInputFiles), không gửi nội dung file
+    qua đường điều khiển: Chrome của kênh (gắn vào cửa sổ mở sẵn) gửi video lớn qua đó bị treo/quá giờ."""
+    path = str(Path(path).resolve())
+    try:
+        inp.evaluate("e => e.setAttribute('data-sx-up', '1')")
+        cdp = page.context.new_cdp_session(page)
+        try:
+            r = cdp.send("Runtime.evaluate", {"expression": "document.querySelector('[data-sx-up=\"1\"]')"})
+            oid = (r.get("result") or {}).get("objectId")
+            if oid:
+                cdp.send("DOM.setFileInputFiles", {"files": [path], "objectId": oid})
+                return
+        finally:
+            try:
+                inp.evaluate("e => e.removeAttribute('data-sx-up')")
+                cdp.detach()
+            except Exception:
+                pass
+    except Exception:
+        pass
+    inp.set_input_files(path, timeout=180000)  # cách cũ (ô chọn file nằm trong khung con...)
+
+
 def upload_file(page, video):
     inp = _file_input(page, 25000)
     if inp is None:  # trang chưa hiện ô chọn video: tắt hộp thông báo, bấm nút Chọn/Tải video rồi chờ thêm
@@ -388,7 +412,7 @@ def upload_file(page, video):
         raise TikTokError(f"Trang Tải lên của TikTok Studio không hiện ô chọn video (trang: {page.url[:80]}). "
                           f"Bác mở trình duyệt kênh xem TikTok đang báo gì (xác minh tài khoản, điều khoản mới...). "
                           f"Chữ trên trang: {hint}")
-    inp.set_input_files(video)
+    set_files(page, inp, video)
     page.locator('div[contenteditable="true"]').first.wait_for(state="visible", timeout=180000)
     _sleep(1.5, 2.5)
     clear_popups(page)  # hộp hỏi bật kiểm tra nội dung tự động hiện ngay sau khi tải video
@@ -492,7 +516,7 @@ def set_cover(page, cover_path):
     inp = modal.locator('input[type="file"]')
     if not inp.count():
         inp = page.locator('input[type="file"][accept*="image"]')
-    inp.last.set_input_files(cover_path)
+    set_files(page, inp.last, cover_path)
     _sleep(2.5, 4)
     if not click_button(modal, r"^(Xác nhận|Lưu|Xong|Áp dụng|Confirm|Save|Done|Apply)$", timeout=10):
         raise TikTokError("không bấm được nút xác nhận ảnh bìa")

@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.10.4
+- Sửa lỗi **đăng bằng Chrome của kênh báo "Locator.set_input_files: Timeout"**: video lớn bị gửi cả nội dung qua đường điều khiển nên treo. Nay Chrome tự đọc file video / ảnh bìa thẳng từ ổ đĩa (200 MB chưa tới 1 giây). Video đã lỗi vì chuyện này: vào Hàng chờ → Lỗi, chọn rồi bấm Chạy lại.
+
 ## 2.10.3
 - Sửa lỗi **phân tích AI chạy trùng 2 lần cùng lúc** (tốn tiền AI gấp đôi, có lúc báo lỗi "name 'sys' is not defined" / "module 'anthropic' has no attribute" khiến video không nhận ra sản phẩm và không gắn giỏ): nay chỉ 1 luồng phân tích được chạy.
 

@@ -1,7 +1,7 @@
 {
- "version": "2.10.3",
- "built_at": "2026-11-18T11:10:20Z",
- "notes": "- Sửa lỗi **phân tích AI chạy trùng 2 lần cùng lúc** (tốn tiền AI gấp đôi, có lúc báo lỗi \"name 'sys' is not defined\" / \"module 'anthropic' has no attribute\" khiến video không nhận ra sản phẩm và không gắn giỏ): nay chỉ 1 luồng phân tích được chạy.",
+ "version": "2.10.4",
+ "built_at": "2026-11-18T11:42:59Z",
+ "notes": "- Sửa lỗi **đăng bằng Chrome của kênh báo \"Locator.set_input_files: Timeout\"**: video lớn bị gửi cả nội dung qua đường điều khiển nên treo. Nay Chrome tự đọc file video / ảnh bìa thẳng từ ổ đĩa (200 MB chưa tới 1 giây). Video đã lỗi vì chuyện này: vào Hàng chờ → Lỗi, chọn rồi bấm Chạy lại.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "fc26304b6bbb95a9b35ba16075ebb39d1c86b002c87a63190cae01abdbb8d272",
-   "size": 36857
+   "sha256": "892743ef09353b1016659f25db4c4eea58a073ba9fe9bf459df165e24d49b0a0",
+   "size": 37237
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,7 +65,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "65fcc9f7f590a80170f0d1e32a706b61c8a5f64fb515f4d68cfb76edc094cc09",
+   "sha256": "48fef07a8b15a7eb01bead6dd32649644b75b79d757c5d689aec2f5a1fc9996f",
    "size": 7
   },
   {
@@ -295,8 +295,8 @@
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "737d763f65c91da87f11d7fe719f9cbf72fd3f6e1567f6c477b01ed0eebe2cc4",
-   "size": 81945
+   "sha256": "2caa2075604278d509638db7a94e62815d4ae689883febc25e6165dcdf1fb19c",
+   "size": 83047
   },
   {
    "path": "core/ui.py",
