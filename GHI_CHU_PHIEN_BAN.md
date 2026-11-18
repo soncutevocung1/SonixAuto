@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.10.3
+- Sửa lỗi **phân tích AI chạy trùng 2 lần cùng lúc** (tốn tiền AI gấp đôi, có lúc báo lỗi "name 'sys' is not defined" / "module 'anthropic' has no attribute" khiến video không nhận ra sản phẩm và không gắn giỏ): nay chỉ 1 luồng phân tích được chạy.
+
 ## 2.10.2 · Xoay minh họa: làm theo sản phẩm
 - Phong cách **Xoay minh họa** làm video **theo sản phẩm bác chọn**, không làm lần lượt theo thứ tự nữa (tránh ra toàn video Đạm cá hoặc toàn Kích rễ).
 - Trong `SOURCE THÔ\Xoay` tool tạo sẵn 1 thư mục cho mỗi sản phẩm (ĐẠM CÁ, KÍCH RỄ, NANO ĐỒNG, CANXI BO, SIÊU BÁM DÍNH, BỌ TRĨ TOP ONE). Bác bỏ video xoay vào đúng thư mục sản phẩm; tên thư mục kiểu `Dam_Ca`, `Kich_Re` cũng nhận được.

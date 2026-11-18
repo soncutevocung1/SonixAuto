@@ -140,7 +140,26 @@ def plan_new(channel, ids, settings):
     return len(times)
 
 
+LOCK = LOG_DIR.parent / "phan_tich.lock"
+
+
+def _hold(me) -> bool:
+    """Chỉ 1 luồng phân tích được chạy (kể cả khi app lỡ chạy 2 luồng / 2 cửa sổ): luồng giữ khoá mới được làm.
+    Khoá tự hết hạn sau 3 phút nếu luồng giữ khoá đã chết."""
+    try:
+        if LOCK.exists():
+            owner = LOCK.read_text(encoding="utf-8").strip()
+            if owner != me and time.time() - LOCK.stat().st_mtime < 180:
+                return False
+        LOCK.write_text(me, encoding="utf-8")
+        return True
+    except Exception:
+        return True
+
+
 def _loop():
+    import os
+    me = f"{os.getpid()}:{threading.get_ident()}"
     _log("Bắt đầu luồng phân tích ngầm")
     last_scan = 0
     while True:
@@ -154,6 +173,9 @@ def _loop():
             if not todo:
                 time.sleep(2)
                 continue
+            if not _hold(me):  # luồng khác đang phân tích -> không làm trùng (tốn tiền AI gấp đôi)
+                time.sleep(5)
+                continue
             settings = load_settings()
             batch = todo[:8]
             touched = {}
@@ -164,6 +186,7 @@ def _loop():
                                   bool(j.get("redo_caption")), j.get("item_key") or "",
                                   j.get("platform") or "tiktok"): j for j in batch}
                 for fu in as_completed(futs):
+                    _hold(me)  # còn sống -> giữ khoá
                     j = futs[fu]
                     err = fu.result()
                     touched.setdefault((j.get("platform") or "tiktok", j["channel"]), set()).add(j["id"])
