@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.9.2
+- Sửa lỗi **không đồng bộ được Trưng bày sản phẩm / âm thanh / đăng video ở tài khoản mới** (kênh Mai Vàng Farm): sau khi tải video, TikTok hiện hộp "Bật kiểm tra nội dung tự động?" che hết các nút. Nay tool tự bấm **Bật** hộp này rồi làm tiếp.
+
 ## 2.9.1 · Sửa tự xuất video + tham khảo content kênh khác
 - Sửa lỗi **không tự xuất video vào CHƯA UP**: CapCut bản mới làm tool đọc sai chữ nút "Thùng rác" nên không tìm được ô tìm dự án. Nay tool tìm theo chữ "Dự án" + vị trí cố định. Tool cũng tìm file vừa xuất trong cả thư mục con (ô "Xuất sang" của CapCut hay bị cắt "..."), tự bấm lại nút Xuất nếu chưa thấy bắt đầu, và luôn đưa CapCut lên trước khi bấm.
 - Mục **Tham khảo content kênh khác** (ở bước viết kịch bản): dán link kênh TikTok hoặc link từng video. App tải tiếng, chép lời rồi cho AI **phân tích dạng content** (cách giật tít, dẫn dắt, chốt, kiểu tiêu đề). Tick kênh nào thì AI học theo kênh đó khi viết (cả làm hàng loạt), có nút Phân tích lại và xem kết quả phân tích.

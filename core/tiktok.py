@@ -268,8 +268,26 @@ POPUP_JS = r"""
 """
 
 
+def _auto_check_modal(page) -> bool:
+    """Hộp 'Bật kiểm tra nội dung tự động?' (hiện 1 lần với tài khoản mới, che hết các nút) -> bấm Bật."""
+    try:
+        dlg = page.get_by_text(_rx(r"Bật kiểm tra nội dung tự động|Turn on automatic content check"))
+        if not _visible(dlg):
+            return False
+        for name in (r"^(Bật|Turn on)$", r"^(Hủy|Cancel)$"):
+            b = _visible(page.get_by_role("button", name=_rx(name)), last=True)
+            if b:
+                b.click()
+                _sleep(0.8, 1.5)
+                return True
+    except Exception:
+        pass
+    return False
+
+
 def clear_popups(page):
     """Tắt hộp hướng dẫn / giới thiệu tính năng mới (hay hiện với hồ sơ mới đăng nhập)."""
+    _auto_check_modal(page)
     for _ in range(4):
         if not click_button(page, r"^(Đã hiểu|Got it|Bỏ qua|Skip|Để sau|Not now|Tôi đã hiểu|Tiếp tục chỉnh sửa|Continue editing)$", timeout=0.5):
             break
@@ -362,6 +380,8 @@ def upload_file(page, video):
                           f"Chữ trên trang: {hint}")
     inp.set_input_files(video)
     page.locator('div[contenteditable="true"]').first.wait_for(state="visible", timeout=180000)
+    _sleep(1.5, 2.5)
+    clear_popups(page)  # hộp hỏi bật kiểm tra nội dung tự động hiện ngay sau khi tải video
 
 
 def post_button(page):
@@ -1333,6 +1353,7 @@ def post(job, settings, log=print, lock=None):
             log("  - Tải video lên...")
             upload_file(page, video)
             wait_uploaded(page, lock=lock)
+            clear_popups(page)
             log("  - Gõ mô tả + hashtag...")
             step("Mô tả", lambda: type_caption(page, job.get("caption", ""), parse_tags(job.get("hashtags", ""))),
                  "Bác gõ/dán mô tả giúp.")
@@ -1396,6 +1417,7 @@ def post(job, settings, log=print, lock=None):
                      f"Bác chọn 'Lên lịch' và đặt ngày {when:%d/%m/%Y} giờ {when:%H:%M}.", critical=True)
 
             wait_uploaded(page, minutes=10, lock=lock)
+            _auto_check_modal(page)
             if settings.get("tt_confirm_before_post", False) and not headless:
                 ask_user(page, "👀 Bác xem lại mô tả, ảnh bìa, giỏ hàng, nhạc, giờ hẹn. Ổn thì bấm nút vàng, tool sẽ bấm "
                                + ("LÊN LỊCH." if use_schedule else "ĐĂNG."), "🚀 ĐĂNG LUÔN", lock=lock)
@@ -1533,6 +1555,7 @@ def sync_showcase(settings, channel, log=print):
             open_upload(page, settings, channel, log)
             upload_file(page, blank)
             wait_uploaded(page, lock=lock)
+            clear_popups(page)
             _open_add_link(page)
             modal = top_modal(page)
             found, k = {}, 1
@@ -1620,6 +1643,7 @@ def sync_sounds(settings, channel, log=print):
             open_upload(page, settings, channel, log)
             upload_file(page, blank)
             wait_uploaded(page, lock=lock)
+            clear_popups(page)
             _open_sound_editor(page)
             rows = _load_all_favorites(page)
             if not rows and _visible(page.get_by_text(_rx(r"(Không có kết quả|No results)")), 3):
@@ -1686,6 +1710,7 @@ def inspect_ui(settings, channel, log=print):
             shots.append(dump_debug(page, "1_trang_dang"))
             upload_file(page, blank)
             wait_uploaded(page, lock=lock)
+            clear_popups(page)
             shots.append(dump_debug(page, "2_da_tai_len"))
             for name, fn in [("3_them_lien_ket", lambda: _open_add_link(page)),
                              ("4_anh_bia", lambda: (page.keyboard.press("Escape"), click_text(page, r"^(Sửa ảnh bìa|Edit cover)$", 4))),

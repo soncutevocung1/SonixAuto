@@ -1,7 +1,7 @@
 {
- "version": "2.9.1",
- "built_at": "2026-11-18T09:39:47Z",
- "notes": "- Sửa lỗi **không tự xuất video vào CHƯA UP**: CapCut bản mới làm tool đọc sai chữ nút \"Thùng rác\" nên không tìm được ô tìm dự án. Nay tool tìm theo chữ \"Dự án\" + vị trí cố định. Tool cũng tìm file vừa xuất trong cả thư mục con (ô \"Xuất sang\" của CapCut hay bị cắt \"...\"), tự bấm lại nút Xuất nếu chưa thấy bắt đầu, và luôn đưa CapCut lên trước khi bấm.\n- Mục **Tham khảo content kênh khác** (ở bước viết kịch bản): dán link kênh TikTok hoặc link từng video. App tải tiếng, chép lời rồi cho AI **phân tích dạng content** (cách giật tít, dẫn dắt, chốt, kiểu tiêu đề). Tick kênh nào thì AI học theo kênh đó khi viết (cả làm hàng loạt), có nút Phân tích lại và xem kết quả phân tích.\n- Ô **Tiêu đề mẫu**: gõ vài tiêu đề bác thích, AI đặt tiêu đề theo kiểu đó (vẫn 3 dòng, dòng 1 tô vàng).\n- Reup Aff **ghép nhiều cảnh hơn**: thêm thanh **Độ dài mỗi cảnh** (mặc định 1,2 giây thay cho 1,8 giây, video ~35 giây từ ~27 lên ~34 cảnh; kéo xuống 0,8 giây được ~49 cảnh).",
+ "version": "2.9.2",
+ "built_at": "2026-11-18T09:44:55Z",
+ "notes": "- Sửa lỗi **không đồng bộ được Trưng bày sản phẩm / âm thanh / đăng video ở tài khoản mới** (kênh Mai Vàng Farm): sau khi tải video, TikTok hiện hộp \"Bật kiểm tra nội dung tự động?\" che hết các nút. Nay tool tự bấm **Bật** hộp này rồi làm tiếp.",
  "files": [
   {
    "path": ".gitattributes",
@@ -37,6 +37,36 @@
    "path": "4_TAO_BIEU_TUONG_APP.bat",
    "sha256": "39312738cb0cd3902679f8125bd0e1b14648373187f47f529b37ab482aeb75c8",
    "size": 415
+  },
+  {
+   "path": "GHI_CHU_PHIEN_BAN.md",
+   "sha256": "f8023484c8557b11c720aa2eee59bf5ec5085671c29c33133d7e916ffdc89b19",
+   "size": 33441
+  },
+  {
+   "path": "HUONG_DAN.md",
+   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
+   "size": 16971
+  },
+  {
+   "path": "KE_HOACH_EDIT_VIDEO.md",
+   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
+   "size": 9720
+  },
+  {
+   "path": "Sonix Auto.exe",
+   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
+   "size": 224256
+  },
+  {
+   "path": "SonixDangVideo.pyw",
+   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
+   "size": 3327
+  },
+  {
+   "path": "VERSION",
+   "sha256": "39d6e6e5077b3674cd6052b7bd41f3b13ce443fe248af29c55957eb960f60bad",
+   "size": 6
   },
   {
    "path": "app.py",
@@ -260,8 +290,8 @@
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "67e1689dacb57468dbdda237377fdbc06a66dd930f30b3f0860b2c572d4ce238",
-   "size": 80454
+   "sha256": "72b3ad8e18c6a34c71066ddcac0048567d5b40a29cfbf899c6d5c4147dde1bdd",
+   "size": 81431
   },
   {
    "path": "core/ui.py",
@@ -309,21 +339,6 @@
    "size": 879
   },
   {
-   "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "5d21a638da6c5f1eaff1f8971029335925ddae2ae8b28cbf1ea585f44299087d",
-   "size": 33391
-  },
-  {
-   "path": "HUONG_DAN.md",
-   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
-   "size": 16971
-  },
-  {
-   "path": "KE_HOACH_EDIT_VIDEO.md",
-   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
-   "size": 9720
-  },
-  {
    "path": "mo_tool_mac.sh",
    "sha256": "cca941d7dc0f9085e074de3fcedfa45b19a14debc919921b1854e0643f89f93e",
    "size": 248
@@ -339,24 +354,9 @@
    "size": 29638
   },
   {
-   "path": "Sonix Auto.exe",
-   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
-   "size": 224256
-  },
-  {
-   "path": "SonixDangVideo.pyw",
-   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
-   "size": 3327
-  },
-  {
    "path": "tao_manifest.py",
    "sha256": "6dcb33c88afa4b4cf0d916e2406cba216f992dc783c3a3f31b05b598c3e01365",
    "size": 1803
-  },
-  {
-   "path": "VERSION",
-   "sha256": "5ba2db80e8ed2521570b58d5f1acba3a6b83978e500931fc9768dd85355489a8",
-   "size": 7
   }
  ]
 }
