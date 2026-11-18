@@ -97,6 +97,19 @@ def resolve(settings, channel, item_key) -> tuple:
     return [{"id": i, "name": names.get(i, "")} for i in m["ids"]], m["cart"][:30]
 
 
+def item_for(settings, channel, products) -> str:
+    """Sản phẩm (key) ứng với giỏ hàng đang gắn: giỏ đầu tiên thuộc sản phẩm nào. '' nếu không rõ."""
+    ids = [str(p.get("id")) for p in (products or []) if p.get("id")]
+    if not ids:
+        return ""
+    mp = mapping(settings, channel)
+    for pid in ids:
+        for key, m in mp.items():
+            if pid in [str(x) for x in (m.get("ids") or [])]:
+                return key
+    return ""
+
+
 def label(p) -> str:
     price = f" · {p['price']}" if p.get("price") else ""
     return f"{p.get('name', '')[:55]}{price} · …{str(p['id'])[-6:]}"

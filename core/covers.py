@@ -243,3 +243,40 @@ def remove_theme(root, path, settings) -> int:
             db.update_job(j["id"], cover_path=ai_cover(j) or "", cover_by_user=0)
             n += 1
     return n
+
+
+def theme_conflict(settings, job, root) -> bool:
+    """Ảnh bìa theme đang dùng là ảnh của SẢN PHẨM KHÁC (vd video Kích rễ mà bìa «Bọ trĩ Top One.png")."""
+    stem = theme_name(job.get("cover_path"))
+    if not stem or not root:
+        return False
+    key = job.get("item_key") or ""
+    themes = [cover_dir(root) / f"{stem}{ext}" for ext in (".png", ".jpg", ".jpeg", ".webp")]
+    owner = None
+    for it in settings.get("items", []):
+        if match_theme(it, themes):
+            if it["key"] == key:
+                return False  # ảnh hợp sản phẩm của video
+            owner = it["key"]
+    for ch_map in (settings.get("cover_by_product") or {}).values():  # ảnh bác đặt làm bìa mặc định cho sản phẩm khác
+        for k_, name in ch_map.items():
+            if Path(name).stem == stem and k_ == key:
+                return False
+            if Path(name).stem == stem:
+                owner = owner or k_
+    return bool(owner)
+
+
+def fix_conflict(settings, channel, job, root) -> str:
+    """Bìa theme sai sản phẩm -> đổi sang ảnh đúng sản phẩm, không có thì về bìa AI chọn. Trả về '' nếu không đổi."""
+    from . import db
+    from .analyze import ai_cover
+    if not theme_conflict(settings, job, root):
+        return ""
+    t = theme_for_job(settings, channel, job, root)
+    new = make_cover(job, t) if t else ai_cover(job)
+    if not new:
+        return ""
+    db.update_job(job["id"], cover_path=new, cover_by_user=0)
+    job["cover_path"] = new
+    return f"{Path(new).name}"

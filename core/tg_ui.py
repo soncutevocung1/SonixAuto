@@ -20,7 +20,7 @@ REPORT_DIR = DATA_DIR / "bao_loi"
 SHOT_DIR = REPORT_DIR / "anh_cho_gui"
 KIND_LABEL = {"su_co": "Phiên có lỗi / sự cố", "xong": "Phiên đăng ổn / việc xong", "cap_nhat": "Có bản cập nhật"}
 APP_LABEL = {"up": "Sonix Up Video", "edit": "Sonix Edit Video"}
-SECRET = re.compile(r"token|key|pass|secret|cookie|tg_bot|tg_bao_loi|pin", re.I)
+SECRET = re.compile(r"token|api_?key|_key$|^key_|pass|secret|cookie|tg_bot|tg_bao_loi|^pin|_pin$", re.I)  # không che "key" (mã sản phẩm), "keywords"
 
 
 # =============================== CÀI ĐẶT TELEGRAM ===============================

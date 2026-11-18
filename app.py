@@ -263,7 +263,14 @@ def save(jid, field, f, conv=lambda v: v):
 @quiet_cb
 def save_products(jid, channel):
     names = {p["id"]: p.get("name", "") for p in prod.load_showcase(channel)["products"]}
-    db.update_job(jid, products=[{"id": i, "name": names.get(i, "")} for i in st.session_state[k("pr", jid)]])
+    products = [{"id": i, "name": names.get(i, "")} for i in st.session_state[k("pr", jid)]]
+    upd = {"products": products}
+    key = prod.item_for(S, channel, products)  # đổi giỏ -> sản phẩm của video đổi theo (ảnh bìa, âm thanh theo đó)
+    if key:
+        upd["item_key"] = key
+    db.update_job(jid, **upd)
+    if key:
+        forget(jid, ("it",))
 
 
 @quiet_cb
@@ -840,6 +847,10 @@ for _ in _show(tabs[1]):
                 " · ".join(f"<span class='gold'>{g}</span>" for g in S["golden_hours"]), unsafe_allow_html=True)
     for chname in sorted({j["channel"] for j in drafts}):
         jobs = [j for j in drafts if j["channel"] == chname]
+        from core import dong_bo as _db_
+        if _db_.khop_tat_ca(S, chname, jobs, ROOT):  # giỏ hàng / ảnh bìa / âm thanh sai sản phẩm -> sửa cho khớp
+            for _j in jobs:
+                forget(_j["id"], ("it", "mu", "ka"))
         for _i in snd.auto_assign(chname, S, jobs):  # gắn sẵn âm thanh Yêu thích đúng sản phẩm
             forget(_i, ("mu", "ka"))
         show_all = prod.load_showcase(chname)["products"]

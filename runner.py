@@ -168,6 +168,11 @@ def due_facebook(job, now, settings=None) -> bool:
 def run_tiktok(job, settings):
     root = settings["root_folder"]
     tmp = None
+    try:  # giỏ hàng / ảnh bìa / âm thanh phải cùng 1 sản phẩm trước khi đăng
+        from core import dong_bo
+        dong_bo.khop(settings, job["channel"], job, root, log)
+    except Exception as e:
+        log(f"  ! Kiểm tra khớp sản phẩm lỗi: {str(e)[:120]}")
     if job.get("music_mode") == "auto" and job.get("music_ref") == "favitem":  # chưa gán bài: thử mượn âm thanh
         b = sounds.borrow_for(job["channel"], job.get("item_key") or "", settings)
         if b:

@@ -1,6 +1,11 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.9.0
+- Sửa lỗi **ảnh bìa và âm thanh sai sản phẩm** (báo lỗi #1116095332): đổi giỏ hàng của video (vd sang Kích rễ TC01) trước đây không đổi "sản phẩm của video", nên ảnh bìa theme và âm thanh Yêu thích vẫn theo sản phẩm cũ (Bọ trĩ). Nay đổi giỏ là sản phẩm đổi theo; tab Duyệt và bộ đăng (ngay trước khi đăng) tự kiểm: ảnh bìa theme của sản phẩm khác → đổi sang ảnh đúng sản phẩm (không có thì về bìa AI chọn); âm thanh Yêu thích của sản phẩm khác → đổi âm thanh đúng sản phẩm (không có thì nhạc mặc định). Video đang chờ đăng cũng được sửa trước khi lên TikTok.
+- Sửa lỗi **đồng bộ Trưng bày / tải video báo TimeoutError "input[type=file]"**: tool tìm ô chọn video cả trong khung con, tự tắt hộp thông báo và bấm nút Chọn video; vẫn không được thì báo rõ lý do (chưa đăng nhập, TikTok đòi xác minh...) kèm chữ trên trang, thay vì lỗi kỹ thuật.
+- Gói báo lỗi không còn che nhầm mã sản phẩm và từ khoá (chỉ che token, khoá AI, mật khẩu).
+
 ## 2.8.9
 - **Dời video trễ lịch về hôm nay**: video TikTok chưa đăng mà giờ hẹn đã qua (tạm dừng, chờ đăng, chờ duyệt) hiện khung cảnh báo trên đầu app, bấm **Dời về lịch từ hôm nay** để xếp lại vào khung giờ trống từ bây giờ (giữ đúng số video/ngày). Tab Hàng chờ cũng có nút này cho video đang chọn. Video tạm dừng vẫn tạm dừng, bấm Chạy lại khi muốn đăng.
 - Lỗi "Đã bấm đăng nhưng chưa thấy TikTok xác nhận": tool ghi lại **đúng câu TikTok báo** (thông báo nhanh trên màn hình + phản hồi máy chủ) vào kết quả video và nhật ký, để biết chính xác vì sao TikTok không nhận.

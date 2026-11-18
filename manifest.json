@@ -1,7 +1,7 @@
 {
- "version": "2.8.9",
- "built_at": "2026-11-18T09:15:32Z",
- "notes": "- **Dời video trễ lịch về hôm nay**: video TikTok chưa đăng mà giờ hẹn đã qua (tạm dừng, chờ đăng, chờ duyệt) hiện khung cảnh báo trên đầu app, bấm **Dời về lịch từ hôm nay** để xếp lại vào khung giờ trống từ bây giờ (giữ đúng số video/ngày). Tab Hàng chờ cũng có nút này cho video đang chọn. Video tạm dừng vẫn tạm dừng, bấm Chạy lại khi muốn đăng.\n- Lỗi \"Đã bấm đăng nhưng chưa thấy TikTok xác nhận\": tool ghi lại **đúng câu TikTok báo** (thông báo nhanh trên màn hình + phản hồi máy chủ) vào kết quả video và nhật ký, để biết chính xác vì sao TikTok không nhận.",
+ "version": "2.9.0",
+ "built_at": "2026-11-18T09:35:00Z",
+ "notes": "- Sửa lỗi **ảnh bìa và âm thanh sai sản phẩm** (báo lỗi #1116095332): đổi giỏ hàng của video (vd sang Kích rễ TC01) trước đây không đổi \"sản phẩm của video\", nên ảnh bìa theme và âm thanh Yêu thích vẫn theo sản phẩm cũ (Bọ trĩ). Nay đổi giỏ là sản phẩm đổi theo; tab Duyệt và bộ đăng (ngay trước khi đăng) tự kiểm: ảnh bìa theme của sản phẩm khác → đổi sang ảnh đúng sản phẩm (không có thì về bìa AI chọn); âm thanh Yêu thích của sản phẩm khác → đổi âm thanh đúng sản phẩm (không có thì nhạc mặc định). Video đang chờ đăng cũng được sửa trước khi lên TikTok.\n- Sửa lỗi **đồng bộ Trưng bày / tải video báo TimeoutError \"input[type=file]\"**: tool tìm ô chọn video cả trong khung con, tự tắt hộp thông báo và bấm nút Chọn video; vẫn không được thì báo rõ lý do (chưa đăng nhập, TikTok đòi xác minh...) kèm chữ trên trang, thay vì lỗi kỹ thuật.\n- Gói báo lỗi không còn che nhầm mã sản phẩm và từ khoá (chỉ che token, khoá AI, mật khẩu).",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "1561e0ed4e8b338db16d3d9b064b6f9b406b3c1bba2c20cc6c758cdd30540bcc",
-   "size": 30637
+   "sha256": "83c681baf94b6f2ed82fd3c3bb170fb420d5f17699cb85d951b5f292e72bb607",
+   "size": 31836
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,13 +65,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "f1c6abe4a1ddf1dcb049f2a03936c1666b5690d090b923f267927341d7734986",
+   "sha256": "8113ce620372292c25fda221ad5e8adf77dbe71c92c2042f8ca1ec3dfe9c50a1",
    "size": 6
   },
   {
    "path": "app.py",
-   "sha256": "108c7ab7e8792b152d40b31701d4979f088e05cd6a6b3e6011a5286b9248edea",
-   "size": 118323
+   "sha256": "aad2f828499198efa5e3338334102086bd53a0c0a0cc303393d7434861a302e8",
+   "size": 118838
   },
   {
    "path": "assets/sonix.ico",
@@ -125,8 +125,8 @@
   },
   {
    "path": "core/covers.py",
-   "sha256": "99aa4fcf9b2eb8413564f1bce208673f7dbf55a88a58577bba8621748958eb95",
-   "size": 10229
+   "sha256": "fd6d6dd6ceaf2eaf9beecf8c855cecc8004a9b80900b16a1c1e72261f682ef43",
+   "size": 11811
   },
   {
    "path": "core/cua_so.py",
@@ -147,6 +147,11 @@
    "path": "core/doi_thu_muc.py",
    "sha256": "8e74adb80995785e2f61d43db458631b1cf42d0ea5d8d44377bd82342686800d",
    "size": 6314
+  },
+  {
+   "path": "core/dong_bo.py",
+   "sha256": "bce7b95acf0d11ecb089a744b9bd847b526a3ba134cec1d8a274202f861e462f",
+   "size": 2756
   },
   {
    "path": "core/edit_job.py",
@@ -225,8 +230,8 @@
   },
   {
    "path": "core/products.py",
-   "sha256": "31ce300f1ce7120e02bd47b621af60c3a39e0ba6427485ffa486118ebbc536c3",
-   "size": 3821
+   "sha256": "a5449b1e70af1e6a3ecaf61f435771ad59cb3ae3fbef68064e55f5fffd7056d1",
+   "size": 4303
   },
   {
    "path": "core/progress.py",
@@ -270,8 +275,8 @@
   },
   {
    "path": "core/tg_ui.py",
-   "sha256": "70d7a842629141db8b10f82ddef568955a6aa24c1cd760659abf1518f43df0e5",
-   "size": 29014
+   "sha256": "8e824fd58ca830936050d77738fa6f1146cf920d51915c42fc6b4a836c788e82",
+   "size": 29089
   },
   {
    "path": "core/tham_khao.py",
@@ -280,8 +285,8 @@
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "77dfde154034aaf07d97fd94417b0f07c758fe8129d45a988a7cc14aca6b0de2",
-   "size": 78344
+   "sha256": "67e1689dacb57468dbdda237377fdbc06a66dd930f30b3f0860b2c572d4ce238",
+   "size": 80454
   },
   {
    "path": "core/ui.py",
@@ -340,8 +345,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "1690ac7045e30772713f9537284365a125e4cc150e059b6ffa9527b11bb2b65e",
-   "size": 29345
+   "sha256": "6b3addb666db945fd1e8cc748b6aa310e7d087be2f13654439de77fa06b8f805",
+   "size": 29638
   },
   {
    "path": "tao_manifest.py",

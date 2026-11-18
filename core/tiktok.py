@@ -316,9 +316,50 @@ def open_upload(page, settings, channel, log=print):
             log(f"  - Đúng kênh @{got} ✔")
 
 
+def _file_input(page, timeout_ms):
+    """Ô chọn video trên trang Tải lên (có thể nằm trong khung con). None nếu không thấy."""
+    end = time.time() + timeout_ms / 1000
+    while time.time() < end:
+        for fr in [page] + list(page.frames):
+            try:
+                loc = fr.locator('input[type="file"]')
+                if loc.count():
+                    return loc.first
+            except Exception:
+                pass
+        time.sleep(1)
+    return None
+
+
 def upload_file(page, video):
-    inp = page.locator('input[type="file"]').first
-    inp.wait_for(state="attached", timeout=60000)
+    inp = _file_input(page, 25000)
+    if inp is None:  # trang chưa hiện ô chọn video: tắt hộp thông báo, bấm nút Chọn/Tải video rồi chờ thêm
+        clear_popups(page)
+        for rx in (r"^(Chọn video|Select video|Chọn tệp|Select file)$", r"^(Tải lên|Upload|Tải video lên)$"):
+            try:
+                b = _visible(page.get_by_role("button", name=_rx(rx)))
+                if b:
+                    with page.expect_file_chooser(timeout=8000) as fc:
+                        b.click()
+                    fc.value.set_files(video)
+                    page.locator('div[contenteditable="true"]').first.wait_for(state="visible", timeout=180000)
+                    return
+            except Exception:
+                pass
+        inp = _file_input(page, 35000)
+    if inp is None:
+        txt = ""
+        try:
+            txt = (page.locator("body").inner_text(timeout=3000) or "")[:4000]
+        except Exception:
+            pass
+        if re.search(r"Đăng nhập|Log in|Sign up|Đăng ký", txt) and not detect_handle(page):
+            raise NeedLogin("Trình duyệt kênh này CHƯA ĐĂNG NHẬP TikTok (trang Tải lên hiện màn hình đăng nhập). Vào tab "
+                            "Kênh & sản phẩm → bấm 'Đăng nhập' cho kênh, đăng nhập xong bấm 'Chạy tiếp'.")
+        hint = re.sub(r"\s+", " ", txt)[:200]
+        raise TikTokError(f"Trang Tải lên của TikTok Studio không hiện ô chọn video (trang: {page.url[:80]}). "
+                          f"Bác mở trình duyệt kênh xem TikTok đang báo gì (xác minh tài khoản, điều khoản mới...). "
+                          f"Chữ trên trang: {hint}")
     inp.set_input_files(video)
     page.locator('div[contenteditable="true"]').first.wait_for(state="visible", timeout=180000)
 
