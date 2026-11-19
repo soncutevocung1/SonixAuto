@@ -1,6 +1,10 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.10.11 · Sửa lỗi AI không nhận được sản phẩm
+- Sửa lỗi **"AI lỗi (NameError: name 'sys' is not defined) → dùng cách dự phòng"** làm video không gắn được sản phẩm / giỏ hàng. Nguyên nhân: mỗi khi có file trong thư mục app thay đổi (cập nhật tự động, sửa code), giao diện tự nạp lại code và gỡ nhầm cả phần lõi của Python đi kèm, nên lần AI phân tích sau bị hỏng. Nay tắt việc tự nạp lại này (cập nhật xong app vẫn tự khởi động lại như cũ).
+- Video đã bị lỗi này: bấm **Phân tích lại** (hoặc chọn sản phẩm tay) sau khi app khởi động lại.
+
 ## 2.10.10 · Edit Video: 1 kênh chung, bỏ file đếm số
 - **Kênh nhận video** ở Edit Video (Reup Aff) giờ là **1 kênh chung cho mọi sản phẩm**. Trước đây app nhớ kênh riêng từng sản phẩm, nên đổi từ Kích rễ sang Đạm cá là lặng lẽ đổi sang kênh khác (vd đang Sơn Phân Thuốc nhảy sang Mai Vàng Farm).
 - Video làm trong cùng ngày luôn vào chung `CHƯA UP\<ngày>` của kênh, đánh số nối tiếp (01, 02... rồi 06, 07...), dù làm nhiều lần, nhiều sản phẩm.

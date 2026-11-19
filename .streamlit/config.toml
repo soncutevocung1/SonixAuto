@@ -3,6 +3,10 @@ headless = true
 port = 8501
 maxUploadSize = 50
 enableStaticServing = true
+# Không theo dõi file: thư mục python\ (Python đi kèm) nằm trong thư mục app, mỗi lần có file đổi (cập nhật, sửa code)
+# Streamlit gỡ luôn module lõi của Python -> lỗi "name 'sys' is not defined" khi AI phân tích video.
+# Cập nhật xong app tự khởi động lại nên không cần tự nạp lại code.
+fileWatcherType = "none"
 
 [browser]
 gatherUsageStats = false

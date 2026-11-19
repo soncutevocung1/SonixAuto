@@ -1,7 +1,7 @@
 {
- "version": "2.10.10",
- "built_at": "2026-11-19T09:11:31Z",
- "notes": "- **Kênh nhận video** ở Edit Video (Reup Aff) giờ là **1 kênh chung cho mọi sản phẩm**. Trước đây app nhớ kênh riêng từng sản phẩm, nên đổi từ Kích rễ sang Đạm cá là lặng lẽ đổi sang kênh khác (vd đang Sơn Phân Thuốc nhảy sang Mai Vàng Farm).\n- Video làm trong cùng ngày luôn vào chung `CHƯA UP\\<ngày>` của kênh, đánh số nối tiếp (01, 02... rồi 06, 07...), dù làm nhiều lần, nhiều sản phẩm.\n- Bỏ file đếm số `.sonix_so_thu_tu` trong thư mục ngày. Số tiếp theo tính từ video đang có trong thư mục + lịch sử đăng (video đã đăng chuyển sang ĐÃ UP vẫn không bị trùng số).",
+ "version": "2.10.11",
+ "built_at": "2026-11-19T09:18:27Z",
+ "notes": "- Sửa lỗi **\"AI lỗi (NameError: name 'sys' is not defined) → dùng cách dự phòng\"** làm video không gắn được sản phẩm / giỏ hàng. Nguyên nhân: mỗi khi có file trong thư mục app thay đổi (cập nhật tự động, sửa code), giao diện tự nạp lại code và gỡ nhầm cả phần lõi của Python đi kèm, nên lần AI phân tích sau bị hỏng. Nay tắt việc tự nạp lại này (cập nhật xong app vẫn tự khởi động lại như cũ).\n- Video đã bị lỗi này: bấm **Phân tích lại** (hoặc chọn sản phẩm tay) sau khi app khởi động lại.",
  "files": [
   {
    "path": ".gitattributes",
@@ -15,8 +15,8 @@
   },
   {
    "path": ".streamlit/config.toml",
-   "sha256": "fa10fcaeee29277e12fbdcae672b0976be626ec6ed3c5aa6a2d9130e459fc0b6",
-   "size": 912
+   "sha256": "3c04e3a30b4040a68f836bff3516020edd6803d275c4f10b34d1876fa1f69097",
+   "size": 1284
   },
   {
    "path": "1_CAI_DAT.bat",
@@ -315,8 +315,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "14861785d39ac32424e1346dad1a2cef94b60e4807c4c051d107b0e82e342e14",
-   "size": 40494
+   "sha256": "ca35e0edb5e7c1ad08d3059ff35b0f920aeda2553f8c7c56361e4a0c126ca119",
+   "size": 41192
   },
   {
    "path": "HUONG_DAN.md",
@@ -360,7 +360,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "008a7b9d408847c72db88e45a791e0270d81f74bf58995daa3340fec13d91a7d",
+   "sha256": "cb6996ae5325224278540ff06bca91f513add9f24568e22d34d3d5dc22ccda33",
    "size": 9
   }
  ]
