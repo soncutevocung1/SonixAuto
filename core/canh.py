@@ -446,7 +446,11 @@ def chia_cau(loi: str, giay: float) -> list:
     return [(c, giay * len(c) / tong) for c in cau]
 
 
-def chon(sp_key: str, cau_list: list, speed: float = 2.0, seed=None, luoi: bool = True, nhip: float = 0) -> list:
+TY_LE_DUNG = 0.45  # anh Sơn muốn nhiều cảnh phun / tưới / rót / pha sản phẩm vào bình, thùng: ~45% số cảnh
+
+
+def chon(sp_key: str, cau_list: list, speed: float = 2.0, seed=None, luoi: bool = True, nhip: float = 0,
+         ty_le_dung: float = TY_LE_DUNG) -> list:
     """cau_list = [(câu, số giây trên timeline)] -> clips [(path, src_start, src_len, y)] đủ thời lượng,
     có thể kèm 1 mục {'luoi': [4 x (path, start, len)]} = khung chia 4 ô người dùng.
     Không lặp lại đoạn, không lấy 2 đoạn liền nhau cùng 1 video."""
@@ -494,6 +498,11 @@ def chon(sp_key: str, cau_list: list, speed: float = 2.0, seed=None, luoi: bool 
             thu_tu = [l] + [x for x in ("san_pham", "ket_qua", "su_dung") if x != l]
             if loai_gan[-3:] == [l, l, l]:  # 3 cảnh cùng loại liền nhau (vd toàn ruộng) -> chen 1 cảnh khác
                 thu_tu = thu_tu[1:] + thu_tu[:1]
+            # Chưa đủ tỉ lệ cảnh phun / tưới / rót / pha -> chen cảnh sử dụng (không 2 cảnh liền nhau nếu câu
+            # không nói về cách dùng, để vẫn xen cảnh sản phẩm / kết quả)
+            ty = loai_gan.count("su_dung") / max(1, len(loai_gan))
+            if l != "su_dung" and ty < ty_le_dung and (not loai_gan or loai_gan[-1] != "su_dung"):
+                thu_tu = ["su_dung"] + [x for x in thu_tu if x != "su_dung"]
             pick = None
             for tranh in (gan[-4:], gan[-1:]):  # ưu tiên không trùng 4 video gần nhất, hết thì chỉ tránh liền kề
                 for ll in thu_tu:

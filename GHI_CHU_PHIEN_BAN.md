@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.10.13 · Reup Aff: nhiều cảnh phun, tưới, rót, pha hơn
+- Khi chọn cảnh, tool ưu tiên cảnh **phun, tưới, rót sản phẩm ra, pha vào bình / thùng**: khoảng 45% số cảnh mỗi video (trước đây chỉ 0-3 cảnh / video). Vẫn xen cảnh sản phẩm và kết quả trên cây, không để toàn cảnh pha liền nhau.
+
 ## 2.10.12 · Lịch đăng không còn ngày dư / ngày thiếu
 - Sửa lỗi lịch có ngày **dư 1 video, ngày khác thiếu 1 video**: xảy ra khi bác bấm xếp lại lịch đúng lúc bộ đăng đang đẩy 1 video lên TikTok với giờ cũ (vd 11:30 giờ vàng của cài đặt cũ). Nay mỗi lần hẹn giờ xong 1 video, tool tự kiểm tra: ngày nào dư so với số video/ngày đã đặt thì dời video dư (chưa lên TikTok) sang khung giờ trống kế tiếp. Video đã hẹn trên TikTok giữ nguyên.
 
