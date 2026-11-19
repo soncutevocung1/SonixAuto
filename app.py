@@ -435,6 +435,21 @@ def save_cart_template(channel, jid):
     save_settings(S)
 
 
+def xao_thu_tu(channel, mode) -> int:
+    """Xếp lại thứ tự các video chờ duyệt đã có giờ: giữ nguyên tập khung giờ, đổi video nào đăng giờ nào."""
+    import random as _r
+    js = [j for j in db.list_jobs(["draft"], "tiktok", channel) if j.get("scheduled_at")]
+    if len(js) < 2:
+        return 0
+    times = sorted(j["scheduled_at"] for j in js)
+    ordered = sch.order_jobs(js, mode, seed=_r.random() if mode == "random" else None)
+    for j, t in zip(ordered, times):
+        if j["scheduled_at"] != t:
+            db.update_job(j["id"], scheduled_at=t)
+        forget(j["id"], ("d", "t"))
+    return len(ordered)
+
+
 def plan_channel(channel, jobs, p):
     jobs = sch.order_jobs(jobs, channel_plan(S, channel).get("order", "folder"))  # thứ tự đăng bác chọn
     others = {j["scheduled_at"] for j in db.list_jobs(["draft"], "tiktok", channel)
@@ -903,15 +918,6 @@ for _ in _show(tabs[1]):
             _chobj["post_now"] = bool(_pn_new)
             save_settings(S)
             st.rerun()
-        _po = channel_plan(S, chname).get("order", "folder")
-        _po_new = st.radio("Thứ tự đăng", list(sch.ORDERS), index=list(sch.ORDERS).index(_po) if _po in sch.ORDERS else 0,
-                           format_func=sch.ORDERS.get, horizontal=True, key=f"po_{slug(chname)}",
-                           help="Áp dụng khi tool xếp lịch (sau khi phân tích, hoặc bấm Xếp lịch) và khi Xác nhận tất cả ở "
-                                "chế độ đăng ngay. Đổi xong bấm Xếp lịch trong mục bên dưới để xếp lại các video đang chờ.")
-        if _po_new != _po:
-            S.setdefault("plan_by_channel", {}).setdefault(chname, {})["order"] = _po_new
-            save_settings(S)
-            st.rerun()
         if not _pn:
             _dc = lich.day_counts(chname)
             _thieu = [(d, c, p) for d, c, p in _dc[1:] if c < p]  # bỏ hôm nay (giờ đã qua không xếp thêm được)
@@ -1047,6 +1053,28 @@ for _ in _show(tabs[1]):
 
         with st.container(border=True, key=f"card_bulk_{slug(chname)}"):
             st.markdown(f"**Thao tác hàng loạt** · đang chọn **{len(sel_ids)}** video")
+            _po = channel_plan(S, chname).get("order", "folder")
+            ro = st.columns([3.2, 1])
+            _po_new = ro[0].radio("Thứ tự đăng", list(sch.ORDERS),
+                                  index=list(sch.ORDERS).index(_po) if _po in sch.ORDERS else 0,
+                                  format_func=sch.ORDERS.get, horizontal=True, key=f"po_{slug(chname)}",
+                                  help="Đổi là tool xếp lại NGAY các video chờ duyệt của kênh: giữ nguyên các khung giờ, chỉ "
+                                       "đổi video nào đăng giờ nào. Xen kẽ / Ngẫu nhiên: 2 video cùng sản phẩm không đăng "
+                                       "liền nhau. Video mới phân tích sau này cũng xếp theo cách này.")
+            if _po_new != _po:
+                S.setdefault("plan_by_channel", {}).setdefault(chname, {})["order"] = _po_new
+                save_settings(S)
+                _n = xao_thu_tu(chname, _po_new)
+                st.session_state[f"pomsg_{slug(chname)}"] = f"Đã xếp lại thứ tự {_n} video ({sch.ORDERS[_po_new].lower()})."
+                st.rerun()
+            if _po_new == "random" and ro[1].button("Xáo lại", key=f"poshuf_{slug(chname)}",
+                                                    help="Xáo ngẫu nhiên lần nữa (vẫn không để 2 video cùng sản phẩm liền nhau)"):
+                _n = xao_thu_tu(chname, "random")
+                st.session_state[f"pomsg_{slug(chname)}"] = f"Đã xáo lại {_n} video."
+                st.rerun()
+            _pm = st.session_state.pop(f"pomsg_{slug(chname)}", None)
+            if _pm:
+                st.success(_pm)
             r1 = st.columns(5)
             r1[4].button("Đánh dấu đã kiểm tra", key=f"rv_{slug(chname)}", disabled=not sel_ids,
                          on_click=lambda ids=sel_ids: _bulk(ids, reviewed=1),

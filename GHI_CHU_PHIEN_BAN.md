@@ -1,6 +1,10 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.10.8
+- **Thứ tự đăng** (theo thư mục / xen kẽ sản phẩm / ngẫu nhiên) chuyển vào khung **Thao tác hàng loạt** cho dễ thấy. Đổi là tool **xếp lại ngay** các video chờ duyệt (giữ nguyên các khung giờ, chỉ đổi video nào đăng giờ nào), không cần bấm Xếp lịch. Chế độ ngẫu nhiên có nút **Xáo lại**.
+- Sửa chế độ ngẫu nhiên đôi khi để 2 video cùng sản phẩm liền nhau ở cuối lịch: nay không bao giờ liền nhau (trừ khi 1 sản phẩm chiếm quá nửa số video, không thể xen kẽ hết).
+
 ## 2.10.7
 - Bảng **Xếp lịch tự động** hiện thêm số video **đã hẹn sẵn** trong từng ngày (và giờ của chúng), cột **Tổng / ngày** so với số video/ngày đã đặt. Trước đây bảng chỉ hiện video mới nên nhìn tưởng tool tách sai ngày (số video/ngày luôn tính cả video đã hẹn sẵn trên TikTok).
 

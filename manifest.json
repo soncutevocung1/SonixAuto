@@ -1,7 +1,7 @@
 {
- "version": "2.10.7",
- "built_at": "2026-11-19T08:13:30Z",
- "notes": "- Bảng **Xếp lịch tự động** hiện thêm số video **đã hẹn sẵn** trong từng ngày (và giờ của chúng), cột **Tổng / ngày** so với số video/ngày đã đặt. Trước đây bảng chỉ hiện video mới nên nhìn tưởng tool tách sai ngày (số video/ngày luôn tính cả video đã hẹn sẵn trên TikTok).",
+ "version": "2.10.8",
+ "built_at": "2026-11-19T08:46:19Z",
+ "notes": "- **Thứ tự đăng** (theo thư mục / xen kẽ sản phẩm / ngẫu nhiên) chuyển vào khung **Thao tác hàng loạt** cho dễ thấy. Đổi là tool **xếp lại ngay** các video chờ duyệt (giữ nguyên các khung giờ, chỉ đổi video nào đăng giờ nào), không cần bấm Xếp lịch. Chế độ ngẫu nhiên có nút **Xáo lại**.\n- Sửa chế độ ngẫu nhiên đôi khi để 2 video cùng sản phẩm liền nhau ở cuối lịch: nay không bao giờ liền nhau (trừ khi 1 sản phẩm chiếm quá nửa số video, không thể xen kẽ hết).",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "1906532ff659db32e1735f1aab9ea0926057d1f990017d2ee6c60234d1a689e2",
-   "size": 38798
+   "sha256": "add4e827d0ad83da206b1116ef5ed2aed7fe1042c6020913f60bc0d142225ca9",
+   "size": 39406
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,13 +65,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "b7d8bf80ddd8f3e9f14b9f7a22176a8cfb261c492a3184342c67de263227ab8c",
+   "sha256": "062bb3959d7c69ccae534cb207d0cc4cf159631cda31e4914262a240a2dd5be8",
    "size": 7
   },
   {
    "path": "app.py",
-   "sha256": "93dc8e8019e1874f321443e7e190f47867b86c298f8fb7c03f9ef8a9e9459fee",
-   "size": 124452
+   "sha256": "1413d106130e8e2ae1a64bbd50b31521a179f394252a4094794ec46c2c27f579",
+   "size": 126039
   },
   {
    "path": "assets/sonix.ico",
@@ -260,8 +260,8 @@
   },
   {
    "path": "core/schedule.py",
-   "sha256": "93bc795f4ce0e567ff8458b2f4866688f37382059d6779dabd835bbb7f75fcf6",
-   "size": 3985
+   "sha256": "bae293d293257c5352786fb60374a7abad4a51c15ece176a4fe36a5e1d0388d8",
+   "size": 4282
   },
   {
    "path": "core/sounds.py",

@@ -96,8 +96,13 @@ def order_jobs(jobs, mode="folder", seed=None) -> list:
         # lấy nhóm còn nhiều video nhất (khác sản phẩm vừa đăng) -> trải đều; ngẫu nhiên thì chọn bừa trong các nhóm hợp lệ
         ok = [k for k, g in groups.items() if g and k != last] or [k for k, g in groups.items() if g]
         if mode == "random":
-            weights = [len(groups[k]) for k in ok]
-            k = rnd.choices(ok, weights=weights)[0]
+            left = sum(len(g) for g in groups.values())
+            big = max(ok, key=lambda x: len(groups[x]))
+            if len(groups[big]) * 2 >= left:  # nhóm đông quá nửa: phải lấy nó trước kẻo cuối cùng bị liền nhau
+                k = big
+            else:
+                weights = [len(groups[k]) for k in ok]
+                k = rnd.choices(ok, weights=weights)[0]
         else:
             k = max(ok, key=lambda x: (len(groups[x]), -list(groups).index(x)))
         out.append(groups[k].pop(0))
