@@ -1,6 +1,11 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.10.9 · Edit Video: 1 kênh chung, bỏ file đếm số
+- **Kênh nhận video** ở Edit Video (Reup Aff) giờ là **1 kênh chung cho mọi sản phẩm**. Trước đây app nhớ kênh riêng từng sản phẩm, nên đổi từ Kích rễ sang Đạm cá là lặng lẽ đổi sang kênh khác (vd đang Sơn Phân Thuốc nhảy sang Mai Vàng Farm).
+- Video làm trong cùng ngày luôn vào chung `CHƯA UP\<ngày>` của kênh, đánh số nối tiếp (01, 02... rồi 06, 07...), dù làm nhiều lần, nhiều sản phẩm.
+- Bỏ file đếm số `.sonix_so_thu_tu` trong thư mục ngày. Số tiếp theo tính từ video đang có trong thư mục + lịch sử đăng (video đã đăng chuyển sang ĐÃ UP vẫn không bị trùng số).
+
 ## 2.10.8
 - **Thứ tự đăng** (theo thư mục / xen kẽ sản phẩm / ngẫu nhiên) chuyển vào khung **Thao tác hàng loạt** cho dễ thấy. Đổi là tool **xếp lại ngay** các video chờ duyệt (giữ nguyên các khung giờ, chỉ đổi video nào đăng giờ nào), không cần bấm Xếp lịch. Chế độ ngẫu nhiên có nút **Xáo lại**.
 - Sửa chế độ ngẫu nhiên đôi khi để 2 video cùng sản phẩm liền nhau ở cuối lịch: nay không bao giờ liền nhau (trừ khi 1 sản phẩm chiếm quá nửa số video, không thể xen kẽ hết).

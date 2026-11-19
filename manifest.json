@@ -1,7 +1,7 @@
 {
- "version": "2.10.8",
- "built_at": "2026-11-19T08:46:19Z",
- "notes": "- **Thứ tự đăng** (theo thư mục / xen kẽ sản phẩm / ngẫu nhiên) chuyển vào khung **Thao tác hàng loạt** cho dễ thấy. Đổi là tool **xếp lại ngay** các video chờ duyệt (giữ nguyên các khung giờ, chỉ đổi video nào đăng giờ nào), không cần bấm Xếp lịch. Chế độ ngẫu nhiên có nút **Xáo lại**.\n- Sửa chế độ ngẫu nhiên đôi khi để 2 video cùng sản phẩm liền nhau ở cuối lịch: nay không bao giờ liền nhau (trừ khi 1 sản phẩm chiếm quá nửa số video, không thể xen kẽ hết).",
+ "version": "2.10.9",
+ "built_at": "2026-11-19T09:11:06Z",
+ "notes": "- **Kênh nhận video** ở Edit Video (Reup Aff) giờ là **1 kênh chung cho mọi sản phẩm**. Trước đây app nhớ kênh riêng từng sản phẩm, nên đổi từ Kích rễ sang Đạm cá là lặng lẽ đổi sang kênh khác (vd đang Sơn Phân Thuốc nhảy sang Mai Vàng Farm).\n- Video làm trong cùng ngày luôn vào chung `CHƯA UP\\<ngày>` của kênh, đánh số nối tiếp (01, 02... rồi 06, 07...), dù làm nhiều lần, nhiều sản phẩm.\n- Bỏ file đếm số `.sonix_so_thu_tu` trong thư mục ngày. Số tiếp theo tính từ video đang có trong thư mục + lịch sử đăng (video đã đăng chuyển sang ĐÃ UP vẫn không bị trùng số).",
  "files": [
   {
    "path": ".gitattributes",
@@ -37,36 +37,6 @@
    "path": "4_TAO_BIEU_TUONG_APP.bat",
    "sha256": "39312738cb0cd3902679f8125bd0e1b14648373187f47f529b37ab482aeb75c8",
    "size": 415
-  },
-  {
-   "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "add4e827d0ad83da206b1116ef5ed2aed7fe1042c6020913f60bc0d142225ca9",
-   "size": 39406
-  },
-  {
-   "path": "HUONG_DAN.md",
-   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
-   "size": 16971
-  },
-  {
-   "path": "KE_HOACH_EDIT_VIDEO.md",
-   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
-   "size": 9720
-  },
-  {
-   "path": "Sonix Auto.exe",
-   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
-   "size": 224256
-  },
-  {
-   "path": "SonixDangVideo.pyw",
-   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
-   "size": 3327
-  },
-  {
-   "path": "VERSION",
-   "sha256": "062bb3959d7c69ccae534cb207d0cc4cf159631cda31e4914262a240a2dd5be8",
-   "size": 7
   },
   {
    "path": "app.py",
@@ -344,6 +314,21 @@
    "size": 879
   },
   {
+   "path": "GHI_CHU_PHIEN_BAN.md",
+   "sha256": "3924178ac418577928a7edbb1b317d7296681c0b460eea54767462d9bf2d0586",
+   "size": 40493
+  },
+  {
+   "path": "HUONG_DAN.md",
+   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
+   "size": 16971
+  },
+  {
+   "path": "KE_HOACH_EDIT_VIDEO.md",
+   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
+   "size": 9720
+  },
+  {
    "path": "mo_tool_mac.sh",
    "sha256": "cca941d7dc0f9085e074de3fcedfa45b19a14debc919921b1854e0643f89f93e",
    "size": 248
@@ -359,9 +344,24 @@
    "size": 29638
   },
   {
+   "path": "Sonix Auto.exe",
+   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
+   "size": 224256
+  },
+  {
+   "path": "SonixDangVideo.pyw",
+   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
+   "size": 3327
+  },
+  {
    "path": "tao_manifest.py",
    "sha256": "6dcb33c88afa4b4cf0d916e2406cba216f992dc783c3a3f31b05b598c3e01365",
    "size": 1803
+  },
+  {
+   "path": "VERSION",
+   "sha256": "8b4778f5d22070dbeb3c38ac3f46ed7fe43d3bccf6639a8c62fd80f2cafd9716",
+   "size": 8
   }
  ]
 }
