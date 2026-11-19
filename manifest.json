@@ -1,7 +1,7 @@
 {
- "version": "2.10.6",
- "built_at": "2026-11-19T02:42:47Z",
- "notes": "- Kênh **không đồng bộ được âm thanh Yêu thích** (báo lỗi #1119093737, kênh Trinh đạm cá): TikTok Studio trên web chỉ hiện nhạc thương mại với tài khoản doanh nghiệp **và cả tài khoản cá nhân có bán hàng / trưng bày sản phẩm**, âm thanh gốc đã lưu bị ẩn. Câu báo lỗi giờ nói đúng và chỉ cách dùng. Tab Nhạc nền có nút **Cho kênh khác mượn tất cả** (bấm 1 lần cho cả kênh có âm thanh), kênh trống được mượn âm thanh đúng sản phẩm, ghép vào video và tắt âm gốc.",
+ "version": "2.10.7",
+ "built_at": "2026-11-19T08:13:30Z",
+ "notes": "- Bảng **Xếp lịch tự động** hiện thêm số video **đã hẹn sẵn** trong từng ngày (và giờ của chúng), cột **Tổng / ngày** so với số video/ngày đã đặt. Trước đây bảng chỉ hiện video mới nên nhìn tưởng tool tách sai ngày (số video/ngày luôn tính cả video đã hẹn sẵn trên TikTok).",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "1df0c63b127cc1d9bc300c3220ac93f238bde14c39c2f4ca3aaa8f26f8265410",
-   "size": 38433
+   "sha256": "1906532ff659db32e1735f1aab9ea0926057d1f990017d2ee6c60234d1a689e2",
+   "size": 38798
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,13 +65,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "636560ae8c602189ca54286e1d4d9a9c35d2df90cfd65d5e3ac6d8973377f41e",
+   "sha256": "b7d8bf80ddd8f3e9f14b9f7a22176a8cfb261c492a3184342c67de263227ab8c",
    "size": 7
   },
   {
    "path": "app.py",
-   "sha256": "b6b4e8fc2bd8ca7acfcad5e3e0c7def0f01ba24be32369988bab0ce499106ca9",
-   "size": 123408
+   "sha256": "93dc8e8019e1874f321443e7e190f47867b86c298f8fb7c03f9ef8a9e9459fee",
+   "size": 124452
   },
   {
    "path": "assets/sonix.ico",

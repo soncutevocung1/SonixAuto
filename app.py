@@ -984,9 +984,23 @@ for _ in _show(tabs[1]):
                     d, t = j["scheduled_at"].split(" ")
                     rows.setdefault(d, []).append(t + (" (giờ vàng)" if golden_tag(j["scheduled_at"]) else ""))
             if rows:
-                st.dataframe(pd.DataFrame([{"Ngày": datetime.strptime(d, "%Y-%m-%d").strftime("%d/%m"),
-                                            "Số video": len(v), "Giờ đăng": "  ·  ".join(sorted(v))}
-                                           for d, v in sorted(rows.items())]), hide_index=True, width="stretch")
+                _ids = {j["id"] for j in jobs}
+                _da = {}  # video ĐÃ hẹn / chờ đăng trong cùng ngày (cũng tính vào số video/ngày)
+                for _j in db.list_jobs(["pending", "running", "scheduled", "done", "paused"], "tiktok", chname):
+                    if _j["id"] not in _ids and _j.get("scheduled_at", "")[:10] in rows:
+                        _da.setdefault(_j["scheduled_at"][:10], []).append(_j["scheduled_at"][11:])
+                _pd = int(channel_plan(S, chname).get("per_day", 4))
+                st.dataframe(pd.DataFrame([{
+                    "Ngày": datetime.strptime(d, "%Y-%m-%d").strftime("%d/%m"),
+                    "Video mới": len(v),
+                    "Đã hẹn sẵn": len(_da.get(d, [])),
+                    "Tổng / ngày": f"{len(v) + len(_da.get(d, []))}/{_pd}",
+                    "Giờ đăng (video mới)": "  ·  ".join(sorted(v)),
+                    "Giờ đã hẹn sẵn": "  ·  ".join(sorted(_da.get(d, [])))}
+                    for d, v in sorted(rows.items())]), hide_index=True, width="stretch")
+                if _da:
+                    st.caption(f"Số video/ngày ({_pd}) tính cả video đã hẹn sẵn trên TikTok. Muốn dồn hết video mới vào "
+                               f"ngày đầu thì tăng 'Số video/ngày' rồi bấm Xếp lịch lại.")
 
         # ----- Thao tác hàng loạt -----
         def _sel_all(js=jobs, v=True):

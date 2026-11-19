@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.10.7
+- Bảng **Xếp lịch tự động** hiện thêm số video **đã hẹn sẵn** trong từng ngày (và giờ của chúng), cột **Tổng / ngày** so với số video/ngày đã đặt. Trước đây bảng chỉ hiện video mới nên nhìn tưởng tool tách sai ngày (số video/ngày luôn tính cả video đã hẹn sẵn trên TikTok).
+
 ## 2.10.6
 - Kênh **không đồng bộ được âm thanh Yêu thích** (báo lỗi #1119093737, kênh Trinh đạm cá): TikTok Studio trên web chỉ hiện nhạc thương mại với tài khoản doanh nghiệp **và cả tài khoản cá nhân có bán hàng / trưng bày sản phẩm**, âm thanh gốc đã lưu bị ẩn. Câu báo lỗi giờ nói đúng và chỉ cách dùng. Tab Nhạc nền có nút **Cho kênh khác mượn tất cả** (bấm 1 lần cho cả kênh có âm thanh), kênh trống được mượn âm thanh đúng sản phẩm, ghép vào video và tắt âm gốc.
 
