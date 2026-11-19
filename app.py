@@ -1580,6 +1580,28 @@ video sẽ lấy đúng âm thanh của sản phẩm đó và tắt âm gốc. N
                                    x, "Sản phẩm: " + ITEMS.get(x, {}).get("name", x)))
             if not favs_c:
                 st.caption("Chưa có. Bấm Đồng bộ Yêu thích.")
+                _lend = [c2["name"] for c2 in S.get("channels", []) if c2["name"] != cn
+                         and any(f.get("file") for f in snd.load_favs(c2["name"]))]
+                if _lend:
+                    st.info("Kênh này không có âm thanh Yêu thích (TikTok giấu với tài khoản doanh nghiệp / có bán hàng). "
+                            "Tool sẽ **mượn âm thanh đúng sản phẩm của kênh khác** (ghép vào video, tắt âm gốc) nếu kênh "
+                            "đó cho mượn: mở kênh " + ", ".join(f"**{x}**" for x in _lend)
+                            + " bên dưới, bấm **Cho kênh khác mượn tất cả**.")
+            elif any(f.get("file") for f in favs_c):
+                _nsh = sum(1 for f in favs_c if f.get("file") and snd.is_shared(f, S))
+                sh1, sh2 = st.columns([1.5, 3])
+                if sh1.button("Cho kênh khác mượn tất cả", key=f"fshall_{slug(cn)}",
+                              help="Kênh không có âm thanh Yêu thích riêng (doanh nghiệp / có bán hàng) sẽ mượn âm thanh "
+                                   "đúng sản phẩm của kênh này. Chỉ bấm khi các âm thanh là của mình / được phép dùng."):
+                    favs_all = snd.load_favs(cn)
+                    for f in favs_all:
+                        if not f.get("skip"):
+                            f["share"] = True
+                    snd.save_favs(cn, favs_all)
+                    for i_f, f in enumerate(favs_all):  # ô tick từng bài hiện đúng sau khi bấm
+                        st.session_state.pop(f"fshare_{slug(cn)}_{f.get('id') or f'i{i_f}'}", None)
+                    st.rerun()
+                sh2.caption(f"{_nsh}/{sum(1 for f in favs_c if f.get('file'))} âm thanh đang cho kênh khác mượn.")
             n_old = sum(1 for f in favs_c if not f.get("id"))
             if n_old:
                 st.warning(f"{n_old} âm thanh từ lần đồng bộ cũ chưa có mã số nên chưa nghe thử được và lúc đăng dễ chọn "

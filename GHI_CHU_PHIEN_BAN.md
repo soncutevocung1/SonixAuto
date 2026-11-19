@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.10.6
+- Kênh **không đồng bộ được âm thanh Yêu thích** (báo lỗi #1119093737, kênh Trinh đạm cá): TikTok Studio trên web chỉ hiện nhạc thương mại với tài khoản doanh nghiệp **và cả tài khoản cá nhân có bán hàng / trưng bày sản phẩm**, âm thanh gốc đã lưu bị ẩn. Câu báo lỗi giờ nói đúng và chỉ cách dùng. Tab Nhạc nền có nút **Cho kênh khác mượn tất cả** (bấm 1 lần cho cả kênh có âm thanh), kênh trống được mượn âm thanh đúng sản phẩm, ghép vào video và tắt âm gốc.
+
 ## 2.10.5
 - **Chrome của kênh chạy ẩn khi đăng**: tới lượt đăng mà cửa sổ Chrome của kênh chưa mở, tool mở Chrome **chạy ẩn** (không hiện lên màn hình, không giành chuột/bàn phím), đăng xong vẫn để chạy ẩn cho lần sau nhanh. Bấm **Mở Chrome của kênh** hoặc **Đăng nhập TikTok** thì tool tắt bản ẩn và mở cửa sổ hiện lên để bác thao tác. Muốn xem tool đăng thì bật **Hiện trình duyệt khi đăng** ở tab Hàng chờ. Cửa sổ bác đang mở sẵn thì tool vẫn dùng cửa sổ đó.
 

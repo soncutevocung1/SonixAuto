@@ -1,7 +1,7 @@
 {
- "version": "2.10.5",
- "built_at": "2026-11-18T11:45:21Z",
- "notes": "- **Chrome của kênh chạy ẩn khi đăng**: tới lượt đăng mà cửa sổ Chrome của kênh chưa mở, tool mở Chrome **chạy ẩn** (không hiện lên màn hình, không giành chuột/bàn phím), đăng xong vẫn để chạy ẩn cho lần sau nhanh. Bấm **Mở Chrome của kênh** hoặc **Đăng nhập TikTok** thì tool tắt bản ẩn và mở cửa sổ hiện lên để bác thao tác. Muốn xem tool đăng thì bật **Hiện trình duyệt khi đăng** ở tab Hàng chờ. Cửa sổ bác đang mở sẵn thì tool vẫn dùng cửa sổ đó.",
+ "version": "2.10.6",
+ "built_at": "2026-11-19T02:42:47Z",
+ "notes": "- Kênh **không đồng bộ được âm thanh Yêu thích** (báo lỗi #1119093737, kênh Trinh đạm cá): TikTok Studio trên web chỉ hiện nhạc thương mại với tài khoản doanh nghiệp **và cả tài khoản cá nhân có bán hàng / trưng bày sản phẩm**, âm thanh gốc đã lưu bị ẩn. Câu báo lỗi giờ nói đúng và chỉ cách dùng. Tab Nhạc nền có nút **Cho kênh khác mượn tất cả** (bấm 1 lần cho cả kênh có âm thanh), kênh trống được mượn âm thanh đúng sản phẩm, ghép vào video và tắt âm gốc.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "5150d3a384df193c0f661a04db9ac190400aadccb5ac76fd7f02f8af10a91a09",
-   "size": 37832
+   "sha256": "1df0c63b127cc1d9bc300c3220ac93f238bde14c39c2f4ca3aaa8f26f8265410",
+   "size": 38433
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,13 +65,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "276bd0e1caf1e58a4f15684e139166c8992a425187e9b89becf1ac21726847e6",
+   "sha256": "636560ae8c602189ca54286e1d4d9a9c35d2df90cfd65d5e3ac6d8973377f41e",
    "size": 7
   },
   {
    "path": "app.py",
-   "sha256": "37c912d257848d955233174c679287caaa0bbe66a8d55f88109df2efe0c9959c",
-   "size": 121567
+   "sha256": "b6b4e8fc2bd8ca7acfcad5e3e0c7def0f01ba24be32369988bab0ce499106ca9",
+   "size": 123408
   },
   {
    "path": "assets/sonix.ico",
@@ -295,8 +295,8 @@
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "0426df80445293df0bd3c8d818a1612c87036b2069ad1720428670fa6731ca5a",
-   "size": 83047
+   "sha256": "406a54e3bbdc9df621f51191b60948aab22c37fdfc1f147d6fdde02854713c1d",
+   "size": 83462
   },
   {
    "path": "core/ui.py",
