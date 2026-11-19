@@ -207,6 +207,11 @@ def run_tiktok(job, settings):
     db.update_job(job["id"], status=status, result=note)
     stats.record("hen_gio", job)
     log(f"  ✔ {db.STATUS_LABELS.get(status)}: {note} → đã chuyển vào {FOLDER_DONE}")
+    try:  # lịch có thể vừa bị xếp lại trong lúc đẩy video này lên -> ngày nào dư thì dời video dư đi
+        from core import lich
+        lich.can_bang(settings, job["channel"], log=log)
+    except Exception as e:
+        log(f"  (chưa cân lại lịch được: {e})")
     if tmp and tmp.exists():
         tmp.unlink()
     if status == "check":

@@ -81,6 +81,35 @@ def lap_tat_ca(settings, log=None) -> int:
                if c.get("enabled", True))
 
 
+def can_bang(settings, channel, log=None) -> int:
+    """Ngày nào dư video so với số video/ngày đã đặt (vd vừa xếp lại lịch đúng lúc 1 video đang được đẩy lên TikTok
+    với giờ cũ) -> dời video dư CHƯA lên TikTok (chờ duyệt / chờ đăng / tạm dừng) sang khung trống kế tiếp.
+    Video đã hẹn giờ trên TikTok giữ nguyên. Trả về số video đã dời."""
+    if post_now(settings, channel):
+        return 0
+    per = int(channel_plan(settings, channel).get("per_day", 4))
+    soon = datetime.now() + timedelta(minutes=30)
+    tat_ca = _jobs(channel, ("draft", "pending", "running", "scheduled", "done", "paused"))
+    theo_ngay = {}
+    for j in tat_ca:
+        t = _dt(j["scheduled_at"])
+        if t and t.date() >= datetime.now().date():
+            theo_ngay.setdefault(t.date(), []).append(j)
+    du = []
+    for d, js in theo_ngay.items():
+        if len(js) <= per:
+            continue
+        doi_duoc = sorted([j for j in js if j["status"] in ("draft", "pending", "paused")
+                           and (_dt(j["scheduled_at"]) or soon) > soon], key=lambda j: j["scheduled_at"], reverse=True)
+        du += doi_duoc[:len(js) - per]
+    if not du:
+        return 0
+    n = doi_khung_sau(settings, [j["id"] for j in du], giu_tam_dung=True)
+    if n and log:
+        log(f"  · Kênh «{channel}»: {n} video dư so với {per} video/ngày → dời sang khung giờ trống")
+    return n
+
+
 # ------------------------------- lỡ giờ -------------------------------
 def is_late(job, now=None) -> bool:
     t = _dt(job.get("scheduled_at") or "")

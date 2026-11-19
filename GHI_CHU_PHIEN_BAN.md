@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.10.12 · Lịch đăng không còn ngày dư / ngày thiếu
+- Sửa lỗi lịch có ngày **dư 1 video, ngày khác thiếu 1 video**: xảy ra khi bác bấm xếp lại lịch đúng lúc bộ đăng đang đẩy 1 video lên TikTok với giờ cũ (vd 11:30 giờ vàng của cài đặt cũ). Nay mỗi lần hẹn giờ xong 1 video, tool tự kiểm tra: ngày nào dư so với số video/ngày đã đặt thì dời video dư (chưa lên TikTok) sang khung giờ trống kế tiếp. Video đã hẹn trên TikTok giữ nguyên.
+
 ## 2.10.11 · Sửa lỗi AI không nhận được sản phẩm
 - Sửa lỗi **"AI lỗi (NameError: name 'sys' is not defined) → dùng cách dự phòng"** làm video không gắn được sản phẩm / giỏ hàng. Nguyên nhân: mỗi khi có file trong thư mục app thay đổi (cập nhật tự động, sửa code), giao diện tự nạp lại code và gỡ nhầm cả phần lõi của Python đi kèm, nên lần AI phân tích sau bị hỏng. Nay tắt việc tự nạp lại này (cập nhật xong app vẫn tự khởi động lại như cũ).
 - Video đã bị lỗi này: bấm **Phân tích lại** (hoặc chọn sản phẩm tay) sau khi app khởi động lại.

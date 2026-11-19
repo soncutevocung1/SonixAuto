@@ -1,7 +1,7 @@
 {
- "version": "2.10.11",
- "built_at": "2026-11-19T09:18:27Z",
- "notes": "- Sửa lỗi **\"AI lỗi (NameError: name 'sys' is not defined) → dùng cách dự phòng\"** làm video không gắn được sản phẩm / giỏ hàng. Nguyên nhân: mỗi khi có file trong thư mục app thay đổi (cập nhật tự động, sửa code), giao diện tự nạp lại code và gỡ nhầm cả phần lõi của Python đi kèm, nên lần AI phân tích sau bị hỏng. Nay tắt việc tự nạp lại này (cập nhật xong app vẫn tự khởi động lại như cũ).\n- Video đã bị lỗi này: bấm **Phân tích lại** (hoặc chọn sản phẩm tay) sau khi app khởi động lại.",
+ "version": "2.10.12",
+ "built_at": "2026-11-19T09:35:42Z",
+ "notes": "- Sửa lỗi lịch có ngày **dư 1 video, ngày khác thiếu 1 video**: xảy ra khi bác bấm xếp lại lịch đúng lúc bộ đăng đang đẩy 1 video lên TikTok với giờ cũ (vd 11:30 giờ vàng của cài đặt cũ). Nay mỗi lần hẹn giờ xong 1 video, tool tự kiểm tra: ngày nào dư so với số video/ngày đã đặt thì dời video dư (chưa lên TikTok) sang khung giờ trống kế tiếp. Video đã hẹn trên TikTok giữ nguyên.",
  "files": [
   {
    "path": ".gitattributes",
@@ -185,8 +185,8 @@
   },
   {
    "path": "core/lich.py",
-   "sha256": "2e28f61598218b69c42ee5938879e961b865ef1c006748a6eb3c92c21c6c1091",
-   "size": 6160
+   "sha256": "ac09d1d5ecf180fc29685804f12f390f4a038daf0b20982fd50695508b5ab23a",
+   "size": 7790
   },
   {
    "path": "core/loc_sp.py",
@@ -315,8 +315,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "ca35e0edb5e7c1ad08d3059ff35b0f920aeda2553f8c7c56361e4a0c126ca119",
-   "size": 41192
+   "sha256": "ef8062404a7dc15f3338f31775dd0c16568e6e25539413e99af0d53115460dcd",
+   "size": 41742
   },
   {
    "path": "HUONG_DAN.md",
@@ -340,8 +340,8 @@
   },
   {
    "path": "runner.py",
-   "sha256": "6b3addb666db945fd1e8cc748b6aa310e7d087be2f13654439de77fa06b8f805",
-   "size": 29638
+   "sha256": "8dc2514bafa50d63227136d759749445fa9026255b043240e0c354e7cf53b93b",
+   "size": 30558
   },
   {
    "path": "Sonix Auto.exe",
@@ -360,7 +360,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "cb6996ae5325224278540ff06bca91f513add9f24568e22d34d3d5dc22ccda33",
+   "sha256": "19be06ef5965c7ca49146378bfb127a6e448062d50630c7fa2959e277c2b47e5",
    "size": 9
   }
  ]
