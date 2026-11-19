@@ -2,8 +2,9 @@
 cùng sản phẩm (tua nhanh 2x, tắt tiếng) làm minh hoạ, rồi xuất thẳng mp4 1080p bằng ffmpeg (không cần CapCut).
 
 - Âm thanh: giữ tiếng gốc video xoay (Sonix Up Video tự thêm âm thanh yêu thích khi đăng).
-- Đoạn chèn: 4-5 đoạn x 2 giây, ~2/3 che hết khung, ~1/3 hiện khung nhỏ góc trên; không chèn 1,5 giây đầu
-  (giữ cảnh sản phẩm làm mồi) và 2 giây cuối.
+- Đoạn chèn: 4-5 đoạn x 2 giây (tua nhanh 2x, tắt tiếng), ~2/3 che hết khung, ~1/3 hiện khung nhỏ góc trên;
+  không chèn 1,5 giây đầu (giữ cảnh sản phẩm làm mồi) và 2 giây cuối. Ưu tiên cảnh sử dụng (phun, tưới, rót, pha).
+- Không chèn lẻ cảnh có người; đủ 4 video có người thì ghép 1 khung chia 4 ô (nhiều người dùng trong 1 khung).
 - Cảnh chèn lấy từ chỉ mục cảnh đã quét của sản phẩm (đã bỏ cảnh có người, chữ chèn, sản phẩm khác...),
   ưu tiên cảnh cách dùng / kết quả trên cây, mỗi đoạn 1 video khác nhau, không lặp lại trong cùng đợt.
 - Sản phẩm của video xoay: tên file -> chữ trên nhãn -> AI (core/loc_sp.py), nhớ trong data/edit/xoay.json.
@@ -95,24 +96,41 @@ def san_pham_cua(f: Path, S: dict, log=print) -> str:
     return d["sp"][k]
 
 
-def chon_chen(sp: str, n: int, dung: set, seed=None) -> list:
-    """n đoạn chèn [(path, giây bắt đầu, số giây trên video)] từ cảnh đã quét của sản phẩm."""
+def chon_chen(sp: str, n: int, dung: set, seed=None, luoi: bool = True) -> list:
+    """n đoạn chèn từ cảnh đã quét của sản phẩm. Mỗi đoạn: (path, giây bắt đầu, số giây trên video) hoặc
+    {'luoi': [4 x (path, giây bắt đầu, số giây)]} = 1 khung chia 4 ô, mỗi ô 1 người dùng (cảnh có người KHÔNG chèn
+    lẻ, chỉ chèn kiểu nhiều người trong 1 khung). Ưu tiên cảnh sử dụng: phun, tưới, rót, pha."""
     from . import canh
     rnd = random.Random(seed)
     idx = canh.doc_index(sp)
     kho = {"ket_qua": [], "su_dung": [], "san_pham": []}
+    nguoi = []
     can = 3.0  # đoạn nguồn tối thiểu (giây gốc); chèn = min(2 giây, đoạn nguồn / 2x)
     for k, v in idx.items():
         if not Path(k).exists():
             continue
         for d in v["doan"]:
+            if d["e"] - d["s"] < can or (k, d["s"]) in dung:
+                continue
+            g = round(min(DAI_CHEN, (d["e"] - d["s"] - 0.1) / TOC), 2)
             l = d.get("loai") or ("san_pham" if d.get("sp") else "ket_qua")
-            if canh.dung_duoc(d) and l in kho and d["e"] - d["s"] >= can and (k, d["s"]) not in dung:
-                kho[l].append((k, d["s"], round(min(DAI_CHEN, (d["e"] - d["s"] - 0.1) / TOC), 2)))
+            if canh.dung_duoc(d) and l in kho:
+                kho[l].append((k, d["s"], g))
+            elif canh.co_nguoi(d):
+                nguoi.append((k, d["s"], g))
+    # Chỉ lấy cảnh AI đã xem (máy dò sơ hay sót người / khung bình luận chèn chữ); ít quá mới dùng cảnh chưa xem
+    ai_xem = {(k, d["s"]) for k, v in idx.items() for d in v["doan"] if "ai_nguoi" in d}
+    for l in kho:
+        chac = [x for x in kho[l] if (x[0], x[1]) in ai_xem]
+        if len(chac) >= 3:
+            kho[l] = chac
+    chac = [x for x in nguoi if (x[0], x[1]) in ai_xem]
+    nguoi = chac if len(chac) >= 4 else nguoi
     for l in kho:
         rnd.shuffle(kho[l])
-    # xen kẽ: kết quả, cách dùng, kết quả, sản phẩm, ... ; mỗi đoạn 1 video khác nhau
-    thu_tu = ["ket_qua", "su_dung", "ket_qua", "san_pham", "su_dung", "ket_qua", "san_pham"]
+    rnd.shuffle(nguoi)
+    # Ưu tiên cảnh sử dụng (phun, tưới, rót, pha), xen kết quả trên cây và sản phẩm; mỗi đoạn 1 video khác nhau
+    thu_tu = ["su_dung", "ket_qua", "su_dung", "san_pham", "su_dung", "ket_qua", "su_dung"]
     out, da_video = [], set()
     i = 0
     while len(out) < n and any(kho.values()) and i < 200:
@@ -125,6 +143,20 @@ def chon_chen(sp: str, n: int, dung: set, seed=None) -> list:
                 dung.add((k, s))
                 kho[l].pop(j)
                 break
+    # 1 khung 4 ô người dùng (4 video khác nhau) thay cho 1 đoạn ở giữa, nếu đủ cảnh có người
+    if luoi and len(out) >= 3:
+        o, seen = [], set()
+        for k, s, g in nguoi:
+            if k not in seen:
+                o.append((k, s, g))
+                seen.add(k)
+            if len(o) == 4:
+                break
+        if len(o) == 4:
+            g = min(x[2] for x in o)
+            for k, s, _ in o:
+                dung.add((k, s))
+            out[len(out) // 2] = {"luoi": [(k, s, g) for k, s, _ in o]}
     return out
 
 
@@ -136,31 +168,56 @@ def vi_tri(dur: float, n: int) -> list:
     return [round(a + (b - a) * i / (n - 1), 2) for i in range(n)]
 
 
+def _tua(i: int, g: float, a: float, w: int, h: int) -> str:
+    """Đầu vào thứ i: tua nhanh TOC lần, cắt đúng g giây, dời tới giây a, phủ kín khung w x h."""
+    return (f"[{i}:v]setpts=(PTS-STARTPTS)/{TOC},fps=30,trim=duration={g},setpts=PTS-STARTPTS+{a}/TB,"
+            f"scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},setsar=1")
+
+
 def dung_video(src: Path, chen: list, out: Path, seed=None) -> Path:
-    """Dựng 1 video: video xoay 1080x1920 + các đoạn chèn (2x, tắt tiếng), giữ tiếng gốc."""
+    """Dựng 1 video: video xoay 1080x1920 + các đoạn chèn (tua nhanh 2x, tắt tiếng), giữ tiếng gốc.
+    Đoạn chèn {'luoi': [...]} = khung chia 4 ô (2 x 2) người dùng, che hết khung."""
     rnd = random.Random(seed)
     dur = probe(str(src))["duration"]
     pos = vi_tri(dur, len(chen))
-    # khoảng 2/3 che hết khung, 1/3 khung nhỏ; không để 2 khung nhỏ liền nhau
+    # khoảng 2/3 che hết khung, 1/3 khung nhỏ; không để 2 khung nhỏ liền nhau; khung 4 ô luôn che hết
     kieu = []
-    for i in range(len(chen)):
-        nho = rnd.random() < 0.34 and (not kieu or kieu[-1] != "nho")
+    for c in chen:
+        nho = not isinstance(c, dict) and rnd.random() < 0.34 and (not kieu or kieu[-1] != "nho")
         kieu.append("nho" if nho else "full")
-    if "nho" not in kieu and len(chen) >= 3:
-        kieu[len(chen) // 2] = "nho"
+    le = [i for i, c in enumerate(chen) if not isinstance(c, dict)]
+    if "nho" not in kieu and len(chen) >= 3 and le:
+        kieu[min(le, key=lambda i: abs(i - len(chen) // 2))] = "nho"
     args = [_ffmpeg(), "-hide_banner", "-loglevel", "error", "-y", "-i", str(src)]
-    for p, s, g in chen:
-        args += ["-ss", f"{s:.2f}", "-t", f"{g * TOC + 0.2:.2f}", "-an", "-i", str(p)]
+    vao = 0
+
+    def them(p, s, g):
+        nonlocal vao
+        args.extend(["-ss", f"{s:.2f}", "-t", f"{g * TOC + 0.2:.2f}", "-an", "-i", str(p)])
+        vao += 1
+        return vao
     fl = ["[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1,fps=30[b0]"]
-    for i, ((p, s, g), a, k) in enumerate(zip(chen, pos, kieu), 1):
-        base = (f"[{i}:v]setpts=(PTS-STARTPTS)/{TOC},fps=30,trim=duration={g},setpts=PTS-STARTPTS+{a}/TB,"
-                "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1")
-        if k == "nho":
-            fl.append(base + ",scale=470:-2,pad=iw+12:ih+12:6:6:white" + f"[c{i}]")
-            xy = "x=W-w-40:y=150"
-        else:
-            fl.append(base + f"[c{i}]")
+    for i, (c, a, k) in enumerate(zip(chen, pos, kieu), 1):
+        if isinstance(c, dict):
+            o = c["luoi"]
+            g = min(x[2] for x in o)
+            nhan = []
+            for q, (p, s, _) in enumerate(o):
+                n_ = them(p, s, g)
+                fl.append(_tua(n_, g, a, 540, 960) + f"[o{i}_{q}]")
+                nhan.append(f"[o{i}_{q}]")
+            fl.append("".join(nhan) + f"xstack=inputs=4:layout=0_0|w0_0|0_h0|w0_h0[c{i}]")
             xy = "x=0:y=0"
+        else:
+            p, s, g = c
+            n_ = them(p, s, g)
+            base = _tua(n_, g, a, 1080, 1920)
+            if k == "nho":
+                fl.append(base + ",scale=470:-2,pad=iw+12:ih+12:6:6:white" + f"[c{i}]")
+                xy = "x=W-w-40:y=150"
+            else:
+                fl.append(base + f"[c{i}]")
+                xy = "x=0:y=0"
         fl.append(f"[b{i - 1}][c{i}]overlay={xy}:eof_action=pass:enable='between(t,{a},{a + g})'[b{i}]")
     out.parent.mkdir(parents=True, exist_ok=True)
     args += ["-filter_complex", ";".join(fl), "-map", f"[b{len(chen)}]", "-map", "0:a?",

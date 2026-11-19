@@ -353,6 +353,113 @@ def gan_nhan_ai(sp_key: str, settings: dict, model: str = "", log=print) -> dict
     return idx
 
 
+# ---------- soát lại cảnh "sử dụng" (phun / tưới / rót / pha) ----------
+SOAT_SCHEMA = {
+    "type": "object",
+    "properties": {"canh": {"type": "array", "items": {
+        "type": "object",
+        "properties": {
+            "so": {"type": "integer"},
+            "dung_that": {"type": "boolean", "description": "đang THẬT SỰ rót / đổ sản phẩm ra, pha vào bình / thùng / "
+                                                             "xô / cốc đong, phun hoặc tưới cây"},
+            "loai": {"type": "string", "enum": LOAI, "description": "nếu không phải đang dùng: cảnh này thuộc loại gì"},
+            "nguoi": {"type": "boolean", "description": "thấy mặt / thân người rõ (chỉ bàn tay, cánh tay thì false)"},
+            "sp_khac": {"type": "boolean", "description": "thấy rõ chai / can / gói của sản phẩm KHÁC, kệ nhiều sản phẩm"},
+        },
+        "required": ["so", "dung_that", "loai", "nguoi", "sp_khac"], "additionalProperties": False}}},
+    "required": ["canh"], "additionalProperties": False,
+}
+SOAT_VER = 1
+
+
+def _dai_3(path: str, s: float, e: float, rong: int = 260):
+    """3 khung (đầu, giữa, cuối đoạn) ghép ngang: AI thấy được động tác rót / phun."""
+    import cv2
+    import numpy as np
+    ims = [khung(path, s + (e - s) * x, rong) for x in (0.15, 0.5, 0.85)]
+    ims = [im for im in ims if im is not None]
+    if not ims:
+        return None
+    h = min(im.shape[0] for im in ims)
+    ims = [cv2.resize(im, (int(im.shape[1] * h / im.shape[0]), h)) for im in ims]
+    return np.hstack([cv2.copyMakeBorder(im, 0, 0, 0, 4, cv2.BORDER_CONSTANT, value=(255, 255, 255)) for im in ims])
+
+
+def soat_su_dung(sp_key: str, settings: dict, model: str = "", log=print, lai: bool = False) -> int:
+    """AI xem lại các cảnh đang gắn 'su_dung' (3 khung / cảnh): cảnh không thật sự rót / pha / phun / tưới thì đổi
+    loại; thấy người hoặc sản phẩm khác thì đánh dấu để bỏ. Trả về số cảnh đã sửa."""
+    import cv2
+    import numpy as np
+    from core import analyze, kich_ban
+    from core.config import MODELS, NO_AI
+    model = model or settings.get("ai_model") or NO_AI
+    if model == NO_AI or model not in MODELS:
+        return 0
+    idx = doc_index(sp_key)
+    can = [(k, i) for k, v in idx.items() if Path(k).exists() for i, d in enumerate(v["doan"])
+           if d.get("loai") == "su_dung" and dung_duoc(d) and (lai or d.get("soat_dung", 0) < SOAT_VER)]
+    if not can:
+        return 0
+    sp = kich_ban.SAN_PHAM[sp_key]
+    khac = "; ".join(f"{v['ten']} ({v.get('hinh', '')})" for k_, v in kich_ban.SAN_PHAM.items() if k_ != sp_key)
+    huong_dan = (f"Mỗi hàng là 1 cảnh (3 khung đầu - giữa - cuối) cắt từ video bán {sp['ten']} ({sp.get('hinh', '')}), "
+                 f"số thứ tự ở góc trái. Sản phẩm khác cùng hãng hay lẫn vào: {khac}.\nVới MỖI cảnh cho biết: "
+                 "dung_that = đang THẬT SỰ rót / đổ sản phẩm ra, pha vào bình / thùng / xô / cốc đong, phun thuốc "
+                 "hoặc tưới gốc cây (chỉ cầm chai, chai đứng yên, cận nhãn, kệ hàng, cây đứng yên thì false); "
+                 "nếu false thì loai là san_pham / ket_qua / khac; nguoi = thấy mặt hoặc thân người rõ; "
+                 "sp_khac = thấy rõ sản phẩm khác hoặc kệ nhiều sản phẩm.")
+    log(f"Soát lại {len(can)} cảnh phun / tưới / rót / pha...")
+    tmp = CANH_DIR / "_soat.jpg"
+    sua = 0
+    N = 6
+    for j in range(0, len(can), N):
+        nhom = can[j:j + N]
+        hang = []
+        for n, (k, i) in enumerate(nhom, 1):
+            d = idx[k]["doan"][i]
+            im = _dai_3(k, d["s"], d["e"])
+            if im is None:
+                continue
+            im = cv2.resize(im, (780, int(im.shape[0] * 780 / im.shape[1])))
+            cv2.rectangle(im, (0, 0), (46, 34), (0, 0, 0), -1)
+            cv2.putText(im, str(n), (4, 27), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 255), 2)
+            hang.append((n, (k, i), cv2.copyMakeBorder(im, 0, 6, 0, 0, cv2.BORDER_CONSTANT, value=(255, 255, 255))))
+        if not hang:
+            continue
+        w = max(h[2].shape[1] for h in hang)
+        anh = np.vstack([cv2.copyMakeBorder(h[2], 0, 0, 0, w - h[2].shape[1], cv2.BORDER_CONSTANT,
+                                            value=(255, 255, 255)) for h in hang])
+        cv2.imwrite(str(tmp), anh, [cv2.IMWRITE_JPEG_QUALITY, 85])
+        content = [{"type": "text", "text": huong_dan}, analyze._img(tmp)]
+        try:
+            goi = analyze._gemini if model.startswith("gemini") else analyze._claude
+            r = goi(content, SOAT_SCHEMA, settings, model, system="Bạn kiểm tra cảnh quay video bán phân bón.")
+        except Exception as e:
+            log(f"   AI lỗi: {e}")
+            continue
+        theo_so = {h[0]: h[1] for h in hang}
+        for c in r.get("canh", []):
+            ki = theo_so.get(c.get("so"))
+            if not ki:
+                continue
+            d = idx[ki[0]]["doan"][ki[1]]
+            d["soat_dung"] = SOAT_VER
+            doi = False
+            if not c["dung_that"]:
+                d["loai"] = c["loai"] if c["loai"] != "su_dung" else "san_pham"
+                doi = True
+            if c["nguoi"]:
+                d["ai_nguoi"] = True
+                doi = True
+            if c["sp_khac"]:
+                d["ai_sp_khac"] = True
+                doi = True
+            sua += doi
+        _luu(sp_key, idx)
+        log(f"   {min(j + N, len(can))}/{len(can)} · đã sửa {sua}")
+    return sua
+
+
 # ---------- chọn cảnh ----------
 def _sach(d: dict) -> bool:
     """Không chữ chèn, không ảnh tĩnh/giật, không viền đen, không phải cảnh rác."""

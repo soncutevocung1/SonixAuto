@@ -97,6 +97,7 @@ def main(argv):
             log(f"Quét {len(files)} video (đã quét rồi thì bỏ qua)...")
             canh.quet(sp, files, log=log)
             canh.gan_nhan_ai(sp, S, log=log)
+            canh.soat_su_dung(sp, S, log=log)  # cảnh phun / tưới / rót / pha: AI xem kỹ lại 3 khung
         elif kind in ("lam_video", "hang_loat"):
             from core import edit_video
             cfg = json.loads(Path(argv[2]).read_text(encoding="utf-8"))

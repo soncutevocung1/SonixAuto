@@ -1,7 +1,7 @@
 {
- "version": "2.10.13",
- "built_at": "2026-11-19T09:41:29Z",
- "notes": "- Khi chọn cảnh, tool ưu tiên cảnh **phun, tưới, rót sản phẩm ra, pha vào bình / thùng**: khoảng 45% số cảnh mỗi video (trước đây chỉ 0-3 cảnh / video). Vẫn xen cảnh sản phẩm và kết quả trên cây, không để toàn cảnh pha liền nhau.",
+ "version": "2.10.14",
+ "built_at": "2026-11-19T09:50:41Z",
+ "notes": "- **Lọc lại cảnh phun, tưới, rót, pha**: AI xem kỹ từng cảnh (3 khung đầu - giữa - cuối). Cảnh không thật sự đang rót / pha / phun / tưới (chỉ cầm chai, cận nhãn, kệ hàng...) thì đổi loại; cảnh có người hoặc sản phẩm khác thì bỏ. Quét cảnh video mới cũng tự soát bước này.\n- **Xoay minh họa**: đoạn chèn vẫn tua nhanh 2x, tắt tiếng; nay **ưu tiên cảnh sử dụng** (phun, tưới, rót, pha), **không chèn lẻ cảnh có người**; đủ 4 video có người thì ghép **1 khung chia 4 ô nhiều người dùng**. Chỉ lấy cảnh AI đã xem (tránh lọt người, khung bình luận chèn chữ).",
  "files": [
   {
    "path": ".gitattributes",
@@ -70,8 +70,8 @@
   },
   {
    "path": "core/canh.py",
-   "sha256": "4334f54ecc7d8139dcafa27faa64cb45d56ffc891389aac05a2e9e514d165f9c",
-   "size": 25935
+   "sha256": "e25ebbe1d4b1f650014f342cc2d4c5c93b11ade499e2a823303746493776df37",
+   "size": 31739
   },
   {
    "path": "core/capcut_draft.py",
@@ -135,8 +135,8 @@
   },
   {
    "path": "core/edit_job.py",
-   "sha256": "687c0bb7444d75f87c2f0968e0961fe99bb2e9a9359bb1018c4aeb1ac692d56d",
-   "size": 7115
+   "sha256": "ec2efeabeca8344bb3d04ff71a28b54f82ae479d5bbd850277c779b17db4dbfc",
+   "size": 7402
   },
   {
    "path": "core/edit_ui.py",
@@ -300,8 +300,8 @@
   },
   {
    "path": "core/xoay.py",
-   "sha256": "b32b33d180815c423cf6304593b057aaf19a8b722e2ac93eb1250cc6ac8c6837",
-   "size": 9609
+   "sha256": "d350d145420e8f2bd8336e7482309946dab102b9dd65ab20e9d3494c971d81a3",
+   "size": 12454
   },
   {
    "path": "core/xuat_capcut.py",
@@ -315,8 +315,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "4d4947d6d7dcebc4143d595fa2b8fa7d9642a9fc6e75d7bfff2d3cff831ba12e",
-   "size": 42105
+   "sha256": "9981d9381f853a14369539976578157f70f1705c24075b2aa662b35a6079c19f",
+   "size": 42901
   },
   {
    "path": "HUONG_DAN.md",
@@ -360,7 +360,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "ba0f134432a46e36fa0fbf4bc9e453c37b0094cea5dd9cf61c3556fcb194c072",
+   "sha256": "bdb6aed0c3c2c1b26e21a2bbbc492a636f8ef96813dec61366bbc40028c48ba1",
    "size": 9
   }
  ]

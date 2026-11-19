@@ -1,6 +1,10 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.10.14 · Lọc kỹ cảnh phun / rót / pha + Xoay minh họa chèn đẹp hơn
+- **Lọc lại cảnh phun, tưới, rót, pha**: AI xem kỹ từng cảnh (3 khung đầu - giữa - cuối). Cảnh không thật sự đang rót / pha / phun / tưới (chỉ cầm chai, cận nhãn, kệ hàng...) thì đổi loại; cảnh có người hoặc sản phẩm khác thì bỏ. Quét cảnh video mới cũng tự soát bước này.
+- **Xoay minh họa**: đoạn chèn vẫn tua nhanh 2x, tắt tiếng; nay **ưu tiên cảnh sử dụng** (phun, tưới, rót, pha), **không chèn lẻ cảnh có người**; đủ 4 video có người thì ghép **1 khung chia 4 ô nhiều người dùng**. Chỉ lấy cảnh AI đã xem (tránh lọt người, khung bình luận chèn chữ).
+
 ## 2.10.13 · Reup Aff: nhiều cảnh phun, tưới, rót, pha hơn
 - Khi chọn cảnh, tool ưu tiên cảnh **phun, tưới, rót sản phẩm ra, pha vào bình / thùng**: khoảng 45% số cảnh mỗi video (trước đây chỉ 0-3 cảnh / video). Vẫn xen cảnh sản phẩm và kết quả trên cây, không để toàn cảnh pha liền nhau.
 
