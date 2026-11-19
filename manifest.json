@@ -1,6 +1,6 @@
 {
- "version": "2.10.9",
- "built_at": "2026-11-19T09:11:06Z",
+ "version": "2.10.10",
+ "built_at": "2026-11-19T09:11:31Z",
  "notes": "- **Kênh nhận video** ở Edit Video (Reup Aff) giờ là **1 kênh chung cho mọi sản phẩm**. Trước đây app nhớ kênh riêng từng sản phẩm, nên đổi từ Kích rễ sang Đạm cá là lặng lẽ đổi sang kênh khác (vd đang Sơn Phân Thuốc nhảy sang Mai Vàng Farm).\n- Video làm trong cùng ngày luôn vào chung `CHƯA UP\\<ngày>` của kênh, đánh số nối tiếp (01, 02... rồi 06, 07...), dù làm nhiều lần, nhiều sản phẩm.\n- Bỏ file đếm số `.sonix_so_thu_tu` trong thư mục ngày. Số tiếp theo tính từ video đang có trong thư mục + lịch sử đăng (video đã đăng chuyển sang ĐÃ UP vẫn không bị trùng số).",
  "files": [
   {
@@ -90,8 +90,8 @@
   },
   {
    "path": "core/channels.py",
-   "sha256": "30419c2c6960328d29658ebd92c782f7ba7a5c44a98d9c003854fe6a54c2e2b0",
-   "size": 5324
+   "sha256": "314f8aaadc5926443a216ecdd134de8574c585a3b895d39f803074edddc0b59f",
+   "size": 5929
   },
   {
    "path": "core/chrome_kenh.py",
@@ -140,8 +140,8 @@
   },
   {
    "path": "core/edit_ui.py",
-   "sha256": "ad6e9383a2e923b4ceaa7fc4dd6a018a43c859d1a572eb7333b5a9aa5fb43737",
-   "size": 47764
+   "sha256": "2e06759e30aeb7642bab4fae02c0b817ab0f2c33149b9f038532c18624f0dc69",
+   "size": 47917
   },
   {
    "path": "core/edit_video.py",
@@ -315,8 +315,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "3924178ac418577928a7edbb1b317d7296681c0b460eea54767462d9bf2d0586",
-   "size": 40493
+   "sha256": "14861785d39ac32424e1346dad1a2cef94b60e4807c4c051d107b0e82e342e14",
+   "size": 40494
   },
   {
    "path": "HUONG_DAN.md",
@@ -360,8 +360,8 @@
   },
   {
    "path": "VERSION",
-   "sha256": "8b4778f5d22070dbeb3c38ac3f46ed7fe43d3bccf6639a8c62fd80f2cafd9716",
-   "size": 8
+   "sha256": "008a7b9d408847c72db88e45a791e0270d81f74bf58995daa3340fec13d91a7d",
+   "size": 9
   }
  ]
 }

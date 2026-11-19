@@ -571,11 +571,12 @@ def _project(S, sp, kb, n_ok):
     luoi = c[2].checkbox("Khung 4 ô người dùng", value=True, key="ev_grid")
     kenhs = [c["name"] for c in S.get("channels", []) if c.get("enabled", True)]
     k1, k2 = st.columns([2, 3])
-    nho = (S.get("edit_kenh") or {}).get(sp, "")
+    # 1 kênh chung cho mọi sản phẩm (trước đây nhớ riêng từng sản phẩm -> đổi sản phẩm là lặng lẽ đổi kênh)
+    nho = (S.get("edit_kenh") or {}).get("reup", "")
     kenh = k1.selectbox("Kênh nhận video", [""] + kenhs, index=([""] + kenhs).index(nho) if nho in kenhs else 0,
-                        format_func=lambda x: x or "Chỉ tạo dự án, không tự xuất", key=f"ev_kenh_{sp}")
+                        format_func=lambda x: x or "Chỉ tạo dự án, không tự xuất", key="ev_kenh_reup")
     if kenh != nho:
-        S.setdefault("edit_kenh", {})[sp] = kenh
+        S.setdefault("edit_kenh", {})["reup"] = kenh
         save_settings(S)
     if kenh:
         k2.caption(f"Tạo dự án xong, tool **tự xuất 1080p** từ CapCut rồi đưa vào `{kenh}\\CHƯA UP\\"

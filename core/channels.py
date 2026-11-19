@@ -56,20 +56,28 @@ def thu_muc_ngay(root, name, ngay=None) -> Path:
 
 
 def so_tiep(d: Path) -> str:
-    """Số thứ tự kế tiếp trong thư mục ngày: 01, 02, ... (tính cả video đã đăng / đang xử lý cùng tên)."""
+    """Số thứ tự kế tiếp trong thư mục ngày: 01, 02, ... Tính cả số của video đã đăng / đang xử lý từng nằm trong
+    thư mục này (theo lịch sử đăng) để video mới không trùng tên video cũ. Không dùng file đếm riêng."""
     import re
-    dem = d / ".sonix_so_thu_tu"  # nhớ số đã dùng (video đăng xong bị chuyển sang ĐÃ UP vẫn không dùng lại số)
+    n = 0
     try:
-        n = int(dem.read_text().strip())
-    except Exception:
-        n = 0
+        (d / ".sonix_so_thu_tu").unlink()  # file đếm của bản cũ: bỏ
+    except OSError:
+        pass
     for p in d.iterdir():
         m = re.match(r"(\d+)", p.stem)
         if m and p.suffix.lower() in VIDEO_EXTS:
             n = max(n, int(m.group(1)))
     try:
-        dem.write_text(str(n + 1))
-    except OSError:
+        from . import db
+        goc = str(d).rstrip("\\/") + "\\"
+        with db.conn() as c:
+            for (vp,) in c.execute("SELECT video_path FROM jobs WHERE video_path LIKE ?", (goc.replace("%", "") + "%",)):
+                p = Path(vp)
+                m = re.match(r"(\d+)", p.stem)
+                if m and str(p.parent).rstrip("\\/").lower() == str(d).rstrip("\\/").lower():
+                    n = max(n, int(m.group(1)))
+    except Exception:
         pass
     return f"{n + 1:02d}"
 
