@@ -248,10 +248,22 @@ NOI = {"thứ", "là", "của", "và", "các", "những", "một", "cho", "với
        "đang", "đã", "sẽ", "rất", "hoặc", "hay", "trong", "vào", "theo", "để", "cái", "con", "giai", "bình"}
 
 
+TU_GHEP = {"tham khảo", "hấp thu", "dinh dưỡng", "phát triển", "giai đoạn", "thu hoạch", "sản phẩm", "bình luận",
+           "hoạt động", "tình trạng", "suy yếu", "buổi sáng", "buổi chiều", "buổi trưa", "nắng nóng", "chiều mát",
+           "sáng sớm", "cây con", "rễ cây", "đạm cá", "bà con", "các bác", "ý kiến", "video này", "bình phun",
+           "nuôi hoa", "dưỡng quả", "dưỡng trái", "khô cứng", "hao phân", "giỏ hàng", "màn hình", "sử dụng",
+           "chất lượng", "hiệu quả", "phục hồi", "bộ rễ", "lá xanh", "ra hoa", "đậu quả", "vàng lá", "thời điểm"}
+
+
 def chia_dong(ws, xd=-1, toi_da=20):
     """Ngat dong CHU DONG o cho ngat nghia (anh Son: 'tranh di vao / buoi trua nang nong'),
     moi dong <= ~20 ky tu -> CapCut khong tu xuong dong giua chu ('cu / ng')."""
     w = [nfc(x).strip() for x in ws if x.strip()]
+    def dinh(i, noi=True):  # ngat giua tu ghep / sau so (/ sau tu noi khi tu chia) -> sai nghia
+        a_, b_ = w[i - 1].lower().strip(",.?!"), w[i].lower().strip(",.?!")
+        return (a_ + " " + b_) in TU_GHEP or re.fullmatch(r"[\d,.-]+", a_) is not None or (noi and a_ in NOI)
+    if 0 < xd < len(w) and dinh(xd, False):
+        xd = next((j for j in (xd + 1, xd - 1, xd + 2, xd - 2) if 0 < j < len(w) and not dinh(j, False)), xd)
     if 0 < xd < len(w):
         return " ".join(w[:xd]) + "\n" + " ".join(w[xd:])
     txt = " ".join(w)
@@ -259,8 +271,7 @@ def chia_dong(ws, xd=-1, toi_da=20):
         return txt
     def diem(i):
         a, b = " ".join(w[:i]), " ".join(w[i:])
-        return abs(len(a) - len(b)) + (8 if w[i - 1].lower().strip(",.") in NOI else 0) \
-            + (10 if re.fullmatch(r"[\d,.-]+", w[i - 1]) else 0)
+        return abs(len(a) - len(b)) + (12 if dinh(i) else 0)
     i = min(range(1, len(w)), key=diem)
     return " ".join(w[:i]) + "\n" + " ".join(w[i:])
 

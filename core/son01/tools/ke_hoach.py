@@ -3,7 +3,7 @@
 python ke_hoach.py cat.json ke_hoach.json [--san-pham "Dam ca Amino"] [--dai 36] [--model claude-opus-5-5]
 Dung lai ham _claude cua Sonix Auto (key trong cai dat app, co model du phong).
 """
-import sys, os, json
+import sys, os, json, re
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 APP = os.environ.get("SONIX_APP") or os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
 sys.path.insert(0, APP)
@@ -178,7 +178,17 @@ for x in kq["doan"]:
             cum[-1]["den"] = n - 1
         else:
             cum.append({"tu": pos, "den": n - 1, "xuong_dong": -1, "nhan": False})
-    x["phu_de"] = cum
+    # cum vat qua dau cau ('cho de. Mot') -> tach o dau cham
+    tach = []
+    for c in cum:
+        a0 = c["tu"]
+        for j in range(c["tu"], c["den"]):
+            if re.search(r"[.?!]$", x["words"][j]["w"].strip()):
+                tach.append({"tu": a0, "den": j, "xuong_dong": c["xuong_dong"] if a0 < c["xuong_dong"] <= j else -1, "nhan": c["nhan"]})
+                a0 = j + 1
+        tach.append({"tu": a0, "den": c["den"], "xuong_dong": c["xuong_dong"] if a0 < c["xuong_dong"] <= c["den"] else -1,
+                     "nhan": c["nhan"]})
+    x["phu_de"] = tach
     tong += x["e"] - x["s"]
 kq["tong_giay"] = round(tong, 2)
 json.dump(kq, open(a[1], "w", encoding="utf-8"), ensure_ascii=False, indent=1)
