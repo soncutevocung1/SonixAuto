@@ -700,7 +700,8 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             for j, c in enumerate(bd):
                 if c["e"] - c["s"] >= _us(0.8):
                     continue
-                for nb in ((j + 1, j) if j + 1 < len(bd) else ()) + ((j, j - 1) if j > 0 else ()):
+                cap_ = ([(j, j + 1)] if j + 1 < len(bd) else []) + ([(j - 1, j)] if j > 0 else [])
+                for nb in cap_:
                     a_, b_ = bd[min(nb)], bd[max(nb)]
                     if dai_({"tu": a_["tu"], "den": b_["den"]}) <= 32:
                         a_.update(den=b_["den"], e=b_["e"], nhan=a_["nhan"] or b_["nhan"], xuong_dong=-1)
