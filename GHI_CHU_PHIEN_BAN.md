@@ -1,6 +1,11 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.12.0
+- **Giao diện gọn và nhiều màu hơn**: bỏ mục Giao diện trong Cài đặt (mẫu nền, kiểu khung, ảnh nền, sáng/tối). Sáng/tối bấm ở thanh bên trái; "Mở tool bằng" (cửa sổ app / Chrome) chuyển ra nút **Mở** cạnh nút sáng/tối. Nền cố định nhiều màu nhẹ; **mỗi tab một màu riêng** (tab đang mở tô màu, tab khác có gạch màu).
+- **Thao tác hàng loạt** (tab Duyệt) xếp lại theo nhóm có màu: Thứ tự đăng · Sản phẩm & giỏ · Âm thanh · Người xem · Ảnh bìa · AI. Gộp nút trùng: 3 nút giữ giỏ gom vào **Giỏ trùng 2 sản phẩm**, thêm/bỏ ảnh theme gom vào **Thư viện ảnh bìa**, Tắt/Giữ âm gốc và Người xem thành nút chọn bấm là áp dụng ngay.
+- **Lựa chọn đang dùng được tô màu** (thứ tự đăng, âm gốc, người xem của các video đang chọn, Chọn tất cả khi đã chọn hết); nút chưa bấm được (chưa chọn video) mờ đi.
+
 ## 2.11.1
 - Sửa lỗi **Gemini "không trả lời (có thể bị chặn nội dung)"** làm caption video nào cũng giống nhau (dùng caption mẫu): Google đổi cách trả kết quả, tool đọc theo cách mới.
 - **Bỏ Claude Haiku**: chỉ còn Gemini (miễn phí) và Không dùng AI. Máy đang chọn Haiku tự chuyển sang Gemini (có Gemini key) hoặc Không dùng AI.

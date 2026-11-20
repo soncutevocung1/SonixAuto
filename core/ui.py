@@ -55,25 +55,26 @@ def _blobs(spots):
     return ", ".join(f"radial-gradient(900px 640px at {x}% {y}%, rgba({c}), transparent 62%)" for x, y, c in spots)
 
 
+# Màu riêng của từng tab (theo thứ tự tab): tab đang mở tô màu đó, tab khác có gạch màu nhỏ
+TAB_COLORS = ["#2563eb,#06b6d4", "#7c3aed,#db2777", "#0d9488,#22c55e", "#f59e0b,#ef4444", "#16a34a,#84cc16",
+              "#db2777,#f97316", "#475569,#6366f1", "#1877f2,#38bdf8", "#64748b,#94a3b8", "#dc2626,#f97316"]
+# nền: vài vệt màu nhẹ cố định (xanh, tím, ngọc, cam) cho app có màu mà vẫn dễ đọc
+AURORA = {"light": [(0, 0, "59,130,246,.22"), (100, 10, "168,85,247,.20"), (85, 100, "20,184,166,.16"),
+                    (10, 95, "251,146,60,.14")],
+          "dark": [(0, 0, "37,99,235,.40"), (100, 10, "147,51,234,.36"), (85, 100, "13,148,136,.26"),
+                   (10, 95, "234,88,12,.20")]}
+
+
 def css(settings, actual=None) -> str:
     m = actual if actual in ("light", "dark") else mode(settings)  # theo giao diện ĐANG HIỆN
     p = PAL[m]
-    bg = settings.get("ui_bg") or "xanh_tim"
-    card = settings.get("ui_card") or "kinh"
-    blur = 16 if card == "kinh" else 0
-    layer = ""
-    if bg == "anh_rieng" and BG_FILE.exists():
-        v = int(BG_FILE.stat().st_mtime)
-        bb = int(settings.get("ui_bg_blur", 8))
-        layer = (f".stApp::before{{content:'';position:fixed;inset:-{bb * 3}px;z-index:0;pointer-events:none;"
-                 f"background:linear-gradient({p['veil']},{p['veil']}),url('/app/static/{BG_FILE.name}?v={v}') "
-                 f"center/cover no-repeat;filter:blur({bb}px)}}")
-    elif bg in BACKGROUNDS and BACKGROUNDS[bg][1]:
-        spots = BACKGROUNDS[bg][1 if m == "light" else 2]
-        anim = "animation:sxdrift 26s ease-in-out infinite alternate;" if settings.get("ui_motion", True) else ""
-        layer = (f".stApp::before{{content:'';position:fixed;inset:-10%;z-index:0;pointer-events:none;"
-                 f"background:{_blobs(spots)};{anim}}}"
-                 "@keyframes sxdrift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(4%,-3%) scale(1.08)}}")
+    card, blur = "kinh", 16
+    layer = (f".stApp::before{{content:'';position:fixed;inset:-10%;z-index:0;pointer-events:none;"
+             f"background:{_blobs(AURORA[m])}}}")
+    tabs_css = "".join(
+        f'[data-testid="stTab"]:nth-child({i + 1})[aria-selected="true"]{{background:linear-gradient(135deg,{c})!important}}'
+        f'[data-testid="stTab"]:nth-child({i + 1}){{box-shadow:inset 0 -3px 0 {c.split(",")[0]}55!important}}'
+        for i, c in enumerate(TAB_COLORS))
     glass = (f"background:var(--sx-card)!important;border:1px solid var(--sx-line)!important;"
              f"backdrop-filter:blur({blur}px) saturate(140%);-webkit-backdrop-filter:blur({blur}px) saturate(140%);")
     return f"""<style>
@@ -98,9 +99,24 @@ h1,h2,h3{{letter-spacing:-.02em}}
 [data-testid="stTab"][aria-selected="true"]{{background:var(--sx-grad)!important}}
 [data-testid="stTab"][aria-selected="true"] p{{color:#fff!important}}
 [data-testid="stTabs"] [role="tablist"]::after,[data-testid="stTabs"] [role="tablist"]::before{{display:none!important}}
-[data-testid="stTab"]{{box-shadow:none!important;border-bottom:0!important}}
+[data-testid="stTab"]{{border-bottom:0!important}}
 [data-testid="stTabs"] [role="tablist"] > div:not([data-testid="stTab"]){{display:none!important}}
 [data-testid="stTab"]::after,[data-testid="stTab"]::before{{display:none!important}}
+{tabs_css}
+/* nút / lựa chọn ĐANG CHỌN: tô màu như tab đang mở */
+[data-testid="stButtonGroup"] button[aria-checked="true"],[data-testid="stBaseButton-segmented_controlActive"],
+[data-testid="stBaseButton-pillsActive"]{{background:var(--sx-grad)!important;color:#fff!important;
+  border-color:transparent!important;box-shadow:0 6px 16px rgba(124,58,237,.28)}}
+[data-testid="stButtonGroup"] button[aria-checked="true"] *,[data-testid="stBaseButton-segmented_controlActive"] p,
+[data-testid="stBaseButton-pillsActive"] p{{color:#fff!important}}
+/* nút đang khoá (chưa chọn video...): mờ đi, không nhầm là bấm được */
+button:disabled,[data-testid="stBaseButton-primary"]:disabled{{opacity:.42!important;box-shadow:none!important;
+  filter:grayscale(.4)}}
+/* nhóm thao tác có màu riêng */
+.sx-grp{{display:flex;align-items:center;gap:8px;font-family:Montserrat,sans-serif;font-weight:800;font-size:12.5px;
+  letter-spacing:.06em;text-transform:uppercase;margin:14px 0 2px;color:var(--sx-text)}}
+.sx-grp::before{{content:'';width:10px;height:10px;border-radius:3px;background:var(--c)}}
+.sx-grp::after{{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--c),transparent);opacity:.5}}
 /* thẻ, khung, hộp mở rộng, bảng nổi */
 [class*="st-key-card_"],[data-testid="stExpander"] details,[data-testid="stPopoverBody"]{{{glass}border-radius:20px!important;
   box-shadow:0 10px 30px rgba(40,40,110,.08)}}

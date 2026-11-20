@@ -1,7 +1,7 @@
 {
- "version": "2.11.1",
- "built_at": "2026-11-20T09:00:31Z",
- "notes": "- Sửa lỗi **Gemini \"không trả lời (có thể bị chặn nội dung)\"** làm caption video nào cũng giống nhau (dùng caption mẫu): Google đổi cách trả kết quả, tool đọc theo cách mới.\n- **Bỏ Claude Haiku**: chỉ còn Gemini (miễn phí) và Không dùng AI. Máy đang chọn Haiku tự chuyển sang Gemini (có Gemini key) hoặc Không dùng AI.\n- **Caption ngắn, không lặp**: 2-3 dòng ngắn; mỗi video được giao 1 \"góc viết\" khác nhau (hỏi nỗi lo, kể cảnh vườn, mẹo nhanh, cảnh báo sai lầm, thời điểm dùng...) và AI được xem các caption gần đây của kênh để không lặp câu mở đầu / ý.",
+ "version": "2.12.0",
+ "built_at": "2026-11-20T09:16:26Z",
+ "notes": "- **Giao diện gọn và nhiều màu hơn**: bỏ mục Giao diện trong Cài đặt (mẫu nền, kiểu khung, ảnh nền, sáng/tối). Sáng/tối bấm ở thanh bên trái; \"Mở tool bằng\" (cửa sổ app / Chrome) chuyển ra nút **Mở** cạnh nút sáng/tối. Nền cố định nhiều màu nhẹ; **mỗi tab một màu riêng** (tab đang mở tô màu, tab khác có gạch màu).\n- **Thao tác hàng loạt** (tab Duyệt) xếp lại theo nhóm có màu: Thứ tự đăng · Sản phẩm & giỏ · Âm thanh · Người xem · Ảnh bìa · AI. Gộp nút trùng: 3 nút giữ giỏ gom vào **Giỏ trùng 2 sản phẩm**, thêm/bỏ ảnh theme gom vào **Thư viện ảnh bìa**, Tắt/Giữ âm gốc và Người xem thành nút chọn bấm là áp dụng ngay.\n- **Lựa chọn đang dùng được tô màu** (thứ tự đăng, âm gốc, người xem của các video đang chọn, Chọn tất cả khi đã chọn hết); nút chưa bấm được (chưa chọn video) mờ đi.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "bc9e45ce7cd4ea1255c174d2003645d6410a48cb00caaffaed7f11254534b9be",
-   "size": 44432
+   "sha256": "fe0e75705fd692fe71f72b2737dc211a38768604db1888733ba236c132fcb519",
+   "size": 45463
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,13 +65,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "08d071a29abd5fc47f53eb5b5d89c7a154cbf0171e05b122edfb2dc24b7017c6",
+   "sha256": "140288f526a0978bcba7f2f8d2c2585faf05ce088087b54c161050d6366eab4b",
    "size": 7
   },
   {
    "path": "app.py",
-   "sha256": "4b3c27cf208c22f2670775c7e3d04106ddfd0194c813a3af26c4d8bfb4c961e5",
-   "size": 126207
+   "sha256": "2f562fcdfdbe2ac732c92c1b41c7969ed6d4614e28490a5d9d57e2eff9e27e7f",
+   "size": 125370
   },
   {
    "path": "assets/sonix.ico",
@@ -305,8 +305,8 @@
   },
   {
    "path": "core/ui.py",
-   "sha256": "cafa22c31831552bd9be168cfc817fd520b6319dc6e60befae83e3cbbc5181b0",
-   "size": 13493
+   "sha256": "69a13a7e8ac291a983032074cce3deddaca8c90837e78a9405c8aa0b906226ed",
+   "size": 14853
   },
   {
    "path": "core/updater.py",

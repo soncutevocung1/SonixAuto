@@ -495,11 +495,20 @@ with st.sidebar:
             time.sleep(3)
             st.rerun()
     _dark = ui.mode(S) == "dark"
-    if st.button("Chuyển giao diện sáng" if _dark else "Chuyển giao diện tối", width="stretch", key="ui_toggle",
-                 icon=":material/light_mode:" if _dark else ":material/dark_mode:"):
+    _sb = st.columns(2)
+    if _sb[0].button("Sáng" if _dark else "Tối", width="stretch", key="ui_toggle",
+                     icon=":material/light_mode:" if _dark else ":material/dark_mode:",
+                     help="Chuyển giao diện sáng / tối"):
         S["ui_theme"] = "light" if _dark else "dark"
         save_settings(S)
         st.rerun()
+    with _sb[1].popover("Mở", icon=":material/web:", width="stretch", help="Mở tool bằng cửa sổ app riêng hay Chrome"):
+        st.radio("Mở tool bằng", ["app", "chrome"], index=1 if S.get("ui_window") == "chrome" else 0,
+                 format_func={"app": "Cửa sổ app riêng (mặc định)",
+                              "chrome": "Chrome (khi gõ tiếng Việt có dấu bị lỗi)"}.get,
+                 key="ui_window_set", on_change=save_ui, args=("ui_window", "ui_window_set"))
+        st.caption("Bộ gõ Unikey/EVKey có thể gõ sai dấu trong cửa sổ app riêng. Chọn Chrome rồi tắt tool, mở lại bằng "
+                   "biểu tượng ngoài màn hình.")
     for ch, (msg, f) in blocked().items():
         st.error(f"Kênh **{ch}** đang dừng:\n\n{msg}")
         if st.button(f"Đã xử lý xong, chạy tiếp «{ch}»", key=f"unb_{slug(ch)}"):
@@ -1053,110 +1062,160 @@ for _ in _show(tabs[1]):
                 forget(i)
 
         with st.container(border=True, key=f"card_bulk_{slug(chname)}"):
-            st.markdown(f"**Thao tác hàng loạt** · đang chọn **{len(sel_ids)}** video")
-            _po = channel_plan(S, chname).get("order", "folder")
-            ro = st.columns([3.2, 1])
-            _po_new = ro[0].radio("Thứ tự đăng", list(sch.ORDERS),
-                                  index=list(sch.ORDERS).index(_po) if _po in sch.ORDERS else 0,
-                                  format_func=sch.ORDERS.get, horizontal=True, key=f"po_{slug(chname)}",
-                                  help="Đổi là tool xếp lại NGAY các video chờ duyệt của kênh: giữ nguyên các khung giờ, chỉ "
-                                       "đổi video nào đăng giờ nào. Xen kẽ / Ngẫu nhiên: 2 video cùng sản phẩm không đăng "
-                                       "liền nhau. Video mới phân tích sau này cũng xếp theo cách này.")
-            if _po_new != _po:
-                S.setdefault("plan_by_channel", {}).setdefault(chname, {})["order"] = _po_new
-                save_settings(S)
-                _n = xao_thu_tu(chname, _po_new)
-                st.session_state[f"pomsg_{slug(chname)}"] = f"Đã xếp lại thứ tự {_n} video ({sch.ORDERS[_po_new].lower()})."
-                st.rerun()
-            if _po_new == "random" and ro[1].button("Xáo lại", key=f"poshuf_{slug(chname)}",
-                                                    help="Xáo ngẫu nhiên lần nữa (vẫn không để 2 video cùng sản phẩm liền nhau)"):
-                _n = xao_thu_tu(chname, "random")
-                st.session_state[f"pomsg_{slug(chname)}"] = f"Đã xáo lại {_n} video."
-                st.rerun()
-            _pm = st.session_state.pop(f"pomsg_{slug(chname)}", None)
-            if _pm:
-                st.success(_pm)
-            r1 = st.columns(5)
-            r1[4].button("Đánh dấu đã kiểm tra", key=f"rv_{slug(chname)}", disabled=not sel_ids,
+            _ck = slug(chname)
+            _sel_jobs = [j for j in jobs if j["id"] in sel_ids]
+            _sig = f"{len(sel_ids)}_{hash(tuple(sorted(sel_ids))) & 0xffffff}"
+
+            def _seg(label, opts, cur, fmt, key, apply, help_=None):
+                """Lựa chọn áp dụng NGAY cho video đang chọn; lựa chọn đang đúng với các video đó được tô màu."""
+                wk = f"{key}_{_ck}_{_sig}_{cur}"
+
+                def _cb():
+                    v = st.session_state.get(wk)
+                    if v is not None and sel_ids:
+                        apply(sel_ids, v)
+                st.segmented_control(label, opts, default=cur, format_func=fmt, key=wk, on_change=_cb,
+                                     disabled=not sel_ids, help=help_)
+
+            def _same(field, conv=lambda v: v):
+                vals = {conv(j.get(field)) for j in _sel_jobs}
+                return vals.pop() if len(vals) == 1 else None
+
+            st.markdown(f"**Thao tác hàng loạt** · đang chọn **{len(sel_ids)}/{len(jobs)}** video")
+            r1 = st.columns([1, 1, 1.5, 1.5, 1.4])
+            r1[0].button("Chọn tất cả", key=f"sa_{_ck}", on_click=_sel_all, width="stretch",
+                         type="primary" if jobs and len(sel_ids) == len(jobs) else "secondary")
+            r1[1].button("Bỏ chọn", key=f"sn_{_ck}", on_click=_sel_all, kwargs={"v": False}, width="stretch",
+                         disabled=not sel_ids)
+            r1[2].button("Chọn video cần kiểm tra", key=f"sr_{_ck}", on_click=_sel_red, width="stretch")
+            r1[3].button("Đánh dấu đã kiểm tra", key=f"rv_{_ck}", disabled=not sel_ids, width="stretch",
                          on_click=lambda ids=sel_ids: _bulk(ids, reviewed=1),
                          help="Cho các video đang chọn: bác đã xem và xác nhận sản phẩm đúng")
-            r1[0].button("Chọn tất cả", key=f"sa_{slug(chname)}", on_click=_sel_all)
-            r1[1].button("Bỏ chọn", key=f"sn_{slug(chname)}", on_click=_sel_all, kwargs={"v": False})
-            r1[2].button("Chọn video cần kiểm tra", key=f"sr_{slug(chname)}", on_click=_sel_red)
-            with r1[3].popover("Bỏ video đang chọn", disabled=not sel_ids):
+            with r1[4].popover("Bỏ video", disabled=not sel_ids, width="stretch"):
                 st.write(f"Bỏ **{len(sel_ids)}** video đang chọn?")
-                st.button("Chuyển vào VIDEO LỖI", key=f"delx_{slug(chname)}", type="primary",
+                st.button("Chuyển vào VIDEO LỖI", key=f"delx_{_ck}", type="primary",
                           on_click=lambda ids=sel_ids: [discard_cb(i) for i in ids])
-                st.button("Chỉ bỏ khỏi danh sách (để lại CHƯA UP)", key=f"del_{slug(chname)}",
+                st.button("Chỉ bỏ khỏi danh sách (để lại CHƯA UP)", key=f"del_{_ck}",
                           on_click=lambda ids=sel_ids: (db.delete_jobs(ids), [forget(i) for i in ids]))
-            r2 = st.columns([2, 1, 1, 1, 1])
-            bi = r2[0].selectbox("Sản phẩm", [""] + list(ITEMS), key=f"bi_{slug(chname)}",
+
+            # ----- Thứ tự đăng (cả kênh) -----
+            st.markdown('<div class="sx-grp" style="--c:#2563eb">Thứ tự đăng · cả kênh</div>', unsafe_allow_html=True)
+            _po = channel_plan(S, chname).get("order", "folder")
+            ro = st.columns([4, 1])
+
+            def _po_cb(k_=f"po_{_ck}"):
+                v = st.session_state.get(k_)
+                if v and v != channel_plan(S, chname).get("order", "folder"):
+                    S.setdefault("plan_by_channel", {}).setdefault(chname, {})["order"] = v
+                    save_settings(S)
+                    n_ = xao_thu_tu(chname, v)
+                    st.session_state[f"pomsg_{_ck}"] = f"Đã xếp lại thứ tự {n_} video ({sch.ORDERS[v].lower()})."
+            if st.session_state.get(f"po_{_ck}") is None:
+                st.session_state[f"po_{_ck}"] = _po
+            ro[0].segmented_control("Thứ tự đăng", list(sch.ORDERS), key=f"po_{_ck}",
+                                    format_func={"folder": "Theo thư mục (tên file)", "mix": "Xen kẽ sản phẩm",
+                                                 "random": "Ngẫu nhiên"}.get,
+                                    on_change=_po_cb, label_visibility="collapsed",
+                                    help="Đổi là tool xếp lại NGAY các video chờ duyệt: giữ nguyên các khung giờ, chỉ đổi "
+                                         "video nào đăng giờ nào. Xen kẽ / Ngẫu nhiên: 2 video cùng sản phẩm không đăng "
+                                         "liền nhau. Video mới phân tích sau này cũng xếp theo cách này.")
+            if _po == "random" and ro[1].button("Xáo lại", key=f"poshuf_{_ck}", width="stretch",
+                                                help="Xáo ngẫu nhiên lần nữa (vẫn không để 2 video cùng sản phẩm liền nhau)"):
+                st.session_state[f"pomsg_{_ck}"] = f"Đã xáo lại {xao_thu_tu(chname, 'random')} video."
+                st.rerun()
+            _pm = st.session_state.pop(f"pomsg_{_ck}", None)
+            if _pm:
+                st.success(_pm)
+
+            # ----- Sản phẩm & giỏ -----
+            st.markdown('<div class="sx-grp" style="--c:#16a34a">Sản phẩm &amp; giỏ hàng</div>', unsafe_allow_html=True)
+            r2 = st.columns([2.2, 1.2, 1.2])
+            bi = r2[0].selectbox("Sản phẩm", [""] + list(ITEMS), key=f"bi_{_ck}", label_visibility="collapsed",
                                  format_func=lambda x: ITEMS[x]["name"] if x else "— Không gắn giỏ (video kiến thức) —")
-            r2[1].button("Gắn cho video chọn", key=f"bia_{slug(chname)}", disabled=not sel_ids,
+            r2[1].button("Gắn cho video chọn", key=f"bia_{_ck}", disabled=not sel_ids, width="stretch", type="primary",
                          on_click=_bulk_item, args=(sel_ids, bi))
-            r2[2].button("Chỉ giữ giỏ 1", key=f"k1_{slug(chname)}", disabled=not sel_ids,
-                         on_click=_bulk_keep, args=(sel_ids, 0), help="Bỏ sản phẩm trùng thứ 2")
-            r2[3].button("Chỉ giữ giỏ 2", key=f"k2_{slug(chname)}", disabled=not sel_ids,
-                         on_click=_bulk_keep, args=(sel_ids, 1))
-            r2[4].button("Gắn đủ cả 2 giỏ", key=f"ka_{slug(chname)}", disabled=not sel_ids,
-                         on_click=_bulk_keep, args=(sel_ids, "all"))
-            r3 = st.columns([2, 1, 2, 1])
-            bm = r3[0].selectbox("Nhạc nền", mus_opts, key=f"bm_{slug(chname)}", format_func=lambda x: mus_fmt.get(x, x))
-            r3[1].button("Áp dụng nhạc", key=f"bma_{slug(chname)}", disabled=not sel_ids, on_click=lambda ids=sel_ids, v=bm: (
-                _bulk_fav(ids) if v == "auto::favitem" else _bulk(
-                    ids, music_mode=v.partition("::")[0] if v != "none" else "none", music_ref=v.partition("::")[2],
-                    music_by_user=1)))
-            bv = r3[2].selectbox("Người xem", list(VIS), key=f"bv_{slug(chname)}", format_func=VIS.get)
-            r3[3].button("Áp dụng người xem", key=f"bva_{slug(chname)}", disabled=not sel_ids,
-                         on_click=lambda ids=sel_ids, v=bv: _bulk(ids, visibility=v))
-            rca = st.columns([2, 3])
-            rca[0].button("Tự gắn ảnh bìa theo sản phẩm", key=f"bthauto_{slug(chname)}", type="primary",
+            with r2[2].popover("Giỏ trùng 2 sản phẩm", disabled=not sel_ids, width="stretch"):
+                st.caption("Sản phẩm có 2 giỏ trùng nhau trong Trưng bày: chọn giỏ nào gắn cho video đang chọn.")
+                st.button("Chỉ giữ giỏ 1", key=f"k1_{_ck}", on_click=_bulk_keep, args=(sel_ids, 0))
+                st.button("Chỉ giữ giỏ 2", key=f"k2_{_ck}", on_click=_bulk_keep, args=(sel_ids, 1))
+                st.button("Gắn đủ cả 2 giỏ", key=f"ka_{_ck}", on_click=_bulk_keep, args=(sel_ids, "all"))
+
+            # ----- Âm thanh -----
+            st.markdown('<div class="sx-grp" style="--c:#db2777">Âm thanh</div>', unsafe_allow_html=True)
+            r3 = st.columns([2.2, 1.2, 1.2])
+            bm = r3[0].selectbox("Nhạc nền", mus_opts, key=f"bm_{_ck}", format_func=lambda x: mus_fmt.get(x, x),
+                                 label_visibility="collapsed")
+            r3[1].button("Áp dụng nhạc", key=f"bma_{_ck}", disabled=not sel_ids, width="stretch", type="primary",
+                         on_click=lambda ids=sel_ids, v=bm: (
+                             _bulk_fav(ids) if v == "auto::favitem" else _bulk(
+                                 ids, music_mode=v.partition("::")[0] if v != "none" else "none",
+                                 music_ref=v.partition("::")[2], music_by_user=1)))
+            with r3[2]:
+                _seg("Âm gốc của video đang chọn", [0, 1], _same("keep_audio", lambda v: 1 if v is None else int(v)),
+                     {0: "Tắt âm gốc", 1: "Giữ âm gốc"}.get, "ka_bulk", lambda ids, v: _bulk(ids, keep_audio=int(v)),
+                     "Ô tô màu = trạng thái của các video đang chọn. Bấm để đổi cho tất cả video đang chọn.")
+            fm = st.session_state.pop(f"favmsg_{_ck}", None)
+            if fm:
+                (st.success if not fm[1] else st.warning)(
+                    f"Âm thanh Yêu thích: đã gán {fm[0]} video"
+                    + (f" (trong đó {fm[2]} video mượn âm thanh kênh khác, tắt hẳn âm gốc)" if fm[2] else "") + "."
+                    + (f" {fm[1]} video chưa gán được: " + "; ".join(fm[3][:4]) if fm[1] else ""))
+            else:
+                n_lab = sum(1 for f in favs if f.get("items"))
+                n_mute = sum(1 for j in jobs if j.get("keep_audio") is not None and int(j["keep_audio"]) == 0)
+                st.caption(f"Âm thanh Yêu thích đúng sản phẩm: chọn «Tự động: âm thanh Yêu thích đúng sản phẩm» rồi Áp dụng "
+                           f"nhạc ({len(favs)} âm thanh, {n_lab} cái đã gắn sản phẩm; thiếu thì mượn kênh khác). "
+                           f"{n_mute}/{len(jobs)} video đang tắt âm gốc.")
+
+            # ----- Người xem -----
+            st.markdown('<div class="sx-grp" style="--c:#0891b2">Người xem</div>', unsafe_allow_html=True)
+            _seg("Người xem của video đang chọn", list(VIS), _same("visibility", lambda v: v or "public"), VIS.get,
+                 "vis_bulk", lambda ids, v: _bulk(ids, visibility=v),
+                 "Ô tô màu = trạng thái của các video đang chọn. Bấm để đổi cho tất cả video đang chọn.")
+
+            # ----- Ảnh bìa -----
+            st.markdown('<div class="sx-grp" style="--c:#f59e0b">Ảnh bìa</div>', unsafe_allow_html=True)
+            rca = st.columns([1.6, 1.4, 2])
+            rca[0].button("Tự gắn ảnh bìa theo sản phẩm", key=f"bthauto_{_ck}", type="primary", width="stretch",
                           disabled=not (sel_ids and themes),
-                          on_click=lambda ids=sel_ids, c_=chname, m=f"thmsg_{slug(chname)}": auto_theme_cb(ids, c_, m),
-                          help="Mỗi video đang chọn lấy ảnh trong thư mục ẢNH BÌA trùng tên sản phẩm AI nhận ra "
-                               "(vd video Kích rễ TC01 → Kích rễ TC01.png)")
-            rca[1].caption("Tool so tên ảnh với tên sản phẩm của từng video. Đặt tên ảnh theo tên sản phẩm là được, "
-                           "ví dụ «Kích rễ TC01.png», «Đạm cá amino.png».")
-            rai = st.columns([2, 3])
-            rai[0].button("Trả về ảnh bìa AI chọn", key=f"baic_{slug(chname)}", disabled=not sel_ids,
-                          on_click=lambda ids=sel_ids, m=f"thmsg_{slug(chname)}": ai_cover_cb(ids, m),
-                          help="Bỏ ảnh bìa đã đổi / tải lên của các video đang chọn, dùng lại khung hình AI chọn "
-                               "(thấy rõ sản phẩm nhất)")
-            rcv = st.columns([2, 1, 2])
-            bth = rcv[0].selectbox("Ảnh bìa có sẵn (theme)", themes or [""], key=f"bth_{slug(chname)}",
-                                   format_func=lambda x: Path(x).name if x else "(chưa có ảnh, tải lên ở ô bên phải)")
-            rcv[1].button("Áp dụng ảnh bìa", key=f"btha_{slug(chname)}", disabled=not (sel_ids and themes),
-                          on_click=lambda ids=sel_ids, v=bth, m=f"thmsg_{slug(chname)}": use_theme_cb(ids, v, m),
+                          on_click=lambda ids=sel_ids, c_=chname, m=f"thmsg_{_ck}": auto_theme_cb(ids, c_, m),
+                          help="Mỗi video lấy ảnh trong thư mục ẢNH BÌA trùng tên sản phẩm (vd Kích rễ TC01.png)")
+            rca[1].button("Trả về ảnh bìa AI chọn", key=f"baic_{_ck}", disabled=not sel_ids, width="stretch",
+                          on_click=lambda ids=sel_ids, m=f"thmsg_{_ck}": ai_cover_cb(ids, m),
+                          help="Bỏ ảnh bìa đã đổi / tải lên, dùng lại khung hình thấy rõ sản phẩm nhất")
+            rcv = st.columns([2.2, 1.2, 1.2])
+            bth = rcv[0].selectbox("Ảnh bìa có sẵn (theme)", themes or [""], key=f"bth_{_ck}", label_visibility="collapsed",
+                                   format_func=lambda x: Path(x).name if x else "(chưa có ảnh theme, tải lên bên dưới)")
+            rcv[1].button("Áp dụng ảnh bìa", key=f"btha_{_ck}", disabled=not (sel_ids and themes), width="stretch",
+                          on_click=lambda ids=sel_ids, v=bth, m=f"thmsg_{_ck}": use_theme_cb(ids, v, m),
                           help="Video đang chọn dùng ảnh này làm ảnh bìa (tool tự chỉnh về đúng khung video)")
-            if themes and bth:
-                with rai[1].popover(f"Bỏ ảnh «{Path(bth).name}» khỏi thư viện"):
-                    st.write("Ảnh lỡ tải lên? Tool cất ảnh vào **ẢNH BÌA\\_DA_BO** (không xoá hẳn). Video đang dùng "
-                             "ảnh này về lại bìa AI chọn.")
-                    st.button("Xác nhận bỏ ảnh", key=f"bthd_{slug(chname)}", type="primary",
-                              on_click=lambda v=bth, m=f"thmsg_{slug(chname)}": del_theme_cb(v, m))
-            tnk = f"thn_{slug(chname)}"
-            twk = f"thup_{slug(chname)}_{st.session_state.get(tnk, 0)}"
-            rcv[2].file_uploader("Thêm ảnh theme vào thư viện (jpg, png, webp)", type=["jpg", "jpeg", "png", "webp"],
+            with rcv[2].popover("Thư viện ảnh bìa", width="stretch"):
+                tnk = f"thn_{_ck}"
+                twk = f"thup_{_ck}_{st.session_state.get(tnk, 0)}"
+                st.file_uploader("Thêm ảnh theme (jpg, png, webp)", type=["jpg", "jpeg", "png", "webp"],
                                  accept_multiple_files=True, key=twk, on_change=upload_theme_cb,
-                                 args=(twk, tnk, [], f"thmsg_{slug(chname)}"))
-            thm = st.session_state.pop(f"thmsg_{slug(chname)}", None)
+                                 args=(twk, tnk, [], f"thmsg_{_ck}"))
+                if themes and bth:
+                    st.button(f"Bỏ ảnh «{Path(bth).name}» khỏi thư viện", key=f"bthd_{_ck}",
+                              on_click=lambda v=bth, m=f"thmsg_{_ck}": del_theme_cb(v, m),
+                              help="Cất vào ẢNH BÌA\\_DA_BO (không xoá hẳn). Video đang dùng ảnh này về bìa AI chọn.")
+                if ROOT:
+                    st.caption(f"Ảnh nằm ở **{cov.cover_dir(ROOT)}** (bỏ ảnh vào đó cũng được). Đặt tên ảnh theo tên sản "
+                               "phẩm để tool tự gắn, vd «Kích rễ TC01.png».")
+            thm = st.session_state.pop(f"thmsg_{_ck}", None)
             if thm:
                 st.info(thm)
-            if ROOT:
-                st.caption(f"Ảnh theme nằm ở thư mục **{cov.cover_dir(ROOT)}** (bỏ ảnh vào đó cũng được). Ảnh lệch "
-                           "khung video thì tool đặt nguyên ảnh ở giữa trên nền mờ, không cắt mất chữ.")
             cbp = (S.get("cover_by_product") or {}).get(chname) or {}
-            with st.expander(f"Ảnh bìa mặc định theo sản phẩm · đã đặt {sum(1 for v in cbp.values() if v)} sản phẩm "
-                             "(1 ảnh dùng cho mọi video của sản phẩm đó)"):
+            with st.expander(f"Ảnh bìa mặc định theo sản phẩm · đã đặt {sum(1 for v in cbp.values() if v)} sản phẩm"):
                 if not themes:
-                    st.caption("Thư viện chưa có ảnh: tải ảnh lên ở ô Ảnh bìa có sẵn phía trên trước.")
+                    st.caption("Thư viện chưa có ảnh: thêm ảnh ở nút Thư viện ảnh bìa trước.")
                 names = [""] + [Path(x).name for x in themes]
                 for it in S.get("items", []):
                     cur = cbp.get(it["key"], "")
                     opts = names + ([cur] if cur and cur not in names else [])
                     cc = st.columns([1.4, 2.4, 0.6])
                     cc[0].markdown(f"**{it['name']}**")
-                    kk = f"cbp_{slug(chname)}_{it['key']}"
+                    kk = f"cbp_{_ck}_{it['key']}"
                     cc[1].selectbox("Ảnh bìa mặc định", opts, index=opts.index(cur), key=kk,
                                     format_func=lambda x: x or "— Không đặt (dùng khung hình AI chọn)",
                                     label_visibility="collapsed", on_change=save_cover_default,
@@ -1166,44 +1225,26 @@ for _ in _show(tabs[1]):
                             cc[2].image(cov.thumb(cov.cover_dir(ROOT) / cur), width=46)
                         except Exception:
                             pass
-                st.caption("Đặt xong là các video của sản phẩm đó (bác chưa tự chọn bìa) tự đổi sang ảnh này; đổi sản phẩm "
-                           "thì bìa đổi theo. Video bác đã tự chọn bìa thì giữ nguyên, muốn dùng lại bìa mặc định thì bấm "
-                           "trong Đổi ảnh bìa của video đó. Lưu riêng cho từng kênh.")
-            fm = st.session_state.pop(f"favmsg_{slug(chname)}", None)
-            if fm:
-                (st.success if not fm[1] else st.warning)(
-                    f"Âm thanh Yêu thích: đã gán {fm[0]} video"
-                    + (f" (trong đó {fm[2]} video mượn âm thanh kênh khác, tắt hẳn âm gốc)" if fm[2] else "") + "."
-                    + (f" {fm[1]} video chưa gán được: " + "; ".join(fm[3][:4]) if fm[1] else ""))
-            else:
-                n_lab = sum(1 for f in favs if f.get("items"))
-                st.caption(f"Âm thanh Yêu thích: chọn «Tự động: âm thanh Yêu thích đúng sản phẩm» ở ô Nhạc nền rồi bấm "
-                           f"Áp dụng nhạc. Kênh này có {len(favs)} âm thanh, {n_lab} cái đã gắn sản phẩm; thiếu thì tool "
-                           f"mượn âm thanh đúng sản phẩm của kênh khác (tab Nhạc nền, ô «Cho phép kênh khác dùng»).")
-            r5 = st.columns([1, 1, 3])
-            r5[0].button("Tắt âm gốc", key=f"mute_{slug(chname)}", disabled=not sel_ids,
-                         on_click=lambda ids=sel_ids: _bulk(ids, keep_audio=0),
-                         help="Video đang chọn: bỏ tiếng gốc, chỉ còn nhạc/âm thanh đã chọn")
-            r5[1].button("Giữ âm gốc", key=f"unmute_{slug(chname)}", disabled=not sel_ids,
-                         on_click=lambda ids=sel_ids: _bulk(ids, keep_audio=1))
-            n_mute = sum(1 for j in jobs if j.get("keep_audio") is not None and int(j["keep_audio"]) == 0)
-            r5[2].caption(f"{n_mute}/{len(jobs)} video đang tắt âm gốc. Tắt âm gốc thì nhạc TikTok để to bình thường.")
+                st.caption("Video của sản phẩm đó (bác chưa tự chọn bìa) tự dùng ảnh này; đổi sản phẩm thì bìa đổi theo. "
+                           "Lưu riêng cho từng kênh.")
+
+            # ----- AI -----
+            st.markdown('<div class="sx-grp" style="--c:#7c3aed">AI · caption</div>', unsafe_allow_html=True)
+
             def _redo_cap(ids):
                 for i in ids:
                     db.update_job(i, status="analyzing", redo_caption=1, ai_model=default_model())
                     forget(i)
                 worker.start()
 
-            r4 = st.columns([2, 2, 3])
-            r4[1].button("Viết lại caption", key=f"rcap_{slug(chname)}", disabled=not sel_ids,
+            r4 = st.columns([1.4, 1.4, 2.6])
+            r4[0].button("Viết lại caption", key=f"rcap_{_ck}", disabled=not sel_ids, width="stretch", type="primary",
                          on_click=_redo_cap, args=(sel_ids,),
                          help="AI viết lại caption theo Hướng dẫn trong Cài đặt. Giữ nguyên sản phẩm, ảnh bìa, giờ đăng.")
-            r4[0].button("Phân tích lại video đang chọn", key=f"rax_{slug(chname)}", disabled=not sel_ids,
+            r4[1].button("Phân tích lại", key=f"rax_{_ck}", disabled=not sel_ids, width="stretch",
                          on_click=lambda ids=sel_ids: [reanalyze_cb(i) for i in ids],
-                         help="Đưa vào phân tích ngầm lại (AI nhìn hình nhận sản phẩm, gắn giỏ, viết caption). "
-                              "Giữ nguyên giờ đăng đã xếp.")
-            r4[2].caption("Mức AI khi phân tích lại: **" + MODELS.get(default_model(), NO_AI_LABEL)
-                          + "** · đổi ở Cài đặt → Mức AI mặc định")
+                         help="Phân tích lại từ đầu (nhận sản phẩm, gắn giỏ, ảnh bìa, caption). Giữ nguyên giờ đăng.")
+            r4[2].caption("Mức AI: **" + MODELS.get(default_model(), NO_AI_LABEL) + "** · đổi ở Cài đặt")
 
         # ----- Từng video -----
         per_page = 10
@@ -1693,49 +1734,6 @@ for _ in _show(tabs[5]):
     from core import tg_ui
     with st.container(border=True):
         tg_ui.render_settings(S)
-    st.subheader("Giao diện")
-    st.caption("Đổi là thấy ngay, không cần bấm Lưu.")
-    st.radio("Mở tool bằng", ["app", "chrome"], index=1 if S.get("ui_window") == "chrome" else 0, horizontal=True,
-             format_func={"app": "Cửa sổ app riêng (mặc định)",
-                          "chrome": "Chrome (chọn khi gõ tiếng Việt có dấu bị lỗi)"}.get,
-             key="ui_window_set", on_change=save_ui, args=("ui_window", "ui_window_set"),
-             help="Bộ gõ Unikey/EVKey có thể gõ sai dấu trong cửa sổ app riêng. Chọn Chrome rồi tắt tool, mở lại bằng "
-                  "biểu tượng ngoài màn hình.")
-    g1, g2, g3 = st.columns([1, 1.4, 1.4])
-    g1.radio("Sáng / tối", ["light", "dark"], index=0 if ui.mode(S) == "light" else 1, horizontal=True,
-             format_func={"light": "Sáng", "dark": "Tối"}.get, key="ui_theme_set", on_change=save_ui,
-             args=("ui_theme", "ui_theme_set"))
-    _bgs = list(ui.BACKGROUNDS)
-    g2.selectbox("Mẫu nền", _bgs, index=_bgs.index(S.get("ui_bg", "xanh_tim")) if S.get("ui_bg", "xanh_tim") in _bgs
-                 else 0, format_func=lambda x: ui.BACKGROUNDS[x][0], key="ui_bg_set", on_change=save_ui,
-                 args=("ui_bg", "ui_bg_set"))
-    _cards = list(ui.CARDS)
-    g3.radio("Kiểu khung", _cards, index=_cards.index(S.get("ui_card", "kinh")) if S.get("ui_card", "kinh") in _cards
-             else 0, format_func=ui.CARDS.get, key="ui_card_set", on_change=save_ui, args=("ui_card", "ui_card_set"))
-    _pv = st.columns(5)
-    for _n, _kk in enumerate(["xanh_tim", "dai_duong", "hoang_hon", "dong_lua", "dem_tim"]):
-        _pv[_n].markdown(ui.preview_html(_kk), unsafe_allow_html=True)
-        _pv[_n].caption(ui.BACKGROUNDS[_kk][0])
-    st.toggle("Nền chuyển động nhẹ", S.get("ui_motion", True), key="ui_motion_set", on_change=save_ui,
-              args=("ui_motion", "ui_motion_set"))
-    if S.get("ui_bg") == "anh_rieng":
-        def _up_bg():
-            _f = st.session_state.get("ui_bg_file")
-            if _f:
-                try:
-                    ui.save_bg(_f.getvalue())
-                except Exception as _e:
-                    st.session_state["ui_bg_err"] = str(_e)
-        b1, b2 = st.columns([2, 1])
-        b1.file_uploader("Ảnh nền của bác (jpg, png, webp)", type=["jpg", "jpeg", "png", "webp"], key="ui_bg_file",
-                         on_change=_up_bg)
-        b2.slider("Độ mờ ảnh nền", 0, 30, int(S.get("ui_bg_blur", 8)), key="ui_bg_blur_set", on_change=save_ui,
-                  args=("ui_bg_blur", "ui_bg_blur_set"))
-        if st.session_state.pop("ui_bg_err", None):
-            st.error("Không đọc được ảnh này, bác chọn ảnh khác giúp em.")
-        if not ui.BG_FILE.exists():
-            st.info("Chưa có ảnh nền: tải 1 ảnh lên ở ô bên trên.")
-    st.divider()
     st.subheader("Cập nhật")
     st.caption(f"Phiên bản đang dùng: {upd.local_version()}. Tool tải bản mới từ GitHub, kiểm tra mã từng file, chờ "
                "hết video đang đăng rồi mới thay. Dữ liệu (đăng nhập kênh, khoá AI, hàng chờ, thống kê) không bị đụng tới.")
