@@ -661,7 +661,9 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 ps = clone(k, tpl["tu_khoa"], cs, max(_us(0.4), ce - cs))
                 set_text(clone_mat(k, ps), txt)
                 base_y = bd[j - 1].get("y", yb)
-                ps["clip"]["transform"]["y"] = round(base_y - 0.15 if base_y > 0 else base_y + 0.15, 3)
+                # tu khoa noi NGAY DUOI cau dan (doc tu tren xuong nhu ban anh Son: 0.40 -> 0.26)
+                nd = bd[j - 1].get("so_dong", 1)
+                ps["clip"]["transform"]["y"] = round(max(-0.74, base_y - 0.12 - 0.05 * (nd - 1)), 3)
                 dat_anim(k, ps, "Trượt lên", ce - cs)
                 k.tracks["chu"][-1 if len(k.tracks["chu"]) > 2 else 0]["segments"].append(ps)
                 am.append((cs, "tu_khoa"))
@@ -670,6 +672,9 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             kws = [kw for kw in x.get("tu_khoa", []) if kw.lower() in txt.lower()]
             set_text(clone_mat(k, ps), txt, kws, color=YELLOW if c["nhan"] else None)
             c["y"] = round(yb + JITTER[(i + j) % len(JITTER)], 3)
+            c["so_dong"] = txt.count("\n") + 1
+            if j + 1 < len(bd) and bd[j + 1]["phu"] and c["y"] < -0.5:
+                c["y"] = round(c["y"] + 0.14, 3)   # chua cho tu khoa ben duoi
             ps["clip"]["transform"]["y"] = c["y"]
             ten_anim = ANIM_XOAY[st["anim"] % len(ANIM_XOAY)]
             st["anim"] += 1
