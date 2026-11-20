@@ -680,6 +680,12 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             if ce <= hook_end + _us(0.3):
                 continue
             cs = max(cs, hook_end)
+            # cum chi la "thu nhat / thu hai la..." ma nhan THU dang hien -> bo (khong lap chu, doc thang vao y)
+            tho = " ".join(w["w"].strip() for w in ws[c["tu"]:c["den"] + 1]).lower().strip(" ,.:")
+            if x.get("dem_y") and dang_dem(cs) and re.fullmatch(r"thứ\s*(nhất|hai|ba|tư|năm|\d+)(\s*(là|,))?", tho):
+                if j + 1 < len(bd):
+                    bd[j + 1]["s"] = cs
+                continue
             dong = chia_dong([w["w"] for w in ws[c["tu"]:c["den"] + 1]], c["xuong_dong"] - c["tu"] if c["xuong_dong"] > 0 else -1)
             txt = "\n".join(viet_phu_de(l) for l in dong.split("\n")).strip(" ,")
             yb = y_goc
