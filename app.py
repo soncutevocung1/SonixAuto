@@ -168,8 +168,20 @@ def discard_cb(jid, reason="Bỏ khi duyệt (không nhận diện được / b�
         new = chs.move_to(j["video_path"], ROOT, j["channel"], FOLDER_ERR)
         chs.write_error_note(new, reason)
         db.delete_jobs([jid])
+        _don_sau_khi_bo(j["channel"])
     forget(jid)
     st.session_state.pop(k("sel", jid), None)
+
+
+def _don_sau_khi_bo(channel):
+    """Bỏ / xoá video khỏi lịch -> dồn các video chờ duyệt còn lại lên lấp chỗ trống (đủ số video/ngày)."""
+    try:
+        from core import lich as _l
+        if _l.don_lich(S, channel):
+            for j in db.list_jobs(["draft"], "tiktok", channel):
+                forget(j["id"], ("d", "t"))
+    except Exception:
+        pass
 
 
 def default_model():
@@ -284,7 +296,7 @@ def save_item(jid, channel):
 @quiet_cb
 def save_time(jid):
     dt = datetime.combine(st.session_state[k("d", jid)], st.session_state[k("t", jid)])
-    db.update_job(jid, scheduled_at=sch.round5(dt).strftime(FMT))
+    db.update_job(jid, scheduled_at=sch.round5(dt).strftime(FMT), time_by_user=1)
 
 
 @quiet_cb
@@ -1096,7 +1108,8 @@ for _ in _show(tabs[1]):
                 st.button("Chuyển vào VIDEO LỖI", key=f"delx_{_ck}", type="primary",
                           on_click=lambda ids=sel_ids: [discard_cb(i) for i in ids])
                 st.button("Chỉ bỏ khỏi danh sách (để lại CHƯA UP)", key=f"del_{_ck}",
-                          on_click=lambda ids=sel_ids: (db.delete_jobs(ids), [forget(i) for i in ids]))
+                          on_click=lambda ids=sel_ids, c_=chname: (db.delete_jobs(ids), [forget(i) for i in ids],
+                                                                   _don_sau_khi_bo(c_)))
 
             # ----- Thứ tự đăng (cả kênh) -----
             st.markdown('<div class="sx-grp" style="--c:#2563eb">Thứ tự đăng · cả kênh</div>', unsafe_allow_html=True)
@@ -1437,6 +1450,11 @@ for _ in _show(tabs[1]):
                 st.session_state[f"cf_err_{slug(chn)}"] = bad
                 return
             now_ = datetime.now()
+            try:  # trước khi xác nhận: lấp chỗ trống / giờ trùng / giờ đã qua của các video chờ duyệt
+                from core import lich as _l
+                _l.don_lich(S, chn)
+            except Exception:
+                pass
             if post_now(S, chn) and len(ids) > 1:  # đăng ngay nhiều video: sắp theo thứ tự đăng bác chọn
                 ids = [x["id"] for x in sch.order_jobs([db.get_job(i) for i in ids],
                                                         channel_plan(S, chn).get("order", "folder"))]

@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.12.3
+- Sửa lỗi **ngày đặt 6 video mà chỉ đăng 4** và **2 video trùng giờ**: bỏ / xoá video khỏi danh sách duyệt sau khi đã xếp lịch để lại chỗ trống; video "Phân tích lại" bị bỏ qua khi xếp giờ cho video mới nên trùng giờ. Nay bỏ / xoá video thì tool **dồn các video chờ duyệt còn lại lên lấp chỗ trống**, bấm Xác nhận cũng dồn lại (lấp chỗ trống, bỏ giờ trùng, giờ đã qua dời sang khung trống), không kéo sớm hơn ngày bác đã chọn bắt đầu. Video bác tự sửa giờ thì giữ nguyên.
+
 ## 2.12.2
 - Nút **Mượn âm thanh của «kênh khác»** luôn hiện trong nhóm Âm thanh (trước đây bị ẩn khi đang hiện thông báo gán âm thanh). Gán không được vì kênh khác chưa cho mượn thì báo rõ "bấm nút Mượn âm thanh".
 

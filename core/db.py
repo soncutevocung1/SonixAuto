@@ -53,6 +53,7 @@ COLUMNS = {
     "redo_caption": "INTEGER DEFAULT 0",     # 1 = chỉ viết lại caption (giữ sản phẩm, ảnh bìa)       # 1 = giữ âm thanh gốc, 0 = tắt tiếng gốc trước khi đăng           # mức AI chọn lúc bấm Phân tích (luồng ngầm dùng)
     "cover_checked": "INTEGER DEFAULT 0",    # TikTok: 0 chưa kiểm ảnh bìa, 1 đúng, 2 thiếu bìa (đợi bác xoá bài)
     "late_ok": "INTEGER DEFAULT 0",          # 1 = bác đã chọn đăng bù video lỡ giờ (không hỏi lại)
+    "time_by_user": "INTEGER DEFAULT 0",     # 1 = bác tự đặt giờ cho video này (tool không tự dời)
     "fb_story": "INTEGER DEFAULT 0",         # Facebook: 1 = đăng kèm vào Tin lúc tới giờ
     "fb_story_state": "TEXT DEFAULT ''",     # '' | done | skip | lỗi...
     "created_at": "TEXT",
@@ -171,7 +172,7 @@ def taken_times(channel) -> set:
     with conn() as c:
         return {r[0] for r in c.execute(
             "SELECT scheduled_at FROM jobs WHERE channel=? AND scheduled_at!='' AND "
-            "status IN ('pending','running','scheduled','done','paused')", (channel,))}
+            "status IN ('pending','running','scheduled','done','paused','analyzing')", (channel,))}
 
 
 def rename_video_path(old, new):

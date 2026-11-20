@@ -155,3 +155,29 @@ def dang_bu(ids, per_batch=3, gap_min=30) -> int:
             t = sch.round5(t)
         db.update_job(j["id"], status="pending", scheduled_at=t.strftime(FMT), late_ok=1)
     return len(jobs)
+
+
+def don_lich(settings, channel) -> int:
+    """Dồn lại lịch các video CHỜ DUYỆT của kênh (giữ thứ tự): lấp chỗ trống do bỏ / xoá video, bỏ giờ trùng, giờ đã
+    qua. Video bác tự đặt giờ thì giữ nguyên. Trả về số video đã đổi giờ."""
+    if post_now(settings, channel):
+        return 0
+    js = [j for j in db.list_jobs(["draft"], "tiktok", channel) if j.get("scheduled_at")]
+    fixed = {j["scheduled_at"] for j in js if int(j.get("time_by_user") or 0)}
+    js = sorted([j for j in js if not int(j.get("time_by_user") or 0)], key=lambda j: (j["scheduled_at"], j["id"]))
+    if not js:
+        return 0
+    p = channel_plan(settings, channel)
+    taken = db.taken_times(channel) | fixed
+    # không kéo sớm hơn giờ sớm nhất bác đã xếp (vd xếp từ ngày 25 thì giữ từ ngày 25); giờ đã qua -> từ bây giờ
+    first = min(_dt(j["scheduled_at"]) or datetime.now() for j in js)
+    start = max(datetime.now() + timedelta(minutes=30), first)
+    times = sch.plan(len(js), start, settings["golden_hours"], p["per_day"],
+                     p["gap_min"], p["start"], p["end"], p["golden_first"], p["golden_per_slot"], taken=taken)
+    n = 0
+    for j, t in zip(js, times):
+        ts = t.strftime(FMT)
+        if ts != j["scheduled_at"]:
+            db.update_job(j["id"], scheduled_at=ts)
+            n += 1
+    return n

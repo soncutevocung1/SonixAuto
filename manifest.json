@@ -1,7 +1,7 @@
 {
- "version": "2.12.2",
- "built_at": "2026-11-20T09:38:13Z",
- "notes": "- Nút **Mượn âm thanh của «kênh khác»** luôn hiện trong nhóm Âm thanh (trước đây bị ẩn khi đang hiện thông báo gán âm thanh). Gán không được vì kênh khác chưa cho mượn thì báo rõ \"bấm nút Mượn âm thanh\".",
+ "version": "2.12.3",
+ "built_at": "2026-11-20T09:42:52Z",
+ "notes": "- Sửa lỗi **ngày đặt 6 video mà chỉ đăng 4** và **2 video trùng giờ**: bỏ / xoá video khỏi danh sách duyệt sau khi đã xếp lịch để lại chỗ trống; video \"Phân tích lại\" bị bỏ qua khi xếp giờ cho video mới nên trùng giờ. Nay bỏ / xoá video thì tool **dồn các video chờ duyệt còn lại lên lấp chỗ trống**, bấm Xác nhận cũng dồn lại (lấp chỗ trống, bỏ giờ trùng, giờ đã qua dời sang khung trống), không kéo sớm hơn ngày bác đã chọn bắt đầu. Video bác tự sửa giờ thì giữ nguyên.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "fa02b8e08999efc05c1ccb9543e9aa1eb1e64ec33bd9a35e11a19ce712a721d2",
-   "size": 46149
+   "sha256": "ed94a2c404f7e87431b1dffd03359ba98b42f352366f171f36348c69d7a7bbca",
+   "size": 46767
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,13 +65,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "2ad2f8620587f8e46ca2561a28d4a217672ba5adf86091db48aa24ca0b9da769",
+   "sha256": "a9ffa3bcdfb1272b0523a00bc41141965facf6f975291f4112f3c52259657f74",
    "size": 7
   },
   {
    "path": "app.py",
-   "sha256": "7c89d73b900a77c6213faa515c31024b1eabcfe279c4de58f25b09f0c08de251",
-   "size": 127844
+   "sha256": "7bf8dab02f65433d1ceb89779b25fb8bfa0533434db1e47182074fb4e9e63603",
+   "size": 128652
   },
   {
    "path": "assets/sonix.ico",
@@ -145,8 +145,8 @@
   },
   {
    "path": "core/db.py",
-   "sha256": "cd7d251bf386632a480b79bbc6cf9769e1da090061dac8d2016f8d4cb2aa05f9",
-   "size": 7263
+   "sha256": "5467da63b070de4a3c1b2015297fbd653fff6ec17903a4f676433beb66e83ea4",
+   "size": 7389
   },
   {
    "path": "core/desktop.py",
@@ -215,8 +215,8 @@
   },
   {
    "path": "core/lich.py",
-   "sha256": "ac09d1d5ecf180fc29685804f12f390f4a038daf0b20982fd50695508b5ab23a",
-   "size": 7790
+   "sha256": "24053fd17be3e0af61aac78711780ca40d5e7de29cadca849f6e1ed160c62ee7",
+   "size": 9047
   },
   {
    "path": "core/loc_sp.py",
