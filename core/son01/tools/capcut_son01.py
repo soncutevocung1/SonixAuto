@@ -497,6 +497,10 @@ def hop_le(c, sp, cho_nguoi):
         return False
     if c.get("nguoi_noi") and not cho_nguoi:
         return False
+    mt = (c.get("mo_ta") or "").lower() + " " + os.path.basename(c.get("file", "")).lower()
+    khac = {"sp_tc01": ("đạm cá", "dam ca", "damca", "đạmcá"), "sp_dam_ca": ("kích rễ", "kich re", "kichre", "tc01")}
+    if any(x in mt for x in khac.get(sp, ())):
+        return False   # mo ta / ten file noi san pham khac (vd khuay dam ca trong video kich re)
     if la_ai(c) and (c.get("chai") or "san_pham_can_canh" in n or ({"sp_tc01", "sp_dam_ca", "sp_khac"} & n)):
         return False   # chai/san pham trong video AI khong giong that
     return True
