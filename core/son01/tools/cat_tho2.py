@@ -46,7 +46,8 @@ def probe(video):
 
 
 # ---------------------------------------------------------------- 1) nhin hinh
-def nhin(video, buoc=0.2, w=360):
+def nhin(video, buoc=0.2, w=1080, vung=(0.2, 0.14, 0.6, 0.42)):
+    """vung: (x, y, rong, cao) theo ti le khung - vung nguoi ngoi; cat rieng de mat du lon cho model."""
     import mediapipe as mp
     from mediapipe.tasks.python import vision, BaseOptions
     det = vision.ObjectDetector.create_from_options(vision.ObjectDetectorOptions(
@@ -54,15 +55,18 @@ def nhin(video, buoc=0.2, w=360):
         score_threshold=0.2, max_results=8, category_allowlist=["cell phone", "remote"]))
     lm = vision.FaceLandmarker.create_from_options(vision.FaceLandmarkerOptions(
         base_options=BaseOptions(model_asset_path=model("face_landmarker.task")),
-        output_facial_transformation_matrixes=True, num_faces=1))
+        output_facial_transformation_matrixes=True, output_face_blendshapes=True, num_faces=1,
+        min_face_detection_confidence=0.3))
     dur = probe(video)
     h = None
-    cmd = [FF, "-v", "error", "-i", video, "-vf", f"fps={1 / buoc},scale={w}:-2", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"]
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    # kich thuoc khung
-    info = subprocess.run([FF, "-v", "error", "-i", video, "-vf", f"scale={w}:-2", "-frames:v", "1", "-f", "rawvideo",
+    x0, y0, cw, ch = vung
+    crop = f"scale={w}:-2,crop=trunc(iw*{cw}/2)*2:trunc(ih*{ch}/2)*2:iw*{x0}:ih*{y0}"
+    info = subprocess.run([FF, "-v", "error", "-i", video, "-vf", crop, "-frames:v", "1", "-f", "rawvideo",
                            "-pix_fmt", "rgb24", "-"], capture_output=True).stdout
+    w = int(w * cw / 2) * 2
     h = len(info) // (w * 3)
+    cmd = [FF, "-v", "error", "-i", video, "-vf", f"fps={1 / buoc}," + crop, "-f", "rawvideo", "-pix_fmt", "rgb24", "-"]
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     out, i = [], 0
     while True:
         b = p.stdout.read(w * h * 3)
@@ -73,11 +77,15 @@ def nhin(video, buoc=0.2, w=360):
         ph = max([d.categories[0].score for d in det.detect(mi).detections] or [0.0])
         r = lm.detect(mi)
         pitch = yaw = None
+        mat_xuong = 0.0
+        if r.face_blendshapes:
+            bs = {c.category_name: c.score for c in r.face_blendshapes[0]}
+            mat_xuong = (bs.get("eyeLookDownLeft", 0) + bs.get("eyeLookDownRight", 0)) / 2
         if r.facial_transformation_matrixes:
             M = np.array(r.facial_transformation_matrixes[0])[:3, :3]
             pitch = math.degrees(math.atan2(M[2, 1], M[2, 2]))
             yaw = math.degrees(math.asin(max(-1, min(1, -M[2, 0]))))
-        out.append({"t": round(i * buoc, 2), "phone": round(ph, 3), "mat": r.facial_transformation_matrixes != [],
+        out.append({"t": round(i * buoc, 2), "phone": round(ph, 3), "mat": r.facial_transformation_matrixes != [], "mat_xuong": round(mat_xuong, 2),
                     "pitch": None if pitch is None else round(pitch, 1), "yaw": None if yaw is None else round(yaw, 1)})
         i += 1
     p.wait()
@@ -90,13 +98,14 @@ def danh_dau_doc(nh, nguong_phone=0.35, nguong_cui=None):
     K = nh["khung"]
     ps = [k["pitch"] for k in K if k["pitch"] is not None]
     if nguong_cui is None and ps:
-        med = float(np.median(ps))
-        nguong_cui = med + 12  # lech 12 do so voi tu the thuong
+        med = float(np.percentile(ps, 20))   # tu the nhin ong kinh (nhom ngang dau)
+        nguong_cui = med + 4.5               # C3420: noi -6..0.4 do, doc dien thoai 2..11 do
         nh["pitch_trung_vi"] = med
     raw = []
     for k in K:
         cui = k["pitch"] is not None and nguong_cui is not None and k["pitch"] > nguong_cui
-        raw.append(1.0 if (k["phone"] >= nguong_phone or not k["mat"] or cui) else 0.0)
+        xuong = k.get("mat_xuong", 0) >= 0.55
+        raw.append(1.0 if (k["phone"] >= nguong_phone or not k["mat"] or cui or xuong) else 0.0)
     n = max(1, int(round(1.0 / nh["buoc"])))
     sm = [float(np.mean(raw[max(0, i - n // 2): i + n // 2 + 1])) for i in range(len(raw))]
     nh["nguong_cui"] = nguong_cui
