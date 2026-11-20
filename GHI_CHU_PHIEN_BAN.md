@@ -1,6 +1,11 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.11.0
+- **Bỏ Opus và Sonnet** (tốn tiền). Mức AI còn: **Gemini Flash-Lite / Flash (miễn phí, khuyên dùng)**, Claude Haiku (trả phí rẻ), Không dùng AI. Máy đang chọn Opus/Sonnet tự chuyển sang Gemini (nếu có Gemini key) hoặc Haiku.
+- **Nhận diện sản phẩm miễn phí, không cần mạng**: tool **đọc chữ trên nhãn** trong video (TC01, Kích rễ, Top One, Đạm cá Amino, 1 lít / 5 lít...) bằng máy đọc chữ có sẵn trên máy, chọn luôn khung thấy nhãn rõ nhất làm ảnh bìa. Chế độ "Không dùng AI" giờ nhận được sản phẩm theo nhãn chứ không chỉ theo tên file. Khi dùng Gemini/Haiku: nhãn đọc rõ thì sản phẩm được chốt theo nhãn, AI chỉ còn viết caption (chính xác hơn).
+- **Caption hay hơn**: AI được đưa thêm **Thông tin sản phẩm** (thành phần, công dụng, cách pha, điền ở Sonix Edit Video) để viết đúng, kể theo kiểu vấn đề → sản phẩm giúp gì → cách dùng, mỗi video viết khác nhau. Caption mẫu (không AI) cũng lấy câu công dụng từ thông tin sản phẩm.
+
 ## 2.10.14 · Lọc kỹ cảnh phun / rót / pha + Xoay minh họa chèn đẹp hơn
 - **Lọc lại cảnh phun, tưới, rót, pha**: AI xem kỹ từng cảnh (3 khung đầu - giữa - cuối). Cảnh không thật sự đang rót / pha / phun / tưới (chỉ cầm chai, cận nhãn, kệ hàng...) thì đổi loại; cảnh có người hoặc sản phẩm khác thì bỏ. Quét cảnh video mới cũng tự soát bước này.
 - **Xoay minh họa**: đoạn chèn vẫn tua nhanh 2x, tắt tiếng; nay **ưu tiên cảnh sử dụng** (phun, tưới, rót, pha), **không chèn lẻ cảnh có người**; đủ 4 video có người thì ghép **1 khung chia 4 ô nhiều người dùng**. Chỉ lấy cảnh AI đã xem (tránh lọt người, khung bình luận chèn chữ).

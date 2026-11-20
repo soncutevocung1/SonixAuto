@@ -32,13 +32,13 @@ AUDIO_EXTS = {".mp3", ".m4a", ".wav", ".aac", ".ogg"}
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
 
 MODELS = {
-    "claude-opus-5-5": "Opus · nhận diện & viết hay nhất (~1.300đ/video)",
-    "claude-sonnet-5-5": "Sonnet · cân bằng (~650đ/video)",
-    "claude-haiku-5-5": "Haiku · rẻ nhất (~50đ/video)",
-    "gemini-3.5-flash-lite": "Gemini 3.5 Flash-Lite · MIỄN PHÍ (cần Gemini API key, giới hạn lượt/ngày)",
-    "gemini-3.8-flash": "Gemini 3.8 Flash · MIỄN PHÍ (nhìn kỹ hơn, ít lượt/ngày hơn)",
+    "gemini-3.5-flash-lite": "Gemini 3.5 Flash-Lite · MIỄN PHÍ, khuyên dùng (cần Gemini API key, giới hạn lượt/ngày)",
+    "gemini-3.8-flash": "Gemini 3.8 Flash · MIỄN PHÍ (nhìn kỹ hơn, viết hay hơn, ít lượt/ngày hơn)",
+    "claude-haiku-5-5": "Claude Haiku · trả phí (~50đ/video)",
 }
 NO_AI = "khong_ai"
+NO_AI_LABEL = "Không dùng AI · đọc chữ trên nhãn + tên file để nhận sản phẩm, caption mẫu (miễn phí, không cần mạng)"
+OLD_MODELS = ("claude-opus-5-5", "claude-sonnet-5-5")  # đã bỏ khỏi tool (tốn tiền) -> tự đổi sang mức khác
 
 # Danh mục sản phẩm cần nhận diện trong video (sửa được trong tool)
 DEFAULT_ITEMS = [
@@ -122,6 +122,11 @@ def load_settings() -> dict:
             data["plan"] = {**DEFAULTS["plan"], **saved.get("plan", {})}
         except Exception:
             pass
+    if data.get("ai_model") in OLD_MODELS:  # Opus / Sonnet đã bỏ -> Gemini miễn phí (có key) hoặc Haiku
+        data["ai_model"] = "gemini-3.5-flash-lite" if (data.get("gemini_api_key") or "").strip() else "claude-haiku-5-5"
+    for pg in data.get("facebook_pages") or []:
+        if pg.get("auto_model") in OLD_MODELS:
+            pg["auto_model"] = data["ai_model"]
     return data
 
 

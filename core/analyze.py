@@ -26,7 +26,8 @@ Nhiệm vụ với mỗi video (bạn được xem các khung hình đánh số)
 4. Viết caption TikTok:
    - Giọng miền Nam, mộc mạc, xưng "em", gọi người xem là "bác". Câu ngắn. Không dùng từ tiếng Anh.
    - Dòng 1: câu móc dưới 80 ký tự, chạm nỗi lo thật (vàng lá, rụng trái, thối rễ, cây suy...) hoặc gây tò mò, có thể 1 emoji.
-   - 1-3 dòng thân: lợi ích, cách dùng nếu thấy trong video. Không bịa số liệu, liều lượng.
+   - 1-3 dòng thân: kể ngắn vấn đề → sản phẩm giúp gì → cách dùng, lấy ĐÚNG từ "Thông tin sản phẩm" và những gì thấy trong video. Không bịa số liệu, liều lượng ngoài thông tin đó.
+   - Mỗi video viết khác nhau (câu móc, cách kể), đừng lặp một khuôn; viết tự nhiên như người làm vườn kể chuyện, không như quảng cáo.
    - Dòng cuối: kêu gọi hành động. Có sản phẩm thì mời bấm giỏ hàng vàng.
    - Tối đa 300 ký tự, không chứa hashtag.
    - Cấm dùng: tốt nhất, số 1, 100%, cam kết, thần kỳ, chữa khỏi, vĩnh viễn, rẻ nhất, duy nhất, diệt sạch, trị dứt điểm. Không hứa năng suất bằng con số. Thuốc BVTV thì nhắc nhẹ đọc kỹ hướng dẫn hoặc mang đồ bảo hộ.
@@ -186,8 +187,11 @@ def _ai(frames, video_name, channel, settings, model, known_item=None):
     content = []
     # Phần cố định (danh sách + ảnh mẫu) đặt trước để dùng bộ nhớ đệm, giảm tiền cho các video sau
     lines = ["Danh sách sản phẩm cần nhận diện:"]
+    from . import nhan_dien as _nd
     for it in items:
-        lines.append(f"- key={it['key']}: {it['name']}. Đặc điểm: {it.get('hints', '')}")
+        tt = _nd.thong_tin(settings, it["key"])
+        lines.append(f"- key={it['key']}: {it['name']}. Đặc điểm: {it.get('hints', '')}"
+                     + (f"\n  Thông tin sản phẩm (dùng khi viết caption, không bịa thêm): {tt[:400]}" if tt else ""))
     content.append({"type": "text", "text": "\n".join(lines)})
     for it in items:
         ref = _ref_image(it, channel, settings)
@@ -245,6 +249,15 @@ def _ai(frames, video_name, channel, settings, model, known_item=None):
             "hashtags": hashtags[:8]}
 
 
+def _cau_dau(info: str) -> str:
+    """Câu công dụng ngắn từ thông tin sản phẩm (cho caption mẫu khi không dùng AI)."""
+    import re as _re
+    m = _re.search(r"Công dụng:?\s*([^.]+)", info or "")
+    if m:
+        return m.group(1).strip()[:120]
+    return (_re.split(r"(?<=[.!])\s", (info or "").strip())[0] if info else "")[:120]
+
+
 def _by_filename(video_path, settings):
     name = norm(Path(video_path).stem)
     compact = name.replace(" ", "")
@@ -273,18 +286,49 @@ def analyze(job_id, video_path, channel, settings, model, caption_only=False, kn
 
     error = ""
     res = None
+    ocr = None  # đọc chữ trên nhãn: miễn phí, chạy trên máy
+    if not caption_only:
+        from . import nhan_dien as nd
+        if nd.co_ocr():
+            try:
+                kh = nd.khung_ocr(video_path, work)
+                ocr = nd.doan(settings, [p for _, p in kh])
+                if ocr.get("best") is not None:  # khung đọc rõ nhãn nhất -> khung gần nhất trong 10 khung
+                    tb = kh[ocr["best"]][0]
+                    ocr["best"] = min(range(len(frames)), key=lambda i: abs(frames[i]["t"] - tb))
+                for _, p_ in kh:
+                    p_.unlink(missing_ok=True)
+            except Exception as e:
+                ocr = {"item": "", "conf": 0, "best": None, "why": f"máy đọc chữ lỗi: {str(e)[:80]}"}
+    sure = (ocr or {}).get("item") if (ocr or {}).get("conf", 0) >= 90 else ""  # đọc rõ nhãn ở 2 khung trở lên
     if model and model != "khong_ai" and ai_key(settings, model):
         try:
             res = _ai(frames, Path(video_path).name, channel, settings, model,
-                      known_item=(known_item or "") if caption_only else None)
+                      known_item=(known_item or "") if caption_only else (sure or None))
+            if sure:
+                res["item_key"], res["confidence"] = sure, max(int(res.get("confidence") or 0), ocr["conf"])
+                res["note"] = f"Máy đọc nhãn: {ocr['why']}. " + res.get("note", "")
         except Exception as e:
             error = f"AI lỗi ({type(e).__name__}: {str(e)[:120]}) → dùng cách dự phòng. "
+    if res is None and ocr and ocr.get("item") and not _by_filename(video_path, settings)[0]:
+        # không dùng AI / AI lỗi, tên file không có tên sản phẩm: dùng chữ đọc được trên nhãn
+        item = next((it for it in settings["items"] if it["key"] == ocr["item"]), None)
+        tags = cap.parse_tags(settings.get("default_hashtags", ""))
+        info = nd.thong_tin(settings, ocr["item"])
+        note_ = _cau_dau(info)
+        if item and norm(note_).startswith(norm(item["name"])):  # bỏ tên sản phẩm lặp ở đầu câu
+            note_ = note_[len(item["name"]):].lstrip(" ,:.-").strip()
+        tpl = cap.template_caption("Khác", {"name": item["name"], "note": note_} if item else None, "", tags)
+        res = {"item_key": ocr["item"], "confidence": ocr["conf"],
+               "best": ocr["best"] if ocr.get("best") is not None else len(frames) // 2,
+               "note": error + f"Máy đọc nhãn: {ocr['why']}", "caption": tpl["tiktok"], "hashtags": tpl["hashtags"]}
     if res is None:
         key, why = _by_filename(video_path, settings)
         item = next((it for it in settings["items"] if it["key"] == key), None)
         tags = cap.parse_tags(settings.get("default_hashtags", ""))
         tpl = cap.template_caption("Khác", {"name": item["name"], "note": ""} if item else None, "", tags)
-        res = {"item_key": key, "confidence": 40 if key else 30, "best": len(frames) // 2,
+        res = {"item_key": key, "confidence": 40 if key else 30,
+               "best": (ocr or {}).get("best") if (ocr or {}).get("best") is not None else len(frames) // 2,
                "note": error + why, "caption": tpl["tiktok"], "hashtags": tpl["hashtags"]}
 
     if caption_only:

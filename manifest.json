@@ -1,7 +1,7 @@
 {
- "version": "2.10.14",
- "built_at": "2026-11-19T09:50:41Z",
- "notes": "- **Lọc lại cảnh phun, tưới, rót, pha**: AI xem kỹ từng cảnh (3 khung đầu - giữa - cuối). Cảnh không thật sự đang rót / pha / phun / tưới (chỉ cầm chai, cận nhãn, kệ hàng...) thì đổi loại; cảnh có người hoặc sản phẩm khác thì bỏ. Quét cảnh video mới cũng tự soát bước này.\n- **Xoay minh họa**: đoạn chèn vẫn tua nhanh 2x, tắt tiếng; nay **ưu tiên cảnh sử dụng** (phun, tưới, rót, pha), **không chèn lẻ cảnh có người**; đủ 4 video có người thì ghép **1 khung chia 4 ô nhiều người dùng**. Chỉ lấy cảnh AI đã xem (tránh lọt người, khung bình luận chèn chữ).",
+ "version": "2.11.0",
+ "built_at": "2026-11-20T08:46:34Z",
+ "notes": "- **Bỏ Opus và Sonnet** (tốn tiền). Mức AI còn: **Gemini Flash-Lite / Flash (miễn phí, khuyên dùng)**, Claude Haiku (trả phí rẻ), Không dùng AI. Máy đang chọn Opus/Sonnet tự chuyển sang Gemini (nếu có Gemini key) hoặc Haiku.\n- **Nhận diện sản phẩm miễn phí, không cần mạng**: tool **đọc chữ trên nhãn** trong video (TC01, Kích rễ, Top One, Đạm cá Amino, 1 lít / 5 lít...) bằng máy đọc chữ có sẵn trên máy, chọn luôn khung thấy nhãn rõ nhất làm ảnh bìa. Chế độ \"Không dùng AI\" giờ nhận được sản phẩm theo nhãn chứ không chỉ theo tên file. Khi dùng Gemini/Haiku: nhãn đọc rõ thì sản phẩm được chốt theo nhãn, AI chỉ còn viết caption (chính xác hơn).\n- **Caption hay hơn**: AI được đưa thêm **Thông tin sản phẩm** (thành phần, công dụng, cách pha, điền ở Sonix Edit Video) để viết đúng, kể theo kiểu vấn đề → sản phẩm giúp gì → cách dùng, mỗi video viết khác nhau. Caption mẫu (không AI) cũng lấy câu công dụng từ thông tin sản phẩm.",
  "files": [
   {
    "path": ".gitattributes",
@@ -39,9 +39,39 @@
    "size": 415
   },
   {
+   "path": "GHI_CHU_PHIEN_BAN.md",
+   "sha256": "a2e13543a9d5aed34c88ceec4a71970bc6769dc739f734959bf85efc30d3abce",
+   "size": 43731
+  },
+  {
+   "path": "HUONG_DAN.md",
+   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
+   "size": 16971
+  },
+  {
+   "path": "KE_HOACH_EDIT_VIDEO.md",
+   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
+   "size": 9720
+  },
+  {
+   "path": "Sonix Auto.exe",
+   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
+   "size": 224256
+  },
+  {
+   "path": "SonixDangVideo.pyw",
+   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
+   "size": 3327
+  },
+  {
+   "path": "VERSION",
+   "sha256": "f526f5e7f214e4916c51e16a61fb1be5d530d67e44c65d86db25b8416463b10c",
+   "size": 7
+  },
+  {
    "path": "app.py",
-   "sha256": "1413d106130e8e2ae1a64bbd50b31521a179f394252a4094794ec46c2c27f579",
-   "size": 126039
+   "sha256": "efc8aa66347038dd794bba7cb11f1c4a3a6d798add890fd7e34a4370eba4c237",
+   "size": 126032
   },
   {
    "path": "assets/sonix.ico",
@@ -65,8 +95,8 @@
   },
   {
    "path": "core/analyze.py",
-   "sha256": "d9d8c0e26ee8d44959e673f69228c7dac774b90bf8275e2b9cf11b38f09eb79a",
-   "size": 23873
+   "sha256": "49ef7c88671068acab5c7de7b626faf192906cd6ef88890c04a9c8659931c83f",
+   "size": 26968
   },
   {
    "path": "core/canh.py",
@@ -100,8 +130,8 @@
   },
   {
    "path": "core/config.py",
-   "sha256": "49487b06ba0d0df22c0de40e21a4daa8021a8f940bcd742a9ddd4db8943b5706",
-   "size": 8998
+   "sha256": "15eeee5cb03994d1c69a893d7569b6e636893e79b9094397708b993e394427f2",
+   "size": 9539
   },
   {
    "path": "core/covers.py",
@@ -160,8 +190,8 @@
   },
   {
    "path": "core/fb_ui.py",
-   "sha256": "7925d05841d0e321593ec82ad63372df48938e2935fe4a8c46aa9d9c17d942ed",
-   "size": 32155
+   "sha256": "c0552ecab5078d56b0a118c4e8086f0f5ee54be8509c2762c909f8b65294c968",
+   "size": 32169
   },
   {
    "path": "core/fbq.py",
@@ -202,6 +232,11 @@
    "path": "core/mau.py",
    "sha256": "dc61036a32b8ee263b41a123b44e47967c474356e167e667a0a9a6c8477e72b4",
    "size": 6526
+  },
+  {
+   "path": "core/nhan_dien.py",
+   "sha256": "6ce406c4641dab83c6c5cf2989e6b36f968953f117a1725a667455dd4b3cc450",
+   "size": 4531
   },
   {
    "path": "core/phong_cach.py",
@@ -295,8 +330,8 @@
   },
   {
    "path": "core/worker.py",
-   "sha256": "7669b8a67d2cfb43ca396851dfb732f3b690ff5d2cc921288b290c738248befa",
-   "size": 10180
+   "sha256": "25e6c13b825214258bf5402f10a1bc20fcdfb476bab6179ddab67f4e4a58e920",
+   "size": 10411
   },
   {
    "path": "core/xoay.py",
@@ -314,21 +349,6 @@
    "size": 879
   },
   {
-   "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "9981d9381f853a14369539976578157f70f1705c24075b2aa662b35a6079c19f",
-   "size": 42901
-  },
-  {
-   "path": "HUONG_DAN.md",
-   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
-   "size": 16971
-  },
-  {
-   "path": "KE_HOACH_EDIT_VIDEO.md",
-   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
-   "size": 9720
-  },
-  {
    "path": "mo_tool_mac.sh",
    "sha256": "cca941d7dc0f9085e074de3fcedfa45b19a14debc919921b1854e0643f89f93e",
    "size": 248
@@ -344,24 +364,9 @@
    "size": 30558
   },
   {
-   "path": "Sonix Auto.exe",
-   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
-   "size": 224256
-  },
-  {
-   "path": "SonixDangVideo.pyw",
-   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
-   "size": 3327
-  },
-  {
    "path": "tao_manifest.py",
    "sha256": "6dcb33c88afa4b4cf0d916e2406cba216f992dc783c3a3f31b05b598c3e01365",
    "size": 1803
-  },
-  {
-   "path": "VERSION",
-   "sha256": "bdb6aed0c3c2c1b26e21a2bbbc492a636f8ef96813dec61366bbc40028c48ba1",
-   "size": 9
   }
  ]
 }

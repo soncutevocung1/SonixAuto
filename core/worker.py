@@ -30,6 +30,11 @@ def default_model(settings) -> str:
     return m if m in MODELS and ai_key(settings, m) else NO_AI
 
 
+def _model(m, settings) -> str:
+    """Mức AI ghi trong video (có thể là Opus/Sonnet cũ đã bỏ) -> mức đang dùng được."""
+    return m if m == NO_AI or m in MODELS else default_model(settings)
+
+
 def _log(msg):
     try:
         LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -182,7 +187,7 @@ def _loop():
             gem = any(str(j.get("ai_model") or default_model(settings)).startswith("gemini") for j in batch)
             with ThreadPoolExecutor(max_workers=2) as ex:  # 2 video/lần: đỡ nghẽn ổ cứng, Gemini miễn phí đỡ vượt lượt/phút
                 futs = {ex.submit(analyze_job, j["id"], j["video_path"], j["channel"],
-                                  j.get("ai_model") or default_model(settings), settings,
+                                  _model(j.get("ai_model") or default_model(settings), settings), settings,
                                   bool(j.get("redo_caption")), j.get("item_key") or "",
                                   j.get("platform") or "tiktok"): j for j in batch}
                 for fu in as_completed(futs):

@@ -23,7 +23,7 @@ from core import channels as chs  # noqa: E402
 from core import db, facebook  # noqa: E402
 from core import products as prod  # noqa: E402
 from core import schedule as sch  # noqa: E402
-from core.config import (ai_key, channel_plan, post_now, APP_NAME, BASE_DIR, DATA_DIR, DEBUG_DIR, FOLDER_ERR, FOLDER_MUSIC,  # noqa: E402
+from core.config import (ai_key, channel_plan, post_now, NO_AI_LABEL, APP_NAME, BASE_DIR, DATA_DIR, DEBUG_DIR, FOLDER_ERR, FOLDER_MUSIC,  # noqa: E402
                          FOLDER_TODO, HEARTBEAT_FILE, MODELS, NO_AI, REF_DIR, RUNNER_LOG, SOUNDS_DIR,
                          VIDEO_EXTS, load_settings, profile_dir, save_settings, slug)
 from core import desktop  # noqa: E402
@@ -805,7 +805,7 @@ D:\\SONIX_UP_VIDEO\\
         opts = list(MODELS) + [NO_AI]
         default = default_model()
         model = st.radio("Mức AI (chọn mỗi lần đăng)", opts, index=opts.index(default), format_func=lambda m: MODELS.get(
-            m, "Không dùng AI · nhận diện theo TÊN FILE, caption mẫu (miễn phí)"))
+            m, NO_AI_LABEL))
         has_key = model == NO_AI or bool(ai_key(S, model))
         if not has_key:
             st.error(("Chưa có Gemini API key" if model.startswith("gemini") else "Chưa có Claude API key")
@@ -853,9 +853,10 @@ for _ in _show(tabs[1]):
     if not drafts:
         st.info("Chưa có video chờ duyệt. Qua tab Đăng video để phân tích.")
     if default_model() == NO_AI:
-        st.info("Đang để 'Không dùng AI' (hoặc chưa có API key) nên tool chỉ đoán sản phẩm theo **tên file** → mọi video đều chấm đỏ, bác bấm "
-                "**Xem video** rồi chọn sản phẩm cho đúng. Có API key thì AI xem hình trong video: chấm xanh = đọc rõ chữ "
-                "trên nhãn, chấm vàng = nhận ra qua màu/hình dáng (vẫn nên xem lại).")
+        st.info("Đang để 'Không dùng AI' (hoặc chưa có API key): tool **đọc chữ trên nhãn** trong video và tên file để nhận "
+                "sản phẩm (miễn phí, chạy trên máy). Video đọc rõ nhãn ở 2 khung trở lên được chấm xanh; không đọc được thì "
+                "chấm đỏ, bác bấm **Xem video** rồi chọn sản phẩm. Caption là caption mẫu: muốn caption hay hơn mà vẫn MIỄN "
+                "PHÍ thì dán Gemini API key ở Cài đặt và chọn Gemini.")
     st.markdown("**Màu độ chắc chắn:** <span class='sx-cdot g'></span>≥80% · <span class='sx-cdot y'></span>60-79% · "
                 "<span class='sx-cdot r'></span>dưới 60% — video chấm đỏ phải tick "
                 "*'Tôi đã kiểm tra'* mới cho đăng. **Giờ vàng:** " +
@@ -1201,7 +1202,7 @@ for _ in _show(tabs[1]):
                          on_click=lambda ids=sel_ids: [reanalyze_cb(i) for i in ids],
                          help="Đưa vào phân tích ngầm lại (AI nhìn hình nhận sản phẩm, gắn giỏ, viết caption). "
                               "Giữ nguyên giờ đăng đã xếp.")
-            r4[2].caption("Mức AI khi phân tích lại: **" + MODELS.get(default_model(), "Không dùng AI (theo tên file)")
+            r4[2].caption("Mức AI khi phân tích lại: **" + MODELS.get(default_model(), NO_AI_LABEL)
                           + "** · đổi ở Cài đặt → Mức AI mặc định")
 
         # ----- Từng video -----
@@ -1821,7 +1822,7 @@ Không dán key vào chat. Key nằm trong thư mục `data` trên máy bác."""
     gkey = st.text_input("Gemini API key", S.get("gemini_api_key", ""), type="password", placeholder="AIza...")
     AI_DEFAULT_OPTS = list(MODELS) + [NO_AI]
     model = st.selectbox("Mức AI mặc định", AI_DEFAULT_OPTS,
-                         format_func=lambda m: MODELS.get(m, "Không dùng AI · theo tên file, caption mẫu (miễn phí)"),
+                         format_func=lambda m: MODELS.get(m, NO_AI_LABEL),
                          index=AI_DEFAULT_OPTS.index(S["ai_model"]) if S.get("ai_model") in AI_DEFAULT_OPTS else 0,
                          help="Mức được chọn sẵn ở Bước 2 mỗi lần phân tích. Chọn 'Không dùng AI' để không tốn tiền.")
     tags = st.text_input("Hashtag luôn gắn", S.get("default_hashtags", ""))

@@ -8,7 +8,7 @@ from pathlib import Path
 import streamlit as st
 
 from . import db, facebook, fbq, ui, worker
-from .config import FOLDER_DONE, FOLDER_ERR, FOLDER_TODO, MODELS, NO_AI, ai_key, save_settings
+from .config import FOLDER_DONE, FOLDER_ERR, FOLDER_TODO, MODELS, NO_AI, ai_key, save_settings  # noqa: F401
 
 FMT = db.TIME_FMT
 VER = "v23.0"
