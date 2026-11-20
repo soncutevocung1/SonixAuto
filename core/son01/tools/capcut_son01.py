@@ -497,7 +497,13 @@ def hop_le(c, sp, cho_nguoi):
         return False
     if c.get("nguoi_noi") and not cho_nguoi:
         return False
+    if la_ai(c) and (c.get("chai") or "san_pham_can_canh" in n or ({"sp_tc01", "sp_dam_ca", "sp_khac"} & n)):
+        return False   # chai/san pham trong video AI khong giong that
     return True
+
+
+def la_ai(c):
+    return "video_ai" in c.get("file", "").lower().replace(" ", "_") or bool(c.get("ai"))
 
 
 def chon_canh(thu_vien, nhan, da_dung, sp=None, dung_giay=3.0, loi="", da_file=None, cho_nguoi=False, nhan_phu=()):
@@ -509,10 +515,12 @@ def chon_canh(thu_vien, nhan, da_dung, sp=None, dung_giay=3.0, loi="", da_file=N
     nh = [nhan, *nhan_phu]
     tl = _tu(loi)
     cands = [c for c in thu_vien if set(nh) & set(c.get("nhan", [])) and c["id"] not in da_dung
-             and c["file"] not in da_file and c.get("dai", 0) >= min(dung_giay, 2.0) * 0.5 and hop_le(c, sp, cho_nguoi)]
+             and c["file"] not in da_file and c.get("dai", 0) >= dung_giay / 2.0 and hop_le(c, sp, cho_nguoi)]
     def diem(c):
         d = 3 * chat_luong(c) + (1.0 if nhan in c.get("nhan", []) else 0) + 0.5 * (sp in c.get("nhan", []))
         d += 0.3 * len(tl & _tu(c.get("mo_ta", ""))) + 0.3 * min(c["dai"], 6) / 6
+        if la_ai(c) and not str(nhan).startswith("mo_phong"):
+            d -= 3   # uu tien canh THAT (vuon, nguoi dung san pham) hon canh AI
         return d
     cands.sort(key=diem, reverse=True)
     for c in cands[:10]:
@@ -569,7 +577,7 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
         """1 canh minh hoa (khung bo goc cua khuon), toc do toi da 2x, TAT TIENG."""
         bs = clone(k, tpl["broll"], a, b - a)
         need = (b - a) / US
-        toc = max(0.5, min(2.0, c["dai"] / need))
+        toc = max(1.0, min(2.0, c["dai"] / need))   # chi tua nhanh, khong tua cham (anh Son)
         src = c["file"].replace("\\", "/")
         clone_mat(k, bs, path=src, material_name=Path(src).name, width=c["w"], height=c["h"], duration=_us(c["e"] + 1))
         bs["source_timerange"] = {"start": _us(c["s"]), "duration": _us(need * toc)}
@@ -711,9 +719,18 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 if gop:
                     break
         # cum NHAN (tu khoa) dung sau cum thuong -> cum thuong keo dai, tu khoa vang nghieng noi rieng
-        # MOI LUC CHI 1 CAU (anh Son: chu de len nhau thi khong biet doc cau nao truoc) -> khong lop phu chong
-        for c in bd:
-            c["phu"] = False
+        # XEP LOP THEO Y (ban mau anh Son): cau cung 1 y hien noi tiep ben duoi, cau truoc VAN O LAI toi het y
+        # ('dam ca la / mot dong dam' roi 'de hap thu' hien them ben duoi). Ke hoach ghi noi=true cho cau xep duoi;
+        # khong co thi tu dong: cau nhan dung sau cau thuong -> xep duoi. Toi da 3 cau 1 lop.
+        co_noi = any("noi" in c for c in bd)
+        so_lop = 0
+        for j, c in enumerate(bd):
+            noi = (c.get("noi") if co_noi else (c["nhan"] and j > 0 and not bd[j - 1]["nhan"])) and j > 0 and so_lop < 2
+            c["phu"] = bool(noi)
+            so_lop = so_lop + 1 if noi else 0
+        for j in range(len(bd) - 1, 0, -1):   # cau truoc trong cung lop: o lai toi khi cau cuoi lop tat
+            if bd[j]["phu"]:
+                bd[j - 1]["e"] = bd[j]["e"]
         dang_dem = lambda u: any(d0 <= u < d1 for d0, d1 in dem_span)
         tren = min(y_mat, 0.40) if y_mat > 0 else y_mat
         if kieu_mh == "luoi":
@@ -742,16 +759,25 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             elif yb > 0 and dang_dem(cs):
                 yb = min(yb, 0.40)
             if c["phu"]:
-                ps = clone(k, tpl["tu_khoa"], cs, max(_us(0.4), ce - cs))
-                set_text(clone_mat(k, ps), txt)
-                base_y = bd[j - 1].get("y", yb)
-                # tu khoa noi NGAY DUOI cau dan (doc tu tren xuong nhu ban anh Son: 0.40 -> 0.26)
-                # 1 dong chu cao ~0.12 (toa do CapCut) -> cach = nua khoi tren + nua khoi duoi + khe 0.03
-                nd, no = bd[j - 1].get("so_dong", 1), txt.count("\n") + 1
-                ps["clip"]["transform"]["y"] = round(max(-0.66, base_y - 0.06 * (nd + no) - 0.03), 3)
+                nhan = c["nhan"] and "tu_khoa" in tpl
+                ps = clone(k, tpl["tu_khoa"] if nhan else tpl["phu_de"], cs, max(_us(0.4), ce - cs))
+                mau_sp = MAU_SP.get(kh.get("sp"), YELLOW)
+                set_text(clone_mat(k, ps), txt, color=mau_sp if c["nhan"] else None)
+                if nhan:
+                    sc0 = tpl["phu_de"]["clip"]["scale"]["x"]
+                    ps["clip"]["scale"] = {"x": round(sc0 * 1.2, 3), "y": round(sc0 * 1.2, 3)}
+                truoc = bd[j - 1]
+                nd, no = truoc.get("so_dong", 1), txt.count("\n") + 1
+                if kieu_mh == "mot" and truoc.get("y", 0) > 0.3:
+                    y_ = -0.5 - 0.06 * (no - 1)          # cau dan tren o minh hoa -> cau noi duoi o (nhu 'dat kho cung')
+                else:
+                    # 1 dong chu cao ~0.12 (toa do CapCut) -> cach = nua khoi tren + nua khoi duoi + khe 0.03
+                    y_ = truoc.get("y", yb) - 0.06 * (nd + no) - 0.03
+                c["y"], c["so_dong"] = round(max(-0.72 + 0.06 * (no - 1), y_), 3), no
+                ps["clip"]["transform"]["y"] = c["y"]
                 dat_anim(k, ps, "Trượt lên", ce - cs)
                 k.tracks["chu"][-1 if len(k.tracks["chu"]) > 2 else 0]["segments"].append(ps)
-                am.append((cs, "tu_khoa"))
+                am.append((cs, "tu_khoa" if c["nhan"] else "go"))
                 continue
             # Y CHINH (nhan): cau rieng, chu vang dam nghieng to hon, cung vi tri -> nhin la biet y can nho
             nhan = c["nhan"] and "tu_khoa" in tpl
@@ -770,7 +796,7 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 yb = min(0.74, round(mep + 0.04 + 0.06 * nd_, 3))
             c["y"] = round(yb, 3)   # vi tri co dinh trong doan
             c["so_dong"] = txt.count("\n") + 1
-            if j + 1 < len(bd) and bd[j + 1]["phu"]:
+            if j + 1 < len(bd) and bd[j + 1]["phu"] and not (kieu_mh == "mot" and c["y"] > 0.3):
                 # chua cho tu khoa ben duoi: day cau dan len neu khoi tu khoa se lot xuong qua -0.66
                 no = chia_dong([w["w"] for w in ws[bd[j + 1]["tu"]:bd[j + 1]["den"] + 1]]).count("\n") + 1
                 du = -0.66 - (c["y"] - 0.06 * (c["so_dong"] + no) - 0.03)

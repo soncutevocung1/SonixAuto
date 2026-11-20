@@ -12,5 +12,9 @@
 - Code đã có chốt chặn: các công cụ trong `core/son01/tools/` chỉ gọi API khi đặt biến môi trường
   `SONIX_CHO_PHEP_API=1`. Chỉ đặt biến này sau khi anh Sơn đồng ý cho lần chạy đó.
 
+## Dựng video phong cách Sơn 01
+- **Trước mỗi lần dựng / sửa video Sơn 01 phải đọc `core/son01/PHONG_CACH_SON01.md`** (mọi điểm anh Sơn đã sửa)
+  và `core/son01/LUAT_CAT_ANH_SON.md` (luật cắt source thô). Khi anh góp ý điểm mới → ghi thêm vào file đó.
+
 ## Cách trả lời anh Sơn
 - Tiếng Việt, dễ hiểu, từ tiếng Anh phải dịch nghĩa. Nói thẳng, có lý do.
