@@ -219,7 +219,8 @@ def kiem_hinh_ai(video, cau, model_ai="claude-sonnet-5-5", lo=12, vung=(0.2, 0.1
     tmp = tempfile.mkdtemp(prefix="sx_kh_")
     schema = {"type": "object", "properties": {"cau": {"type": "array", "items": {"type": "object", "properties": {
         "id": {"type": "integer"}, "dien_thoai": {"type": "boolean"}, "nhin_ong_kinh": {"type": "boolean"}},
-        "required": ["id", "dien_thoai", "nhin_ong_kinh"]}}}, "required": ["cau"]}
+        "required": ["id", "dien_thoai", "nhin_ong_kinh"], "additionalProperties": False}}},
+        "required": ["cau"], "additionalProperties": False}
     kq = {}
     for b in range(0, len(cau), lo):
         nhom = cau[b:b + lo]
@@ -272,8 +273,8 @@ SCHEMA = {"type": "object", "properties": {
     "y": {"type": "array", "items": {"type": "object", "properties": {
         "y": {"type": "string"},
         "cau": {"type": "array", "items": {"type": "integer"}},
-        "ly_do": {"type": "string"}}, "required": ["y", "cau", "ly_do"]}},
-    "nhan_xet": {"type": "string"}}, "required": ["y", "nhan_xet"]}
+        "ly_do": {"type": "string"}}, "required": ["y", "cau", "ly_do"], "additionalProperties": False}},
+    "nhan_xet": {"type": "string"}}, "required": ["y", "nhan_xet"], "additionalProperties": False}
 
 
 def chon(cau, model_ai="claude-opus-5-5", dai=36):
