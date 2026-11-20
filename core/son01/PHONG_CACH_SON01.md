@@ -43,6 +43,7 @@ Luật cắt source thô chi tiết: `LUAT_CAT_ANH_SON.md`. Quy định key API:
 - Cảnh nét, độ phân giải cao; bỏ cảnh mờ, cảnh có chữ in sẵn.
 - Không lặp cảnh: mỗi file video chỉ dùng 1 lần trong 1 video.
 - **Chỉ tua nhanh 1x–2x, không tua chậm.** Tắt tiếng cảnh minh họa.
+- Lưới 4 ô phải có NGƯỜI THẬT trong từng ô; đoạn nói tích cực không dùng cảnh cây vàng lá/héo.
 - Minh họa đúng lời nói (nói "suy yếu" → cây vàng lá thật; "chiều mát" → cảnh chiều…).
 - Đoạn cách pha / cách dùng: lưới 4 ô người THẬT đang dùng (2x, tắt tiếng, hiện lần lượt) — có viền sáng từng ô
   và làm mờ nền phía sau như khuôn. Ô 1 cảnh cũng có viền + nền mờ.

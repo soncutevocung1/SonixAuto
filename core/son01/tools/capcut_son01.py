@@ -520,7 +520,10 @@ def chon_canh(thu_vien, nhan, da_dung, sp=None, dung_giay=3.0, loi="", da_file=N
     da_file = da_file if da_file is not None else set()
     nh = [nhan, *nhan_phu]
     tl = _tu(loi)
+    xau = ("vàng lá", "lá vàng", "héo", "thối", "chết", "sâu bệnh", "còi cọc")
     cands = [c for c in thu_vien if set(nh) & set(c.get("nhan", [])) and c["id"] not in da_dung
+             and (nhan == "van_de_cay_yeu" or not any(x in c.get("mo_ta", "").lower() for x in xau))
+             and (not cho_nguoi or "nguoi" not in c or c.get("nguoi"))
              and c["file"] not in da_file and c.get("dai", 0) >= dung_giay / 2.0 and hop_le(c, sp, cho_nguoi)]
     def diem(c):
         d = 3 * chat_luong(c) + (1.0 if nhan in c.get("nhan", []) else 0) + 0.5 * (sp in c.get("nhan", []))
