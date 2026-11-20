@@ -192,6 +192,28 @@ def keyframes(seg, src_start_us, kind):
     seg["clip"]["scale"] = {"x": peak, "y": peak}
 
 
+def zoom_nhan(seg, src_start_us, muc0, diem):
+    """Zoom diem nhan: bat dau o muc0, moi diem (giay tuong doi, muc) lo xo toi muc moi trong 0.3s.
+    Ghi de keyframe ScaleX cua doan (thoi gian = thoi gian nguon)."""
+    pts = spring_keys(stiffness=300, damping=24, n=5, dur=0.3)
+    kl, cur, t_last = [], muc0, -1.0
+    def kf(t, v):
+        kl.append({"id": _uid(), "curveType": "Line", "time_offset": int(src_start_us + _us(t)),
+                   "left_control": {"x": 0.0, "y": 0.0}, "right_control": {"x": 0.0, "y": 0.0},
+                   "values": [round(v, 4)], "string_value": "", "graphID": ""})
+    kf(0.0, muc0)
+    for t, muc in diem:
+        if abs(muc - cur) < 0.01 or t <= t_last + 0.35:
+            continue
+        kf(max(t - 0.01, 0.01), cur)  # giu muc cu toi ngay truoc diem nhan
+        for tt, p in pts[1:]:
+            kf(t + tt, cur + (muc - cur) * p)
+        cur, t_last = muc, t + 0.3
+    if len(kl) > 1:
+        seg["common_keyframes"] = [{"id": _uid(), "material_id": "", "property_type": "KFTypeScaleX", "keyframe_list": kl}]
+        seg["clip"]["scale"] = {"x": muc0, "y": muc0}
+
+
 TEN_RIENG = {"amino", "tc01", "atonik", "npk", "humic", "đạm", "kích"}
 
 
@@ -672,7 +694,7 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
         if kieu_mh == "luoi":
             y_goc = -0.64
         elif kieu_mh == "mot":
-            y_goc = 0.5 if i % 2 == 0 else -0.58
+            y_goc = 0.62   # khoang trong phia tren o minh hoa
         else:
             y_goc = y_mat
         for j, c in enumerate(bd):
@@ -686,10 +708,13 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 if j + 1 < len(bd):
                     bd[j + 1]["s"] = cs
                 continue
-            dong = chia_dong([w["w"] for w in ws[c["tu"]:c["den"] + 1]], c["xuong_dong"] - c["tu"] if c["xuong_dong"] > 0 else -1)
+            dong = chia_dong([w["w"] for w in ws[c["tu"]:c["den"] + 1]], c["xuong_dong"] - c["tu"] if c["xuong_dong"] > 0 else -1,
+                             16 if c["nhan"] else 20)
             txt = "\n".join(viet_phu_de(l) for l in dong.split("\n")).strip(" ,")
             yb = y_goc
-            if yb > 0 and dang_dem(cs):
+            if dang_dem(cs) and kieu_mh == "mot":
+                yb = -0.6          # nhan THU chiem phia tren -> phu de xuong duoi o
+            elif yb > 0 and dang_dem(cs):
                 yb = min(yb, 0.40)
             if c["phu"]:
                 ps = clone(k, tpl["tu_khoa"], cs, max(_us(0.4), ce - cs))
@@ -711,6 +736,9 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             if nhan:
                 sc0 = tpl["phu_de"]["clip"]["scale"]["x"]
                 ps["clip"]["scale"] = {"x": round(sc0 * 1.2, 3), "y": round(sc0 * 1.2, 3)}
+            nd_ = txt.count("\n") + 1
+            if kieu_mh == "mot" and yb > 0:   # tren o minh hoa: day len theo so dong, khong de len o
+                yb = min(0.74, 0.64 + 0.06 * (nd_ - 1))
             c["y"] = round(yb, 3)   # vi tri co dinh trong doan
             c["so_dong"] = txt.count("\n") + 1
             if j + 1 < len(bd) and bd[j + 1]["phu"]:
@@ -731,8 +759,24 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             k.tracks["chu"][-1 if len(k.tracks["chu"]) > 2 else 0]["segments"].append(ps)
             am.append((cs, "tu_khoa" if c["nhan"] else "go"))
 
+        # ZOOM diem nhan: cau y chinh -> zoom vao (lo xo), cau thuong sau do -> lui ra; muc xen ke cho do nham
+        muc0 = s["clip"]["scale"]["x"] if x.get("zoom", "khong") == "khong" else 1.0
+        diem, lan = [], 0
+        if x.get("zoom") in ("nhe", "manh"):
+            diem.append((0.05, 1.08 if x["zoom"] == "nhe" else 1.16))
+        nen = diem[-1][1] if diem else muc0
+        for c in bd:
+            tr_ = (c["s"] - t) / US
+            if c["nhan"]:
+                lan += 1
+                diem.append((tr_, nen + (0.14 if lan % 2 else 0.09)))
+            elif diem and diem[-1][1] > nen:
+                diem.append((tr_, nen))
+        if diem:
+            zoom_nhan(s, _us(x["s"]), muc0, diem)
+
         # so thu tu to ben phai cho muc trong danh sach con (1-2-3 giai doan)
-        if x.get("so") and "so" in tpl:
+        if x.get("so") and "so" in tpl and kieu_mh:
             ss = clone(k, tpl["so"], t + _us(0.1), min(dur, _us(3.0)) - _us(0.1))
             set_text(clone_mat(k, ss), str(x["so"]))
             k.tracks["chu"][0]["segments"].append(ss)
