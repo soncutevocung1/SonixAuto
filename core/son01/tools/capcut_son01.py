@@ -272,8 +272,9 @@ def chia_cum(words, max_chu=5, max_kt=24, gap=0.25):
     return out
 
 
-NOI = {"thứ", "là", "của", "và", "các", "những", "một", "cho", "với", "khi", "mà", "thì", "bị", "được",
-       "đang", "đã", "sẽ", "rất", "hoặc", "hay", "trong", "vào", "theo", "để", "cái", "con", "giai", "bình"}
+# tu mo dau cum (khong de cuoi dong); 'la/thi/ma/vao' cuoi dong van tu nhien ('dam ca la / mot dong dam')
+NOI = {"thứ", "của", "và", "các", "những", "một", "cho", "với", "khi", "sẽ", "rất", "hoặc", "hay", "trong",
+       "theo", "để", "cái", "giai", "bình"}
 
 
 TU_GHEP = {"tham khảo", "hấp thu", "dinh dưỡng", "phát triển", "giai đoạn", "thu hoạch", "sản phẩm", "bình luận",
@@ -299,7 +300,9 @@ def chia_dong(ws, xd=-1, toi_da=20):
         return txt
     def diem(i):
         a, b = " ".join(w[:i]), " ".join(w[i:])
-        return abs(len(a) - len(b)) + (7 if dinh(i) else 0) + (9 if i == 1 or i == len(w) - 1 else 0)
+        cung = dinh(i, False)   # tu ghep / so: cam han
+        return (100 if cung else 0) + abs(len(a) - len(b)) + (5 if dinh(i) else 0) \
+            + (9 if i == 1 or i == len(w) - 1 else 0) + 3 * max(0, max(len(a), len(b)) - toi_da)
     i = min(range(1, len(w)), key=diem)
     return " ".join(w[:i]) + "\n" + " ".join(w[i:])
 
