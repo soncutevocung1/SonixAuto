@@ -590,6 +590,21 @@ def tao(kh_path, video_goc, ten, khuon=None, timeline=None, thu_vien_path=None):
         lay2 = json.loads(lay.read_text(encoding="utf-8"))
         lay2["dockItems"] = [{"dockIndex": 0, "ratio": 1, "timelineIds": [tid], "timelineNames": ["Sơn 01"]}]
         (dst / "timeline_layout.json").write_text(json.dumps(lay2, ensure_ascii=False), encoding="utf-8")
+        # Timelines/project.json: thieu file nay CapCut KHONG mo duoc du an (id timeline chinh = id noi dung)
+        pj_src = src / "Timelines" / "project.json"
+        pj = json.loads(pj_src.read_text(encoding="utf-8")) if pj_src.exists() else {
+            "config": {"color_space": -1, "hdr_vivid": False, "mixed_track_mode_on": False,
+                       "render_index_track_mode_on": False, "use_float_render": False}, "version": 0}
+        t_now = int(time.time() * US)
+        pj.update({"id": _uid(), "create_time": t_now, "update_time": t_now, "main_timeline_id": tid,
+                   "timelines": [{"create_time": t_now, "id": tid, "is_marked_delete": False, "name": "Sơn 01",
+                                  "update_time": t_now}]})
+        (dst / "Timelines" / "project.json").write_text(json.dumps(pj, ensure_ascii=False), encoding="utf-8")
+        if d.get("id") != tid:  # id noi dung phai trung id timeline chinh
+            d["id"] = tid
+            content = json.dumps(d, ensure_ascii=False).replace(old + "/", str(dst).replace("\\", "/") + "/")
+            (dst / "draft_content.json").write_text(content, encoding="utf-8")
+            (tdir / "draft_content.json").write_text(content, encoding="utf-8")
 
     now = int(time.time() * US)
     new_id = _uid()
