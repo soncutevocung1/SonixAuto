@@ -506,6 +506,12 @@ def la_ai(c):
     return "video_ai" in c.get("file", "").lower().replace(" ", "_") or bool(c.get("ai"))
 
 
+# nhan gan nghia de du phong khi thieu canh that (vd re bung that chi co ~11 canh)
+NHAN_GAN = {"re_bung": ("ra_dot_la_xanh",), "mo_phong_re": ("re_bung", "ra_dot_la_xanh"),
+            "mo_phong_hap_thu": ("ra_dot_la_xanh",), "van_de_cay_yeu": ("dat_kho",), "thu_hoach": ("ra_hoa_dau_qua", "nong_dan_vuon"),
+            "san_pham_can_canh": ("pha_thuoc",), "buoi_sang_chieu": ("nong_dan_vuon",), "dat_kho": ("van_de_cay_yeu",)}
+
+
 def chon_canh(thu_vien, nhan, da_dung, sp=None, dung_giay=3.0, loi="", da_file=None, cho_nguoi=False, nhan_phu=()):
     """Chon canh: dung nhan, khong lo chai san pham khac, net + phan giai cao, khop mo ta voi loi noi,
     KHONG dung lai canh/file da dung trong video (tranh lap canh)."""
@@ -672,7 +678,7 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 am.append((a_mh, "luoi"))
         if cho_phep and not kieu_mh:
             canh = chon_canh(thu_vien, x.get("minh_hoa"), da_dung, kh.get("sp"), 2.0 * (x["e"] - x["s"]),
-                             x.get("text", ""), da_file)
+                             x.get("text", ""), da_file, nhan_phu=NHAN_GAN.get(x.get("minh_hoa"), ()))
             if canh:
                 kieu_mh = "mot"
                 for role, trk in (("mo", "mo"), ("glow", "glow")):
