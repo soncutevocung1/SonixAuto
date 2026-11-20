@@ -66,6 +66,8 @@ for b in range(0, len(todo), B):
         {"type": "text", "text": f"Bảng có {len(lo)} cảnh, mã vàng ở góc trái mỗi ô: {', '.join(c['id'] for c in lo)}.\n"
                                  f"Gắn nhãn cho TỪNG mã. Danh sách nhãn:\n{ds}"},
     ]
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    __import__("chot_api").cho_phep("gan nhan thu vien")
     kq = _claude(content, SCHEMA, settings, model, system=SYSTEM)
     for x in kq["canh"]:
         if x["id"] in by_id:

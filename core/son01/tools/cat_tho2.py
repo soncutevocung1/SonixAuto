@@ -221,7 +221,7 @@ def ap_ai(c):
         c["doc"] = min(c["doc"], 0.2 if c.get("nhin_ong_kinh") else 0.3)
 
 
-def kiem_hinh_ai(video, cau, model_ai="claude-sonnet-5-5", lo=12, vung=(0.2, 0.14, 0.6, 0.42)):
+def kiem_hinh_ai(video, cau, model_ai="claude-haiku-5-5", lo=12, vung=(0.2, 0.14, 0.6, 0.42)):
     """Moi cau 3 khung (25/50/75%) vung nguoi ngoi -> Claude: dang cam/nhin dien thoai? nhin ong kinh?"""
     import base64
     from core import config
@@ -268,6 +268,8 @@ def kiem_hinh_ai(video, cau, model_ai="claude-sonnet-5-5", lo=12, vung=(0.2, 0.1
                     "dien_thoai = người trong ảnh đang CẦM hoặc NHÌN điện thoại (đọc kịch bản) ở phần lớn các ảnh; "
                     "nhin_ong_kinh = mặt ngẩng nhìn thẳng ống kính, tay không cầm điện thoại. Các id: "
                     + ", ".join(str(c["id"]) for c in nhom)}]
+        sys.path.insert(0, HERE)
+        __import__("chot_api").cho_phep("xem hinh tung cau (Haiku)")
         r = _claude(content, schema, config.load_settings(), model_ai,
                     "Bạn kiểm tra khung hình video quay thô. Trả lời chính xác theo ảnh.")
         for x in r.get("cau", []):
@@ -318,6 +320,8 @@ def chon(cau, model_ai="claude-opus-5-5", dai=36):
               "Ý LIỆT KÊ (thứ nhất/hai/ba, 3 giai đoạn...) phải giữ ĐỦ mọi mục, kể cả phải cắt theo chữ. "
               "Câu chỉ chỗ mua (giỏ hàng, góc màn hình) KHÔNG lấy, trừ khi kịch bản không có lời kêu gọi bình luận. "
               "Bỏ câu ảo giác của máy nghe ('Cảm ơn các bạn đã theo dõi', 'Hãy subscribe...').")
+    sys.path.insert(0, HERE)
+    __import__("chot_api").cho_phep("chon lan noi")
     kq = _claude([{"type": "text", "text": "Danh sách câu:\n" + "\n".join(dong)}], SCHEMA, config.load_settings(),
                  model_ai, system)
     return kq
@@ -389,6 +393,8 @@ def main():
             if o and abs(o["s"] - c["s"]) < 0.05:
                 c["dien_thoai_ai"], c["nhin_ong_kinh"] = o.get("dien_thoai_ai"), o.get("nhin_ong_kinh")
                 ap_ai(c)
+    elif opt.get("--khong-ai-hinh") == "1":
+        print("3b bo qua Claude xem hinh (chi dung MediaPipe)", flush=True)
     else:
         print("3b Claude xem hinh tung cau...", flush=True)
         kiem_hinh_ai(video, cau)
@@ -396,7 +402,10 @@ def main():
     json.dump(cau, open(pj("cau.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(f"3/4 {len(cau)} cau ({sum(c['doc'] >= 0.4 for c in cau)} cau dang doc dien thoai)", flush=True)
     print("4/4 AI chon lan noi tot nhat cho tung y...", flush=True)
-    kq = chon(cau, opt.get("--model", "claude-opus-5-5"), float(opt.get("--dai", 36)))
+    if opt.get("--chon-tay"):  # Claude chon truc tiep trong cuoc tro chuyen (khong goi API) -> file {"y":[...]}
+        kq = json.load(open(opt["--chon-tay"], encoding="utf-8"))
+    else:
+        kq = chon(cau, opt.get("--model", "claude-sonnet-5-5"), float(opt.get("--dai", 36)))
     json.dump(kq, open(pj("chon.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     out = ghep(cau, kq)
     json.dump(out, open(ra, "w", encoding="utf-8"), ensure_ascii=False, indent=1)

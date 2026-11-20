@@ -115,6 +115,8 @@ if opt.get("--gop-y") and os.path.exists(opt["--gop-y"]):
                     + open(opt["--gop-y"], encoding="utf-8").read()})
 
 settings = config.load_settings()
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+__import__("chot_api").cho_phep("len ke hoach dung")
 kq = _claude(content, SCHEMA, settings, model, system=SYSTEM)
 if giu_het:
     # ep giu du: moi id 1 lan, dung thu tu, tron cau (AI chi gan nhan)

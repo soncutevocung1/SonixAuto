@@ -19,7 +19,7 @@ while "--model" in a or "--luong" in a:
             opt[k] = a[i + 1]
             del a[i:i + 2]
 OUT, SRCS = a[0], a[1:]
-MODEL = opt.get("--model", "claude-sonnet-5-5")
+MODEL = opt.get("--model", "claude-haiku-5-5")
 LUONG = int(opt.get("--luong", 4))
 FF = os.environ.get("SONIX_FFMPEG") or __import__("imageio_ffmpeg").get_ffmpeg_exe()
 EXT = (".mp4", ".mov", ".m4v", ".webm", ".mkv")
@@ -125,6 +125,8 @@ def tach(src, lib):
 def gan_nhan(lib, canh):
     from core import config
     from core.analyze import _claude
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    __import__("chot_api").cho_phep("gan nhan thu vien (Haiku)")
     settings = config.load_settings()
     pj = os.path.join(lib, "canh.json")
     by = {c["id"]: c for c in canh}

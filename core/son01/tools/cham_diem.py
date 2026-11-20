@@ -72,6 +72,8 @@ if "--ai" in opt:
                     "liệt kê lỗi cụ thể theo giây và cách sửa. Bạn KHÔNG nghe được âm thanh: tiêu chí "
                     "tieng_hieu_ung_dung_luc cho 1 điểm (sẽ đo bằng máy). Phong cách của chủ kênh: tiêu đề đầu "
                     "video dùng màu đỏ-trắng là CỐ Ý; phụ đề đặt trên đầu người mẫu là CỐ Ý. Lời phụ đề:\n" + loi_noi})
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    __import__("chot_api").cho_phep("cham diem ban dung")
     kq = _claude(content, schema, config.load_settings(), opt["--ai"],
                  system="Bạn là người duyệt chất lượng video khắt khe. Chỉ chấm dựa trên điều thấy được.")
     # Tieu chi am thanh: AI chi xem anh tinh -> cham bang do dac (tieng hieu ung lech moc chu/canh/cat <= 1 khung)
