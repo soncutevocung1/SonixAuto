@@ -140,7 +140,11 @@ def clone_mat(k: Khuon, s, **changes):
     return k.find(s["material_id"])[1]
 
 
-def set_text(mat, text, keywords=(), color=None):
+# mau chu Y CHINH theo san pham (anh Son: kich re xanh la, dam ca nau sang, bo tri Top One xanh duong)
+MAU_SP = {"sp_tc01": [0.42, 0.86, 0.26], "sp_dam_ca": [0.93, 0.70, 0.42], "sp_top_one": [0.30, 0.62, 1.0]}
+
+
+def set_text(mat, text, keywords=(), color=None, kw_color=None):
     """Ghi chu + to vang tu khoa (giu font/vien cua mau)."""
     c = json.loads(mat["content"])
     base = c["styles"][0]
@@ -157,7 +161,7 @@ def set_text(mat, text, keywords=(), color=None):
     def st(a, b, kw):
         x = copy.deepcopy(base)
         x["range"] = [a, b]
-        x["fill"]["content"]["solid"]["color"] = list(YELLOW if kw else (color or base["fill"]["content"]["solid"]["color"]))
+        x["fill"]["content"]["solid"]["color"] = list((kw_color or YELLOW) if kw else (color or base["fill"]["content"]["solid"]["color"]))
         if kw:
             x["bold"] = True
         else:
@@ -729,7 +733,7 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                     bd[j + 1]["s"] = cs
                 continue
             dong = chia_dong([w["w"] for w in ws[c["tu"]:c["den"] + 1]], c["xuong_dong"] - c["tu"] if c["xuong_dong"] > 0 else -1,
-                             16 if c["nhan"] else 20)
+                             13 if c["nhan"] else 17)   # chua le 2 ben (TikTok crop canh doc)
             txt = "\n".join(viet_phu_de(l) for l in dong.split("\n")).strip(" ,")
             yb = y_goc
             if dang_dem(cs) and kieu_mh == "mot":
@@ -752,7 +756,8 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             nhan = c["nhan"] and "tu_khoa" in tpl
             ps = clone(k, tpl["tu_khoa"] if nhan else tpl["phu_de"], cs, max(_us(0.4), ce - cs))
             kws = [] if nhan else [kw for kw in x.get("tu_khoa", []) if kw.lower() in txt.lower()]
-            set_text(clone_mat(k, ps), txt, kws, color=YELLOW if c["nhan"] else None)
+            mau_sp = MAU_SP.get(kh.get("sp"), YELLOW)
+            set_text(clone_mat(k, ps), txt, kws, color=mau_sp if c["nhan"] else None, kw_color=mau_sp)
             if nhan:
                 sc0 = tpl["phu_de"]["clip"]["scale"]["x"]
                 ps["clip"]["scale"] = {"x": round(sc0 * 1.2, 3), "y": round(sc0 * 1.2, 3)}
