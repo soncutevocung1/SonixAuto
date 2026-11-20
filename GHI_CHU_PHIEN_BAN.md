@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.12.2
+- Nút **Mượn âm thanh của «kênh khác»** luôn hiện trong nhóm Âm thanh (trước đây bị ẩn khi đang hiện thông báo gán âm thanh). Gán không được vì kênh khác chưa cho mượn thì báo rõ "bấm nút Mượn âm thanh".
+
 ## 2.12.1
 - Kênh **không có âm thanh Yêu thích riêng** (vd KTNN): ngay trong nhóm **Âm thanh** của tab Duyệt có thông báo đang mượn được bao nhiêu âm thanh và nút **Mượn N âm thanh của «kênh khác»** (cho mượn tất cả âm thanh đã gắn sản phẩm của kênh đó). Bấm xong chọn «Tự động: âm thanh Yêu thích đúng sản phẩm» → Áp dụng nhạc.
 

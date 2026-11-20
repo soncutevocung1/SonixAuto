@@ -1,7 +1,7 @@
 {
- "version": "2.12.1",
- "built_at": "2026-11-20T09:36:31Z",
- "notes": "- Kênh **không có âm thanh Yêu thích riêng** (vd KTNN): ngay trong nhóm **Âm thanh** của tab Duyệt có thông báo đang mượn được bao nhiêu âm thanh và nút **Mượn N âm thanh của «kênh khác»** (cho mượn tất cả âm thanh đã gắn sản phẩm của kênh đó). Bấm xong chọn «Tự động: âm thanh Yêu thích đúng sản phẩm» → Áp dụng nhạc.",
+ "version": "2.12.2",
+ "built_at": "2026-11-20T09:38:13Z",
+ "notes": "- Nút **Mượn âm thanh của «kênh khác»** luôn hiện trong nhóm Âm thanh (trước đây bị ẩn khi đang hiện thông báo gán âm thanh). Gán không được vì kênh khác chưa cho mượn thì báo rõ \"bấm nút Mượn âm thanh\".",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "97ecdfa6f090b7121d068413211766e67f6b1ac30a5d1458ea67cf71d8e82bb7",
-   "size": 45879
+   "sha256": "fa02b8e08999efc05c1ccb9543e9aa1eb1e64ec33bd9a35e11a19ce712a721d2",
+   "size": 46149
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,13 +65,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "6d83386e2438a41efc82d6b4018bf4aaa95b0ccc405ba835d779ff08a31bac80",
+   "sha256": "2ad2f8620587f8e46ca2561a28d4a217672ba5adf86091db48aa24ca0b9da769",
    "size": 7
   },
   {
    "path": "app.py",
-   "sha256": "dacb8334cde2091c16d2a3ee53a5e63862edcf77925f1341dde170050a2e7e29",
-   "size": 127976
+   "sha256": "7c89d73b900a77c6213faa515c31024b1eabcfe279c4de58f25b09f0c08de251",
+   "size": 127844
   },
   {
    "path": "assets/sonix.ico",
@@ -270,8 +270,8 @@
   },
   {
    "path": "core/sounds.py",
-   "sha256": "4d1e6d216a2e5fc62d17e837b3811eac381865bb749115ffa7017ae8404cc1ec",
-   "size": 17390
+   "sha256": "a23583440a0470de5c398505c107a073b4fe175ee1d56fc726b274d0d82a8340",
+   "size": 17552
   },
   {
    "path": "core/stats.py",

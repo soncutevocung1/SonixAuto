@@ -292,6 +292,8 @@ def fav_for(channel, item_key, settings, used=None, used_b=None):
         b = pick_shared(channel, item_key, settings, used_b)
         if b:
             return {"music_mode": "local", "music_ref": b["file"], "keep_audio": 0}, ""
+    if not shared_pool(channel, settings):
+        return None, "kênh khác chưa cho mượn âm thanh nào (bấm nút Mượn âm thanh ở nhóm Âm thanh)"
     return None, "chưa có âm thanh đúng sản phẩm (cả kênh mình và kênh cho mượn)"
 
 
