@@ -34,11 +34,10 @@ IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
 MODELS = {
     "gemini-3.5-flash-lite": "Gemini 3.5 Flash-Lite · MIỄN PHÍ, khuyên dùng (cần Gemini API key, giới hạn lượt/ngày)",
     "gemini-3.8-flash": "Gemini 3.8 Flash · MIỄN PHÍ (nhìn kỹ hơn, viết hay hơn, ít lượt/ngày hơn)",
-    "claude-haiku-5-5": "Claude Haiku · trả phí (~50đ/video)",
 }
 NO_AI = "khong_ai"
 NO_AI_LABEL = "Không dùng AI · đọc chữ trên nhãn + tên file để nhận sản phẩm, caption mẫu (miễn phí, không cần mạng)"
-OLD_MODELS = ("claude-opus-5-5", "claude-sonnet-5-5")  # đã bỏ khỏi tool (tốn tiền) -> tự đổi sang mức khác
+OLD_MODELS = ("claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5")  # đã bỏ (tốn tiền) -> tự đổi sang mức khác
 
 # Danh mục sản phẩm cần nhận diện trong video (sửa được trong tool)
 DEFAULT_ITEMS = [
@@ -73,7 +72,7 @@ DEFAULTS = {
     "channel_products": {},
     "anthropic_api_key": "",
     "gemini_api_key": "",                 # Gemini API key (aistudio.google.com) — gói miễn phí
-    "ai_model": "claude-haiku-5-5",   # rẻ nhất (~50đ/video), đọc nhãn sản phẩm tốt
+    "ai_model": "gemini-3.5-flash-lite",   # miễn phí (cần Gemini API key); chưa có key thì tool tự dùng "Không dùng AI"
     "default_hashtags": "nongnghiep, phanbon",
     "caption_guide": "",                  # hướng dẫn AI viết caption (chung mọi kênh)
     "caption_guide_by_channel": {},
@@ -123,7 +122,7 @@ def load_settings() -> dict:
         except Exception:
             pass
     if data.get("ai_model") in OLD_MODELS:  # Opus / Sonnet đã bỏ -> Gemini miễn phí (có key) hoặc Haiku
-        data["ai_model"] = "gemini-3.5-flash-lite" if (data.get("gemini_api_key") or "").strip() else "claude-haiku-5-5"
+        data["ai_model"] = "gemini-3.5-flash-lite" if (data.get("gemini_api_key") or "").strip() else NO_AI
     for pg in data.get("facebook_pages") or []:
         if pg.get("auto_model") in OLD_MODELS:
             pg["auto_model"] = data["ai_model"]

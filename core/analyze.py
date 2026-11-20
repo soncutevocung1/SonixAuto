@@ -25,9 +25,10 @@ Nhiệm vụ với mỗi video (bạn được xem các khung hình đánh số)
 3. evidence: 1 câu ngắn giải thích vì sao (vd "khung 4 đọc được chữ TC 01 trên chai xanh").
 4. Viết caption TikTok:
    - Giọng miền Nam, mộc mạc, xưng "em", gọi người xem là "bác". Câu ngắn. Không dùng từ tiếng Anh.
-   - Dòng 1: câu móc dưới 80 ký tự, chạm nỗi lo thật (vàng lá, rụng trái, thối rễ, cây suy...) hoặc gây tò mò, có thể 1 emoji.
-   - 1-3 dòng thân: kể ngắn vấn đề → sản phẩm giúp gì → cách dùng, lấy ĐÚNG từ "Thông tin sản phẩm" và những gì thấy trong video. Không bịa số liệu, liều lượng ngoài thông tin đó.
-   - Mỗi video viết khác nhau (câu móc, cách kể), đừng lặp một khuôn; viết tự nhiên như người làm vườn kể chuyện, không như quảng cáo.
+   - NGẮN GỌN: tổng cộng 2-3 dòng, mỗi dòng 1 câu ngắn. Không kể lể.
+   - Dòng 1: câu móc dưới 70 ký tự, chạm nỗi lo thật (vàng lá, rụng trái, thối rễ, bọ trĩ, cây suy...) hoặc gây tò mò, có thể 1 emoji.
+   - Dòng 2 (nếu cần): 1 lợi ích hoặc cách dùng, lấy ĐÚNG từ "Thông tin sản phẩm" / hình trong video. Không bịa số liệu, liều lượng.
+   - KHÔNG được lặp câu mở đầu, ý chính hay cách kể của các "caption gần đây của kênh" (nếu có); làm theo "góc viết" được giao cho video này. Viết tự nhiên như người làm vườn nói chuyện, không như quảng cáo.
    - Dòng cuối: kêu gọi hành động. Có sản phẩm thì mời bấm giỏ hàng vàng.
    - Tối đa 300 ký tự, không chứa hashtag.
    - Cấm dùng: tốt nhất, số 1, 100%, cam kết, thần kỳ, chữa khỏi, vĩnh viễn, rẻ nhất, duy nhất, diệt sạch, trị dứt điểm. Không hứa năng suất bằng con số. Thuốc BVTV thì nhắc nhẹ đọc kỹ hướng dẫn hoặc mang đồ bảo hộ.
@@ -104,7 +105,9 @@ def _gemini_text(obj) -> str:
     if isinstance(obj, dict):
         if isinstance(obj.get("output_text"), str):
             return obj["output_text"]
-        for k in ("outputs", "output", "content", "parts"):
+        if obj.get("type") == "thought":  # phần suy nghĩ của Gemini, không phải câu trả lời
+            return ""
+        for k in ("outputs", "output", "steps", "content", "parts"):
             if k in obj:
                 t = _gemini_text(obj[k])
                 if t:
@@ -181,6 +184,31 @@ def _claude(content, schema, settings, model, system=SYSTEM) -> dict:
     return json.loads(next(b.text for b in resp.content if b.type == "text"))
 
 
+GOC_VIET = [  # mỗi video 1 góc khác nhau để caption không bị lặp
+    "hỏi thẳng nỗi lo của bác (dạng câu hỏi)", "kể 1 cảnh thật ngoài vườn vừa gặp", "mẹo nhanh 1 câu",
+    "cảnh báo 1 sai lầm hay gặp", "so sánh trước và sau khi dùng (không bịa số)", "nói về thời điểm nên dùng",
+    "lời bác nông dân khác hỏi em", "gợi tò mò: bí quyết của vườn bên cạnh", "nhắc mùa vụ / thời tiết hiện tại",
+    "cách pha / cách dùng đơn giản", "chia sẻ kinh nghiệm cá nhân của em",
+]
+
+
+def _recent_captions(channel, n=8) -> list:
+    """Câu mở đầu các caption gần đây của kênh (để AI tránh viết lặp)."""
+    try:
+        from . import db
+        js = sorted(db.list_jobs(None, "tiktok", channel), key=lambda j: j.get("updated_at") or "", reverse=True)
+        out = []
+        for j in js:
+            c = (j.get("caption") or "").strip().split("\n")[0][:90]
+            if c and c not in out:
+                out.append(c)
+            if len(out) >= n:
+                break
+        return out
+    except Exception:
+        return []
+
+
 def _ai(frames, video_name, channel, settings, model, known_item=None):
     items = settings.get("items", [])
     keys = [it["key"] for it in items] + ["none"]
@@ -204,6 +232,13 @@ def _ai(frames, video_name, channel, settings, model, known_item=None):
             content.append(blk)
     content[-1]["cache_control"] = {"type": "ephemeral"}
 
+    import random as _rnd
+    goc = _rnd.choice(GOC_VIET)
+    gan_day = _recent_captions(channel)
+    content.append({"type": "text", "text": (
+        f"Góc viết cho video này: {goc}."
+        + ("\nCaption gần đây của kênh (KHÔNG lặp lại câu mở đầu / ý / cách kể):\n- " + "\n- ".join(gan_day)
+           if gan_day else ""))})
     content.append({"type": "text", "text": f"VIDEO CẦN XỬ LÝ: {video_name}. Các khung hình:"})
     if known_item is not None:  # chỉ viết lại caption: sản phẩm chủ kênh đã xác nhận
         it = next((x for x in items if x["key"] == known_item), None)

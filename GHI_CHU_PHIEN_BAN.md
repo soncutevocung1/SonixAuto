@@ -1,6 +1,11 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.11.1
+- Sửa lỗi **Gemini "không trả lời (có thể bị chặn nội dung)"** làm caption video nào cũng giống nhau (dùng caption mẫu): Google đổi cách trả kết quả, tool đọc theo cách mới.
+- **Bỏ Claude Haiku**: chỉ còn Gemini (miễn phí) và Không dùng AI. Máy đang chọn Haiku tự chuyển sang Gemini (có Gemini key) hoặc Không dùng AI.
+- **Caption ngắn, không lặp**: 2-3 dòng ngắn; mỗi video được giao 1 "góc viết" khác nhau (hỏi nỗi lo, kể cảnh vườn, mẹo nhanh, cảnh báo sai lầm, thời điểm dùng...) và AI được xem các caption gần đây của kênh để không lặp câu mở đầu / ý.
+
 ## 2.11.0
 - **Bỏ Opus và Sonnet** (tốn tiền). Mức AI còn: **Gemini Flash-Lite / Flash (miễn phí, khuyên dùng)**, Claude Haiku (trả phí rẻ), Không dùng AI. Máy đang chọn Opus/Sonnet tự chuyển sang Gemini (nếu có Gemini key) hoặc Haiku.
 - **Nhận diện sản phẩm miễn phí, không cần mạng**: tool **đọc chữ trên nhãn** trong video (TC01, Kích rễ, Top One, Đạm cá Amino, 1 lít / 5 lít...) bằng máy đọc chữ có sẵn trên máy, chọn luôn khung thấy nhãn rõ nhất làm ảnh bìa. Chế độ "Không dùng AI" giờ nhận được sản phẩm theo nhãn chứ không chỉ theo tên file. Khi dùng Gemini/Haiku: nhãn đọc rõ thì sản phẩm được chốt theo nhãn, AI chỉ còn viết caption (chính xác hơn).

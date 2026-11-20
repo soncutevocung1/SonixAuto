@@ -1,7 +1,7 @@
 {
- "version": "2.11.0",
- "built_at": "2026-11-20T08:46:34Z",
- "notes": "- **Bỏ Opus và Sonnet** (tốn tiền). Mức AI còn: **Gemini Flash-Lite / Flash (miễn phí, khuyên dùng)**, Claude Haiku (trả phí rẻ), Không dùng AI. Máy đang chọn Opus/Sonnet tự chuyển sang Gemini (nếu có Gemini key) hoặc Haiku.\n- **Nhận diện sản phẩm miễn phí, không cần mạng**: tool **đọc chữ trên nhãn** trong video (TC01, Kích rễ, Top One, Đạm cá Amino, 1 lít / 5 lít...) bằng máy đọc chữ có sẵn trên máy, chọn luôn khung thấy nhãn rõ nhất làm ảnh bìa. Chế độ \"Không dùng AI\" giờ nhận được sản phẩm theo nhãn chứ không chỉ theo tên file. Khi dùng Gemini/Haiku: nhãn đọc rõ thì sản phẩm được chốt theo nhãn, AI chỉ còn viết caption (chính xác hơn).\n- **Caption hay hơn**: AI được đưa thêm **Thông tin sản phẩm** (thành phần, công dụng, cách pha, điền ở Sonix Edit Video) để viết đúng, kể theo kiểu vấn đề → sản phẩm giúp gì → cách dùng, mỗi video viết khác nhau. Caption mẫu (không AI) cũng lấy câu công dụng từ thông tin sản phẩm.",
+ "version": "2.11.1",
+ "built_at": "2026-11-20T09:00:31Z",
+ "notes": "- Sửa lỗi **Gemini \"không trả lời (có thể bị chặn nội dung)\"** làm caption video nào cũng giống nhau (dùng caption mẫu): Google đổi cách trả kết quả, tool đọc theo cách mới.\n- **Bỏ Claude Haiku**: chỉ còn Gemini (miễn phí) và Không dùng AI. Máy đang chọn Haiku tự chuyển sang Gemini (có Gemini key) hoặc Không dùng AI.\n- **Caption ngắn, không lặp**: 2-3 dòng ngắn; mỗi video được giao 1 \"góc viết\" khác nhau (hỏi nỗi lo, kể cảnh vườn, mẹo nhanh, cảnh báo sai lầm, thời điểm dùng...) và AI được xem các caption gần đây của kênh để không lặp câu mở đầu / ý.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "a2e13543a9d5aed34c88ceec4a71970bc6769dc739f734959bf85efc30d3abce",
-   "size": 43731
+   "sha256": "bc9e45ce7cd4ea1255c174d2003645d6410a48cb00caaffaed7f11254534b9be",
+   "size": 44432
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,13 +65,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "f526f5e7f214e4916c51e16a61fb1be5d530d67e44c65d86db25b8416463b10c",
+   "sha256": "08d071a29abd5fc47f53eb5b5d89c7a154cbf0171e05b122edfb2dc24b7017c6",
    "size": 7
   },
   {
    "path": "app.py",
-   "sha256": "efc8aa66347038dd794bba7cb11f1c4a3a6d798add890fd7e34a4370eba4c237",
-   "size": 126032
+   "sha256": "4b3c27cf208c22f2670775c7e3d04106ddfd0194c813a3af26c4d8bfb4c961e5",
+   "size": 126207
   },
   {
    "path": "assets/sonix.ico",
@@ -95,8 +95,8 @@
   },
   {
    "path": "core/analyze.py",
-   "sha256": "49ef7c88671068acab5c7de7b626faf192906cd6ef88890c04a9c8659931c83f",
-   "size": 26968
+   "sha256": "1e3d6e4e78ef96e69117b8146407adea1af69509b1532a9e2516ebb86219ddc2",
+   "size": 28754
   },
   {
    "path": "core/canh.py",
@@ -130,8 +130,8 @@
   },
   {
    "path": "core/config.py",
-   "sha256": "15eeee5cb03994d1c69a893d7569b6e636893e79b9094397708b993e394427f2",
-   "size": 9539
+   "sha256": "e1bbddf11963f185f9d070d9e94575e31a9a9e9947980a005eeb787ab7776afa",
+   "size": 9501
   },
   {
    "path": "core/covers.py",

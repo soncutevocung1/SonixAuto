@@ -738,7 +738,7 @@ D:\\SONIX_UP_VIDEO\\
                └─ VIDEO LỖI\\ ← đăng lỗi tool chuyển vào (kèm file .LOI.txt ghi lý do)
 ```
 3. Qua tab **Kênh & sản phẩm**: đăng nhập TikTok cho từng kênh, đồng bộ Trưng bày sản phẩm.
-4. (Nên có) Dán **Claude API key** ở tab Cài đặt để AI nhận diện sản phẩm + viết caption.""")
+4. (Nên có) Dán **Gemini API key** (miễn phí) ở tab Cài đặt để AI viết caption hay, mỗi video một kiểu.""")
         c1, c2 = st.columns([4, 1])
         root_in = c1.text_input("Thư mục gốc", ROOT or chs.default_root())
         c2.write("")
@@ -1795,7 +1795,9 @@ for _ in _show(tabs[5]):
                 except upd.UpdateError as e:
                     st.error(str(e))
     st.divider()
-    st.subheader("Claude API key (để AI nhận diện sản phẩm + viết caption)")
+    st.subheader("Claude API key (không bắt buộc)")
+    st.caption("Tool đã chuyển sang Gemini miễn phí để nhận diện + viết caption; không cần Claude key nữa. Ô này giữ lại "
+               "cho ai đã có key cũ.")
     with st.expander("API key là gì, lấy ở đâu? (bấm để xem hướng dẫn)"):
         st.markdown("""
 **API key** là "chìa khoá" để tool gọi AI Claude. Trả tiền theo lượt dùng, **tách riêng** với gói Claude chat.
