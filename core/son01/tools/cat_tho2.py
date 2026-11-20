@@ -99,12 +99,12 @@ def danh_dau_doc(nh, nguong_phone=0.35, nguong_cui=None):
     ps = [k["pitch"] for k in K if k["pitch"] is not None]
     if nguong_cui is None and ps:
         med = float(np.percentile(ps, 20))   # tu the nhin ong kinh (nhom ngang dau)
-        nguong_cui = med + 4.5               # C3420: noi -6..0.4 do, doc dien thoai 2..11 do
+        nguong_cui = med + 6.5               # C3420: noi -5.4..0.8 do (p10-p90), doc dien thoai toi 11 do
         nh["pitch_trung_vi"] = med
     raw = []
     for k in K:
         cui = k["pitch"] is not None and nguong_cui is not None and k["pitch"] > nguong_cui
-        xuong = k.get("mat_xuong", 0) >= 0.55
+        xuong = k.get("mat_xuong", 0) >= 0.65
         raw.append(1.0 if (k["phone"] >= nguong_phone or not k["mat"] or cui or xuong) else 0.0)
     n = max(1, int(round(1.0 / nh["buoc"])))
     sm = [float(np.mean(raw[max(0, i - n // 2): i + n // 2 + 1])) for i in range(len(raw))]
@@ -209,6 +209,62 @@ def tach_cau(words, doc, buoc, a, gap=0.45):
     return out
 
 
+# ---------------------------------------------------------------- 3b) Claude xem hinh tung cau
+def kiem_hinh_ai(video, cau, model_ai="claude-sonnet-5-5", lo=12, vung=(0.2, 0.14, 0.6, 0.42)):
+    """Moi cau 3 khung (25/50/75%) vung nguoi ngoi -> Claude: dang cam/nhin dien thoai? nhin ong kinh?"""
+    import base64
+    from core import config
+    from core.analyze import _claude
+    x0, y0, cw, ch = vung
+    tmp = tempfile.mkdtemp(prefix="sx_kh_")
+    schema = {"type": "object", "properties": {"cau": {"type": "array", "items": {"type": "object", "properties": {
+        "id": {"type": "integer"}, "dien_thoai": {"type": "boolean"}, "nhin_ong_kinh": {"type": "boolean"}},
+        "required": ["id", "dien_thoai", "nhin_ong_kinh"]}}}, "required": ["cau"]}
+    kq = {}
+    for b in range(0, len(cau), lo):
+        nhom = cau[b:b + lo]
+        anh = []
+        for c in nhom:
+            for k, r in enumerate((0.25, 0.5, 0.75)):
+                t = c["s"] + (c["e"] - c["s"]) * r
+                p = os.path.join(tmp, f"{c['id']}_{k}.jpg")
+                subprocess.run([FF, "-v", "error", "-y", "-ss", f"{t:.2f}", "-i", video, "-frames:v", "1", "-vf",
+                                f"scale=1080:-2,crop=iw*{cw}:ih*{ch}:iw*{x0}:ih*{y0},scale=200:-2,"
+                                f"drawtext=fontfile='C\\:/Windows/Fonts/arialbd.ttf':text='{c['id']}':x=4:y=4:fontsize=26:"
+                                f"fontcolor=yellow:box=1:boxcolor=black", p])
+        sheet = os.path.join(tmp, f"bang_{b}.jpg")
+        lst = os.path.join(tmp, f"ds_{b}.txt")
+        files = [os.path.join(tmp, f"{c['id']}_{k}.jpg") for c in nhom for k in range(3)]
+        ins = []
+        for f_ in files:
+            ins += ["-i", f_]
+        n = len(files)
+        subprocess.run([FF, "-v", "error", "-y", *ins, "-filter_complex",
+                        "".join(f"[{i}]" for i in range(n)) + f"xstack=inputs={n}:grid={6}x{-(-n // 6)}:fill=black"
+                        if n > 1 else "null", "-frames:v", "1", sheet])
+        b64 = base64.b64encode(open(sheet, "rb").read()).decode()
+        content = [{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": b64}},
+                   {"type": "text", "text": "Mỗi câu có 3 ảnh liền nhau, số vàng góc trái là id câu. Với từng id: "
+                    "dien_thoai = người trong ảnh đang CẦM hoặc NHÌN điện thoại (đọc kịch bản) ở phần lớn các ảnh; "
+                    "nhin_ong_kinh = mặt ngẩng nhìn thẳng ống kính, tay không cầm điện thoại. Các id: "
+                    + ", ".join(str(c["id"]) for c in nhom)}]
+        r = _claude(content, schema, config.load_settings(), model_ai,
+                    "Bạn kiểm tra khung hình video quay thô. Trả lời chính xác theo ảnh.")
+        for x in r.get("cau", []):
+            kq[x["id"]] = x
+        print(f"   xem hinh cau {b}-{b + len(nhom) - 1}", flush=True)
+    for c in cau:
+        x = kq.get(c["id"])
+        if x:
+            c["dien_thoai_ai"] = bool(x["dien_thoai"])
+            c["nhin_ong_kinh"] = bool(x["nhin_ong_kinh"])
+            if x["dien_thoai"]:
+                c["doc"] = max(c["doc"], 0.9)
+            elif x["nhin_ong_kinh"]:
+                c["doc"] = min(c["doc"], 0.2)
+    return cau
+
+
 # ---------------------------------------------------------------- 4) chon lan noi (Claude)
 LUAT = open(os.path.join(HERE, "..", "LUAT_CAT_ANH_SON.md"), encoding="utf-8").read() \
     if os.path.exists(os.path.join(HERE, "..", "LUAT_CAT_ANH_SON.md")) else ""
@@ -288,6 +344,16 @@ def main():
         json.dump(ng, open(pj("nghe.json"), "w", encoding="utf-8"), ensure_ascii=False)
     print(f"   {len(ng['dao'])} dao tieng noi, {len(ng['words'])} chu", flush=True)
     cau = tach_cau(ng["words"], doc, nh["buoc"], a)
+    if os.path.exists(pj("cau_ai.json")):
+        cache = {c["id"]: c for c in json.load(open(pj("cau_ai.json"), encoding="utf-8"))}
+        for c in cau:
+            o = cache.get(c["id"])
+            if o and abs(o["s"] - c["s"]) < 0.05:
+                c["doc"], c["dien_thoai_ai"], c["nhin_ong_kinh"] = o["doc"], o.get("dien_thoai_ai"), o.get("nhin_ong_kinh")
+    else:
+        print("3b Claude xem hinh tung cau...", flush=True)
+        kiem_hinh_ai(video, cau)
+        json.dump(cau, open(pj("cau_ai.json"), "w", encoding="utf-8"), ensure_ascii=False)
     json.dump(cau, open(pj("cau.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(f"3/4 {len(cau)} cau ({sum(c['doc'] >= 0.4 for c in cau)} cau dang doc dien thoai)", flush=True)
     print("4/4 AI chon lan noi tot nhat cho tung y...", flush=True)
