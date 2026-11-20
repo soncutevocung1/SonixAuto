@@ -58,6 +58,7 @@ class Khuon:
         self.role = {}       # ten vai -> (track, segment mau)
         self.tracks = {}     # ten lop -> track
         self.sfx = {}        # ten am -> segment mau
+        self.anim = {}       # ten hieu ung chu (vao) -> (vat lieu material_animations, animation)
         vids = [t for t in d["tracks"] if t["type"] == "video" and t["segments"]]
         # video chinh = lop video co tong thoi luong dai nhat
         main = max(vids, key=lambda t: sum(s["target_timerange"]["duration"] for s in t["segments"]))
@@ -94,6 +95,12 @@ class Khuon:
             elif t["type"] == "text":
                 self.tracks.setdefault("chu", []).append(t)
                 for s in t["segments"]:
+                    for r in s.get("extra_material_refs", []):
+                        kk, mm = self.dr.find(r)
+                        if kk == "material_animations":
+                            for a in mm.get("animations", []):
+                                if a.get("type") == "in" and a.get("name"):
+                                    self.anim.setdefault(nfc(a["name"]), (mm, a))
                     _, m = self.dr.find(s["material_id"])
                     tx = text_of(m)
                     st = json.loads(m["content"]).get("styles", [])
@@ -109,6 +116,8 @@ class Khuon:
                         self.role.setdefault("canh_bao", s)
                     elif "UTM Avo.ttf" in font and len(st) == 1 and st[0]["fill"]["content"]["solid"]["color"][1] > 0.9:
                         self.role.setdefault("phu_de", s)
+                    elif "Bold_Italic" in font or "BoldItalic" in font:
+                        self.role.setdefault("tu_khoa", s)
         thieu = [r for r in ("main", "phu_de", "mo_dau_1") if r not in self.role]
         if thieu:
             raise CapCutError("Khuon thieu lop: " + ", ".join(thieu))
@@ -139,7 +148,8 @@ def set_text(mat, text, keywords=(), color=None):
     spans = []
     low = text.lower()
     for kw in keywords:
-        i = low.find(nfc(kw).lower())
+        kw = nfc(kw).lower()
+        i = low.find(kw)
         if i >= 0:
             spans.append((i, i + len(kw)))
     spans.sort()
@@ -234,6 +244,96 @@ def chia_cum(words, max_chu=5, max_kt=24, gap=0.25):
     return out
 
 
+NOI = {"thứ", "là", "của", "và", "các", "những", "một", "cho", "với", "khi", "mà", "thì", "bị", "được",
+       "đang", "đã", "sẽ", "rất", "hoặc", "hay", "trong", "vào", "theo", "để", "cái", "con", "giai", "bình"}
+
+
+def chia_dong(ws, xd=-1, toi_da=20):
+    """Ngat dong CHU DONG o cho ngat nghia (anh Son: 'tranh di vao / buoi trua nang nong'),
+    moi dong <= ~20 ky tu -> CapCut khong tu xuong dong giua chu ('cu / ng')."""
+    w = [nfc(x).strip() for x in ws if x.strip()]
+    if 0 < xd < len(w):
+        return " ".join(w[:xd]) + "\n" + " ".join(w[xd:])
+    txt = " ".join(w)
+    if len(txt) <= toi_da or len(w) < 2:
+        return txt
+    def diem(i):
+        a, b = " ".join(w[:i]), " ".join(w[i:])
+        return abs(len(a) - len(b)) + (8 if w[i - 1].lower().strip(",.") in NOI else 0) \
+            + (10 if re.fullmatch(r"[\d,.-]+", w[i - 1]) else 0)
+    i = min(range(1, len(w)), key=diem)
+    return " ".join(w[:i]) + "\n" + " ".join(w[i:])
+
+
+def dat_anim(k, seg, ten, dai_us):
+    """Doi hieu ung xuat hien cua 1 doan chu (ten trong khuon: 'Loại xem trước', 'Bật lên', 'Trượt lên'...);
+    None = hien ngay. Thoi luong hieu ung co gian theo do dai doan (doc kip)."""
+    refs = seg.setdefault("extra_material_refs", [])
+    idx = next((i for i, r in enumerate(refs) if k.find(r)[0] == "material_animations"), None)
+    if ten is None or nfc(ten) not in k.anim:
+        if idx is not None:
+            k.find(refs[idx])[1]["animations"] = []
+        return
+    mm, a = k.anim[nfc(ten)]
+    n = copy.deepcopy(mm)
+    n["id"] = _uid()
+    a2 = copy.deepcopy(a)
+    a2["start"] = 0
+    a2["duration"] = int(min(a.get("duration", _us(0.5)), max(_us(0.15), dai_us * 0.3)))
+    n["animations"] = [a2]
+    k.dr.m.setdefault("material_animations", []).append(n)
+    if idx is None:
+        refs.append(n["id"])
+    else:
+        refs[idx] = n["id"]
+
+
+# hieu ung chu xoay vong nhu ban anh Son (19 'Loai xem truoc', 13 'Truot len', 4 'Bat len', vai doan khong hieu ung)
+ANIM_XOAY = ["Loại xem trước", "Bật lên", "Loại xem trước", None, "Trượt lên", "Loại xem trước", "Bật lên",
+             "Loại xem trước", "Trượt lên", None]
+JITTER = [0.0, -0.035, 0.025, -0.015, 0.035, -0.025]
+
+# nhom tieng hieu ung (ten trong khuon, so khop dau ten) - xoay vong, khong lap lien nhau
+NHOM_AM = {
+    "hook1": ["Magic reveal"],
+    "hook2": ["滴滴"],
+    "go": ["Realistic sound effects for typing", "Enter / click", "Computer-Mouse-Click", "pop! (tapping"],
+    "tu_khoa": ["得分", "\"Pop!\"", "Hupong!"],
+    "mh": ["UI提示-976714", "Cute notification sound", "UI提示-3262", "StingerCameraShut", "相机快门"],
+    "luoi": ["Camera burst", "相机快门", "StingerCameraShut", "UI提示-976714"],
+    "dem_y": ["Cute system Pyui"],
+    "so": ["回答正确", "Cute system Pyui"],
+    "ding": ["Ding"],
+}
+
+
+def chon_am(names, am):
+    """am: [(us, nhom)] -> [(us, ten am)]; tiet che mat do (anh Son ~0.8-1 tieng/giay, khong qua 0.75/giay o day
+    vi nguoi xem de nhuc dau) va xoay nhieu loai tieng."""
+    import collections
+    dem, out, last, cuoi = collections.Counter(), [], None, -10 ** 9
+    uu_tien = {"hook1": 0, "hook2": 0, "dem_y": 0, "so": 1, "ding": 0, "luoi": 1, "mh": 1, "tu_khoa": 2, "go": 3}
+    for at, nhom in sorted(am, key=lambda x: (x[0], uu_tien.get(x[1], 5))):
+        if nhom == "go" and at - cuoi < _us(1.1):
+            continue
+        if nhom in ("tu_khoa", "mh") and at - cuoi < _us(0.35):
+            continue
+        ung = []
+        for p in NHOM_AM.get(nhom, [nhom]):
+            ung += [n for n in names if n.startswith(nfc(p)) and n not in ung]
+        if not ung and nhom not in ("go",):
+            ung = [n for p in NHOM_AM["go"] for n in names if n.startswith(nfc(p))]
+        if not ung:
+            continue
+        ten = min(ung, key=lambda n: (n == last, dem[n], ung.index(n)))
+        if nhom == "go" and dem[ten] >= 6:
+            continue
+        dem[ten] += 1
+        out.append((at, ten))
+        last, cuoi = ten, at
+    return out
+
+
 def vi_tri_phu_de(video, giay, scale=1.0, vung_sp=0.72):
     """Y (toa do CapCut, +1 = tren cung) cho phu de: sat duoi cam, khong che mat; lan vao vung san pham
     (mac dinh tu 72% chieu cao tro xuong) thi dat len tren dau. Khong thay mat -> 0.42 nhu khuon."""
@@ -288,10 +388,10 @@ def _bo_dau(s):
     return "".join(ch for ch in s if unicodedata.category(ch) != "Mn")
 
 
-def kiem_canh(c, sp, dung_giay):
+def kiem_canh(c, sp, dung_giay, cho_nguoi=True):
     """Soi 3 khung (dau/giua/cuoi) cua DUNG doan se dung: co mat nguoi lon, chu in san, hoac
     chu san pham khac -> loai. Ket qua luu vao canh (khong soi lai)."""
-    key = f"kiem_{sp}_{round(dung_giay, 1)}"
+    key = f"kiem2_{sp}_{round(dung_giay, 1)}_{int(cho_nguoi)}"
     if key in c:
         return c[key]
     global _OCR
@@ -308,7 +408,7 @@ def kiem_canh(c, sp, dung_giay):
             continue
         h = img.shape[0]
         rgb = np.ascontiguousarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-        if any(d.bounding_box.height > 0.05 * h for d in _face().detect(mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)).detections):
+        if not cho_nguoi and any(d.bounding_box.height > 0.05 * h for d in _face().detect(mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)).detections):
             ok, ly_do = False, f"co mat nguoi @{t:.1f}"
             break
         res, _ = _OCR(img)
@@ -323,17 +423,54 @@ def kiem_canh(c, sp, dung_giay):
     return ok
 
 
-def chon_canh(thu_vien, nhan, da_dung, sp=None, dung_giay=3.0):
-    """Chon canh dung nhan, bo canh 'loai' va canh co SAN PHAM KHAC; soi lai 3 khung truoc khi nhan."""
+SP_NGAN = {"sp_dam_ca": "dam_ca", "sp_tc01": "tc01"}
+
+
+def _tu(s_):
+    return set(re.findall(r"\w+", _bo_dau(s_ or "").lower()))
+
+
+def chat_luong(c):
+    """0..1: do net (Laplacian, AI 'mo') x do phan giai canh ngan."""
+    res = min(1.0, min(c.get("w", 576), c.get("h", 1024)) / 1080)
+    net = c.get("net")
+    net = 0.5 if net is None else min(1.0, net / 250)
+    return (0.25 if c.get("mo") else 1.0) * (0.4 + 0.6 * res) * (0.4 + 0.6 * net)
+
+
+def hop_le(c, sp, cho_nguoi):
+    n = set(c.get("nhan", []))
+    if "loai" in n and "chai" not in c:   # thu vien cu: 'loai' gom ca chu in/mo -> bo
+        return False
+    if c.get("mo") or c.get("chu_in") or "loai_han" in n:
+        return False
+    chai = set(c.get("chai", []))
+    if chai - {SP_NGAN.get(sp, sp)}:      # lo chai/bao bi san pham khac (vd chai kich re trong video dam ca)
+        return False
+    if "chai" not in c and ((SP_TAGS - {sp}) & n):
+        return False
+    if c.get("nguoi_noi") and not cho_nguoi:
+        return False
+    return True
+
+
+def chon_canh(thu_vien, nhan, da_dung, sp=None, dung_giay=3.0, loi="", da_file=None, cho_nguoi=False, nhan_phu=()):
+    """Chon canh: dung nhan, khong lo chai san pham khac, net + phan giai cao, khop mo ta voi loi noi,
+    KHONG dung lai canh/file da dung trong video (tranh lap canh)."""
     if not thu_vien or not nhan:
         return None
-    cam = (SP_TAGS - {sp}) if sp else set()
-    cands = [c for c in thu_vien if nhan in c.get("nhan", []) and "loai" not in c.get("nhan", [])
-             and not (cam & set(c.get("nhan", []))) and c["id"] not in da_dung]
-    # uu tien canh co dung san pham cua video, roi den canh dai (du cho toc do 2x)
-    cands.sort(key=lambda c: (-(sp in c.get("nhan", [])), -min(c["dai"], 8)))
-    for c in cands[:8]:
-        if kiem_canh(c, sp, dung_giay):
+    da_file = da_file if da_file is not None else set()
+    nh = [nhan, *nhan_phu]
+    tl = _tu(loi)
+    cands = [c for c in thu_vien if set(nh) & set(c.get("nhan", [])) and c["id"] not in da_dung
+             and c["file"] not in da_file and c.get("dai", 0) >= min(dung_giay, 2.0) * 0.5 and hop_le(c, sp, cho_nguoi)]
+    def diem(c):
+        d = 3 * chat_luong(c) + (1.0 if nhan in c.get("nhan", []) else 0) + 0.5 * (sp in c.get("nhan", []))
+        d += 0.3 * len(tl & _tu(c.get("mo_ta", ""))) + 0.3 * min(c["dai"], 6) / 6
+        return d
+    cands.sort(key=diem, reverse=True)
+    for c in cands[:10]:
+        if kiem_canh(c, sp, dung_giay, cho_nguoi=True):
             return c
     return None
 
@@ -376,9 +513,48 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 (n for n, z in enumerate(kh["doan"][j + 1:]) if z.get("dem_y") != y["dem_y"]), len(kh["doan"]))])
             dem_span.append((tt, tt + span))
         tt += dj
-    am = []          # (thoi diem us, ten am)
-    da_dung = set()
+    am = []          # (thoi diem us, nhom am) -> chon_am xoay vong ten tieng
+    da_dung, da_file = set(), set()
     so_y = 0
+    st = {"anim": 0, "luoi_cuoi": -10}
+    luoi_tracks = []
+
+    def them_doan_video(trk, c, a, b, scale=None, x=None, y=None):
+        """1 canh minh hoa (khung bo goc cua khuon), toc do toi da 2x, TAT TIENG."""
+        bs = clone(k, tpl["broll"], a, b - a)
+        need = (b - a) / US
+        toc = max(0.5, min(2.0, c["dai"] / need))
+        src = c["file"].replace("\\", "/")
+        clone_mat(k, bs, path=src, material_name=Path(src).name, width=c["w"], height=c["h"], duration=_us(c["e"] + 1))
+        bs["source_timerange"] = {"start": _us(c["s"]), "duration": _us(need * toc)}
+        bs["speed"] = toc
+        bs["volume"] = 0.0
+        for r in bs.get("extra_material_refs", []):
+            kk, m = k.find(r)
+            if kk == "speeds":
+                m["speed"] = toc
+        if scale is not None:
+            bs["clip"]["scale"] = {"x": scale, "y": scale}
+            bs["clip"]["transform"]["x"], bs["clip"]["transform"]["y"] = x, y
+        trk["segments"].append(bs)
+        da_dung.add(c["id"])
+        da_file.add(c["file"])
+
+    def lop_luoi():
+        """4 lop video cho luoi 4 o (nhu du an PBCP/SPT/bo 3 cua anh Son)."""
+        if not luoi_tracks:
+            bt = k.tracks["broll"]
+            vi = d["tracks"].index(bt)
+            for j in range(3):
+                nt = copy.deepcopy({kk: vv for kk, vv in bt.items() if kk != "segments"})
+                nt["id"] = _uid()
+                nt["segments"] = []
+                d["tracks"].insert(vi + 1 + j, nt)
+                luoi_tracks.append(nt)
+            luoi_tracks.insert(0, bt)
+        return luoi_tracks
+
+    O_LUOI = [(-0.5, 0.36), (0.5, 0.36), (-0.5, -0.36), (0.5, -0.36)]
     for i, x in enumerate(kh["doan"]):
         dur = _us(x["e"] - x["s"])
         s = clone(k, tpl["main"], t, dur)
@@ -391,64 +567,113 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
         k.tracks["main"]["segments"].append(s)
         x["t0"] = t
 
-        # phu de theo cum: vi tri theo mat nguoi mau o giua doan (tinh ca zoom)
         zs = s["clip"]["scale"]["x"]
         y_mat = vi_tri_phu_de(video_goc, (x["s"] + x["e"]) / 2, zs) if video_goc else 0.42
         x["y_phu_de"] = y_mat
-        co_mh = False
-        # Doan mo dau giu mat nguoi mau (tao tin tuong) -> khong chen minh hoa trong ~4 giay dau
-        cho_phep = x["vai"] not in ("mo_dau", "keu_goi") and t >= _us(4.0) and x["e"] - x["s"] >= 1.2
-        canh = chon_canh(thu_vien, x.get("minh_hoa"), da_dung, kh.get("sp"), 2.0 * (x["e"] - x["s"])) if cho_phep else None
-        if canh and "broll" in k.role:
-            co_mh = True
-            da_dung.add(canh["id"])
-            a = t + _us(0.25)
-            b = t + dur
-            for role, trk in (("mo", "mo"), ("glow", "glow")):
-                if role in tpl:
-                    k.tracks[trk]["segments"].append(clone(k, tpl[role], a, b - a))
-            bs = clone(k, tpl["broll"], a, b - a)
-            need = (b - a) / US
-            toc = max(0.5, min(2.0, canh["dai"] / need))
-            src = canh["file"].replace("\\", "/")
-            clone_mat(k, bs, path=src, material_name=Path(src).name, width=canh["w"], height=canh["h"],
-                      duration=_us(canh["e"] + 1))
-            bs["source_timerange"] = {"start": _us(canh["s"]), "duration": _us(need * toc)}
-            bs["speed"] = toc
-            for r in bs.get("extra_material_refs", []):
-                kk, m = k.find(r)
-                if kk == "speeds":
-                    m["speed"] = toc
-            k.tracks["broll"]["segments"].append(bs)
-            am.append((a, "Cute notification sound 09 / Youtube / TV(935743)"))
+        kieu_mh = None
+        # Doan mo dau / keu goi giu mat nguoi mau (tao tin tuong) -> khong chen minh hoa
+        cho_phep = x["vai"] not in ("mo_dau", "keu_goi") and t >= _us(4.0) and x["e"] - x["s"] >= 1.2 and "broll" in k.role
+        a_mh, b_mh = t + _us(0.25), t + dur
+        # Cach dung / pha: LUOI 4 O canh nguoi dung that (2x, tat tieng) -> nguoi xem thay nhieu nguoi dang dung
+        if (cho_phep and x["vai"] == "cach_dung" and x.get("minh_hoa") in ("pha_thuoc", "phun_tuoi", "nong_dan_vuon")
+                and x["e"] - x["s"] >= 2.0 and i - st["luoi_cuoi"] > 1):
+            o = []
+            for nh in (x["minh_hoa"], "pha_thuoc", "phun_tuoi", "nong_dan_vuon"):
+                while len(o) < 4:
+                    c = chon_canh(thu_vien, nh, da_dung | {z["id"] for z in o}, kh.get("sp"), 2.0 * (b_mh - a_mh) / US,
+                                  x.get("text", ""), da_file | {z["file"] for z in o}, cho_nguoi=True)
+                    if not c:
+                        break
+                    o.append(c)
+            if len(o) == 4:
+                trs = lop_luoi()
+                sc = round(tpl["broll"]["clip"]["scale"]["x"] * 0.66, 3)
+                for j, (c, (ox, oy)) in enumerate(zip(o, O_LUOI)):
+                    them_doan_video(trs[j], c, a_mh + _us(0.12 * j), b_mh, sc, ox, oy)
+                kieu_mh = "luoi"
+                st["luoi_cuoi"] = i
+                am.append((a_mh, "luoi"))
+        if cho_phep and not kieu_mh:
+            canh = chon_canh(thu_vien, x.get("minh_hoa"), da_dung, kh.get("sp"), 2.0 * (x["e"] - x["s"]),
+                             x.get("text", ""), da_file)
+            if canh:
+                kieu_mh = "mot"
+                for role, trk in (("mo", "mo"), ("glow", "glow")):
+                    if role in tpl:
+                        k.tracks[trk]["segments"].append(clone(k, tpl[role], a_mh, b_mh - a_mh))
+                them_doan_video(k.tracks["broll"], canh, a_mh, b_mh)
+                am.append((a_mh, "mh"))
 
-        cums = chia_cum(x["words"])
-        for ci, cum in enumerate(cums):
-            cs = t + _us(cum[0]["s"] - x["s"])
-            ce = t + _us(cum[-1]["e"] - x["s"]) + _us(0.08)
-            ce = min(ce, t + dur)
-            if ci + 1 < len(cums):  # dong truoc tat truoc khi dong sau hien -> khong chong chu
-                ce = min(ce, t + _us(cums[ci + 1][0]["s"] - x["s"]) - _us(0.02))
-            # Khong de phu de chong len chu mo dau (anh Son de trong 2-3 giay dau)
+        # ---- PHU DE theo cum nghia (ke hoach AI), dung truoc loi 0.15s, hien lien tuc toi cum sau
+        ws = x["words"]
+        pd = x.get("phu_de")
+        if not pd:
+            pd, pos = [], 0
+            for cum in chia_cum(ws):
+                pd.append({"tu": pos, "den": pos + len(cum) - 1, "xuong_dong": -1, "nhan": False})
+                pos += len(cum)
+        bd = []
+        for c in pd:
+            c0 = t + _us(ws[c["tu"]]["s"] - x["s"]) - _us(0.15)
+            c0 = max(c0, t, (bd[-1]["s"] + _us(0.35)) if bd else 0)
+            if c0 >= t + dur - _us(0.2):
+                if bd:  # het cho: gop vao cum truoc
+                    bd[-1]["den"] = c["den"]
+                continue
+            bd.append({"s": c0, **c})
+        for j, c in enumerate(bd):
+            c["e"] = bd[j + 1]["s"] if j + 1 < len(bd) else t + dur
+        # cum NHAN (tu khoa) dung sau cum thuong -> cum thuong keo dai, tu khoa vang nghieng noi rieng
+        for j, c in enumerate(bd):
+            c["phu"] = bool(c["nhan"] and j > 0 and not bd[j - 1]["nhan"] and "tu_khoa" in tpl)
+            if c["phu"]:
+                bd[j - 1]["e"] = c["e"]
+        dang_dem = lambda u: any(d0 <= u < d1 for d0, d1 in dem_span)
+        tren = min(y_mat, 0.40) if y_mat > 0 else y_mat
+        if kieu_mh == "luoi":
+            y_goc = -0.64
+        elif kieu_mh == "mot":
+            y_goc = 0.5 if i % 2 == 0 else -0.58
+        else:
+            y_goc = y_mat
+        for j, c in enumerate(bd):
+            cs, ce = c["s"], c["e"]
             if ce <= hook_end + _us(0.3):
                 continue
             cs = max(cs, hook_end)
-            txt = viet_phu_de(" ".join(w["w"] for w in cum).strip(" ,"))
+            dong = chia_dong([w["w"] for w in ws[c["tu"]:c["den"] + 1]], c["xuong_dong"] - c["tu"] if c["xuong_dong"] > 0 else -1)
+            txt = "\n".join(viet_phu_de(l) for l in dong.split("\n")).strip(" ,")
+            yb = y_goc
+            if yb > 0 and dang_dem(cs):
+                yb = min(yb, 0.40)
+            if c["phu"]:
+                ps = clone(k, tpl["tu_khoa"], cs, max(_us(0.4), ce - cs))
+                set_text(clone_mat(k, ps), txt)
+                base_y = bd[j - 1].get("y", yb)
+                ps["clip"]["transform"]["y"] = round(base_y - 0.15 if base_y > 0 else base_y + 0.15, 3)
+                dat_anim(k, ps, "Trượt lên", ce - cs)
+                k.tracks["chu"][-1 if len(k.tracks["chu"]) > 2 else 0]["segments"].append(ps)
+                am.append((cs, "tu_khoa"))
+                continue
+            ps = clone(k, tpl["phu_de"], cs, max(_us(0.4), ce - cs))
             kws = [kw for kw in x.get("tu_khoa", []) if kw.lower() in txt.lower()]
-            ps = clone(k, tpl["phu_de"], cs, max(_us(0.3), ce - cs))
-            m = clone_mat(k, ps)
-            set_text(m, txt, kws)
-            # luc nhan "THU NHAT/HAI/BA" dang hien tren dau -> phu de xuong duoi cam (khong chong chu)
-            dang_dem = any(d0 <= cs < d1 for d0, d1 in dem_span)
-            y_pd = -0.18 if dang_dem else y_mat
-            ps["clip"]["transform"]["y"] = -0.56 if co_mh else y_pd
+            set_text(clone_mat(k, ps), txt, kws, color=YELLOW if c["nhan"] else None)
+            c["y"] = round(yb + JITTER[(i + j) % len(JITTER)], 3)
+            ps["clip"]["transform"]["y"] = c["y"]
+            ten_anim = ANIM_XOAY[st["anim"] % len(ANIM_XOAY)]
+            st["anim"] += 1
+            if len(txt) <= 10 and ten_anim == "Loại xem trước":
+                ten_anim = "Bật lên"   # cum ngan: hien ngay cho doc kip
+            dat_anim(k, ps, ten_anim, ce - cs)
             k.tracks["chu"][-1 if len(k.tracks["chu"]) > 2 else 0]["segments"].append(ps)
-            # Tieng: tu khoa -> "ting"; cum dau doan hoac cach 2 cum -> go phim (khong de am day dac)
-            if kws:
-                am.append((cs, "得分"))
-            elif ci == 0 or ci % 2 == 0 and cs - last_go[0] > _us(1.2):
-                am.append((cs, "Realistic sound effects for typing on keyboards"))
-                last_go[0] = cs
+            am.append((cs, "tu_khoa" if c["nhan"] else "go"))
+
+        # so thu tu to ben phai cho muc trong danh sach con (1-2-3 giai doan)
+        if x.get("so") and "so" in tpl:
+            ss = clone(k, tpl["so"], t + _us(0.1), min(dur, _us(3.0)) - _us(0.1))
+            set_text(clone_mat(k, ss), str(x["so"]))
+            k.tracks["chu"][0]["segments"].append(ss)
+            am.append((t + _us(0.1), "so"))
 
         moi_y = x.get("dem_y") and (i == 0 or kh["doan"][i - 1].get("dem_y") != x["dem_y"])
         if moi_y and "dem_y" in tpl:
@@ -463,9 +688,9 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             ds = clone(k, tpl["dem_y"], t, span)
             set_text(clone_mat(k, ds), nhan)
             k.tracks["chu"][0]["segments"].append(ds)
-            am.append((t, "Cute system Pyui"))
+            am.append((t, "dem_y"))
         if x["vai"] == "keu_goi" and i == len(kh["doan"]) - 1:
-            am.append((t, "Ding"))
+            am.append((t, "ding"))
         t += dur
 
     total = t
@@ -476,18 +701,20 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
         dong1 = ngat_dong(hook[0].upper())
         set_text(clone_mat(k, h1), dong1)
         k.tracks["chu"][0]["segments"].insert(0, h1)
-        am.append((0, "Magic reveal"))
+        am.append((0, "hook1"))
         if len(hook) > 1 and "mo_dau_2" in tpl:
             h2 = clone(k, tpl["mo_dau_2"], _us(1.0), hook_end - _us(1.0))
-            set_text(clone_mat(k, h2), ngat_dong(hook[1].upper()))
-            # dong do nam ngay duoi khoi chu trang: doi xuong theo so dong cua dong 1 (khuon tinh cho 1 dong)
-            h2["clip"]["transform"]["y"] = h1["clip"]["transform"]["y"] - 0.075 * (dong1.count("\n") + 1) - 0.03
+            dong2 = ngat_dong(hook[1].upper())
+            set_text(clone_mat(k, h2), dong2)
+            # 2 dong chu mo dau KHONG chong nhau: dong do nam duoi khoi chu trang, cach theo so dong that
+            n1 = dong1.count("\n") + 1
+            h2["clip"]["transform"]["y"] = round(h1["clip"]["transform"]["y"] - 0.085 * n1 - 0.045, 3)
             k.tracks["chu"][1 if len(k.tracks["chu"]) > 1 else 0]["segments"].insert(0, h2)
-            am.append((_us(1.0), "滴滴 答题错误"))
+            am.append((_us(1.0), "hook2"))
 
-    # tieng hieu ung: xep vao cac lop am, khong de chong
+    # tieng hieu ung: chon ten xoay vong, xep vao cac lop am, khong de chong
     end_of = {id(tr): 0 for tr in sfx_tracks}
-    for at, name in sorted(am):
+    for at, name in chon_am(list(sfx_tpl), am):
         mau = sfx_tpl.get(nfc(name))
         if not mau or not sfx_tracks:
             continue
@@ -500,6 +727,27 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             continue
         tr["segments"].append(s)
         end_of[id(tr)] = at + ln
+
+    # xep lai chu vao cac lop chu: doan chong thoi gian (phu de + tu khoa noi + THU/so) phai o lop khac nhau
+    txt_tracks = k.tracks.get("chu", [])
+    if txt_tracks:
+        segs = sorted([sg for tr in txt_tracks for sg in tr["segments"]], key=lambda sg: sg["target_timerange"]["start"])
+        for tr in txt_tracks:
+            tr["segments"] = []
+        ends = [0] * len(txt_tracks)
+        for sg in segs:
+            a0 = sg["target_timerange"]["start"]
+            j = next((j for j, e in enumerate(ends) if e <= a0), None)
+            if j is None:
+                nt = copy.deepcopy({kk: vv for kk, vv in txt_tracks[0].items() if kk != "segments"})
+                nt["id"] = _uid()
+                nt["segments"] = []
+                d["tracks"].insert(d["tracks"].index(txt_tracks[-1]) + 1, nt)
+                txt_tracks.append(nt)
+                ends.append(0)
+                j = len(ends) - 1
+            txt_tracks[j]["segments"].append(sg)
+            ends[j] = a0 + sg["target_timerange"]["duration"]
 
     # nhac nen + lop keo dai
     if "nhac" in tpl:

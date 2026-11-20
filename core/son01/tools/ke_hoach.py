@@ -20,7 +20,7 @@ giu_het = opt.get("--giu-het", "0") == "1"  # cat_tho2 da chon lan noi: giu du, 
 
 NHAN_MINH_HOA = ["mo_phong_hap_thu", "mo_phong_re", "re_bung", "ra_dot_la_xanh", "van_de_cay_yeu",
                  "dat_kho", "pha_thuoc", "phun_tuoi", "san_pham_can_canh", "con_trung_chich_hut",
-                 "truoc_sau", "nong_dan_vuon"]
+                 "truoc_sau", "nong_dan_vuon", "ra_hoa_dau_qua", "thu_hoach", "buoi_sang_chieu", "nang_gat"]
 
 SYSTEM = f"""Bạn là biên tập viên video TikTok ngành phân bón, dựng theo phong cách "Sơn 01":
 người mẫu (anh Sơn) nói trước camera bằng giọng miền Nam, xưng "em", gọi khách là "bác/bà con".
@@ -49,7 +49,18 @@ Luật:
 - loi_sua: lời của đúng khoảng chữ đã chọn, SỬA LỖI NGHE NHẦM của máy (chính tả, từ chuyên ngành
   như "dễ hấp thu", "hao phân", "đong", "phun", "tránh", "tham khảo", "thu hoạch"), giữ nguyên giọng
   nói và thứ tự, KHÔNG thêm bớt ý; cố giữ số chữ gần bằng bản gốc để khớp thời gian.
-Sản phẩm: {san_pham or "theo lời nói"}."""
+Sản phẩm: {san_pham or "theo lời nói"}.
+PHỤ ĐỀ (học từ bản anh Sơn tự làm) - trường phu_de của mỗi đoạn, chỉ số chữ tính trên dòng 'chu' của đoạn đó:
+- Chia lời thành CỤM THEO NGHĨA 2-7 chữ, đủ ý để người xem hiểu ngay (vd "đạm cá là | một dòng đạm | dễ hấp thu",
+  "bón đạm cá trong 3 giai đoạn"). KHÔNG tách số khỏi danh từ ("3 giai đoạn", "4 - 5 nắp", "16 lít"),
+  không tách cụm danh từ/tên sản phẩm, không để cụm kết thúc bằng từ nối (là, và, của, trong, vào, thì, mà).
+- Các cụm phủ liên tục mọi chữ của đoạn từ tu_chu đến den_chu, không chồng nhau, theo thứ tự.
+- xuong_dong: chỉ số chữ bắt đầu dòng 2 khi cụm dài hơn khoảng 18 ký tự (ngắt ở chỗ ngắt nghĩa, vd
+  "tránh đi vào / buổi trưa nắng nóng"); -1 nếu 1 dòng. Mỗi dòng tối đa ~20 ký tự.
+- nhan=true cho cụm là ĐIỂM NHẤN (vấn đề, lợi ích, thời điểm, liều lượng): sẽ hiện chữ vàng nghiêng nổi riêng.
+  Khoảng 1/3 số cụm, không 2 cụm nhấn liền nhau.
+- so: khi đoạn là 1 mục trong danh sách con (vd 3 giai đoạn: cây con=1, nuôi hoa dưỡng quả=2, sau thu hoạch=3)
+  thì ghi số thứ tự mục để hiện số to bên phải; còn lại null."""
 if giu_het:
     SYSTEM += """
 CHẾ ĐỘ GIỮ HẾT: các đoạn đã được biên tập viên chọn sẵn (mỗi ý 1 lần nói tốt nhất, đúng mạch).
@@ -72,8 +83,20 @@ SCHEMA = {
                 "minh_hoa": {"type": ["string", "null"]},
                 "dem_y": {"type": ["integer", "null"]},
                 "loi_sua": {"type": "string"},
+                "so": {"type": ["integer", "null"]},
+                "phu_de": {"type": "array", "items": {
+                    "type": "object",
+                    "properties": {
+                        "tu": {"type": "integer"},
+                        "den": {"type": "integer"},
+                        "xuong_dong": {"type": "integer"},
+                        "nhan": {"type": "boolean"},
+                    },
+                    "required": ["tu", "den", "xuong_dong", "nhan"],
+                    "additionalProperties": False,
+                }},
             },
-            "required": ["id", "tu_chu", "den_chu", "vai", "tu_khoa", "zoom", "minh_hoa", "dem_y", "loi_sua"],
+            "required": ["id", "tu_chu", "den_chu", "vai", "tu_khoa", "zoom", "minh_hoa", "dem_y", "loi_sua", "so", "phu_de"],
             "additionalProperties": False,
         }},
         "ly_do": {"type": "string"},
@@ -136,10 +159,33 @@ for x in kq["doan"]:
     x["words"] = goc
     x["text"] = " ".join(w["w"] for w in x["words"])
     x["tu_khoa"] = [k for k in x["tu_khoa"] if k.lower() in x["text"].lower()]
+    # phu_de: doi chi so chu ve he cua x["words"] (bat dau tu a_), phu kin, khong chong
+    n = len(x["words"])
+    r = n / (b_ - a_ + 1)  # loi_sua khac so chu -> co gian chi so theo ti le
+    ch = lambda i: int(round((i - a_) * r))
+    cum, pos = [], 0
+    for c in sorted(x.get("phu_de") or [], key=lambda c: c["tu"]):
+        t0, t1 = max(ch(c["tu"]), pos), min(ch(c["den"] + 1) - 1, n - 1)
+        if t1 < t0:
+            continue
+        if t0 > pos:  # lo trong -> gop vao cum truoc / tao cum moi
+            cum.append({"tu": pos, "den": t0 - 1, "xuong_dong": -1, "nhan": False})
+        xd = ch(c["xuong_dong"]) if c["xuong_dong"] >= 0 else -1
+        cum.append({"tu": t0, "den": t1, "xuong_dong": xd if t0 < xd <= t1 else -1, "nhan": bool(c["nhan"])})
+        pos = t1 + 1
+    if pos < n:
+        if cum and n - pos <= 1:
+            cum[-1]["den"] = n - 1
+        else:
+            cum.append({"tu": pos, "den": n - 1, "xuong_dong": -1, "nhan": False})
+    x["phu_de"] = cum
     tong += x["e"] - x["s"]
 kq["tong_giay"] = round(tong, 2)
 json.dump(kq, open(a[1], "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 print("Chu mo dau:", " / ".join(kq["chu_mo_dau"]))
 for x in kq["doan"]:
-    print(f"[{x['s']:7.2f}-{x['e']:7.2f}] {x['vai']:9s} zoom={x['zoom']:5s} mh={x['minh_hoa']} kw={x['tu_khoa']} | {x['text']}")
+    print(f"[{x['s']:7.2f}-{x['e']:7.2f}] {x['vai']:9s} zoom={x['zoom']:5s} mh={x['minh_hoa']} so={x.get('so')} | {x['text']}")
+    ws_ = [w["w"].strip() for w in x["words"]]
+    print("     pd:", " | ".join(("*" if c["nhan"] else "") + " ".join(ws_[c["tu"]:c["xuong_dong"]] if c["xuong_dong"] > 0 else ws_[c["tu"]:c["den"] + 1])
+                              + (" / " + " ".join(ws_[c["xuong_dong"]:c["den"] + 1]) if c["xuong_dong"] > 0 else "") for c in x["phu_de"]))
 print(f"Tong {tong:.1f}s | {kq['ly_do']}")
