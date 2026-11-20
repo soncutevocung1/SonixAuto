@@ -21,6 +21,13 @@ Nguồn đối chiếu: timeline "Đạm shop Bọ" (C3420, 12 đoạn, 38,2 s),
 5. Đoạn giữ dài 1,3–5,3 s (trung bình ~3 s), tổng 30–40 s; thứ tự giữ đúng mạch kịch bản
    (riêng "bọ 3" có đảo thứ tự 1 đoạn để ý liền mạch hơn).
 6. Kêu gọi cuối: lấy lần nói trọn "Các bác đã sử dụng … chưa, bình luận lại ở dưới video này để … tham khảo ý kiến nhé".
+7. **Ý liệt kê phải đủ mục** (3 giai đoạn: cây con / nuôi hoa dưỡng quả / sau thu hoạch). Lần nói có lặp chữ ở đầu
+   thì **cắt theo chữ** từ chỗ nói lại trọn (anh lấy 232,73–235,10 s, bỏ "Và giai đoạn…" lần đầu trong cùng hơi nói).
+8. Câu chỉ chỗ mua ("đạm cá em để dưới giỏ hàng, góc trái màn hình") **không lấy** khi đã có lời kêu gọi bình luận.
+
+## Kết quả kiểm tra bộ cắt v2 trên C3420 (so với "Đạm shop Bọ")
+- Lần 1 (cắt theo câu): độ phủ 92 %, thừa 13 % – sót ý "sau thu hoạch", thừa câu giỏ hàng → thêm luật 7, 8
+  và cho AI cắt theo chỉ số chữ.
 
 ## Vì sao bản tự động trước sai
 - Whisper (VAD) **bỏ sót lời** (vd 185,7–193,8 s không có chữ nhưng anh giữ 188,7–190,5 s) và **gộp đoạn đọc

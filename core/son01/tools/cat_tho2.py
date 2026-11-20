@@ -272,7 +272,10 @@ LUAT = open(os.path.join(HERE, "..", "LUAT_CAT_ANH_SON.md"), encoding="utf-8").r
 SCHEMA = {"type": "object", "properties": {
     "y": {"type": "array", "items": {"type": "object", "properties": {
         "y": {"type": "string"},
-        "cau": {"type": "array", "items": {"type": "integer"}},
+        "cau": {"type": "array", "items": {"type": "object", "properties": {
+            "id": {"type": "integer"},
+            "tu_chu": {"type": "integer"},
+            "den_chu": {"type": "integer"}}, "required": ["id", "tu_chu", "den_chu"], "additionalProperties": False}},
         "ly_do": {"type": "string"}}, "required": ["y", "cau", "ly_do"], "additionalProperties": False}},
     "nhan_xet": {"type": "string"}}, "required": ["y", "nhan_xet"], "additionalProperties": False}
 
@@ -283,7 +286,8 @@ def chon(cau, model_ai="claude-opus-5-5", dai=36):
     dong = []
     for c in cau:
         dong.append(f"#{c['id']} [{c['s']:.1f}-{c['e']:.1f}s, {c['e'] - c['s']:.1f}s] "
-                    f"doc_dien_thoai={int(c['doc'] * 100)}% ro={int(c['p'] * 100)}% | {c['text']}")
+                    f"doc_dien_thoai={int(c['doc'] * 100)}% ro={int(c['p'] * 100)}% | {c['text']}\n"
+                    "    chu: " + " ".join(f"{k}:{w['w']}" for k, w in enumerate(c["words"])))
     system = ("Bạn là biên tập viên cắt source thô cho anh Sơn. Đây là LUẬT anh Sơn cắt (học từ bài anh tự cắt):\n"
               + LUAT + "\n\nNhiệm vụ: từ danh sách câu (theo thời gian thật của video quay thô), dựng lại KỊCH BẢN anh "
               "muốn nói: chia thành các Ý theo đúng thứ tự, mỗi Ý chọn đúng 1 LẦN NÓI tốt nhất "
@@ -291,7 +295,13 @@ def chon(cau, model_ai="claude-opus-5-5", dai=36):
               "Bắt buộc: bỏ mọi câu có doc_dien_thoai >= 40% (đang đọc kịch bản); không chọn câu nói dở/thiếu chữ cuối; "
               "ý nào nói nhiều lần thì so sánh tất cả các lần (kể cả cách xa) và lấy lần trọn vẹn, trôi chảy; "
               "ngang nhau thì lấy lần SAU CÙNG. Mỗi ý chỉ xuất hiện 1 lần. Tổng thời lượng khoảng "
-              f"{dai:.0f} giây (30-42). Lời có thể bị nghe nhầm chữ, hãy hiểu theo ngữ cảnh ngành phân bón.")
+              f"{dai:.0f} giây (30-42). Lời có thể bị nghe nhầm chữ, hãy hiểu theo ngữ cảnh ngành phân bón.\n"
+              "Mỗi câu chọn ghi id + tu_chu/den_chu (chỉ số chữ trong dòng 'chu', tính cả 2 đầu; lấy trọn câu thì "
+              "tu_chu=0, den_chu=chữ cuối). Dùng tu_chu/den_chu để bỏ phần lặp/vấp ở đầu hoặc đuôi câu "
+              "(vd câu nói 'Và giai đoạn... Và giai đoạn cây sau khi thu hoạch' thì lấy từ chữ 'Và' thứ hai).\n"
+              "Ý LIỆT KÊ (thứ nhất/hai/ba, 3 giai đoạn...) phải giữ ĐỦ mọi mục, kể cả phải cắt theo chữ. "
+              "Câu chỉ chỗ mua (giỏ hàng, góc màn hình) KHÔNG lấy, trừ khi kịch bản không có lời kêu gọi bình luận. "
+              "Bỏ câu ảo giác của máy nghe ('Cảm ơn các bạn đã theo dõi', 'Hãy subscribe...').")
     kq = _claude([{"type": "text", "text": "Danh sách câu:\n" + "\n".join(dong)}], SCHEMA, config.load_settings(),
                  model_ai, system)
     return kq
@@ -301,20 +311,31 @@ def ghep(cau, kq):
     by = {c["id"]: c for c in cau}
     out = []
     for y in kq["y"]:
-        ids = [i for i in y["cau"] if i in by]
-        if not ids:
-            continue
-        # gom cac cau lien nhau thanh 1 doan
-        nhom = [[ids[0]]]
-        for i in ids[1:]:
-            if i == nhom[-1][-1] + 1 and by[i]["s"] - by[nhom[-1][-1]]["e"] < 1.2:
-                nhom[-1].append(i)
+        phan = []  # (cau, a, b) da cat theo chu
+        for x in y["cau"]:
+            c = by.get(x["id"])
+            if not c or not c["words"]:
+                continue
+            n = len(c["words"])
+            a = min(max(0, x["tu_chu"]), n - 1)
+            b = n - 1 if x["den_chu"] < 0 else min(max(a, x["den_chu"]), n - 1)
+            phan.append((c, a, b))
+        # gom cac cau lien nhau (tron cau noi tiep) thanh 1 doan
+        nhom = []
+        for c, a, b in phan:
+            if (nhom and c["id"] == nhom[-1][-1][0]["id"] + 1 and a == 0 and nhom[-1][-1][2] == len(nhom[-1][-1][0]["words"]) - 1
+                    and c["s"] - nhom[-1][-1][0]["e"] < 1.2):
+                nhom[-1].append((c, a, b))
             else:
-                nhom.append([i])
+                nhom.append([(c, a, b)])
         for g in nhom:
-            cs = [by[i] for i in g]
-            out.append({"s": cs[0]["s"], "e": cs[-1]["e"], "text": " ".join(c["text"] for c in cs),
-                        "words": [w for c in cs for w in c["words"]], "id_cau": g, "y": y["y"]})
+            c0, a0, _ = g[0]
+            c1, _, b1 = g[-1]
+            s_ = c0["s"] if a0 == 0 else max(c0["s"], c0["words"][a0]["s"] - 0.08)
+            e_ = c1["e"] if b1 == len(c1["words"]) - 1 else min(c1["e"], c1["words"][b1]["e"] + 0.15)
+            ws = [w for c, a, b in g for w in c["words"][a:b + 1]]
+            out.append({"s": round(s_, 3), "e": round(e_, 3), "text": " ".join(w["w"] for w in ws),
+                        "words": ws, "id_cau": [c["id"] for c, _, _ in g], "y": y["y"]})
     return out
 
 

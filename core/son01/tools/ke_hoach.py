@@ -16,6 +16,7 @@ doan = json.load(open(a[0], encoding="utf-8"))
 san_pham = opt.get("--san-pham", "")
 dai = float(opt.get("--dai", 36))
 model = opt.get("--model", "claude-opus-5-5")
+giu_het = opt.get("--giu-het", "0") == "1"  # cat_tho2 da chon lan noi: giu du, dung thu tu, khong cat bot
 
 NHAN_MINH_HOA = ["mo_phong_hap_thu", "mo_phong_re", "re_bung", "ra_dot_la_xanh", "van_de_cay_yeu",
                  "dat_kho", "pha_thuoc", "phun_tuoi", "san_pham_can_canh", "con_trung_chich_hut",
@@ -49,6 +50,11 @@ Luật:
   như "dễ hấp thu", "hao phân", "đong", "phun", "tránh", "tham khảo", "thu hoạch"), giữ nguyên giọng
   nói và thứ tự, KHÔNG thêm bớt ý; cố giữ số chữ gần bằng bản gốc để khớp thời gian.
 Sản phẩm: {san_pham or "theo lời nói"}."""
+if giu_het:
+    SYSTEM += """
+CHẾ ĐỘ GIỮ HẾT: các đoạn đã được biên tập viên chọn sẵn (mỗi ý 1 lần nói tốt nhất, đúng mạch).
+BẮT BUỘC trả về MỌI id theo đúng thứ tự, tu_chu=0, den_chu=chữ cuối; chỉ gắn vai, tu_khoa, zoom, minh_hoa,
+dem_y và sửa chính tả trong loi_sua."""
 
 SCHEMA = {
     "type": "object",
@@ -87,6 +93,19 @@ if opt.get("--gop-y") and os.path.exists(opt["--gop-y"]):
 
 settings = config.load_settings()
 kq = _claude(content, SCHEMA, settings, model, system=SYSTEM)
+if giu_het:
+    # ep giu du: moi id 1 lan, dung thu tu, tron cau (AI chi gan nhan)
+    theo_id = {}
+    for x in kq["doan"]:
+        if 0 <= x["id"] < len(doan) and x["id"] not in theo_id:
+            theo_id[x["id"]] = x
+    ds = []
+    for i, d in enumerate(doan):
+        x = theo_id.get(i) or {"id": i, "vai": "giai_phap", "tu_khoa": [], "zoom": "khong", "minh_hoa": None,
+                               "dem_y": None, "loi_sua": d["text"]}
+        x["tu_chu"], x["den_chu"] = 0, len(d["words"]) - 1
+        ds.append(x)
+    kq["doan"] = ds
 
 # Doi ra moc thoi gian that tren video goc + kiem tra tu khoa
 tong = 0.0
@@ -94,8 +113,11 @@ for x in kq["doan"]:
     d = doan[x["id"]]
     ws = d["words"]
     a_, b_ = max(0, x["tu_chu"]), min(len(ws) - 1, x["den_chu"])
-    x["s"] = round(max(d["s"], ws[a_]["s"] - 0.06), 3)
-    x["e"] = round(min(d["e"], ws[b_]["e"] + 0.12), 3)
+    if giu_het:
+        x["s"], x["e"] = d["s"], d["e"]  # moc da tinh chinh theo nang luong am
+    else:
+        x["s"] = round(max(d["s"], ws[a_]["s"] - 0.06), 3)
+        x["e"] = round(min(d["e"], ws[b_]["e"] + 0.12), 3)
     goc = [dict(w) for w in ws[a_:b_ + 1]]
     moi = (x.get("loi_sua") or "").split()
     if moi and len(moi) == len(goc):

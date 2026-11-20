@@ -4,7 +4,7 @@ python son01.py <video_goc> --sp sp_dam_ca --san-pham "Dam ca Amino (can 5 lit)"
     [--thu-vien <thu_vien>/tat_ca.json] [--khuon <thu muc khuon | ten du an CapCut>] [--timeline "Dam shop Bo"]
     [--dai 36] [--model claude-opus-5-5] [--cham claude-sonnet-5-5] [--vong 3] [--dat 8]
 
-Buoc: nghe (Whisper) -> cat tho -> ke hoach (Claude) -> du an CapCut -> xem truoc MP4 -> cham diem (Claude xem khung)
+Buoc: cat tho v2 (nhin hinh + nghe + AI chon lan noi) [--cat-cu 1: Whisper + cat tho cu] -> ke hoach (Claude) -> du an CapCut -> xem truoc MP4 -> cham diem (Claude xem khung)
 -> neu < dat diem: dua loi vao ke hoach, tao lai (toi da --vong lan).
 """
 import sys, os, json, subprocess, shutil
@@ -32,17 +32,23 @@ work.mkdir(parents=True, exist_ok=True)
 dat, vong = float(opt.get("--dat", 8)), int(opt.get("--vong", 3))
 
 loi, cat, kh = work / "loi.json", work / "cat.json", work / "kehoach.json"
-if not loi.exists():
-    chay(TOOLS / "nghe_chu.py", video, loi, opt.get("--whisper", "large-v3-turbo"))
+cu = opt.get("--cat-cu", "0") == "1"  # 1 = bo cat tho cu (chi nghe, khong nhin hinh)
 if not cat.exists():
-    chay(TOOLS / "cat_tho.py", loi, cat)
+    if cu:
+        if not loi.exists():
+            chay(TOOLS / "nghe_chu.py", video, loi, opt.get("--whisper", "large-v3-turbo"))
+        chay(TOOLS / "cat_tho.py", loi, cat)
+    else:
+        # cat tho v2: nhin hinh bo doan doc dien thoai + nghe ky + AI chon lan noi tot nhat moi y
+        chay(TOOLS / "cat_tho2.py", video, cat, "--lam-viec", work, "--dai", opt.get("--dai", "36"),
+             "--whisper", opt.get("--whisper", "large-v3-turbo"))
 
 gop_y = ""
 ket_qua = None
 for v in range(1, vong + 1):
     print(f"\n===== VONG {v} =====", flush=True)
     args = [TOOLS / "ke_hoach.py", cat, kh, "--san-pham", opt.get("--san-pham", ""), "--dai", opt.get("--dai", "36"),
-            "--model", opt.get("--model", "claude-opus-5-5")]
+            "--model", opt.get("--model", "claude-opus-5-5"), "--giu-het", "0" if cu else "1"]
     if gop_y:
         (work / "gop_y.txt").write_text(gop_y, encoding="utf-8")
         args += ["--gop-y", work / "gop_y.txt"]
