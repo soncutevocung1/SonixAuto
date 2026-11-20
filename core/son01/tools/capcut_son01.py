@@ -558,17 +558,24 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
         da_file.add(c["file"])
 
     def lop_luoi():
-        """4 lop video cho luoi 4 o (nhu du an PBCP/SPT/bo 3 cua anh Son)."""
+        """4 cap lop (vien sang + video) cho luoi 4 o, nhu du an PBCP/SPT/bo 3 cua anh Son."""
         if not luoi_tracks:
-            bt = k.tracks["broll"]
-            vi = d["tracks"].index(bt)
+            bt, gt = k.tracks["broll"], k.tracks.get("glow")
+            luoi_tracks.append((gt, bt))
+            sau = bt
             for j in range(3):
-                nt = copy.deepcopy({kk: vv for kk, vv in bt.items() if kk != "segments"})
-                nt["id"] = _uid()
-                nt["segments"] = []
-                d["tracks"].insert(vi + 1 + j, nt)
-                luoi_tracks.append(nt)
-            luoi_tracks.insert(0, bt)
+                cap = []
+                for src in (gt, bt):
+                    if src is None:
+                        cap.append(None)
+                        continue
+                    nt = copy.deepcopy({kk: vv for kk, vv in src.items() if kk != "segments"})
+                    nt["id"] = _uid()
+                    nt["segments"] = []
+                    d["tracks"].insert(d["tracks"].index(sau) + 1, nt)
+                    sau = nt
+                    cap.append(nt)
+                luoi_tracks.append(tuple(cap))
         return luoi_tracks
 
     O_LUOI = [(-0.5, 0.36), (0.5, 0.36), (-0.5, -0.36), (0.5, -0.36)]
@@ -604,9 +611,25 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                     o.append(c)
             if len(o) == 4:
                 trs = lop_luoi()
-                sc = round(tpl["broll"]["clip"]["scale"]["x"] * 0.66, 3)
+                f = 0.66
+                sc = round(tpl["broll"]["clip"]["scale"]["x"] * f, 3)
+                # lam mo nen phia sau (hieu ung 'Mo' cua khuon) suot luc hien luoi
+                if "mo" in tpl:
+                    k.tracks["mo"]["segments"].append(clone(k, tpl["mo"], a_mh, b_mh - a_mh))
                 for j, (c, (ox, oy)) in enumerate(zip(o, O_LUOI)):
-                    them_doan_video(trs[j], c, a_mh + _us(0.12 * j), b_mh, sc, ox, oy)
+                    a_j = a_mh + _us(0.12 * j)
+                    gt, vt = trs[j]
+                    if gt is not None and "glow" in tpl:  # vien sang cho tung o: thu nho + dat cung cho voi video
+                        g = clone(k, tpl["glow"], a_j, b_mh - a_j)
+                        g["clip"] = copy.deepcopy(tpl["glow"]["clip"])
+                        gs = g["clip"]["scale"]["x"] * f
+                        g["clip"]["scale"] = {"x": round(gs, 3), "y": round(gs, 3)}
+                        g["clip"]["transform"]["x"] = ox
+                        g["clip"]["transform"]["y"] = round(oy + tpl["glow"]["clip"]["transform"]["y"] * f
+                                                            - tpl["broll"]["clip"]["transform"]["y"] * f, 3)
+                        gt["segments"].append(g)
+                    them_doan_video(vt, c, a_j, b_mh, sc, ox,
+                                    round(oy + tpl["broll"]["clip"]["transform"]["y"] * f - tpl["broll"]["clip"]["transform"]["y"] * f, 3))
                 kieu_mh = "luoi"
                 st["luoi_cuoi"] = i
                 am.append((a_mh, "luoi"))
