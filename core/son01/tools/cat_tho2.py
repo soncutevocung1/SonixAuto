@@ -210,6 +210,17 @@ def tach_cau(words, doc, buoc, a, gap=0.45):
 
 
 # ---------------------------------------------------------------- 3b) Claude xem hinh tung cau
+def ap_ai(c):
+    """Claude xem hinh quyet dinh: co dien thoai -> dang doc; KHONG dien thoai -> khong phai doc kich ban
+    (cui nhin chai san pham khi gioi thieu, vd C3432 'chai TC01' 38-57s anh Son giu)."""
+    if c.get("dien_thoai_ai") is None:
+        return
+    if c["dien_thoai_ai"]:
+        c["doc"] = max(c["doc"], 0.9)
+    else:
+        c["doc"] = min(c["doc"], 0.2 if c.get("nhin_ong_kinh") else 0.3)
+
+
 def kiem_hinh_ai(video, cau, model_ai="claude-sonnet-5-5", lo=12, vung=(0.2, 0.14, 0.6, 0.42)):
     """Moi cau 3 khung (25/50/75%) vung nguoi ngoi -> Claude: dang cam/nhin dien thoai? nhin ong kinh?"""
     import base64
@@ -267,10 +278,7 @@ def kiem_hinh_ai(video, cau, model_ai="claude-sonnet-5-5", lo=12, vung=(0.2, 0.1
         if x:
             c["dien_thoai_ai"] = bool(x["dien_thoai"])
             c["nhin_ong_kinh"] = bool(x["nhin_ong_kinh"])
-            if x["dien_thoai"]:
-                c["doc"] = max(c["doc"], 0.9)
-            elif x["nhin_ong_kinh"]:
-                c["doc"] = min(c["doc"], 0.2)
+            ap_ai(c)
     return cau
 
 
@@ -379,7 +387,8 @@ def main():
         for c in cau:
             o = cache.get(c["id"])
             if o and abs(o["s"] - c["s"]) < 0.05:
-                c["doc"], c["dien_thoai_ai"], c["nhin_ong_kinh"] = o["doc"], o.get("dien_thoai_ai"), o.get("nhin_ong_kinh")
+                c["dien_thoai_ai"], c["nhin_ong_kinh"] = o.get("dien_thoai_ai"), o.get("nhin_ong_kinh")
+                ap_ai(c)
     else:
         print("3b Claude xem hinh tung cau...", flush=True)
         kiem_hinh_ai(video, cau)

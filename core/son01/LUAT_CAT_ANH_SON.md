@@ -42,3 +42,8 @@ Nguồn đối chiếu: timeline "Đạm shop Bọ" (C3420, 12 đoạn, 38,2 s),
 - Gom các lần nói cùng ý trên **toàn video**, AI (Claude) chọn lần tốt nhất theo: trọn câu, không vấp, nhìn ống kính,
   lần cuối được ưu tiên.
 - Kiểm tra bằng chính 3 timeline mẫu: đoạn tool chọn phải trùng ≥ 80 % thời lượng với đoạn anh Sơn chọn.
+
+## Kiểm tra C3432 (so với "bọ 3")
+- Lần 1: độ phủ 69 % – bỏ sót 38–42,6 s và 51–56,8 s: anh **cầm chai sản phẩm nhìn vào giới thiệu** (không phải
+  điện thoại), góc cúi đầu giống lúc đọc. Luật mới: Claude xem hình nói KHÔNG có điện thoại → không coi là đọc.
+  (C3420: cả 15 câu đọc kịch bản đều được Claude xác nhận có điện thoại → không ảnh hưởng.)
