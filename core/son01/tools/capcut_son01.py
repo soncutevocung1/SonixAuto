@@ -757,8 +757,10 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 sc0 = tpl["phu_de"]["clip"]["scale"]["x"]
                 ps["clip"]["scale"] = {"x": round(sc0 * 1.2, 3), "y": round(sc0 * 1.2, 3)}
             nd_ = txt.count("\n") + 1
-            if kieu_mh == "mot" and yb > 0:   # tren o minh hoa: day len theo so dong, khong de len o
-                yb = min(0.74, 0.64 + 0.06 * (nd_ - 1))
+            if kieu_mh == "mot" and yb > 0:   # sat mep tren o minh hoa (mep tren ~ y + 0.68 x scale), khe 0.04
+                bc = tpl["broll"]["clip"]
+                mep = bc["transform"]["y"] + 0.68 * bc["scale"]["y"]
+                yb = min(0.74, round(mep + 0.04 + 0.06 * nd_, 3))
             c["y"] = round(yb, 3)   # vi tri co dinh trong doan
             c["so_dong"] = txt.count("\n") + 1
             if j + 1 < len(bd) and bd[j + 1]["phu"]:
