@@ -299,7 +299,7 @@ def chia_dong(ws, xd=-1, toi_da=20):
         return txt
     def diem(i):
         a, b = " ".join(w[:i]), " ".join(w[i:])
-        return abs(len(a) - len(b)) + (12 if dinh(i) else 0)
+        return abs(len(a) - len(b)) + (7 if dinh(i) else 0) + (9 if i == 1 or i == len(w) - 1 else 0)
     i = min(range(1, len(w)), key=diem)
     return " ".join(w[:i]) + "\n" + " ".join(w[i:])
 
@@ -685,6 +685,23 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             bd.append({"s": c0, **c})
         for j, c in enumerate(bd):
             c["e"] = bd[j + 1]["s"] if j + 1 < len(bd) else t + dur
+        # cau hien < 0.8s doc khong kip -> gop voi cau ke ben (uu tien cau sau), toi da ~32 ky tu
+        dai_ = lambda c: len(" ".join(w["w"].strip() for w in ws[c["tu"]:c["den"] + 1]))
+        gop = True
+        while gop and len(bd) > 1:
+            gop = False
+            for j, c in enumerate(bd):
+                if c["e"] - c["s"] >= _us(0.8):
+                    continue
+                for nb in ((j + 1, j) if j + 1 < len(bd) else ()) + ((j, j - 1) if j > 0 else ()):
+                    a_, b_ = bd[min(nb)], bd[max(nb)]
+                    if dai_({"tu": a_["tu"], "den": b_["den"]}) <= 32:
+                        a_.update(den=b_["den"], e=b_["e"], nhan=a_["nhan"] or b_["nhan"], xuong_dong=-1)
+                        bd.remove(b_)
+                        gop = True
+                        break
+                if gop:
+                    break
         # cum NHAN (tu khoa) dung sau cum thuong -> cum thuong keo dai, tu khoa vang nghieng noi rieng
         # MOI LUC CHI 1 CAU (anh Son: chu de len nhau thi khong biet doc cau nao truoc) -> khong lop phu chong
         for c in bd:
