@@ -195,10 +195,16 @@ def keyframes(seg, src_start_us, kind):
 TEN_RIENG = {"amino", "tc01", "atonik", "npk", "humic", "đạm", "kích"}
 
 
-def ngat_dong(txt, toi_da=18):
+def ngat_dong(txt, toi_da=22):
     """Chu mo dau: ngat dong chu dong (<= toi_da ky tu/dong) de CapCut khong tu xuong dong chong chu."""
+    ws = txt.split()
+    if len(txt) <= toi_da:
+        return txt
+    if len(txt) <= 2 * toi_da:  # 2 dong can nhau
+        i = min(range(1, len(ws)), key=lambda i: abs(len(" ".join(ws[:i])) - len(" ".join(ws[i:]))))
+        return " ".join(ws[:i]) + "\n" + " ".join(ws[i:])
     dong, cur = [], ""
-    for w in txt.split():
+    for w in ws:
         if cur and len(cur) + 1 + len(w) > toi_da:
             dong.append(cur)
             cur = w
@@ -662,8 +668,9 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 set_text(clone_mat(k, ps), txt)
                 base_y = bd[j - 1].get("y", yb)
                 # tu khoa noi NGAY DUOI cau dan (doc tu tren xuong nhu ban anh Son: 0.40 -> 0.26)
-                nd = bd[j - 1].get("so_dong", 1)
-                ps["clip"]["transform"]["y"] = round(max(-0.74, base_y - 0.12 - 0.05 * (nd - 1)), 3)
+                # 1 dong chu cao ~0.12 (toa do CapCut) -> cach = nua khoi tren + nua khoi duoi + khe 0.03
+                nd, no = bd[j - 1].get("so_dong", 1), txt.count("\n") + 1
+                ps["clip"]["transform"]["y"] = round(max(-0.66, base_y - 0.06 * (nd + no) - 0.03), 3)
                 dat_anim(k, ps, "Trượt lên", ce - cs)
                 k.tracks["chu"][-1 if len(k.tracks["chu"]) > 2 else 0]["segments"].append(ps)
                 am.append((cs, "tu_khoa"))
@@ -673,8 +680,13 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             set_text(clone_mat(k, ps), txt, kws, color=YELLOW if c["nhan"] else None)
             c["y"] = round(yb + JITTER[(i + j) % len(JITTER)], 3)
             c["so_dong"] = txt.count("\n") + 1
-            if j + 1 < len(bd) and bd[j + 1]["phu"] and c["y"] < -0.5:
-                c["y"] = round(c["y"] + 0.14, 3)   # chua cho tu khoa ben duoi
+            if j + 1 < len(bd) and bd[j + 1]["phu"]:
+                # chua cho tu khoa ben duoi: day cau dan len neu khoi tu khoa se lot xuong qua -0.66
+                no = chia_dong([w["w"] for w in ws[bd[j + 1]["tu"]:bd[j + 1]["den"] + 1]]).count("\n") + 1
+                du = -0.66 - (c["y"] - 0.06 * (c["so_dong"] + no) - 0.03)
+                if du > 0:
+                    c["y"] = round(c["y"] + du, 3)
+            c["y"] = max(c["y"], -0.66 + 0.06 * (c["so_dong"] - 1))
             ps["clip"]["transform"]["y"] = c["y"]
             ten_anim = ANIM_XOAY[st["anim"] % len(ANIM_XOAY)]
             st["anim"] += 1
