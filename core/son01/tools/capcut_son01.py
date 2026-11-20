@@ -759,7 +759,8 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             nd_ = txt.count("\n") + 1
             if kieu_mh == "mot" and yb > 0:   # sat mep tren o minh hoa (mep tren ~ y + 0.68 x scale), khe 0.04
                 bc = tpl["broll"]["clip"]
-                mep = bc["transform"]["y"] + 0.68 * bc["scale"]["y"]
+                # do tren CapCut (khuon Dam shop Bo): o y=0.094, scale 0.64 -> mep tren o hien tai y~0.43
+                mep = 0.43 + (bc["transform"]["y"] - 0.094) + 0.68 * (bc["scale"]["y"] - 0.64)
                 yb = min(0.74, round(mep + 0.04 + 0.06 * nd_, 3))
             c["y"] = round(yb, 3)   # vi tri co dinh trong doan
             c["so_dong"] = txt.count("\n") + 1
