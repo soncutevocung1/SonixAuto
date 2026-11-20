@@ -236,6 +236,14 @@ def kiem_hinh_ai(video, cau, model_ai="claude-sonnet-5-5", lo=12, vung=(0.2, 0.1
         sheet = os.path.join(tmp, f"bang_{b}.jpg")
         lst = os.path.join(tmp, f"ds_{b}.txt")
         files = [os.path.join(tmp, f"{c['id']}_{k}.jpg") for c in nhom for k in range(3)]
+        files = [f_ for f_ in files if os.path.exists(f_)]
+        if len(files) % 6:  # xstack grid can du o -> chen o den
+            den = os.path.join(tmp, "den.jpg")
+            if not os.path.exists(den):
+                from PIL import Image
+                w0, h0 = Image.open(files[0]).size
+                Image.new("RGB", (w0, h0)).save(den)
+            files += [den] * (6 - len(files) % 6)
         ins = []
         for f_ in files:
             ins += ["-i", f_]
