@@ -641,10 +641,9 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
         for j, c in enumerate(bd):
             c["e"] = bd[j + 1]["s"] if j + 1 < len(bd) else t + dur
         # cum NHAN (tu khoa) dung sau cum thuong -> cum thuong keo dai, tu khoa vang nghieng noi rieng
-        for j, c in enumerate(bd):
-            c["phu"] = bool(c["nhan"] and j > 0 and not bd[j - 1]["nhan"] and "tu_khoa" in tpl)
-            if c["phu"]:
-                bd[j - 1]["e"] = c["e"]
+        # MOI LUC CHI 1 CAU (anh Son: chu de len nhau thi khong biet doc cau nao truoc) -> khong lop phu chong
+        for c in bd:
+            c["phu"] = False
         dang_dem = lambda u: any(d0 <= u < d1 for d0, d1 in dem_span)
         tren = min(y_mat, 0.40) if y_mat > 0 else y_mat
         if kieu_mh == "luoi":
@@ -675,10 +674,15 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 k.tracks["chu"][-1 if len(k.tracks["chu"]) > 2 else 0]["segments"].append(ps)
                 am.append((cs, "tu_khoa"))
                 continue
-            ps = clone(k, tpl["phu_de"], cs, max(_us(0.4), ce - cs))
-            kws = [kw for kw in x.get("tu_khoa", []) if kw.lower() in txt.lower()]
+            # Y CHINH (nhan): cau rieng, chu vang dam nghieng to hon, cung vi tri -> nhin la biet y can nho
+            nhan = c["nhan"] and "tu_khoa" in tpl
+            ps = clone(k, tpl["tu_khoa"] if nhan else tpl["phu_de"], cs, max(_us(0.4), ce - cs))
+            kws = [] if nhan else [kw for kw in x.get("tu_khoa", []) if kw.lower() in txt.lower()]
             set_text(clone_mat(k, ps), txt, kws, color=YELLOW if c["nhan"] else None)
-            c["y"] = round(yb + JITTER[(i + j) % len(JITTER)], 3)
+            if nhan:
+                sc0 = tpl["phu_de"]["clip"]["scale"]["x"]
+                ps["clip"]["scale"] = {"x": round(sc0 * 1.2, 3), "y": round(sc0 * 1.2, 3)}
+            c["y"] = round(yb, 3)   # vi tri co dinh trong doan
             c["so_dong"] = txt.count("\n") + 1
             if j + 1 < len(bd) and bd[j + 1]["phu"]:
                 # chua cho tu khoa ben duoi: day cau dan len neu khoi tu khoa se lot xuong qua -0.66
@@ -692,6 +696,8 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             st["anim"] += 1
             if len(txt) <= 10 and ten_anim == "Loại xem trước":
                 ten_anim = "Bật lên"   # cum ngan: hien ngay cho doc kip
+            if nhan:
+                ten_anim = "Trượt lên"
             dat_anim(k, ps, ten_anim, ce - cs)
             k.tracks["chu"][-1 if len(k.tracks["chu"]) > 2 else 0]["segments"].append(ps)
             am.append((cs, "tu_khoa" if c["nhan"] else "go"))
