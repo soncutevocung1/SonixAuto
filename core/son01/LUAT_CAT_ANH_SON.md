@@ -28,6 +28,7 @@ Nguồn đối chiếu: timeline "Đạm shop Bọ" (C3420, 12 đoạn, 38,2 s),
 ## Kết quả kiểm tra bộ cắt v2 trên C3420 (so với "Đạm shop Bọ")
 - Lần 1 (cắt theo câu): độ phủ 92 %, thừa 13 % – sót ý "sau thu hoạch", thừa câu giỏ hàng → thêm luật 7, 8
   và cho AI cắt theo chỉ số chữ.
+- Lần 2 (cắt theo chữ + luật 7, 8): **độ phủ 98 %, thừa 5 %**, đúng 12 đoạn anh chọn (lệch mốc ≤ 0,3 s).
 
 ## Vì sao bản tự động trước sai
 - Whisper (VAD) **bỏ sót lời** (vd 185,7–193,8 s không có chữ nhưng anh giữ 188,7–190,5 s) và **gộp đoạn đọc

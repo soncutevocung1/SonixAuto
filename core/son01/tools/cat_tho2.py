@@ -334,7 +334,7 @@ def ghep(cau, kq):
             s_ = c0["s"] if a0 == 0 else max(c0["s"], c0["words"][a0]["s"] - 0.08)
             e_ = c1["e"] if b1 == len(c1["words"]) - 1 else min(c1["e"], c1["words"][b1]["e"] + 0.15)
             ws = [w for c, a, b in g for w in c["words"][a:b + 1]]
-            out.append({"s": round(s_, 3), "e": round(e_, 3), "text": " ".join(w["w"] for w in ws),
+            out.append({"s": round(s_, 3), "e": round(e_, 3), "text": " ".join(w["w"].strip() for w in ws),
                         "words": ws, "id_cau": [c["id"] for c, _, _ in g], "y": y["y"]})
     return out
 
