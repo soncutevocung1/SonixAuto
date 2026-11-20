@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.12.1
+- Kênh **không có âm thanh Yêu thích riêng** (vd KTNN): ngay trong nhóm **Âm thanh** của tab Duyệt có thông báo đang mượn được bao nhiêu âm thanh và nút **Mượn N âm thanh của «kênh khác»** (cho mượn tất cả âm thanh đã gắn sản phẩm của kênh đó). Bấm xong chọn «Tự động: âm thanh Yêu thích đúng sản phẩm» → Áp dụng nhạc.
+
 ## 2.12.0
 - **Giao diện gọn và nhiều màu hơn**: bỏ mục Giao diện trong Cài đặt (mẫu nền, kiểu khung, ảnh nền, sáng/tối). Sáng/tối bấm ở thanh bên trái; "Mở tool bằng" (cửa sổ app / Chrome) chuyển ra nút **Mở** cạnh nút sáng/tối. Nền cố định nhiều màu nhẹ; **mỗi tab một màu riêng** (tab đang mở tô màu, tab khác có gạch màu).
 - **Thao tác hàng loạt** (tab Duyệt) xếp lại theo nhóm có màu: Thứ tự đăng · Sản phẩm & giỏ · Âm thanh · Người xem · Ảnh bìa · AI. Gộp nút trùng: 3 nút giữ giỏ gom vào **Giỏ trùng 2 sản phẩm**, thêm/bỏ ảnh theme gom vào **Thư viện ảnh bìa**, Tắt/Giữ âm gốc và Người xem thành nút chọn bấm là áp dụng ngay.

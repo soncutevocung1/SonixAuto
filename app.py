@@ -1161,6 +1161,40 @@ for _ in _show(tabs[1]):
                     + (f" (trong đó {fm[2]} video mượn âm thanh kênh khác, tắt hẳn âm gốc)" if fm[2] else "") + "."
                     + (f" {fm[1]} video chưa gán được: " + "; ".join(fm[3][:4]) if fm[1] else ""))
             else:
+                if not any(f.get("items") for f in favs):  # kênh không có âm thanh riêng -> mượn ngay tại đây
+                    _pool = snd.shared_pool(chname, S)
+                    _lenders = []
+                    for c2 in S.get("channels", []):
+                        if c2["name"] == chname:
+                            continue
+                        _fs = [f for f in snd.load_favs(c2["name"]) if f.get("items") and f.get("file")
+                               and not f.get("skip")]
+                        _closed = [f for f in _fs if not snd.is_shared(f, S)]
+                        if _closed:
+                            _lenders.append((c2["name"], len(_fs), len(_closed)))
+                    st.info(f"Kênh này không có âm thanh Yêu thích riêng → mượn âm thanh đúng sản phẩm của kênh khác "
+                            f"(ghép vào video, tắt âm gốc). Đang mượn được **{len(_pool)}** âm thanh."
+                            + (" Bấm nút dưới để cho mượn thêm, rồi chọn «Tự động: âm thanh Yêu thích đúng sản phẩm» "
+                               "→ Áp dụng nhạc." if _lenders else ""))
+
+                    def _cho_muon(src):
+                        fs_ = snd.load_favs(src)
+                        for f_ in fs_:
+                            if f_.get("items") and not f_.get("skip"):
+                                f_["share"] = True
+                        snd.save_favs(src, fs_)
+                        st.session_state[f"favmsg_{_ck}_lend"] = src
+                    _lc = st.columns(min(3, len(_lenders)) or 1)
+                    for _i, (src, n_all, n_closed) in enumerate(_lenders[:3]):
+                        _lc[_i].button(f"Mượn {n_all} âm thanh của «{src}»", key=f"lend_{_ck}_{slug(src)}",
+                                       on_click=_cho_muon, args=(src,), width="stretch",
+                                       help=f"{n_closed} âm thanh của kênh {src} đang chưa cho mượn. Bấm để cho tất cả "
+                                            "âm thanh đã gắn sản phẩm được mượn. Chỉ bấm khi âm thanh là của mình / được "
+                                            "phép dùng.")
+                    _lm = st.session_state.pop(f"favmsg_{_ck}_lend", None)
+                    if _lm:
+                        st.success(f"Đã cho mượn âm thanh của «{_lm}». Giờ chọn «Tự động: âm thanh Yêu thích đúng sản "
+                                   f"phẩm» ở ô Nhạc nền → Áp dụng nhạc.")
                 n_lab = sum(1 for f in favs if f.get("items"))
                 n_mute = sum(1 for j in jobs if j.get("keep_audio") is not None and int(j["keep_audio"]) == 0)
                 st.caption(f"Âm thanh Yêu thích đúng sản phẩm: chọn «Tự động: âm thanh Yêu thích đúng sản phẩm» rồi Áp dụng "
