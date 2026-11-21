@@ -79,6 +79,8 @@ Luật cắt source thô chi tiết: `LUAT_CAT_ANH_SON.md`. Quy định key API:
   lần mạnh lần nhẹ xen kẽ, tránh nhàm chán.
 
 ## 6. Quy trình làm (tiết kiệm chi phí)
+- Dựng xong PHẢI chạy `tools/kiem_chong.py "<tên dự án>"`: chỉ được còn 1 chỗ là 2 dòng chữ mở đầu của khuôn.
+- Bản chốt hiện tại (21/11/2026): "SONIX SƠN 01 - ĐẠM CÁ (bản chốt)" và "SONIX SƠN 01 - KÍCH RỄ (bản chốt)".
 - Phần "suy nghĩ" (chọn lần nói, kế hoạch chữ/zoom/minh họa) Claude làm trực tiếp trong cuộc trò chuyện,
   ghi `ke_hoach_tay.json` rồi `ghep_ke_hoach.py` → `dung_v2.py`. KHÔNG gọi key API nếu anh chưa đồng ý.
 - CapCut phải tắt khi tạo dự án (anh tự tắt, không tắt hộ). Không xóa source gốc / dự án khác.
