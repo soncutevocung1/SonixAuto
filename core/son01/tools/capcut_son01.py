@@ -516,6 +516,9 @@ NHAN_GAN = {"re_bung": ("ra_dot_la_xanh",), "mo_phong_re": ("re_bung", "ra_dot_l
             "san_pham_can_canh": ("pha_thuoc",), "buoi_sang_chieu": ("nong_dan_vuon",), "dat_kho": ("van_de_cay_yeu",)}
 
 
+_FILE_CHAI = {}
+
+
 def chon_canh(thu_vien, nhan, da_dung, sp=None, dung_giay=3.0, loi="", da_file=None, cho_nguoi=False, nhan_phu=(), goi_y=()):
     """Chon canh: dung nhan, khong lo chai san pham khac, net + phan giai cao, khop mo ta voi loi noi,
     KHONG dung lai canh/file da dung trong video (tranh lap canh)."""
@@ -524,10 +527,19 @@ def chon_canh(thu_vien, nhan, da_dung, sp=None, dung_giay=3.0, loi="", da_file=N
     da_file = da_file if da_file is not None else set()
     nh = [nhan, *nhan_phu]
     tl = _tu(loi)
+    # file nao co canh lo chai san pham khac -> bo CA FILE (video quang cao san pham khac, du canh nay khong thay chai)
+    global _FILE_CHAI
+    if _FILE_CHAI.get("id") != id(thu_vien):
+        fc = {}
+        for c in thu_vien:
+            fc.setdefault(c["file"], set()).update(c.get("chai", []))
+        _FILE_CHAI = {"id": id(thu_vien), "map": fc}
+    sp_n = SP_NGAN.get(sp, sp)
+    file_xau = {f for f, ch in _FILE_CHAI["map"].items() if ch - {sp_n, "khac"} or (sp and ch and sp_n not in ch and "khac" in ch)}
     xau = ("vàng lá", "lá vàng", "héo", "thối", "chết", "sâu bệnh", "còi cọc")
     cands = [c for c in thu_vien if set(nh) & set(c.get("nhan", [])) and c["id"] not in da_dung
              and (nhan == "van_de_cay_yeu" or not any(x in c.get("mo_ta", "").lower() for x in xau))
-             and (not cho_nguoi or "nguoi" not in c or c.get("nguoi"))
+             and (not cho_nguoi or "nguoi" not in c or c.get("nguoi")) and c["file"] not in file_xau
              and c["file"] not in da_file and c.get("dai", 0) >= dung_giay / 2.0 and hop_le(c, sp, cho_nguoi)]
     def diem(c):
         d = 3 * chat_luong(c) + (1.0 if nhan in c.get("nhan", []) else 0) + 0.5 * (sp in c.get("nhan", []))

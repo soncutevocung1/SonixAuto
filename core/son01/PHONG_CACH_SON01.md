@@ -50,6 +50,7 @@ Luật cắt source thô chi tiết: `LUAT_CAT_ANH_SON.md`. Quy định key API:
   → để nguyên hình gốc, không chèn minh họa.
 - **Ưu tiên cảnh THẬT** (thư mục TC01_Kich_Re, ĐẠM CÁ AMINO: vườn cà phê đẹp, người thật dùng sản phẩm).
   Hạn chế cảnh AI; **tuyệt đối không lấy cảnh AI có chai/sản phẩm** (chai AI không giống chai thật).
+- Video quảng cáo sản phẩm khác (có cảnh lộ chai khác ở bất kỳ đâu trong file) → bỏ cả file, kể cả cảnh không thấy chai.
 - Không lộ chai sản phẩm khác: video đạm cá không được có chai kích rễ và ngược lại.
 - Cảnh nét, độ phân giải cao; bỏ cảnh mờ, cảnh có chữ in sẵn.
 - Không lặp cảnh: mỗi file video chỉ dùng 1 lần trong 1 video.
