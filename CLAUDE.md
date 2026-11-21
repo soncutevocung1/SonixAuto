@@ -15,6 +15,7 @@
 ## Dựng video phong cách Sơn 01
 - **Trước mỗi lần dựng / sửa video Sơn 01 phải đọc `core/son01/PHONG_CACH_SON01.md`** (mọi điểm anh Sơn đã sửa)
   và `core/son01/LUAT_CAT_ANH_SON.md` (luật cắt source thô). Khi anh góp ý điểm mới → ghi thêm vào file đó.
+- Anh gửi video gốc mới → làm theo `core/son01/QUY_TRINH_GUI_VIDEO.md`.
 
 ## Cách trả lời anh Sơn
 - Tiếng Việt, dễ hiểu, từ tiếng Anh phải dịch nghĩa. Nói thẳng, có lý do.
