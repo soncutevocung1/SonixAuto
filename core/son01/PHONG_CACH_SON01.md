@@ -32,6 +32,8 @@ Luật cắt source thô chi tiết: `LUAT_CAT_ANH_SON.md`. Quy định key API:
   BÊN DƯỚI, câu trước vẫn ở lại tới hết ý (tối đa 3 câu/lớp). Sang ý mới thì cả lớp tắt.
   Mẫu: "đạm cá là / một dòng đạm" rồi "dễ hấp thu" hiện thêm dưới; "tưới vào cái thời điểm" (trên ô minh họa)
   rồi "đất khô cứng" (dưới ô).
+- **Không bao giờ để chữ chồng nhau** (kể cả với số 1-2-3, nhãn THỨ, mép ô minh họa). Trước khi xếp lớp phải tính
+  chỗ trống: có nhãn THỨ ở trên + ô minh họa ở giữa thì chỉ còn chỗ dưới ô → hiện TỪNG câu một ở đó, không xếp lớp.
 - Không để chữ đè chữ: 1 dòng chữ cao ~0,12 (tọa độ CapCut); khoảng cách giữa 2 khối = nửa khối trên + nửa khối dưới + 0,03.
 - Phân biệt rõ ý chính / lời giải thích: ý chính chữ đậm nghiêng to hơn ~1,2 lần, MÀU THEO SẢN PHẨM:
   kích rễ TC01 = **xanh lá**, đạm cá = **nâu sáng**, bọ trĩ Top One = **xanh dương**. Nhãn "THỨ…" giữ vàng.
@@ -58,7 +60,9 @@ Luật cắt source thô chi tiết: `LUAT_CAT_ANH_SON.md`. Quy định key API:
 - Cảnh nét, độ phân giải cao; bỏ cảnh mờ, cảnh có chữ in sẵn.
 - Không lặp cảnh: mỗi file video chỉ dùng 1 lần trong 1 video.
 - **TẤT CẢ minh họa (kể cả 4 ô) BẮT BUỘC tốc độ 2x** — tránh TikTok quét vi phạm bản quyền. Không tua chậm.
-  Cảnh không đủ dài cho 2x thì ô minh họa ngắn lại (hiện lại mặt người mẫu), không giảm tốc. Tắt tiếng cảnh minh họa.
+  Áp dụng cho MỌI sản phẩm (đạm cá, kích rễ, bọ trĩ Top One…). Cảnh không đủ dài cho 2x → GHÉP NHIỀU CẢNH ngắn
+  (cùng chủ đề, mỗi cảnh 2x, tối đa 4) thành 1 đoạn minh họa phủ kín đoạn nói; từng ô trong lưới 4 ô cũng ghép như vậy.
+  Tắt tiếng cảnh minh họa.
 - Lưới 4 ô phải có NGƯỜI THẬT trong từng ô; đoạn nói tích cực không dùng cảnh cây vàng lá/héo.
 - Minh họa khớp đúng CHỦ THỂ lời nói: nói "cây con" → cảnh cây con; "rễ" → rễ thật; "mai vàng, cà phê" → vườn mai/cà phê.
   Trong kế hoạch ghi `goi_y` (cụm mô tả cảnh cần tìm) cho từng đoạn có minh họa.

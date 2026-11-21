@@ -644,6 +644,23 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
         return luoi_tracks
 
     O_LUOI = [(-0.5, 0.36), (0.5, 0.36), (-0.5, -0.36), (0.5, -0.36)]
+
+    def chuoi(dau, a, end, nh, x, cho_nguoi=False, bo=()):
+        """Ghep nhieu canh (moi canh 2x) noi tiep cho du doan [a, end] - toi da 4 canh. -> [(canh, a_i, b_i)]"""
+        seq, cur, c_ = [], a, dau
+        dd, df = set(da_dung) | {z["id"] for z in bo}, set(da_file) | {z["file"] for z in bo}
+        while c_ and len(seq) < 4:
+            b_ = min(end, cur + _us(c_["dai"] / 2.0))
+            seq.append((c_, cur, b_))
+            dd.add(c_["id"])
+            df.add(c_["file"])
+            cur = b_
+            if cur >= end - _us(0.6):
+                break
+            c_ = chon_canh(thu_vien, nh, dd, kh.get("sp"), 2.0 * (end - cur) / US, x.get("text", ""), df,
+                           cho_nguoi=cho_nguoi, nhan_phu=NHAN_GAN.get(nh, ()) + (("nong_dan_vuon",) if cho_nguoi else ()),
+                           goi_y=tuple(x.get("goi_y") or ()))
+        return seq
     for i, x in enumerate(kh["doan"]):
         dur = _us(x["e"] - x["s"])
         s = clone(k, tpl["main"], t, dur)
@@ -676,7 +693,12 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                     o.append(c)
             if len(o) == 4:
                 trs = lop_luoi()
-                b_mh = min([b_mh] + [a_mh + _us(0.12 * j + z["dai"] / 2.0) for j, z in enumerate(o)])   # 2x ca 4 o
+                chuoi_o, dung_o = [], list(o)
+                for j, z in enumerate(o):
+                    sq = chuoi(z, a_mh + _us(0.12 * j), b_mh, x["minh_hoa"], x, cho_nguoi=True, bo=dung_o)
+                    dung_o += [q[0] for q in sq]
+                    chuoi_o.append(sq)
+                b_mh = min([b_mh] + [sq[-1][2] for sq in chuoi_o])   # 2x ca 4 o, ket thuc cung luc
                 f = 0.66
                 sc = round(tpl["broll"]["clip"]["scale"]["x"] * f, 3)
                 # lam mo nen phia sau (hieu ung 'Mo' cua khuon) suot luc hien luoi
@@ -694,8 +716,10 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                         g["clip"]["transform"]["y"] = round(oy + tpl["glow"]["clip"]["transform"]["y"] * f
                                                             - tpl["broll"]["clip"]["transform"]["y"] * f, 3)
                         gt["segments"].append(g)
-                    them_doan_video(vt, c, a_j, b_mh, sc, ox,
-                                    round(oy + tpl["broll"]["clip"]["transform"]["y"] * f - tpl["broll"]["clip"]["transform"]["y"] * f, 3))
+                    for cc, a_q, b_q in chuoi_o[j]:
+                        if a_q >= b_mh:
+                            break
+                        them_doan_video(vt, cc, a_q, min(b_q, b_mh), sc, ox, oy)
                 kieu_mh = "luoi"
                 st["luoi_cuoi"] = i
                 am.append((a_mh, "luoi"))
@@ -705,11 +729,13 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                              goi_y=tuple(x.get("goi_y") or ()))
             if canh:
                 kieu_mh = "mot"
-                b_mh = min(b_mh, a_mh + _us(canh["dai"] / 2.0))   # 2x: canh ngan -> o minh hoa ngan theo
+                sq = chuoi(canh, a_mh, b_mh, x.get("minh_hoa"), x)   # canh ngan -> ghep them canh, van 2x
+                b_mh = sq[-1][2]
                 for role, trk in (("mo", "mo"), ("glow", "glow")):
                     if role in tpl:
                         k.tracks[trk]["segments"].append(clone(k, tpl[role], a_mh, b_mh - a_mh))
-                them_doan_video(k.tracks["broll"], canh, a_mh, b_mh)
+                for cc, a_q, b_q in sq:
+                    them_doan_video(k.tracks["broll"], cc, a_q, b_q)
                 am.append((a_mh, "mh"))
 
         # ---- PHU DE theo cum nghia (ke hoach AI), dung truoc loi 0.15s, hien lien tuc toi cum sau
@@ -773,6 +799,27 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 ext += 0.06 * (bd[k2 - 1]["nd0"] + bd[k2]["nd0"]) + 0.03
                 k2 += 1
             c["day_len"] = ext
+            if c["phu"] or k2 == j + 1:
+                continue
+            # kiem cho trong cho ca lop (1 dong cao ~0.12, khe 0.03):
+            #  - o minh hoa + nhan THU dang chiem phia tren / luoi 4 o: khong xep lop
+            #  - o minh hoa: cau dau tren o, cac cau sau duoi o (cho ~0.30)
+            #  - khong minh hoa: ca khoi phai nam tren dau (tu y_mat len toi 0.80)
+            u0 = t + _us(ws[c["tu"]]["s"] - x["s"])
+            theo = bd[j + 1:k2]
+            cao_theo = sum(0.12 * q["nd0"] for q in theo) + 0.03 * (len(theo) - 1)
+            if kieu_mh == "luoi" or (kieu_mh == "mot" and dang_dem(u0)):
+                du = False
+            elif kieu_mh == "mot":
+                du = cao_theo <= 0.30
+            else:
+                du = 0.12 * c["nd0"] + 0.03 + cao_theo <= 0.80 - max(y_mat, 0.2) + 0.12
+            if not du:   # khong du cho -> hien tung cau tai cho, khong bao gio ep chu chong nhau
+                for q in range(j + 1, k2):
+                    bd[q]["phu"] = False
+                for q in range(j, k2 - 1):
+                    bd[q]["e"] = bd[q + 1]["s"]
+                c["day_len"] = 0.0
         tren = min(y_mat, 0.40) if y_mat > 0 else y_mat
         if kieu_mh == "luoi":
             y_goc = -0.64
@@ -796,7 +843,8 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             txt = "\n".join(viet_phu_de(l) for l in dong.split("\n")).strip(" ,")
             yb = y_goc
             if dang_dem(cs) and kieu_mh == "mot":
-                yb = -0.6          # nhan THU chiem phia tren -> phu de xuong duoi o
+                # nhan THU chiem phia tren -> phu de xuong duoi o, mep tren cach day o (~-0.48) 1 khe
+                yb = -0.6 - 0.06 * (c["nd0"] - 1)
             elif yb > 0 and dang_dem(cs):
                 yb = min(yb, 0.40)
             if c["phu"]:
