@@ -791,13 +791,14 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 bd[j - 1]["e"] = bd[j]["e"]
         dang_dem = lambda u: any(d0 <= u < d1 for d0, d1 in dem_span)
         # so dong tung cau + chieu cao phan xep lop ben duoi -> day cau dau len de CA KHOI CHU nam tren dau nguoi mau
+        hd = lambda c: 0.06 * (1.2 if c["nhan"] and "tu_khoa" in tpl else 1.0)   # nua chieu cao 1 dong
         for c in bd:
             c["nd0"] = chia_dong([w["w"] for w in ws[c["tu"]:c["den"] + 1]],
                                  c["xuong_dong"] - c["tu"] if c["xuong_dong"] > 0 else -1, 13 if c["nhan"] else 17).count("\n") + 1
         for j, c in enumerate(bd):
             ext, k2 = 0.0, j + 1
             while k2 < len(bd) and bd[k2]["phu"]:
-                ext += 0.06 * (bd[k2 - 1]["nd0"] + bd[k2]["nd0"]) + 0.03
+                ext += hd(bd[k2 - 1]) * bd[k2 - 1]["nd0"] + hd(bd[k2]) * bd[k2]["nd0"] + 0.03
                 k2 += 1
             c["day_len"] = ext
             if c["phu"] or k2 == j + 1:
@@ -808,13 +809,13 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             #  - khong minh hoa: ca khoi phai nam tren dau (tu y_mat len toi 0.80)
             u0 = t + _us(ws[c["tu"]]["s"] - x["s"])
             theo = bd[j + 1:k2]
-            cao_theo = sum(0.12 * q["nd0"] for q in theo) + 0.03 * (len(theo) - 1)
+            cao_theo = sum(2 * hd(q) * q["nd0"] for q in theo) + 0.03 * (len(theo) - 1)
             if kieu_mh == "luoi" or (kieu_mh == "mot" and dang_dem(u0)):
                 du = False
             elif kieu_mh == "mot":
                 du = cao_theo <= 0.30
             else:
-                du = 0.12 * c["nd0"] + 0.03 + cao_theo <= 0.80 - max(y_mat, 0.2) + 0.12
+                du = 2 * hd(c) * c["nd0"] + 0.03 + cao_theo <= 0.80 - max(y_mat, 0.2) + 0.12
             if not du:   # khong du cho -> hien tung cau tai cho, khong bao gio ep chu chong nhau
                 for q in range(j + 1, k2):
                     bd[q]["phu"] = False
@@ -859,10 +860,10 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 truoc = bd[j - 1]
                 nd, no = truoc.get("so_dong", 1), txt.count("\n") + 1
                 if kieu_mh == "mot" and truoc.get("y", 0) > 0.3:
-                    y_ = -0.5 - 0.06 * (no - 1)          # cau dan tren o minh hoa -> cau noi duoi o (nhu 'dat kho cung')
+                    y_ = -0.44 - hd(c) * no          # cau dan tren o minh hoa -> cau noi duoi o (nhu 'dat kho cung')
                 else:
-                    # 1 dong chu cao ~0.12 (toa do CapCut) -> cach = nua khoi tren + nua khoi duoi + khe 0.03
-                    y_ = truoc.get("y", yb) - 0.06 * (nd + no) - 0.03
+                    # cach = nua khoi tren + nua khoi duoi (theo co chu that) + khe 0.03
+                    y_ = truoc.get("y", yb) - hd(truoc) * nd - hd(c) * no - 0.03
                 c["y"], c["so_dong"] = round(max(-0.72 + 0.06 * (no - 1), y_), 3), no
                 ps["clip"]["transform"]["y"] = c["y"]
                 dat_anim(k, ps, "Trượt lên", ce - cs)
