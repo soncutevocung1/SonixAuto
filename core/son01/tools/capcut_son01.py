@@ -498,7 +498,7 @@ def hop_le(c, sp, cho_nguoi):
     if c.get("nguoi_noi") and not cho_nguoi:
         return False
     mt = (c.get("mo_ta") or "").lower() + " " + os.path.basename(c.get("file", "")).lower()
-    khac = {"sp_tc01": ("đạm cá", "dam ca", "damca", "đạmcá"), "sp_dam_ca": ("kích rễ", "kich re", "kichre", "tc01")}
+    khac = {"sp_tc01": ("đạm cá", "dam ca", "damca", "đạmcá"), "sp_dam_ca": ("kích rễ", "kich re", "kichre", "tc01", "nắp xanh", "chai xanh", "lọ xanh", "nắp chai xanh")}
     if any(x in mt for x in khac.get(sp, ())):
         return False   # mo ta / ten file noi san pham khac (vd khuay dam ca trong video kich re)
     if la_ai(c) and (c.get("chai") or "san_pham_can_canh" in n or ({"sp_tc01", "sp_dam_ca", "sp_khac"} & n)):
@@ -540,7 +540,7 @@ def chon_canh(thu_vien, nhan, da_dung, sp=None, dung_giay=3.0, loi="", da_file=N
     cands = [c for c in thu_vien if set(nh) & set(c.get("nhan", [])) and c["id"] not in da_dung
              and (nhan == "van_de_cay_yeu" or not any(x in c.get("mo_ta", "").lower() for x in xau))
              and (not cho_nguoi or "nguoi" not in c or c.get("nguoi")) and c["file"] not in file_xau
-             and c["file"] not in da_file and c.get("dai", 0) >= dung_giay / 2.0 and hop_le(c, sp, cho_nguoi)]
+             and c["file"] not in da_file and c.get("dai", 0) >= min(dung_giay, 3.0) and hop_le(c, sp, cho_nguoi)]
     def diem(c):
         d = 3 * chat_luong(c) + (1.0 if nhan in c.get("nhan", []) else 0) + 0.5 * (sp in c.get("nhan", []))
         d += 0.3 * len(tl & _tu(c.get("mo_ta", ""))) + 0.3 * min(c["dai"], 6) / 6
@@ -602,9 +602,10 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
 
     def them_doan_video(trk, c, a, b, scale=None, x=None, y=None):
         """1 canh minh hoa (khung bo goc cua khuon), toc do toi da 2x, TAT TIENG."""
+        b = min(b, a + _us(c["dai"] / 2.0))   # canh ngan -> minh hoa ngan lai, van 2x
         bs = clone(k, tpl["broll"], a, b - a)
         need = (b - a) / US
-        toc = max(1.0, min(2.0, c["dai"] / need))   # chi tua nhanh, khong tua cham (anh Son)
+        toc = 2.0   # LUON 2x (anh Son: tranh TikTok quet vi pham)
         src = c["file"].replace("\\", "/")
         clone_mat(k, bs, path=src, material_name=Path(src).name, width=c["w"], height=c["h"], duration=_us(c["e"] + 1))
         bs["source_timerange"] = {"start": _us(c["s"]), "duration": _us(need * toc)}
@@ -675,6 +676,7 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                     o.append(c)
             if len(o) == 4:
                 trs = lop_luoi()
+                b_mh = min([b_mh] + [a_mh + _us(0.12 * j + z["dai"] / 2.0) for j, z in enumerate(o)])   # 2x ca 4 o
                 f = 0.66
                 sc = round(tpl["broll"]["clip"]["scale"]["x"] * f, 3)
                 # lam mo nen phia sau (hieu ung 'Mo' cua khuon) suot luc hien luoi
@@ -703,6 +705,7 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                              goi_y=tuple(x.get("goi_y") or ()))
             if canh:
                 kieu_mh = "mot"
+                b_mh = min(b_mh, a_mh + _us(canh["dai"] / 2.0))   # 2x: canh ngan -> o minh hoa ngan theo
                 for role, trk in (("mo", "mo"), ("glow", "glow")):
                     if role in tpl:
                         k.tracks[trk]["segments"].append(clone(k, tpl[role], a_mh, b_mh - a_mh))
@@ -760,6 +763,16 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
             if bd[j]["phu"]:
                 bd[j - 1]["e"] = bd[j]["e"]
         dang_dem = lambda u: any(d0 <= u < d1 for d0, d1 in dem_span)
+        # so dong tung cau + chieu cao phan xep lop ben duoi -> day cau dau len de CA KHOI CHU nam tren dau nguoi mau
+        for c in bd:
+            c["nd0"] = chia_dong([w["w"] for w in ws[c["tu"]:c["den"] + 1]],
+                                 c["xuong_dong"] - c["tu"] if c["xuong_dong"] > 0 else -1, 13 if c["nhan"] else 17).count("\n") + 1
+        for j, c in enumerate(bd):
+            ext, k2 = 0.0, j + 1
+            while k2 < len(bd) and bd[k2]["phu"]:
+                ext += 0.06 * (bd[k2 - 1]["nd0"] + bd[k2]["nd0"]) + 0.03
+                k2 += 1
+            c["day_len"] = ext
         tren = min(y_mat, 0.40) if y_mat > 0 else y_mat
         if kieu_mh == "luoi":
             y_goc = -0.64
@@ -822,6 +835,9 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 # do tren CapCut (khuon Dam shop Bo): o y=0.094, scale 0.64 -> mep tren o hien tai y~0.43
                 mep = 0.43 + (bc["transform"]["y"] - 0.094) + 0.68 * (bc["scale"]["y"] - 0.64)
                 yb = min(0.74, round(mep + 0.04 + 0.06 * nd_, 3))
+            if not kieu_mh and yb > 0 and not c["phu"]:
+                # khong che mat: cau dau day len, cac cau xep duoi dung lai o vi tri tren dau (y_mat)
+                yb = min(0.80 - 0.06 * (nd_ - 1), yb + c.get("day_len", 0))
             c["y"] = round(yb, 3)   # vi tri co dinh trong doan
             c["so_dong"] = txt.count("\n") + 1
             if j + 1 < len(bd) and bd[j + 1]["phu"] and not (kieu_mh == "mot" and c["y"] > 0.3):

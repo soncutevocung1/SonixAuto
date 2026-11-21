@@ -41,6 +41,8 @@ Luật cắt source thô chi tiết: `LUAT_CAT_ANH_SON.md`. Quy định key API:
 - Mỗi câu hiện ≥ 0,8 giây (đọc kịp); chữ hiện sớm hơn lời ~0,15 giây, không chậm hơn lời.
 - Chữ mở đầu: dòng ≤ 22 ký tự, không để 1 chữ rớt dòng ("LỚN?"), 2 dòng không đè nhau.
 - Có nhãn "THỨ NHẤT/HAI/BA" thì bỏ câu phụ đề trùng "thứ nhất…"; nhãn THỨ nằm trên, ý chính ngay dưới.
+- **Chữ KHÔNG được che mặt người mẫu**: đoạn không có minh họa, cả khối chữ xếp lớp phải nằm trên đầu
+  (câu đầu đẩy lên cao, các câu sau xếp xuống dừng ở đỉnh đầu). Đoạn không minh họa nên xếp tối đa 2 câu/lớp.
 - Có ô minh họa: chữ đặt SÁT mép trên ô (không quá cao, không trống phía trên mà dồn chữ xuống dưới).
 - Số 1-2-3 to bên phải chỉ hiện khi có cảnh minh họa.
 - Hiệu ứng chữ đổi nhiều kiểu (Loại xem trước, Bật lên, Trượt lên, không hiệu ứng), không dùng mãi 1 kiểu.
@@ -51,10 +53,12 @@ Luật cắt source thô chi tiết: `LUAT_CAT_ANH_SON.md`. Quy định key API:
 - **Ưu tiên cảnh THẬT** (thư mục TC01_Kich_Re, ĐẠM CÁ AMINO: vườn cà phê đẹp, người thật dùng sản phẩm).
   Hạn chế cảnh AI; **tuyệt đối không lấy cảnh AI có chai/sản phẩm** (chai AI không giống chai thật).
 - Video quảng cáo sản phẩm khác (có cảnh lộ chai khác ở bất kỳ đâu trong file) → bỏ cả file, kể cả cảnh không thấy chai.
+- **Nắp xanh / chai xanh = kích rễ TC01** → không dùng trong video đạm cá.
 - Không lộ chai sản phẩm khác: video đạm cá không được có chai kích rễ và ngược lại.
 - Cảnh nét, độ phân giải cao; bỏ cảnh mờ, cảnh có chữ in sẵn.
 - Không lặp cảnh: mỗi file video chỉ dùng 1 lần trong 1 video.
-- **Chỉ tua nhanh 1x–2x, không tua chậm.** Tắt tiếng cảnh minh họa.
+- **TẤT CẢ minh họa (kể cả 4 ô) BẮT BUỘC tốc độ 2x** — tránh TikTok quét vi phạm bản quyền. Không tua chậm.
+  Cảnh không đủ dài cho 2x thì ô minh họa ngắn lại (hiện lại mặt người mẫu), không giảm tốc. Tắt tiếng cảnh minh họa.
 - Lưới 4 ô phải có NGƯỜI THẬT trong từng ô; đoạn nói tích cực không dùng cảnh cây vàng lá/héo.
 - Minh họa khớp đúng CHỦ THỂ lời nói: nói "cây con" → cảnh cây con; "rễ" → rễ thật; "mai vàng, cà phê" → vườn mai/cà phê.
   Trong kế hoạch ghi `goi_y` (cụm mô tả cảnh cần tìm) cho từng đoạn có minh họa.
