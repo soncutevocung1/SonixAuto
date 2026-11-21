@@ -10,6 +10,8 @@ Luật cắt source thô chi tiết: `LUAT_CAT_ANH_SON.md`. Quy định key API:
   - Có ô minh họa: câu dẫn sát mép trên ô, ý chính dưới ô; nền phía sau làm mờ, ô có viền sáng.
   - Giữ nguyên hình gốc ở đoạn rót/đổ/cầm chai; minh họa cảnh thật, tua nhanh, tắt tiếng.
   - Lưới 4 ô người thật ở đoạn đối tượng dùng/cách dùng. Zoom lò xo theo ý chính. Âm thanh vừa phải, đa dạng.
+- Kế hoạch mẫu (dùng làm khuôn khi viết kế hoạch mới): `mau/C3432_kich_re_thu4.json` (kích rễ, đã duyệt),
+  `mau/C3420_dam_ca_v4.json` (đạm cá, cùng phong cách — chữ ý chính nâu sáng, THỨ NHẤT/HAI/BA + số 1-2-3).
 - Góp ý còn lại trên bản thử 4: đoạn nói về **cây con** phải minh họa bằng **cảnh cây con** (không lấy vườn sầu riêng).
 
 ## Mẫu chuẩn để tham khảo
