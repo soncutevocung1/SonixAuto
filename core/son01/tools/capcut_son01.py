@@ -516,7 +516,7 @@ NHAN_GAN = {"re_bung": ("ra_dot_la_xanh",), "mo_phong_re": ("re_bung", "ra_dot_l
             "san_pham_can_canh": ("pha_thuoc",), "buoi_sang_chieu": ("nong_dan_vuon",), "dat_kho": ("van_de_cay_yeu",)}
 
 
-def chon_canh(thu_vien, nhan, da_dung, sp=None, dung_giay=3.0, loi="", da_file=None, cho_nguoi=False, nhan_phu=()):
+def chon_canh(thu_vien, nhan, da_dung, sp=None, dung_giay=3.0, loi="", da_file=None, cho_nguoi=False, nhan_phu=(), goi_y=()):
     """Chon canh: dung nhan, khong lo chai san pham khac, net + phan giai cao, khop mo ta voi loi noi,
     KHONG dung lai canh/file da dung trong video (tranh lap canh)."""
     if not thu_vien or not nhan:
@@ -532,6 +532,8 @@ def chon_canh(thu_vien, nhan, da_dung, sp=None, dung_giay=3.0, loi="", da_file=N
     def diem(c):
         d = 3 * chat_luong(c) + (1.0 if nhan in c.get("nhan", []) else 0) + 0.5 * (sp in c.get("nhan", []))
         d += 0.3 * len(tl & _tu(c.get("mo_ta", ""))) + 0.3 * min(c["dai"], 6) / 6
+        mt = (c.get("mo_ta") or "").lower()
+        d += 4 * sum(1 for g in goi_y if g.lower() in mt)   # dung chu the loi noi (vd 'cay con' -> canh cay con)
         if la_ai(c) and not str(nhan).startswith("mo_phong"):
             d -= 3   # uu tien canh THAT (vuon, nguoi dung san pham) hon canh AI
         return d
@@ -685,7 +687,8 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 am.append((a_mh, "luoi"))
         if cho_phep and not kieu_mh:
             canh = chon_canh(thu_vien, x.get("minh_hoa"), da_dung, kh.get("sp"), 2.0 * (x["e"] - x["s"]),
-                             x.get("text", ""), da_file, nhan_phu=NHAN_GAN.get(x.get("minh_hoa"), ()))
+                             x.get("text", ""), da_file, nhan_phu=NHAN_GAN.get(x.get("minh_hoa"), ()),
+                             goi_y=tuple(x.get("goi_y") or ()))
             if canh:
                 kieu_mh = "mot"
                 for role, trk in (("mo", "mo"), ("glow", "glow")):

@@ -3,6 +3,15 @@
 File này ghi lại mọi góp ý của anh Sơn khi duyệt bản dựng. Mỗi lần làm video Sơn 01 phải đọc và làm đúng.
 Luật cắt source thô chi tiết: `LUAT_CAT_ANH_SON.md`. Quy định key API: `CLAUDE.md` ở gốc repo.
 
+## ✅ PHONG CÁCH ĐÃ DUYỆT (21/11/2026)
+- Anh Sơn duyệt bản **"SONIX SƠN 01 - KÍCH RỄ (thử 4)"** (source C3432, kế hoạch `v2/C3432/ke_hoach_tay.json`,
+  thư viện `thu_vien3/da_gan.json`): "làm rất tốt". Đây là CHUẨN cho các video sau. Điểm đặc trưng:
+  - Chữ xếp lớp theo ý (câu dẫn trắng trên, ý chính xanh lá đậm nghiêng to hơn hiện thêm bên dưới, cùng ở lại).
+  - Có ô minh họa: câu dẫn sát mép trên ô, ý chính dưới ô; nền phía sau làm mờ, ô có viền sáng.
+  - Giữ nguyên hình gốc ở đoạn rót/đổ/cầm chai; minh họa cảnh thật, tua nhanh, tắt tiếng.
+  - Lưới 4 ô người thật ở đoạn đối tượng dùng/cách dùng. Zoom lò xo theo ý chính. Âm thanh vừa phải, đa dạng.
+- Góp ý còn lại trên bản thử 4: đoạn nói về **cây con** phải minh họa bằng **cảnh cây con** (không lấy vườn sầu riêng).
+
 ## Mẫu chuẩn để tham khảo
 - Dự án mẫu do anh Sơn tự dựng: CapCut `DAMBOTC01_SONIX`, 8 timeline: "Đạm shop Bọ" (C3420), "Bọ2", "bọ 3" (C3432),
   "PBCP", "SPT", "pbcf2", "spt2", "pbcf3". Học bố cục chữ / âm / minh họa từ đây (`soi_chu_mau.json`, `tom_mau.txt`).
@@ -44,6 +53,8 @@ Luật cắt source thô chi tiết: `LUAT_CAT_ANH_SON.md`. Quy định key API:
 - Không lặp cảnh: mỗi file video chỉ dùng 1 lần trong 1 video.
 - **Chỉ tua nhanh 1x–2x, không tua chậm.** Tắt tiếng cảnh minh họa.
 - Lưới 4 ô phải có NGƯỜI THẬT trong từng ô; đoạn nói tích cực không dùng cảnh cây vàng lá/héo.
+- Minh họa khớp đúng CHỦ THỂ lời nói: nói "cây con" → cảnh cây con; "rễ" → rễ thật; "mai vàng, cà phê" → vườn mai/cà phê.
+  Trong kế hoạch ghi `goi_y` (cụm mô tả cảnh cần tìm) cho từng đoạn có minh họa.
 - Minh họa đúng lời nói (nói "suy yếu" → cây vàng lá thật; "chiều mát" → cảnh chiều…).
 - Đoạn cách pha / cách dùng: lưới 4 ô người THẬT đang dùng (2x, tắt tiếng, hiện lần lượt) — có viền sáng từng ô
   và làm mờ nền phía sau như khuôn. Ô 1 cảnh cũng có viền + nền mờ.
