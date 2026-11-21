@@ -768,7 +768,8 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 cap_ = ([(j, j + 1)] if j + 1 < len(bd) else []) + ([(j - 1, j)] if j > 0 else [])
                 for nb in cap_:
                     a_, b_ = bd[min(nb)], bd[max(nb)]
-                    if dai_({"tu": a_["tu"], "den": b_["den"]}) <= 32:
+                    gd = chia_dong([w["w"] for w in ws[a_["tu"]:b_["den"] + 1]], -1, 17).split("\n")
+                    if dai_({"tu": a_["tu"], "den": b_["den"]}) <= 32 or (len(gd) <= 2 and max(map(len, gd)) <= 19):
                         a_.update(den=b_["den"], e=b_["e"], nhan=a_["nhan"] or b_["nhan"], xuong_dong=-1)
                         bd.remove(b_)
                         gop = True
@@ -849,7 +850,7 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 yb = min(yb, 0.40)
             if c["phu"]:
                 nhan = c["nhan"] and "tu_khoa" in tpl
-                ps = clone(k, tpl["tu_khoa"] if nhan else tpl["phu_de"], cs, max(_us(0.4), ce - cs))
+                ps = clone(k, tpl["tu_khoa"] if nhan else tpl["phu_de"], cs, max(_us(0.2), ce - cs))
                 mau_sp = MAU_SP.get(kh.get("sp"), YELLOW)
                 set_text(clone_mat(k, ps), txt, color=mau_sp if c["nhan"] else None)
                 if nhan:
@@ -870,7 +871,7 @@ def build(kh, video_goc, k: Khuon, thu_vien=None):
                 continue
             # Y CHINH (nhan): cau rieng, chu vang dam nghieng to hon, cung vi tri -> nhin la biet y can nho
             nhan = c["nhan"] and "tu_khoa" in tpl
-            ps = clone(k, tpl["tu_khoa"] if nhan else tpl["phu_de"], cs, max(_us(0.4), ce - cs))
+            ps = clone(k, tpl["tu_khoa"] if nhan else tpl["phu_de"], cs, max(_us(0.2), ce - cs))
             kws = [] if nhan else [kw for kw in x.get("tu_khoa", []) if kw.lower() in txt.lower()]
             mau_sp = MAU_SP.get(kh.get("sp"), YELLOW)
             set_text(clone_mat(k, ps), txt, kws, color=mau_sp if c["nhan"] else None, kw_color=mau_sp)
