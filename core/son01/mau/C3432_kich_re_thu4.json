@@ -1,0 +1,27 @@
+{
+ "ghi_chu": "MAU DA DUYET (anh Son 21/11/2026): Kich re TC01 tu source C3432. goi_y them sau duyet: doan cay con -> canh cay con.",
+ "chu_mo_dau": ["AI NÓI GIÁ RẺ", "LÀ KHÔNG CHẤT LƯỢNG?"],
+ "doan": [
+  {"cau": 7, "tu": 0, "den": 21, "vai": "mo_dau", "zoom": "manh", "minh_hoa": null,
+   "sua": {"16": "săn", "18": "TikTokShop"}, "gop": [],
+   "phu_de": [[0, 8, 4, true, false], [9, 13, -1, false, false], [14, 21, 18, false, true]]},
+  {"cau": 8, "tu": 0, "den": 30, "vai": "giai_phap", "zoom": "nhe", "minh_hoa": null,
+   "sua": {"9": "Atonik", "21": "rễ", "22": "tơ", "23": "rễ"}, "gop": [],
+   "phu_de": [[0, 4, 3, false, false], [5, 10, 9, true, true], [11, 15, 13, true, false], [16, 19, -1, false, true], [20, 24, 23, true, true], [25, 30, 28, false, false]]},
+  {"cau": 13, "tu": 0, "den": 28, "vai": "giai_phap", "zoom": "nhe", "minh_hoa": "re_bung", "goi_y": ["cây con", "cà phê con", "cây giống"],
+   "sua": {"27": "vươn"}, "gop": [],
+   "phu_de": [[0, 6, 3, false, false], [7, 11, 10, true, true], [12, 15, -1, false, false], [16, 19, -1, true, true], [20, 28, 24, false, false]]},
+  {"cau": 13, "tu": 29, "den": 55, "vai": "giai_phap", "zoom": "nhe", "minh_hoa": "ra_dot_la_xanh", "goi_y": ["lá xanh", "đọt non", "xanh tốt"],
+   "sua": {}, "gop": [],
+   "phu_de": [[0, 6, 4, false, false], [7, 14, 11, true, true], [15, 21, 18, false, false], [22, 26, 24, true, true]]},
+  {"cau": 13, "tu": 57, "den": 74, "vai": "giai_phap", "zoom": "manh", "minh_hoa": null,
+   "sua": {"65": "vi"}, "gop": [[60, 61, "10-8-6"]],
+   "phu_de": [[0, 3, 3, true, false], [4, 8, 6, false, true], [9, 14, 11, false, false], [15, 16, -1, true, true]]},
+  {"cau": 13, "tu": 76, "den": 111, "vai": "giai_phap", "zoom": "nhe", "minh_hoa": null,
+   "sua": {"79": "với"}, "gop": [],
+   "phu_de": [[0, 4, 3, false, false], [5, 11, 8, false, true], [12, 13, -1, true, true], [14, 22, 18, false, false], [23, 29, 27, false, false], [30, 35, 33, true, true]]},
+  {"cau": 16, "tu": 0, "den": 31, "vai": "cach_dung", "zoom": "manh", "minh_hoa": "nong_dan_vuon", "goi_y": ["mai", "cà phê"],
+   "sua": {}, "gop": [[20, 21, "10-15"]],
+   "phu_de": [[0, 4, 3, false, false], [5, 9, 7, true, false], [10, 17, 14, false, false], [18, 21, 20, true, false], [22, 27, 26, false, false], [28, 30, -1, true, false]]}
+ ]
+}
