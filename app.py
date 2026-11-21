@@ -822,6 +822,23 @@ D:\\SONIX_UP_VIDEO\\
                 open_folder(str(chs.channel_dir(ROOT, n) / FOLDER_TODO))
             if not prod.load_showcase(n)["products"]:
                 r[2].caption("Chưa đồng bộ Trưng bày sản phẩm → chưa tự gắn giỏ được (tab Kênh & sản phẩm).")
+            if len(counts[n]) > 1:  # không phân tích hết: chọn số lượng hoặc chọn từng video
+                q = st.columns([1.3, 1.2, 3])
+                _mode = q[0].segmented_control("Phân tích", ["all", "n", "pick"], default="all",
+                                               key=f"anmode_{slug(n)}", label_visibility="collapsed",
+                                               format_func={"all": "Tất cả", "n": "Số lượng", "pick": "Chọn video"}.get)
+                if _mode == "n":
+                    _k = q[1].number_input("Phân tích bao nhiêu video", 1, len(counts[n]), min(10, len(counts[n])),
+                                           key=f"ann_{slug(n)}", label_visibility="collapsed",
+                                           help="Lấy các video đầu tiên theo thứ tự tên file")
+                    q[2].caption(f"Phân tích **{_k}** video đầu (theo tên file), {len(counts[n]) - _k} video còn lại "
+                                 f"để trong {FOLDER_TODO} cho lần sau.")
+                    counts[n] = counts[n][:int(_k)]
+                elif _mode == "pick":
+                    _names = [v.name for v in counts[n]]
+                    _pk = st.multiselect(f"Chọn video của «{n}» cần phân tích", _names, key=f"anpick_{slug(n)}",
+                                         placeholder="Bấm để chọn video (gõ tên file để tìm nhanh)")
+                    counts[n] = [v for v in counts[n] if v.name in set(_pk)]
         st.header("Bước 2 · Chọn AI để nhận diện sản phẩm & viết caption")
         opts = list(MODELS) + [NO_AI]
         default = default_model()

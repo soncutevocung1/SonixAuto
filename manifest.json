@@ -1,7 +1,7 @@
 {
- "version": "2.12.3",
- "built_at": "2026-11-20T09:42:52Z",
- "notes": "- Sửa lỗi **ngày đặt 6 video mà chỉ đăng 4** và **2 video trùng giờ**: bỏ / xoá video khỏi danh sách duyệt sau khi đã xếp lịch để lại chỗ trống; video \"Phân tích lại\" bị bỏ qua khi xếp giờ cho video mới nên trùng giờ. Nay bỏ / xoá video thì tool **dồn các video chờ duyệt còn lại lên lấp chỗ trống**, bấm Xác nhận cũng dồn lại (lấp chỗ trống, bỏ giờ trùng, giờ đã qua dời sang khung trống), không kéo sớm hơn ngày bác đã chọn bắt đầu. Video bác tự sửa giờ thì giữ nguyên.",
+ "version": "2.12.4",
+ "built_at": "2026-11-21T07:22:50Z",
+ "notes": "- Bước 1 (tab Đăng video): mỗi kênh có lựa chọn **Tất cả · Số lượng · Chọn video**: phân tích hết, chỉ N video đầu (theo tên file), hoặc tự chọn từng video. Video không chọn vẫn nằm trong CHƯA UP cho lần sau.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "ed94a2c404f7e87431b1dffd03359ba98b42f352366f171f36348c69d7a7bbca",
-   "size": 46767
+   "sha256": "1cc4b6382183b910f8540660b28aaf23be7b5a79edda73cfd80987abaed18234",
+   "size": 47041
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,13 +65,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "a9ffa3bcdfb1272b0523a00bc41141965facf6f975291f4112f3c52259657f74",
+   "sha256": "1af65ecb2c1d05058c141588af9e34673a7428fb998d5cfc430675b0d1b0e1dc",
    "size": 7
   },
   {
    "path": "app.py",
-   "sha256": "7bf8dab02f65433d1ceb89779b25fb8bfa0533434db1e47182074fb4e9e63603",
-   "size": 128652
+   "sha256": "c094db907fcacab7ef3c34882cf8efeffaff636a6f44d09aec6429886ed8424b",
+   "size": 130164
   },
   {
    "path": "assets/sonix.ico",

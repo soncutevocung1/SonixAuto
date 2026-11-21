@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.12.4
+- Bước 1 (tab Đăng video): mỗi kênh có lựa chọn **Tất cả · Số lượng · Chọn video**: phân tích hết, chỉ N video đầu (theo tên file), hoặc tự chọn từng video. Video không chọn vẫn nằm trong CHƯA UP cho lần sau.
+
 ## 2.12.3
 - Sửa lỗi **ngày đặt 6 video mà chỉ đăng 4** và **2 video trùng giờ**: bỏ / xoá video khỏi danh sách duyệt sau khi đã xếp lịch để lại chỗ trống; video "Phân tích lại" bị bỏ qua khi xếp giờ cho video mới nên trùng giờ. Nay bỏ / xoá video thì tool **dồn các video chờ duyệt còn lại lên lấp chỗ trống**, bấm Xác nhận cũng dồn lại (lấp chỗ trống, bỏ giờ trùng, giờ đã qua dời sang khung trống), không kéo sớm hơn ngày bác đã chọn bắt đầu. Video bác tự sửa giờ thì giữ nguyên.
 
