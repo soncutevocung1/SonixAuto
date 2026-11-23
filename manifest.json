@@ -1,7 +1,7 @@
 {
- "version": "2.12.6",
- "built_at": "2026-11-23T03:49:02Z",
- "notes": "- Ô mới **AI viết kịch bản (riêng tab Edit)** ở mục 1. Kịch bản: chọn **Claude Haiku 5.5** (như cũ, rẻ) hoặc **Claude Sonnet 5.5** (viết hay hơn, đắt hơn), hoặc *Theo Cài đặt chung* (Gemini / không AI). Dùng cho viết kịch bản, làm hàng loạt, phân tích kênh tham khảo, học phong cách. Đăng video (Up Video) vẫn theo Cài đặt chung.\n- Chọn Claude mà máy chưa có mã thì có ô dán **Claude API key** ngay bên cạnh.",
+ "version": "2.12.7",
+ "built_at": "2026-11-23T04:01:59Z",
+ "notes": "- Tab Edit: **Quét cảnh** (AI xem cảnh có người, chữ chèn, cảnh phun/rót/pha), **Tự lọc video theo sản phẩm** và nhận sản phẩm video xoay giờ cũng dùng **AI viết kịch bản (riêng tab Edit)**, ví dụ Claude Haiku, như trước đây. Không còn phụ thuộc Cài đặt chung của Up Video (đang Không dùng AI thì Edit vẫn chạy AI).",
  "files": [
   {
    "path": ".gitattributes",
@@ -70,8 +70,8 @@
   },
   {
    "path": "core/canh.py",
-   "sha256": "e25ebbe1d4b1f650014f342cc2d4c5c93b11ade499e2a823303746493776df37",
-   "size": 31739
+   "sha256": "7708683a8554729d9dc8b69f39d3aed0ceb05a90ecd3f0b3da7037ad06775dff",
+   "size": 31973
   },
   {
    "path": "core/capcut_draft.py",
@@ -190,8 +190,8 @@
   },
   {
    "path": "core/loc_sp.py",
-   "sha256": "5275f339fd12e1dc7e4ec6450bcc675ac984e9146835bd85be7b225214159708",
-   "size": 6301
+   "sha256": "dbfb06ba5004036c107482299f730f139d6c5de8c8532f99dc43836984058c18",
+   "size": 6546
   },
   {
    "path": "core/mac_dinh/Reup Aff.json",
@@ -320,8 +320,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "9e33e433c27e65109b4ba99c375cf3a3e9499e3f3ab4d89c338edf3874e94a81",
-   "size": 48237
+   "sha256": "9fc82dc847f4cc188b7aa94fe4c4f373e372c59c685a453e471554f3968db5dd",
+   "size": 48637
   },
   {
    "path": "HUONG_DAN.md",
@@ -365,7 +365,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "7cf4a046b638463cf5382f43c791b48c0d6ad15a2831d46eed7b76be6787d37e",
+   "sha256": "4a8dc70e9fd1c840a8ac8d3e9e8a4ca174b8e152ef203c9e4a33f0cbba660667",
    "size": 8
   }
  ]

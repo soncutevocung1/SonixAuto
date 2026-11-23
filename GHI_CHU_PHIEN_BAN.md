@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.12.7
+- Tab Edit: **Quét cảnh** (AI xem cảnh có người, chữ chèn, cảnh phun/rót/pha), **Tự lọc video theo sản phẩm** và nhận sản phẩm video xoay giờ cũng dùng **AI viết kịch bản (riêng tab Edit)**, ví dụ Claude Haiku, như trước đây. Không còn phụ thuộc Cài đặt chung của Up Video (đang Không dùng AI thì Edit vẫn chạy AI).
+
 ## 2.12.6 · Edit Video: chọn Claude viết kịch bản
 - Ô mới **AI viết kịch bản (riêng tab Edit)** ở mục 1. Kịch bản: chọn **Claude Haiku 5.5** (như cũ, rẻ) hoặc **Claude Sonnet 5.5** (viết hay hơn, đắt hơn), hoặc *Theo Cài đặt chung* (Gemini / không AI). Dùng cho viết kịch bản, làm hàng loạt, phân tích kênh tham khảo, học phong cách. Đăng video (Up Video) vẫn theo Cài đặt chung.
 - Chọn Claude mà máy chưa có mã thì có ô dán **Claude API key** ngay bên cạnh.

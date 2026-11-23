@@ -307,8 +307,9 @@ def gan_nhan_ai(sp_key: str, settings: dict, model: str = "", log=print) -> dict
     """Claude/Gemini xem các đoạn chưa gắn nhãn (12 đoạn / lần gọi)."""
     from core import analyze, kich_ban
     from core.config import MODELS, NO_AI
-    model = model or settings.get("ai_model") or NO_AI
-    if model == NO_AI or model not in MODELS:
+    from core.config import EDIT_CLAUDE, edit_model
+    model = model or edit_model(settings)  # AI riêng của tab Edit (Claude / Gemini)
+    if model == NO_AI or (model not in MODELS and model not in EDIT_CLAUDE):
         log("Không có AI -> chỉ dùng kết quả dò trên máy")
         return doc_index(sp_key)
     idx = doc_index(sp_key)
@@ -392,8 +393,9 @@ def soat_su_dung(sp_key: str, settings: dict, model: str = "", log=print, lai: b
     import numpy as np
     from core import analyze, kich_ban
     from core.config import MODELS, NO_AI
-    model = model or settings.get("ai_model") or NO_AI
-    if model == NO_AI or model not in MODELS:
+    from core.config import EDIT_CLAUDE, edit_model
+    model = model or edit_model(settings)  # AI riêng của tab Edit (Claude / Gemini)
+    if model == NO_AI or (model not in MODELS and model not in EDIT_CLAUDE):
         return 0
     idx = doc_index(sp_key)
     can = [(k, i) for k, v in idx.items() if Path(k).exists() for i, d in enumerate(v["doan"])

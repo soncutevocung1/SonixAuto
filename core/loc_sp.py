@@ -94,8 +94,9 @@ def nhan_dien(path: Path, settings: dict, model: str = "") -> tuple:
     top = sorted(dem.items(), key=lambda x: -x[1])
     if top and top[0][1] >= 1 and (len(top) == 1 or top[0][1] >= 2 * top[1][1]):
         return top[0][0], f"chữ trên nhãn ({top[0][1]}/{len(imgs)} khung)"
-    model = model or settings.get("ai_model") or NO_AI
-    if model != NO_AI and model in MODELS:
+    from .config import EDIT_CLAUDE, edit_model
+    model = model or edit_model(settings)  # AI riêng của tab Edit (Claude / Gemini)
+    if model != NO_AI and (model in MODELS or model in EDIT_CLAUDE):
         try:
             r = _ai(imgs, settings, model)
             if r.get("san_pham") in SAN_PHAM:
