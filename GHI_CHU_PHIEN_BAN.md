@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.12.5
+- Edit Video, **Làm hàng loạt**: nút bị mờ vì app đang ở chế độ *Không dùng AI* thì nay hiện rõ lý do và cách sửa (dán Gemini API key miễn phí ở tab Cài đặt, chọn mức AI Gemini). Thiếu lời / cảnh / khuôn cũng ghi rõ.
+
 ## 2.12.4
 - Bước 1 (tab Đăng video): mỗi kênh có lựa chọn **Tất cả · Số lượng · Chọn video**: phân tích hết, chỉ N video đầu (theo tên file), hoặc tự chọn từng video. Video không chọn vẫn nằm trong CHƯA UP cho lần sau.
 

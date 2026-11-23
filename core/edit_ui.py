@@ -621,6 +621,12 @@ def _project(S, sp, kb, n_ok):
                                       ensure_ascii=False), encoding="utf-8")
             edit_job.chay_ngam(name2, "hang_loat", sp, str(cfg), env=_env(), flags=_flags())
             st.rerun()
+        if model == NO_AI or model not in MODELS:
+            st.warning("Làm hàng loạt cần **AI viết lời mới cho từng video**, mà app đang ở chế độ *Không dùng AI*. "
+                       "Vào tab **Cài đặt** → dán **Gemini API key** (miễn phí, lấy ở aistudio.google.com) → chọn mức "
+                       "AI Gemini, rồi quay lại bấm.")
+        elif thieu:
+            st.caption("Chưa bấm được vì còn thiếu: " + ", ".join(thieu))
         _job_box(name2, "Làm hàng loạt")
 
     with st.expander("Xuất dự án có sẵn vào kênh (dự án đã sửa tay trong CapCut)"):
