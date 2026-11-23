@@ -62,8 +62,9 @@ def viet(sp_key: str, tham_khao: list, settings: dict, model: str = "", y_tuong:
     sp = SAN_PHAM[sp_key]
     if not (sp.get("thong_tin") or "").strip():
         raise ValueError(f"Chưa có thông tin sản phẩm {sp['ten']}: điền ở mục 'Thông tin sản phẩm' trước khi viết kịch bản")
-    model = model or settings.get("ai_model") or NO_AI
-    if model == NO_AI or model not in MODELS:
+    from core.config import EDIT_CLAUDE, edit_model
+    model = model or edit_model(settings)
+    if model == NO_AI or (model not in MODELS and model not in EDIT_CLAUDE):
         return mau_khong_ai(sp_key)
     mau = "\n\n".join(f"--- Kịch bản tham khảo {i + 1} ---\n{t}" for i, t in enumerate(tham_khao[:6] if tham_khao else []))
     if phong_cach and (phong_cach.get("cach_viet") or tham_khao):

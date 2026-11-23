@@ -120,8 +120,9 @@ def phan_tich(work: Path, S: dict, log=print) -> dict:
     vids = [v for v in data.values() if (v.get("loi") or "").strip()]
     if not vids:
         raise ValueError("Kênh này chưa có kịch bản nào quét được")
-    model = S.get("ai_model") or NO_AI
-    if model == NO_AI or model not in MODELS:
+    from core.config import EDIT_CLAUDE, edit_model
+    model = edit_model(S)
+    if model == NO_AI or (model not in MODELS and model not in EDIT_CLAUDE):
         raise ValueError("Chưa chọn AI trong Cài đặt")
     loi = "\n\n".join(f"--- Video {i + 1} ---\n" + (f"Mô tả đăng kèm: {v['title']}\n" if v.get("title") else "")
                       + v["loi"] for i, v in enumerate(vids[:12]))

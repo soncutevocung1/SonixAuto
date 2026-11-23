@@ -1,6 +1,10 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.12.6 · Edit Video: chọn Claude viết kịch bản
+- Ô mới **AI viết kịch bản (riêng tab Edit)** ở mục 1. Kịch bản: chọn **Claude Haiku 5.5** (như cũ, rẻ) hoặc **Claude Sonnet 5.5** (viết hay hơn, đắt hơn), hoặc *Theo Cài đặt chung* (Gemini / không AI). Dùng cho viết kịch bản, làm hàng loạt, phân tích kênh tham khảo, học phong cách. Đăng video (Up Video) vẫn theo Cài đặt chung.
+- Chọn Claude mà máy chưa có mã thì có ô dán **Claude API key** ngay bên cạnh.
+
 ## 2.12.5
 - Edit Video, **Làm hàng loạt**: nút bị mờ vì app đang ở chế độ *Không dùng AI* thì nay hiện rõ lý do và cách sửa (dán Gemini API key miễn phí ở tab Cài đặt, chọn mức AI Gemini). Thiếu lời / cảnh / khuôn cũng ghi rõ.
 

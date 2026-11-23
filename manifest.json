@@ -1,7 +1,7 @@
 {
- "version": "2.12.5",
- "built_at": "2026-11-23T03:39:42Z",
- "notes": "- Edit Video, **Làm hàng loạt**: nút bị mờ vì app đang ở chế độ *Không dùng AI* thì nay hiện rõ lý do và cách sửa (dán Gemini API key miễn phí ở tab Cài đặt, chọn mức AI Gemini). Thiếu lời / cảnh / khuôn cũng ghi rõ.",
+ "version": "2.12.6",
+ "built_at": "2026-11-23T03:49:02Z",
+ "notes": "- Ô mới **AI viết kịch bản (riêng tab Edit)** ở mục 1. Kịch bản: chọn **Claude Haiku 5.5** (như cũ, rẻ) hoặc **Claude Sonnet 5.5** (viết hay hơn, đắt hơn), hoặc *Theo Cài đặt chung* (Gemini / không AI). Dùng cho viết kịch bản, làm hàng loạt, phân tích kênh tham khảo, học phong cách. Đăng video (Up Video) vẫn theo Cài đặt chung.\n- Chọn Claude mà máy chưa có mã thì có ô dán **Claude API key** ngay bên cạnh.",
  "files": [
   {
    "path": ".gitattributes",
@@ -100,8 +100,8 @@
   },
   {
    "path": "core/config.py",
-   "sha256": "e1bbddf11963f185f9d070d9e94575e31a9a9e9947980a005eeb787ab7776afa",
-   "size": 9501
+   "sha256": "980eed078c01c40933853525679cd158462834d56fffc159931e6b5c8b32dc62",
+   "size": 10551
   },
   {
    "path": "core/covers.py",
@@ -140,8 +140,8 @@
   },
   {
    "path": "core/edit_ui.py",
-   "sha256": "a57318a97f6508d539c91d196f2472cf60eb057ef77bd75d3296f6506528fe75",
-   "size": 48423
+   "sha256": "1905f6fdab5fd9d730d196c2c77e3c0a98d759e784d8f144689a60cd9f55261b",
+   "size": 50071
   },
   {
    "path": "core/edit_video.py",
@@ -180,8 +180,8 @@
   },
   {
    "path": "core/kich_ban.py",
-   "sha256": "be3185c4d29c95320f9fd9999e0d5aa66cd326ccd48d708a9f02dda7352826d6",
-   "size": 8328
+   "sha256": "eebb8d645b4572c039ea3e68966fd3a450c532eb8a708d3b361d8a343dc57e26",
+   "size": 8513
   },
   {
    "path": "core/lich.py",
@@ -200,8 +200,8 @@
   },
   {
    "path": "core/mau.py",
-   "sha256": "dc61036a32b8ee263b41a123b44e47967c474356e167e667a0a9a6c8477e72b4",
-   "size": 6526
+   "sha256": "20730f016725e8b2defcd0ebc77ac69534dd08c6599061041022fca7bf5ebbf8",
+   "size": 6732
   },
   {
    "path": "core/nhan_dien.py",
@@ -265,8 +265,8 @@
   },
   {
    "path": "core/tham_khao.py",
-   "sha256": "ec38d00e94a0d21d54b2b69269adfb5de8a2ab97607b0ce0373a975954f537f3",
-   "size": 6919
+   "sha256": "a12407709cc2f616076728a3c0f485ffb632cc3d24b70471193716c9243473a0",
+   "size": 7136
   },
   {
    "path": "core/tiktok.py",
@@ -320,8 +320,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "1510ede3cc19cece78d935a8da4d4ee8587a1b25d5901dcf2acc473574213bb7",
-   "size": 47683
+   "sha256": "9e33e433c27e65109b4ba99c375cf3a3e9499e3f3ab4d89c338edf3874e94a81",
+   "size": 48237
   },
   {
    "path": "HUONG_DAN.md",
@@ -365,7 +365,7 @@
   },
   {
    "path": "VERSION",
-   "sha256": "927b51cf165a5c12be3de8a0116ed5e8ae74f9020e2607ccc32060b7d6b89ae3",
+   "sha256": "7cf4a046b638463cf5382f43c791b48c0d6ad15a2831d46eed7b76be6787d37e",
    "size": 8
   }
  ]

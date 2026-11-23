@@ -109,8 +109,9 @@ def hoc(S: dict, ten: str, log=print) -> dict:
 
     # AI tóm tắt phong cách (nếu có AI)
     from .config import MODELS, NO_AI
-    model = S.get("ai_model") or NO_AI
-    if model != NO_AI and model in MODELS:
+    from .config import EDIT_CLAUDE, edit_model
+    model = edit_model(S)
+    if model != NO_AI and (model in MODELS or model in EDIT_CLAUDE):
         log("AI xem mẫu và tóm tắt phong cách...")
         from . import analyze
         imgs = []

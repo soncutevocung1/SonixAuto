@@ -270,11 +270,42 @@ def _phong_cach(S) -> dict:
     return pc if pc.get("nhip") or pc.get("cach_viet") else {}
 
 
+def _chon_ai(S):
+    """AI viết kịch bản riêng cho tab Edit: Claude (như cũ) hoặc theo Cài đặt chung (Gemini / không AI)."""
+    from .config import EDIT_CLAUDE, MODELS as _M
+    chung = S.get("ai_model") or NO_AI
+    ten_chung = _M.get(chung, "Không dùng AI").split(" · ")[0]
+    opts = [""] + list(EDIT_CLAUDE)
+    cur = S.get("edit_ai_model") or ""
+    c = st.columns([2, 2])
+    m = c[0].selectbox("AI viết kịch bản (riêng tab Edit)", opts, index=opts.index(cur) if cur in opts else 0,
+                       format_func=lambda x: EDIT_CLAUDE.get(x) or f"Theo Cài đặt chung ({ten_chung})",
+                       key="ev_ai_model",
+                       help="Chỉ dùng cho viết kịch bản, làm hàng loạt, phân tích kênh tham khảo và học phong cách ở tab "
+                            "Edit Video. Đăng video (Up Video) vẫn theo Cài đặt chung.")
+    if m != cur:
+        S["edit_ai_model"] = m
+        save_settings(S)
+        st.rerun()
+    if m in EDIT_CLAUDE:
+        co = bool((S.get("anthropic_api_key") or "").strip())
+        k = c[1].text_input("Claude API key", value="", type="password", key="ev_claude_key",
+                            placeholder="đã có mã (để trống = giữ nguyên)" if co else "dán mã sk-ant-...",
+                            help="Lấy ở console.anthropic.com → API Keys. Lưu trên máy này, không chia sẻ.")
+        if k.strip():
+            S["anthropic_api_key"] = k.strip()
+            save_settings(S)
+            st.rerun()
+        if not co:
+            st.warning("Chưa có Claude API key: dán mã vào ô bên phải thì mới viết bằng Claude được.")
+
+
 def _script(S, sp):
     kb = _load_kb(sp)
     ref = edit_video.kich_ban_tham_khao()
-    model = S.get("ai_model") or NO_AI
-    co_ai = model != NO_AI and model in MODELS
+    _chon_ai(S)
+    from .config import edit_co_ai
+    co_ai = edit_co_ai(S)
 
     from . import tham_khao as _tk
     dung = edit_video.kenh_dung(S)
@@ -341,7 +372,7 @@ def _script(S, sp):
                       placeholder="vd: mua 2 tặng 1, chỉ hôm nay")
     c = st.columns([1, 1, 2])
     if c[0].button("AI viết kịch bản", type="primary", disabled=not co_ai,
-                   help=None if co_ai else "Chưa chọn AI trong Cài đặt"):
+                   help=None if co_ai else "Chưa chọn AI viết kịch bản (ô AI viết kịch bản ở trên)"):
         with st.spinner("AI đang viết..."):
             try:
                 from . import mau as mau_mod
@@ -613,18 +644,17 @@ def _project(S, sp, kb, n_ok):
         y = h[1].text_input("Ưu đãi / ý tưởng chung (không bắt buộc)", key="ev_hl_y")
         name2 = "hang_loat_" + sp
         chay2 = edit_job.dang_chay(name2)
-        model = S.get("ai_model") or NO_AI
-        if st.button(f"Làm {int(n)} video", disabled=chay2 or bool(thieu) or model == NO_AI or model not in MODELS):
+        from .config import edit_co_ai
+        if st.button(f"Làm {int(n)} video", disabled=chay2 or bool(thieu) or not edit_co_ai(S)):
             cfg = edit_job.JOB_DIR / f"{name2}.json"
             cfg.parent.mkdir(parents=True, exist_ok=True)
             cfg.write_text(json.dumps({"sp": sp, "n": int(n), "y_tuong": y, "nhac": nhac, "luoi": luoi, "kenh": kenh},
                                       ensure_ascii=False), encoding="utf-8")
             edit_job.chay_ngam(name2, "hang_loat", sp, str(cfg), env=_env(), flags=_flags())
             st.rerun()
-        if model == NO_AI or model not in MODELS:
-            st.warning("Làm hàng loạt cần **AI viết lời mới cho từng video**, mà app đang ở chế độ *Không dùng AI*. "
-                       "Vào tab **Cài đặt** → dán **Gemini API key** (miễn phí, lấy ở aistudio.google.com) → chọn mức "
-                       "AI Gemini, rồi quay lại bấm.")
+        if not edit_co_ai(S):
+            st.warning("Làm hàng loạt cần **AI viết lời mới cho từng video**. Chọn **Claude** ở ô *AI viết kịch bản* "
+                       "(mục 1. Kịch bản), hoặc dán **Gemini API key** (miễn phí) ở tab Cài đặt, rồi quay lại bấm.")
         elif thieu:
             st.caption("Chưa bấm được vì còn thiếu: " + ", ".join(thieu))
         _job_box(name2, "Làm hàng loạt")

@@ -151,6 +151,26 @@ def norm(text: str) -> str:
     return re.sub(r"\s+", " ", strip_accents(text).lower()).strip()
 
 
+# Riêng tab Edit Video: vẫn cho chọn Claude để viết kịch bản (Up Video chỉ dùng Gemini / không AI)
+EDIT_CLAUDE = {
+    "claude-haiku-5-5": "Claude Haiku 5.5 · viết kịch bản như cũ (trả phí rẻ, cần Claude API key)",
+    "claude-sonnet-5-5": "Claude Sonnet 5.5 · viết hay, sát giọng hơn (đắt hơn Haiku, cần Claude API key)",
+}
+
+
+def edit_model(settings) -> str:
+    """Mức AI dùng để viết kịch bản / phân tích content ở tab Edit Video: Claude chọn riêng (có key) hoặc theo Cài đặt."""
+    m = settings.get("edit_ai_model") or ""
+    if m in EDIT_CLAUDE and (settings.get("anthropic_api_key") or "").strip():
+        return m
+    return settings.get("ai_model") or NO_AI
+
+
+def edit_co_ai(settings) -> bool:
+    m = edit_model(settings)
+    return m in MODELS or m in EDIT_CLAUDE
+
+
 def ai_key(settings, model) -> str:
     """API key cần cho mức AI này (Gemini dùng key Google, còn lại dùng key Claude)."""
     k = settings.get("gemini_api_key") if str(model).startswith("gemini") else settings.get("anthropic_api_key")
