@@ -1,6 +1,9 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.12.9
+- Kênh & sản phẩm > *Shop của từng sản phẩm*: bảng có **ảnh nhỏ** của từng sản phẩm, cột Shop đưa lên đầu (bấm để chọn), ô chưa chọn ghi "Chưa chọn", mã rút gọn 6 số cuối.
+
 ## 2.12.8 · Chọn đúng mã sản phẩm, chọn shop
 - Bước duyệt: sản phẩm hiện thành **thẻ có ảnh** (như Trưng bày) kèm giá, tồn kho, shop, 6 số cuối mã. Bấm **Gắn mã này** để gắn / bỏ.
 - **Chọn shop**: nút *Shop A / Shop B / Cả 2 shop* cho từng video, và trong *Chọn shop / giỏ* khi làm hàng loạt. Ghi shop cho từng sản phẩm 1 lần ở tab Kênh & sản phẩm > *Shop của từng sản phẩm*.

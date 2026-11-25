@@ -1,7 +1,7 @@
 {
- "version": "2.12.8",
- "built_at": "2026-11-25T01:38:06Z",
- "notes": "- Bước duyệt: sản phẩm hiện thành **thẻ có ảnh** (như Trưng bày) kèm giá, tồn kho, shop, 6 số cuối mã. Bấm **Gắn mã này** để gắn / bỏ.\n- **Chọn shop**: nút *Shop A / Shop B / Cả 2 shop* cho từng video, và trong *Chọn shop / giỏ* khi làm hàng loạt. Ghi shop cho từng sản phẩm 1 lần ở tab Kênh & sản phẩm > *Shop của từng sản phẩm*.\n- Gắn từ 2 sản phẩm trở lên thì app nhắc: TikTok chỉ hiện 1 giỏ trên video, nên gắn 1 mã.\n- Tự phát hiện khi TikTok **tạm khoá quyền gắn sản phẩm** của kênh (Account restricted): báo đỏ ở bước duyệt và tab Kênh, kèm giờ hết khoá; lúc đăng báo lỗi rõ thay vì \"không thấy sản phẩm\".",
+ "version": "2.12.9",
+ "built_at": "2026-11-25T02:23:07Z",
+ "notes": "- Kênh & sản phẩm > *Shop của từng sản phẩm*: bảng có **ảnh nhỏ** của từng sản phẩm, cột Shop đưa lên đầu (bấm để chọn), ô chưa chọn ghi \"Chưa chọn\", mã rút gọn 6 số cuối.",
  "files": [
   {
    "path": ".gitattributes",
@@ -40,8 +40,8 @@
   },
   {
    "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "ff6619a0f76d87b814d08f96a44722a833241491547341606694f38b27b20762",
-   "size": 49097
+   "sha256": "fff20fe3aeb932d0abad3801d9568065897a3c955bcc21eaa591f6aee61eb1bd",
+   "size": 49338
   },
   {
    "path": "HUONG_DAN.md",
@@ -65,13 +65,13 @@
   },
   {
    "path": "VERSION",
-   "sha256": "e369e2297b5bf7584408234d13d82c824546e2e5d3959edff2eb12867d99d57d",
+   "sha256": "e0993157873af77e15eb2f8122ac9d814063a78d25b04d124c1974a9b8c0f471",
    "size": 7
   },
   {
    "path": "app.py",
-   "sha256": "7ff1bb7b4e87cd2f5433dfdeb6204498252e9eb058ffd970cd59ff5f2d6dd70c",
-   "size": 138648
+   "sha256": "8344c80d84b9498e31c305b3549db4f135abb8cfe6e8f8e73fef22bb126e2a92",
+   "size": 139734
   },
   {
    "path": "assets/sonix.ico",
@@ -245,8 +245,8 @@
   },
   {
    "path": "core/products.py",
-   "sha256": "d7edabdebcf60f335ec6c5bb52014f148bcbcd21ce96845019ddf2b7a5f2c2c1",
-   "size": 7784
+   "sha256": "9efc2daa3bb3641f262bd1dad6d18e222ac261a57b9578c3d8b3f8d347230b9f",
+   "size": 8488
   },
   {
    "path": "core/progress.py",

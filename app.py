@@ -1724,16 +1724,27 @@ for _ in _show(tabs[3]):
                                            ", ".join(prod.shop_names(S, n)), key=f"shn_{slug(n)}")
                     _nl = [x.strip() for x in _names.split(",") if x.strip()]
                     _tg = prod.shop_tags(n)
-                    _df = pd.DataFrame([{"Mã": p["id"], "Sản phẩm": p.get("name", "")[:70], "Giá": p.get("price", ""),
-                                         "Shop": prod.shop_of(n, p, _tg) or None} for p in sc["products"]])
-                    _ed = st.data_editor(_df, hide_index=True, width="stretch", key=f"shed_{slug(n)}",
-                                         disabled=["Mã", "Sản phẩm", "Giá"],
-                                         column_config={"Shop": st.column_config.SelectboxColumn(
-                                             "Shop", options=_nl or ["Shop 1", "Shop 2"])})
+                    if not _nl:
+                        st.info("Bác gõ tên các shop vào ô trên trước (vd: Toàn Cầu, Mai Vàng), bấm Enter, rồi chọn "
+                                "shop cho từng sản phẩm ở cột Shop.")
+                    _df = pd.DataFrame([{"Ảnh": prod.thumb_uri(n, p["id"]) or None, "Sản phẩm": p.get("name", "")[:80],
+                                         "Giá": p.get("price", ""), "Mã": "…" + str(p["id"])[-6:], "id": str(p["id"]),
+                                         "Shop": prod.shop_of(n, p, _tg) or "Chưa chọn"} for p in sc["products"]])
+                    _ed = st.data_editor(_df, hide_index=True, width="stretch", key=f"shed_{slug(n)}", row_height=64,
+                                         disabled=["Ảnh", "Sản phẩm", "Giá", "Mã"],
+                                         column_order=["Ảnh", "Shop", "Sản phẩm", "Giá", "Mã"],
+                                         column_config={
+                                             "Ảnh": st.column_config.ImageColumn("Ảnh", width=70),
+                                             "Sản phẩm": st.column_config.TextColumn("Sản phẩm", width="large"),
+                                             "Mã": st.column_config.TextColumn("Mã", width=80),
+                                             "Shop": st.column_config.SelectboxColumn(
+                                                 "Shop (bấm để chọn)", options=["Chưa chọn"] + (_nl or ["Shop 1", "Shop 2"]),
+                                                 width=180, required=True)})
                     if st.button("Lưu shop", key=f"shsv_{slug(n)}", type="primary"):
                         S.setdefault("channel_shops", {})[n] = _nl
                         save_settings(S)
-                        prod.save_shop_tags(n, {str(r["Mã"]): r["Shop"] or "" for r in _ed.to_dict("records")})
+                        prod.save_shop_tags(n, {r["id"]: "" if r["Shop"] in (None, "Chưa chọn") else r["Shop"]
+                                                  for r in _ed.to_dict("records")})
                         st.success("Đã lưu shop cho sản phẩm.")
 
             st.markdown("**Ghép sản phẩm nhận diện với sản phẩm trong Trưng bày + tên giỏ hàng mẫu**")

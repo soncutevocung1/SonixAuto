@@ -196,3 +196,27 @@ def pick_by_shop(settings, channel, item_key, shop) -> list:
             out.append(p)
             break
     return [{"id": p["id"], "name": p.get("name", "")} for p in out]
+
+
+_THUMB = {}
+
+
+def thumb_uri(channel, pid, size=96) -> str:
+    """Ảnh nhỏ của sản phẩm dạng data URI (để hiện trong bảng). '' nếu chưa có ảnh."""
+    f = image_of(channel, pid)
+    if not f:
+        return ""
+    key = (f, size)
+    if key not in _THUMB:
+        import base64
+        import io
+        try:
+            from PIL import Image
+            im = Image.open(f).convert("RGB")
+            im.thumbnail((size, size))
+            buf = io.BytesIO()
+            im.save(buf, "JPEG", quality=80)
+            _THUMB[key] = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+        except Exception:
+            _THUMB[key] = ""
+    return _THUMB[key]
