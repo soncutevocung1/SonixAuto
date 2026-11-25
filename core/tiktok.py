@@ -5,13 +5,14 @@ Các bước làm theo đúng giao diện TikTok Studio tiếng Việt:
   -> Người xem -> Khai báo -> Lên lịch -> Đăng.
 Bước nào tool không làm được: hiện thanh xanh trên trang nhờ người dùng làm tay rồi bấm TIẾP TỤC.
 """
+import json
 import random
 import re
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from .config import DEBUG_DIR, LOCK_DIR, SHOWCASE_DIR, SOUNDS_DIR, WORK_DIR, get_channel, norm, profile_dir, slug
+from .config import DATA_DIR, DEBUG_DIR, LOCK_DIR, SHOWCASE_DIR, SOUNDS_DIR, WORK_DIR, get_channel, norm, profile_dir, slug
 
 UPLOAD_URL = "https://www.tiktok.com/tiktokstudio/upload?from=webapp&lang=vi-VN"
 LOGIN_URL = "https://www.tiktok.com/login?lang=vi-VN"
@@ -575,7 +576,55 @@ def cover_score(page, cover_path) -> float:
 
 
 # =============================== Gắn sản phẩm (giỏ hàng) ===============================
-def _open_add_link(page):
+RESTRICT_FILE = DATA_DIR / "han_che_gan_sp.json"
+
+
+def restriction(channel) -> str:
+    """Kênh đang bị TikTok tạm khoá quyền gắn sản phẩm -> 'dd/mm/yyyy HH:MM' (hết hạn), '' nếu không."""
+    try:
+        end = json.loads(RESTRICT_FILE.read_text(encoding="utf-8")).get(slug(channel), 0)
+    except Exception:
+        return ""
+    from datetime import datetime as _d
+    return _d.fromtimestamp(end / 1000).strftime("%H:%M %d/%m/%Y") if end and end / 1000 > time.time() else ""
+
+
+def _save_restriction(channel, end_ms):
+    try:
+        m = json.loads(RESTRICT_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        m = {}
+    if end_ms:
+        m[slug(channel)] = int(end_ms)
+    else:
+        m.pop(slug(channel), None)
+    RESTRICT_FILE.write_text(json.dumps(m), encoding="utf-8")
+
+
+def _watch_restriction(page, channel):
+    """Nghe trả lời của TikTok khi mở danh sách sản phẩm: mã 16501003 = 'Account restricted' (bị khoá gắn sản phẩm)."""
+    if not channel or getattr(page, "_sx_rw", False):
+        return
+    page._sx_rw = True
+
+    def on_resp(r):
+        if "selection/search" not in r.url:
+            return
+        try:
+            js = json.loads(r.body().decode("utf-8", "replace"))
+            if str(js.get("code")) == "16501003":
+                pm = (js.get("data") or {}).get("popup_message") or "{}"
+                end = (json.loads(pm) if isinstance(pm, str) else pm).get("end_time") or 0
+                _save_restriction(channel, int(end) or int((time.time() + 86400) * 1000))
+            elif str(js.get("code")) == "0":
+                _save_restriction(channel, 0)
+        except Exception:
+            pass
+    page.on("response", on_resp)
+
+
+def _open_add_link(page, channel=""):
+    _watch_restriction(page, channel)
     clear_popups(page)
     label = _visible(page.get_by_text(_rx(r"^(Thêm liên kết|Add link)$")), 5)
     btn = None
@@ -690,20 +739,23 @@ def _close_product_modal(page, wait=0.5):
     return not _visible(page.get_by_text(_rx(PRODUCT_MODAL)), 0.5)
 
 
-def add_product(page, prod, cart_name, log=print):
+def add_product(page, prod, cart_name, log=print, channel=""):
     """Gắn 1 sản phẩm. Lỗi thì chụp màn hình ngay lúc đó rồi đóng hộp sản phẩm cho các bước sau chạy được."""
     try:
-        _add_product(page, prod, cart_name, log)
+        _add_product(page, prod, cart_name, log, channel)
     except Exception:
         dump_debug(page, "gan_sp_luc_loi")
         _close_product_modal(page)
         raise
 
 
-def _add_product(page, prod, cart_name, log=print):
+def _add_product(page, prod, cart_name, log=print, channel=""):
     """Gắn 1 sản phẩm theo đúng các bước TikTok Studio."""
-    _open_add_link(page)
+    _open_add_link(page, channel)
     row = _find_product(page, prod["id"], prod.get("name"))
+    if not row and channel and restriction(channel):
+        raise TikTokError(f"TikTok đang TẠM KHOÁ quyền gắn sản phẩm của kênh này đến {restriction(channel)} "
+                          "(Account restricted). Xem chi tiết ở TikTok Shop > Tài khoản > Vi phạm.")
     if not row:
         raise TikTokError(f"không thấy sản phẩm ID {prod['id']} trong Trưng bày (có thể đã bị gỡ khỏi giỏ)")
     row.scroll_into_view_if_needed()
@@ -1397,7 +1449,7 @@ def post(job, settings, log=print, lock=None):
                      f"Bác bấm 'Sửa ảnh bìa' → Tải lên → chọn file {job['cover_path']}.", critical=True)
             for pr in job.get("products") or []:
                 log(f"  - Gắn sản phẩm …{str(pr['id'])[-6:]}...")
-                step("Gắn sản phẩm", lambda pr=pr: add_product(page, pr, job.get("cart_name", ""), log),
+                step("Gắn sản phẩm", lambda pr=pr: add_product(page, pr, job.get("cart_name", ""), log, job.get("channel", "")),
                      f"Bác gắn giúp sản phẩm ID {pr['id']} ({pr.get('name', '')[:40]}), tên giỏ: "
                      f"«{job.get('cart_name', '')}».", critical=True)
             if job.get("products"):
@@ -1590,7 +1642,7 @@ def sync_showcase(settings, channel, log=print):
             upload_file(page, blank)
             wait_uploaded(page, lock=lock)
             clear_popups(page)
-            _open_add_link(page)
+            _open_add_link(page, channel)
             modal = top_modal(page)
             found, k = {}, 1
             while True:

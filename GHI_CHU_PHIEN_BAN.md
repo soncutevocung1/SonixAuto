@@ -1,6 +1,12 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.12.8 · Chọn đúng mã sản phẩm, chọn shop
+- Bước duyệt: sản phẩm hiện thành **thẻ có ảnh** (như Trưng bày) kèm giá, tồn kho, shop, 6 số cuối mã. Bấm **Gắn mã này** để gắn / bỏ.
+- **Chọn shop**: nút *Shop A / Shop B / Cả 2 shop* cho từng video, và trong *Chọn shop / giỏ* khi làm hàng loạt. Ghi shop cho từng sản phẩm 1 lần ở tab Kênh & sản phẩm > *Shop của từng sản phẩm*.
+- Gắn từ 2 sản phẩm trở lên thì app nhắc: TikTok chỉ hiện 1 giỏ trên video, nên gắn 1 mã.
+- Tự phát hiện khi TikTok **tạm khoá quyền gắn sản phẩm** của kênh (Account restricted): báo đỏ ở bước duyệt và tab Kênh, kèm giờ hết khoá; lúc đăng báo lỗi rõ thay vì "không thấy sản phẩm".
+
 ## 2.12.7
 - Tab Edit: **Quét cảnh** (AI xem cảnh có người, chữ chèn, cảnh phun/rót/pha), **Tự lọc video theo sản phẩm** và nhận sản phẩm video xoay giờ cũng dùng **AI viết kịch bản (riêng tab Edit)**, ví dụ Claude Haiku, như trước đây. Không còn phụ thuộc Cài đặt chung của Up Video (đang Không dùng AI thì Edit vẫn chạy AI).
 

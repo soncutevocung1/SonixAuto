@@ -1,7 +1,7 @@
 {
- "version": "2.12.7",
- "built_at": "2026-11-23T04:01:59Z",
- "notes": "- Tab Edit: **Quét cảnh** (AI xem cảnh có người, chữ chèn, cảnh phun/rót/pha), **Tự lọc video theo sản phẩm** và nhận sản phẩm video xoay giờ cũng dùng **AI viết kịch bản (riêng tab Edit)**, ví dụ Claude Haiku, như trước đây. Không còn phụ thuộc Cài đặt chung của Up Video (đang Không dùng AI thì Edit vẫn chạy AI).",
+ "version": "2.12.8",
+ "built_at": "2026-11-25T01:38:06Z",
+ "notes": "- Bước duyệt: sản phẩm hiện thành **thẻ có ảnh** (như Trưng bày) kèm giá, tồn kho, shop, 6 số cuối mã. Bấm **Gắn mã này** để gắn / bỏ.\n- **Chọn shop**: nút *Shop A / Shop B / Cả 2 shop* cho từng video, và trong *Chọn shop / giỏ* khi làm hàng loạt. Ghi shop cho từng sản phẩm 1 lần ở tab Kênh & sản phẩm > *Shop của từng sản phẩm*.\n- Gắn từ 2 sản phẩm trở lên thì app nhắc: TikTok chỉ hiện 1 giỏ trên video, nên gắn 1 mã.\n- Tự phát hiện khi TikTok **tạm khoá quyền gắn sản phẩm** của kênh (Account restricted): báo đỏ ở bước duyệt và tab Kênh, kèm giờ hết khoá; lúc đăng báo lỗi rõ thay vì \"không thấy sản phẩm\".",
  "files": [
   {
    "path": ".gitattributes",
@@ -39,9 +39,39 @@
    "size": 415
   },
   {
+   "path": "GHI_CHU_PHIEN_BAN.md",
+   "sha256": "ff6619a0f76d87b814d08f96a44722a833241491547341606694f38b27b20762",
+   "size": 49097
+  },
+  {
+   "path": "HUONG_DAN.md",
+   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
+   "size": 16971
+  },
+  {
+   "path": "KE_HOACH_EDIT_VIDEO.md",
+   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
+   "size": 9720
+  },
+  {
+   "path": "Sonix Auto.exe",
+   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
+   "size": 224256
+  },
+  {
+   "path": "SonixDangVideo.pyw",
+   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
+   "size": 3327
+  },
+  {
+   "path": "VERSION",
+   "sha256": "e369e2297b5bf7584408234d13d82c824546e2e5d3959edff2eb12867d99d57d",
+   "size": 7
+  },
+  {
    "path": "app.py",
-   "sha256": "c094db907fcacab7ef3c34882cf8efeffaff636a6f44d09aec6429886ed8424b",
-   "size": 130164
+   "sha256": "7ff1bb7b4e87cd2f5433dfdeb6204498252e9eb058ffd970cd59ff5f2d6dd70c",
+   "size": 138648
   },
   {
    "path": "assets/sonix.ico",
@@ -215,8 +245,8 @@
   },
   {
    "path": "core/products.py",
-   "sha256": "a5449b1e70af1e6a3ecaf61f435771ad59cb3ae3fbef68064e55f5fffd7056d1",
-   "size": 4303
+   "sha256": "d7edabdebcf60f335ec6c5bb52014f148bcbcd21ce96845019ddf2b7a5f2c2c1",
+   "size": 7784
   },
   {
    "path": "core/progress.py",
@@ -270,8 +300,8 @@
   },
   {
    "path": "core/tiktok.py",
-   "sha256": "406a54e3bbdc9df621f51191b60948aab22c37fdfc1f147d6fdde02854713c1d",
-   "size": 83462
+   "sha256": "d23c9ec0da577ba4556ffedaf5a52b1354e72116647a4ee8cad159a375f4b4a7",
+   "size": 85628
   },
   {
    "path": "core/ui.py",
@@ -319,21 +349,6 @@
    "size": 879
   },
   {
-   "path": "GHI_CHU_PHIEN_BAN.md",
-   "sha256": "9fc82dc847f4cc188b7aa94fe4c4f373e372c59c685a453e471554f3968db5dd",
-   "size": 48637
-  },
-  {
-   "path": "HUONG_DAN.md",
-   "sha256": "b39e79929c3dd1c757f9ae18058ee5f0de22f73950aeb4926a507d72815cce8a",
-   "size": 16971
-  },
-  {
-   "path": "KE_HOACH_EDIT_VIDEO.md",
-   "sha256": "9552ccf0237c34f904b18ba14bfe683a0b49207a25acecd5d25da3ce1897e8cb",
-   "size": 9720
-  },
-  {
    "path": "mo_tool_mac.sh",
    "sha256": "cca941d7dc0f9085e074de3fcedfa45b19a14debc919921b1854e0643f89f93e",
    "size": 248
@@ -349,24 +364,9 @@
    "size": 30558
   },
   {
-   "path": "Sonix Auto.exe",
-   "sha256": "56520ea759b4369b8942b12bb2a48ebccab3253c44d75664cbda4bb8c222e103",
-   "size": 224256
-  },
-  {
-   "path": "SonixDangVideo.pyw",
-   "sha256": "937410662f090102b5dee63bd46416762a77c93da0a4ba7dcfa1ab417d94df39",
-   "size": 3327
-  },
-  {
    "path": "tao_manifest.py",
    "sha256": "6dcb33c88afa4b4cf0d916e2406cba216f992dc783c3a3f31b05b598c3e01365",
    "size": 1803
-  },
-  {
-   "path": "VERSION",
-   "sha256": "4a8dc70e9fd1c840a8ac8d3e9e8a4ca174b8e152ef203c9e4a33f0cbba660667",
-   "size": 8
   }
  ]
 }

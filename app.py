@@ -1,5 +1,6 @@
 """GIAO DIỆN Sonix Auto — chạy bằng Sonix Auto.exe (hoặc 2_MO_SonixAuto.bat)"""
 import io
+from html import escape as html_escape
 import json
 import os
 import subprocess
@@ -283,6 +284,33 @@ def save_products(jid, channel):
     db.update_job(jid, **upd)
     if key:
         forget(jid, ("it",))
+
+
+@quiet_cb
+def toggle_product(jid, channel, pid):
+    """Bấm vào thẻ sản phẩm: gắn mã đó (bấm lại thì bỏ). Đổi sản phẩm của video theo giỏ."""
+    j = db.get_job(jid) or {}
+    names = {p["id"]: p.get("name", "") for p in prod.load_showcase(channel)["products"]}
+    cur = [p["id"] for p in (j.get("products") or [])]
+    cur = [x for x in cur if x != pid] if pid in cur else cur + [pid]
+    products = [{"id": i, "name": names.get(i, "")} for i in cur]
+    upd = {"products": products}
+    key = prod.item_for(S, channel, products)
+    if key:
+        upd["item_key"] = key
+    db.update_job(jid, **upd)
+    forget(jid, ("pr", "it"))
+
+
+@quiet_cb
+def pick_shop(jid, channel, item_key, shop):
+    """Gắn mã theo shop: 1 shop hoặc 'all' (mỗi shop 1 mã)."""
+    products = prod.pick_by_shop(S, channel, item_key, shop)
+    if products:
+        db.update_job(jid, products=products)
+        forget(jid, ("pr",))
+    else:
+        st.toast(f"Shop «{shop}» chưa có mã nào khớp sản phẩm này. Ghi shop cho sản phẩm ở tab Kênh & sản phẩm.")
 
 
 @quiet_cb
@@ -887,6 +915,8 @@ D:\\SONIX_UP_VIDEO\\
 
 # =============================== DUYỆT ===============================
 for _ in _show(tabs[1]):
+    from core.tiktok import restriction as _rst1
+    _tt_rest = {c["name"]: _rst1(c["name"]) for c in S.get("channels", [])}
     drafts = db.list_jobs(["draft"], "tiktok")
     if not drafts:
         st.info("Chưa có video chờ duyệt. Qua tab Đăng video để phân tích.")
@@ -1090,6 +1120,21 @@ for _ in _show(tabs[1]):
                 db.update_job(i, products=products)
                 forget(i)
 
+        def _bulk_shop(ids, shop):
+            miss = 0
+            for i in ids:
+                j = db.get_job(i)
+                if not j or not j.get("item_key"):
+                    continue
+                products = prod.pick_by_shop(S, j["channel"], j["item_key"], shop)
+                if products:
+                    db.update_job(i, products=products)
+                    forget(i)
+                else:
+                    miss += 1
+            if miss:
+                st.toast(f"{miss} video không có mã của shop đó → giữ nguyên.")
+
         with st.container(border=True, key=f"card_bulk_{slug(chname)}"):
             _ck = slug(chname)
             _sel_jobs = [j for j in jobs if j["id"] in sel_ids]
@@ -1164,7 +1209,18 @@ for _ in _show(tabs[1]):
                                  format_func=lambda x: ITEMS[x]["name"] if x else "— Không gắn giỏ (video kiến thức) —")
             r2[1].button("Gắn cho video chọn", key=f"bia_{_ck}", disabled=not sel_ids, width="stretch", type="primary",
                          on_click=_bulk_item, args=(sel_ids, bi))
-            with r2[2].popover("Giỏ trùng 2 sản phẩm", disabled=not sel_ids, width="stretch"):
+            with r2[2].popover("Chọn shop / giỏ", disabled=not sel_ids, width="stretch"):
+                _shn = prod.shop_names(S, chname)
+                if _shn:
+                    st.caption("Gắn mã của shop nào cho các video đang chọn:")
+                    for _si, _sn in enumerate(_shn):
+                        st.button(f"Chỉ shop {_sn}", key=f"bs{_si}_{_ck}", on_click=_bulk_shop, args=(sel_ids, _sn))
+                    if len(_shn) > 1:
+                        st.button("Cả 2 shop (mỗi shop 1 mã)", key=f"bsa_{_ck}", on_click=_bulk_shop,
+                                  args=(sel_ids, "all"))
+                    st.divider()
+                else:
+                    st.caption("Muốn chọn theo shop: ghi tên shop cho sản phẩm ở tab Kênh & sản phẩm.")
                 st.caption("Sản phẩm có 2 giỏ trùng nhau trong Trưng bày: chọn giỏ nào gắn cho video đang chọn.")
                 st.button("Chỉ giữ giỏ 1", key=f"k1_{_ck}", on_click=_bulk_keep, args=(sel_ids, 0))
                 st.button("Chỉ giữ giỏ 2", key=f"k2_{_ck}", on_click=_bulk_keep, args=(sel_ids, 1))
@@ -1401,11 +1457,54 @@ for _ in _show(tabs[1]):
                                  format_func=lambda x: ITEMS[x]["name"] if x in ITEMS else "— Không gắn giỏ (video kiến thức) —",
                                  on_change=save_item, args=(jid, chname))
                     if st.session_state[k("it", jid)]:
-                        opts = [p["id"] for p in show] + [i for i in st.session_state[k("pr", jid)] if i not in smap]
-                        st.multiselect("Sản phẩm sẽ gắn (2 giỏ trùng thì gắn cả 2)", opts, key=k("pr", jid),
-                                       placeholder="Chọn sản phẩm trong Trưng bày",
-                                       format_func=lambda i: prod.label(smap.get(i, {"id": i, "name": "(chưa đồng bộ)"})),
-                                       on_change=save_products, args=(jid, chname))
+                        _sel_p = [p["id"] for p in (j.get("products") or [])]
+                        _cands = prod.candidates(S, chname, st.session_state[k("it", jid)], _sel_p)
+                        st.markdown("**Sản phẩm sẽ gắn** · bấm chọn đúng mã (xem ảnh, giá, shop)")
+                        _shn = prod.shop_names(S, chname)
+                        _tags = prod.shop_tags(chname)
+                        if _shn:
+                            _sc = st.columns(len(_shn) + (1 if len(_shn) > 1 else 0))
+                            _cur_shops = {prod.shop_of(chname, i, _tags) for i in _sel_p} - {""}
+                            for _si, _sn in enumerate(_shn):
+                                _sc[_si].button(f"Shop {_sn}", key=f"psh{_si}_{jid}", width="stretch",
+                                                type="primary" if _cur_shops == {_sn} else "secondary",
+                                                on_click=pick_shop, args=(jid, chname, st.session_state[k("it", jid)], _sn))
+                            if len(_shn) > 1:
+                                _sc[-1].button("Cả 2 shop", key=f"psa_{jid}", width="stretch",
+                                               type="primary" if len(_cur_shops) > 1 else "secondary",
+                                               on_click=pick_shop, args=(jid, chname, st.session_state[k("it", jid)], "all"))
+                        _pc = st.columns(3)
+                        for _n, _p in enumerate(_cands[:6]):
+                            with _pc[_n % 3].container(border=True, key=f"pcard_{jid}_{_p['id']}"):
+                                _im = prod.image_of(chname, _p["id"]) or (_p.get("image") if str(
+                                    _p.get("image", "")).startswith("http") else "")
+                                if _im:
+                                    st.image(_im, width="stretch")
+                                st.markdown(
+                                    f"<div style='font-size:12.5px;line-height:1.3'><b>{html_escape(_p.get('name', ''))[:70]}"
+                                    f"</b><br>{html_escape(_p.get('price', ''))} · tồn {html_escape(str(_p.get('stock', '')))}"
+                                    + (f"<br>Shop: <b>{html_escape(prod.shop_of(chname, _p, _tags))}</b>"
+                                       if prod.shop_of(chname, _p, _tags) else "")
+                                    + f"<br><span style='opacity:.7'>mã …{str(_p['id'])[-6:]}</span></div>",
+                                    unsafe_allow_html=True)
+                                _on = _p["id"] in _sel_p
+                                st.button("Đang gắn ✓" if _on else "Gắn mã này", key=f"pk_{jid}_{_p['id']}",
+                                          type="primary" if _on else "secondary", width="stretch",
+                                          on_click=toggle_product, args=(jid, chname, _p["id"]))
+                        if _tt_rest.get(chname):
+                            st.error(f"TikTok đang TẠM KHOÁ quyền gắn sản phẩm của kênh này đến {_tt_rest[chname]} "
+                                     "(Account restricted) → video đăng lên sẽ KHÔNG có giỏ / nút Mua. Xem lý do ở "
+                                     "TikTok Shop > Tài khoản > Vi phạm.")
+                        if len(_sel_p) > 1:
+                            st.warning(f"Video đang gắn {len(_sel_p)} sản phẩm. TikTok chỉ hiện 1 giỏ trên video, khách phải "
+                                       "bấm vào mới thấy sản phẩm thứ 2; 2 mã của 2 shop khác nhau dễ làm khách không bấm Mua "
+                                       "được. Nên gắn 1 mã.")
+                        with st.expander("Chọn sản phẩm khác trong Trưng bày"):
+                            opts = [p["id"] for p in show] + [i for i in st.session_state[k("pr", jid)] if i not in smap]
+                            st.multiselect("Sản phẩm sẽ gắn", opts, key=k("pr", jid),
+                                           placeholder="Chọn sản phẩm trong Trưng bày",
+                                           format_func=lambda i: prod.label(smap.get(i, {"id": i, "name": "(chưa đồng bộ)"})),
+                                           on_change=save_products, args=(jid, chname))
                         cc = st.columns([3, 1])
                         cc[0].text_input("Tên giỏ hàng hiện trên video (tối đa 30 ký tự)", key=k("cart", jid),
                                          max_chars=30, on_change=save, args=(jid, "cart_name", "cart"))
@@ -1612,6 +1711,30 @@ for _ in _show(tabs[3]):
                 spawn(["--inspect", n])
             if sc["synced_at"]:
                 st.caption(f"Trưng bày đồng bộ lúc {sc['synced_at']}")
+            from core.tiktok import restriction as _rst
+            if _rst(n):
+                st.error(f"TikTok đang TẠM KHOÁ quyền gắn sản phẩm của kênh này đến **{_rst(n)}** (Account restricted). "
+                         "Video đăng trong thời gian này không gắn được giỏ / không hiện nút Mua. Bác mở TikTok Shop "
+                         "(shop.tiktok.com/streamer/account/violation) để xem lý do và kháng nghị nếu bị nhầm.")
+            if sc["products"]:
+                with st.expander("Shop của từng sản phẩm (để chọn shop lúc duyệt)"):
+                    st.caption("TikTok không cho biết sản phẩm thuộc shop nào, bác ghi 1 lần ở đây. Ví dụ: «Toàn Cầu» và "
+                               "«Mai Vàng». Đồng bộ lại Trưng bày vẫn giữ.")
+                    _names = st.text_input("Tên các shop (cách nhau dấu phẩy)",
+                                           ", ".join(prod.shop_names(S, n)), key=f"shn_{slug(n)}")
+                    _nl = [x.strip() for x in _names.split(",") if x.strip()]
+                    _tg = prod.shop_tags(n)
+                    _df = pd.DataFrame([{"Mã": p["id"], "Sản phẩm": p.get("name", "")[:70], "Giá": p.get("price", ""),
+                                         "Shop": prod.shop_of(n, p, _tg) or None} for p in sc["products"]])
+                    _ed = st.data_editor(_df, hide_index=True, width="stretch", key=f"shed_{slug(n)}",
+                                         disabled=["Mã", "Sản phẩm", "Giá"],
+                                         column_config={"Shop": st.column_config.SelectboxColumn(
+                                             "Shop", options=_nl or ["Shop 1", "Shop 2"])})
+                    if st.button("Lưu shop", key=f"shsv_{slug(n)}", type="primary"):
+                        S.setdefault("channel_shops", {})[n] = _nl
+                        save_settings(S)
+                        prod.save_shop_tags(n, {str(r["Mã"]): r["Shop"] or "" for r in _ed.to_dict("records")})
+                        st.success("Đã lưu shop cho sản phẩm.")
 
             st.markdown("**Ghép sản phẩm nhận diện với sản phẩm trong Trưng bày + tên giỏ hàng mẫu**")
             if not sc["products"]:

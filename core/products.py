@@ -113,3 +113,86 @@ def item_for(settings, channel, products) -> str:
 def label(p) -> str:
     price = f" · {p['price']}" if p.get("price") else ""
     return f"{p.get('name', '')[:55]}{price} · …{str(p['id'])[-6:]}"
+
+
+def image_of(channel, pid) -> str:
+    """Ảnh sản phẩm trưng bày đã tải về máy ('' nếu chưa có)."""
+    f = SHOWCASE_DIR / slug(channel) / f"{pid}.jpg"
+    return str(f) if f.exists() and f.stat().st_size > 500 else ""
+
+
+def candidates(settings, channel, item_key, selected=()) -> list:
+    """Các sản phẩm trưng bày có thể gắn cho 1 sản phẩm nhận diện: đang gắn + gợi ý theo từ khoá (mọi shop, mọi dung
+    tích đúng). Trả về danh sách dict sản phẩm (đủ tên, giá, tồn, shop, ảnh)."""
+    show_all = load_showcase(channel)["products"]
+    smap = {p["id"]: p for p in show_all}
+    it = next((x for x in settings.get("items", []) if x["key"] == item_key), None)
+    ids = list(selected)
+    if it:
+        ids += mapping(settings, channel).get(item_key, {}).get("ids", [])
+        ids += auto_match(it, usable(show_all, settings))
+    out, seen = [], set()
+    for i in ids:
+        if i in seen:
+            continue
+        seen.add(i)
+        out.append(smap.get(i) or {"id": i, "name": "(chưa đồng bộ Trưng bày)"})
+    return out
+
+
+def shops(channel) -> list:
+    """Tên các shop có trong Trưng bày (nếu lúc đồng bộ đọc được tên shop)."""
+    return sorted({p["shop"] for p in load_showcase(channel)["products"] if p.get("shop")})
+
+
+# ------------------------------- shop của từng sản phẩm -------------------------------
+# TikTok không trả tên shop trong danh sách Trưng bày -> bác ghi tên shop cho từng sản phẩm 1 lần (lưu riêng, đồng bộ
+# lại Trưng bày không mất).
+def _shop_file(channel):
+    return SHOWCASE_DIR / f"{slug(channel)}_shop.json"
+
+
+def shop_tags(channel) -> dict:
+    try:
+        return json.loads(_shop_file(channel).read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def save_shop_tags(channel, tags: dict):
+    SHOWCASE_DIR.mkdir(parents=True, exist_ok=True)
+    _shop_file(channel).write_text(json.dumps({k: v for k, v in tags.items() if v}, ensure_ascii=False, indent=1),
+                                   encoding="utf-8")
+
+
+def shop_of(channel, p, tags=None) -> str:
+    pid = p["id"] if isinstance(p, dict) else p
+    t = (shop_tags(channel) if tags is None else tags).get(str(pid), "")
+    return t or (p.get("shop", "") if isinstance(p, dict) else "")
+
+
+def shop_names(settings, channel) -> list:
+    """Tên các shop của kênh: bác đặt ở Kênh & sản phẩm + tên đã ghi cho sản phẩm."""
+    names = [s.strip() for s in (settings.get("channel_shops", {}).get(channel) or []) if s.strip()]
+    for v in list(shop_tags(channel).values()) + shops(channel):
+        if v and v not in names:
+            names.append(v)
+    return names
+
+
+def pick_by_shop(settings, channel, item_key, shop) -> list:
+    """Sản phẩm [{'id','name'}] gắn cho video theo shop: shop = tên 1 shop, hoặc 'all' (mỗi shop 1 mã).
+    Không có mã nào của shop đó -> []."""
+    tags = shop_tags(channel)
+    cands = [p for p in candidates(settings, channel, item_key) if p.get("name") != "(chưa đồng bộ Trưng bày)"]
+    out, seen_shop = [], set()
+    for p in cands:
+        s = shop_of(channel, p, tags)
+        if shop == "all":
+            if s and s not in seen_shop:
+                seen_shop.add(s)
+                out.append(p)
+        elif s == shop:
+            out.append(p)
+            break
+    return [{"id": p["id"], "name": p.get("name", "")} for p in out]
