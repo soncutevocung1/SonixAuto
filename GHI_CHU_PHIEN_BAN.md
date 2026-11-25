@@ -1,6 +1,10 @@
 # Ghi chú phiên bản Sonix Auto
 
 
+## 2.12.10
+- *Shop của từng sản phẩm*: chọn shop cho sản phẩm **không còn làm mờ / tải lại trang** mỗi lần bấm. Chọn hết rồi bấm **Lưu shop** 1 lần.
+- **Bước 1 · Đặt tên shop**: 3 ô tự gõ tên shop (vd Toàn Cầu, Mai Vàng), không còn "Shop 1 / Shop 2". Sản phẩm đã ghi "Shop 1 / Shop 2" tự chuyển sang tên mới; đổi tên shop thì sản phẩm đi theo.
+
 ## 2.12.9
 - Kênh & sản phẩm > *Shop của từng sản phẩm*: bảng có **ảnh nhỏ** của từng sản phẩm, cột Shop đưa lên đầu (bấm để chọn), ô chưa chọn ghi "Chưa chọn", mã rút gọn 6 số cuối.
 

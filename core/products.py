@@ -174,6 +174,8 @@ def shop_of(channel, p, tags=None) -> str:
 def shop_names(settings, channel) -> list:
     """Tên các shop của kênh: bác đặt ở Kênh & sản phẩm + tên đã ghi cho sản phẩm."""
     names = [s.strip() for s in (settings.get("channel_shops", {}).get(channel) or []) if s.strip()]
+    if names:
+        return names
     for v in list(shop_tags(channel).values()) + shops(channel):
         if v and v not in names:
             names.append(v)
